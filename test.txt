@@ -1,0 +1,69 @@
+particle_count 200000
+dist_name gpt_particles
+output_format gpt
+total_charge 1 [pC]
+particle_type e-
+start_type cathode
+rand_type  hammersley
+asci2gdf_binary asci2gdf
+
+r_dist_file cutgauss.rad.txt [mm]
+sigma_xy 2 [mm]
+#sigma_x 1 [mm]
+#sigma_y 2 [mm]
+
+#pinhole_size 1000 [um]
+#truncation_fraction 0.5 
+
+#theta_dist u 
+#min_theta 0 [rad]
+#max_theta 6.28318530718 [rad]
+#sigma_x 140 [um]
+#sigma_y 140 [um]
+
+#x_dist u
+#min_x -2 [mm]
+#max_x  2 [mm]
+
+#y_dist g
+#sigma_y 5 [mm]
+
+#r_tail 0
+#r_dip 0
+#r_ellips 0
+#sigma_xy 1000 [um]
+#x_offset 0 [mm]
+#y_offset 0 [mm]
+
+#beta_x = 1 [m]
+#alpha_x = -1
+#eps_x = 12 [nm]
+
+#r_dist_file example.txt
+
+#t_dist g
+#avg_t   0.0 [ps]
+#sigma_t 0.1 [ps]
+
+t_dist crystals
+laser_pulse_FWHM 1.8 [ps]
+crystal_length_1 15.096 [mm]
+crystal_angle_1 0.6 [deg]
+crystal_length_2 7.548 [mm]
+crystal_angle_2 1.8 [deg]
+crystal_length_3 3.774 [mm]
+crystal_angle_3 -0.9 [deg]
+crystal_length_4 1.887 [mm]
+crystal_angle_4 -0.5 [deg]
+avg_t 0 [ps]
+
+#t_tail 0
+#t_dip 0
+#t_ellips 0
+#avg_t   0.0 [ps]
+#sigma_t 0.1 [ps]
+#t_slope 0
+
+#t_dist_file example.txt
+
+MTE 140 [meV]
