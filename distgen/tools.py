@@ -6,19 +6,29 @@ from scipy.integrate import cumtrapz as scipy_cumtrapz
 # HELPER FUNCTIONS:
 def vprint(out_str,verbose,indent_number,new_line):
 
-   indent="   "
-   total_indent = ""
+    """Defines verbose printing used for output:
+    Inputs: out_str = string to be printed to screen, 
+            verbose = boolean to turn printing on/off, 
+            indent_number = how many indentations go before output_str, 
+            new_line = boolean to print on newline or not
+    """
 
-   for x in range(0,indent_number):
-      total_indent = total_indent + indent
+    indent="   "
+    total_indent = ""
 
-   if(verbose):
-      if(new_line):
-         print(total_indent+out_str,end="\n")
-      else:
-         print(total_indent+out_str,end="")
+    for x in range(0,indent_number):
+        total_indent = total_indent + indent
+
+    if(verbose):
+        if(new_line):
+            print(total_indent+out_str,end="\n")
+        else:
+            print(total_indent+out_str,end="")
 
 def is_floatable(value):
+
+    """Check if an object can be cast to a float, return true if so, false if not"""
+
     try:
         float(value)
         return True
@@ -41,6 +51,9 @@ def get_unit_str(ustr):
         raise ValueError("Could not recover units string from "+ustr)
 
 def assert_with_message(bool_val,msg):
+
+    """Assert that boolean condition bool_val is true, raise value error with msg if false"""
+    
     if(not bool_val):
         raise ValueError(msg)
 
@@ -63,13 +76,24 @@ class stopwatch():
         dt = self.tstop - self.tstart
         return "{0:.2f}".format(dt.to_compact())
 
+# Numerical integration routines
 def trapz(f,q):
+
+    """ Wraps the numpy trapz function for arrays carrying units. Numerically integrates f=f(q) using trapezoid method.
+    Inputs: quantity arrays q, f(q).
+    Returns: integral( f(q) dq) as a float with units [result] = [f][q]
+    """
 
     uqstr = str(q.units)
     ufstr = str(f.units)
     return np.trapz(f.magnitude,q.magnitude)*unit_registry.parse_expression(uqstr+"*"+ufstr)
 
 def cumtrapz(f,q,initial=None):
+    
+    """ Wraps the scipy cumtrapz function for arrays carrying units. Numerically integrates f=f(q) using trapezoid method.
+    Inputs: quantity arrays q, f(q), initial value for cumulative array
+    Returns: cumulative integral( f(q) dq) as an array with units [result] = [f][q]
+    """
 
     uqstr = str(q.units)
     ufstr = str(f.units)

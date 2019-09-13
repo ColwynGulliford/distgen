@@ -1,3 +1,7 @@
+"""
+Defines common/useful physical constants.  
+"""
+
 import math
 
 from pint import UnitRegistry

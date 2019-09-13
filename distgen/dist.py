@@ -1,3 +1,7 @@
+"""
+Defines the random number generator class as well all distribution function objects.
+"""
+
 
 #import chaospy
 # Replaced by:
@@ -17,6 +21,10 @@ from matplotlib import pyplot as plt
 
 
 class randgen():
+
+    """
+    Defines object responsible for providing random numbers
+    """
         
     def rand(self,shape,sequence=None,params=None):
     
@@ -37,6 +45,14 @@ class randgen():
 
 
 class dist1d():
+
+    """
+    Defines the base class for 1 dimensional distribution functions.  
+    Assumes user will pass in [x,f(x)] as the pdf. 
+    Numerically intergates to find the cdf and to sample the distribution.  
+    Methods should be overloaded for specific derived classes, particularly if
+    the distribution allows analytic treatment.
+    """
 
     xstr = ""
     xs = []    # x pts
@@ -62,9 +78,15 @@ class dist1d():
         return linspace(self.xs[0],self.xs[-1],n)
 
     def pdf(self,x):
+        """"
+        Evaluates the pdf at the user supplied points in x
+        """
         return interp(x,self.xs,self.Px)
  
     def cdf(self,x):
+        """"
+        Evaluates the cdf at the user supplied points in x
+        """
         return interp(x,self.xs,self.Cx)
 
     def cdfinv(self,rns):
