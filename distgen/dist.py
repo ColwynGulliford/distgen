@@ -1,0 +1,774 @@
+
+#import chaospy
+# Replaced by:
+from .hammersley import create_hammersley_samples
+from .physical_constants import *
+from .tools import *
+
+
+
+import numpy as np
+import numpy.matlib as mlib
+import scipy
+import math
+
+
+from matplotlib import pyplot as plt
+
+
+class randgen():
+        
+    def rand(self,shape,sequence=None,params=None):
+    
+        if(sequence is None):
+            return np.random.random(shape)
+
+        elif(sequence=="hammersley"):
+            N = shape[0] 
+            dim = shape[1]
+            if(params is None):
+                #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
+                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
+            else:
+                #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
+                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
+        else:
+            raise ValueError("Sequence: "+str(sequence)+" is not supported")
+
+
+class dist1d():
+
+    xstr = ""
+    xs = []    # x pts
+    Px = []    # Probability Distribution Function Px(x)
+    Cx = []    # Cumulative Disrtirbution Functoin Cx(x)
+    
+    rgen = randgen()
+
+    def __init__(self,xs,Px,xstr="x"):
+
+        self.xs = xs
+        self.Px = Px
+        self.xstr = xstr
+
+        norm = trapz(self.Px,self.xs)
+        if(norm<=0):
+            raise ValueError("Normalization of PDF was <= 0")
+
+        self.Px = self.Px/norm
+        self.Cx = cumtrapz(self.Px,self.xs,initial=0)
+        
+    def get_x_pts(self,n):
+        return linspace(self.xs[0],self.xs[-1],n)
+
+    def pdf(self,x):
+        return interp(x,self.xs,self.Px)
+ 
+    def cdf(self,x):
+        return interp(x,self.xs,self.Cx)
+
+    def cdfinv(self,rns):
+        return interp(rns,self.Cx,self.xs)
+
+    def sample(self,N,sequence=None,params=None):
+        return self.cdfinv(self.rgen.rand((N,1),sequence,params)*unit_registry("dimensionless"))
+
+    def plot_pdf(self,n=1000):
+        x=self.get_x_pts(n)
+        plt.figure()
+        plt.plot(x,self.pdf(x))
+        plt.xlabel(self.xstr)
+        plt.ylabel("PDF("+self.xstr+")")
+
+    def plot_cdf(self,n=1000):
+        x=self.get_x_pts(n)
+        plt.figure()
+        plt.plot(x,self.cdf(x))
+        plt.xlabel(self.xstr)
+        plt.ylabel("CDF("+self.xstr+")")
+
+    def avg(self):
+        return trapz(self.xs*self.Px,self.xs)
+        
+  
+    def rms(self):
+        return np.sqrt(trapz(self.xs*self.xs*self.Px,self.xs))
+
+    def std(self):
+        avg = self.avg()
+        rms = self.rms()
+        return np.sqrt(rms*rms - avg*avg)
+
+    def test_sampling(self):
+
+        xs=self.sample(100000,sequence="hammersley")
+        x = self.get_x_pts(1000)
+        pdf = self.pdf(x)
+
+        rho,edges = np.histogram(xs,bins=100)
+        xhist = (edges[1:] + edges[:-1]) / 2
+        rho = rho/np.trapz(rho,xhist)
+
+        avgx = xs.mean()
+        avgx_str = "{:0.3f~P}".format(avgx)
+        stdx = xs.std()
+        stdx_str = "{:0.3f~P}".format(stdx)
+
+        davgx = self.avg()
+        dstdx = self.std()
+        davgx_str = "{:0.3f~P}".format(davgx)
+        dstdx_str = "{:0.3f~P}".format(dstdx)       
+
+        plt.figure()
+        plt.plot(x, pdf, xhist, rho, 'or')
+        
+        if(isinstance(x,unit_registry.Quantity)):
+            plt.xlabel(self.xstr+" ({:~P}".format(x.units)+")")
+        else:
+            plt.xlabel(self.xstr)
+  
+        if(isinstance(x,unit_registry.Quantity)):
+            plt.ylabel("PDF("+self.xstr+") ({:~P}".format(pdf.units)+")")
+        else:
+            plt.ylabel("PDF("+self.xstr+")")
+        plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
+        plt.legend(["PDF","Hist. of Sampling"])
+        
+class uniform(dist1d):
+
+    xL = -1
+    xH = +1 
+
+    def __init__(self,xL,xR,xstr="x"):
+
+        self.xL = xL
+        self.xR = xR
+        self.xstr = xstr
+
+        if(xL>=xR):
+            raise ValueError("Uniform dist must have xL < xR")
+
+    def get_x_pts(self,n):
+        f = 0.2
+        dx = f*np.abs(self.avg())
+        return np.linspace(self.xL-dx,self.xR+dx,n)
+
+    def pdf(self,x):
+        nonzero = (x >= self.xL) & (x <= self.xR)
+        res = np.zeros(len(x))
+        res[nonzero]=1/(self.xR-self.xL)
+        return res
+
+    def cdf(self,x):
+        nonzero = (x >= self.xL) & (x <= self.xR)
+        res = np.zeros(len(x))
+        res[nonzero]=(x[nonzero]-self.xL)/(self.xR-self.xL)
+        return res
+
+    def cdfinv(self,rns):
+        return (self.xR-self.xL)*rns + self.xL
+
+    def avg(self):
+        return 0.5*(self.xR+self.xL)
+
+    def std(self):
+        return (self.xR-self.xL)/np.sqrt(12) 
+  
+    def rms(self):
+        avg=self.avg()
+        std=self.std()
+        return np.sqrt(std*std + avg*avg)
+
+class norm(dist1d):
+
+    mu = 0
+    sigma = 0 
+
+    def __init__(self,mu,sigma,xstr="x"):
+
+        self.mu = mu
+        self.sigma = np.abs(sigma)
+        self.xstr=xstr
+
+    def get_x_pts(self,n):
+        return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
+
+    def pdf(self,x):        
+        return (1/np.sqrt(2*math.pi*self.sigma*self.sigma))*np.exp( -(x-self.mu)**2/2.0/self.sigma**2 ) 
+
+    def cdf(self,x):
+        return 0.5*(1+scipy.special.erf( (x-self.mu)/self.sigma/math.sqrt(2) ) )
+
+    def cdfinv(self,rns):
+        return self.mu + math.sqrt(2)*self.sigma*scipy.special.erfinv((2*rns-1))
+
+    def avg(self):
+        return self.mu
+    
+    def std(self):
+        return self.sigma
+
+    def rms(self):
+        avg=self.avg()
+        std=self.std()
+        return np.sqrt(std*std + avg*avg)
+
+class file1d(dist1d):
+
+    distfile = None
+    
+    def __init__(self,distfile,unit="dimensionless",xstr="x"):
+
+        self.distfile = distfile
+        f = open(distfile,'r')
+        headers = f.readline().split()
+        f.close()
+
+        if(len(headers)!=2):
+            raise ValueError("file1D distribution file must have two columns")
+        data = np.loadtxt(distfile,skiprows=1)
+
+        xs = data[:,0]*unit_registry(unit)
+        Px = data[:,1]*unit_registry.parse_expression("1/"+unit)
+
+        super().__init__(xs,Px,xstr)
+
+class temporal_laser_pulse_stacking(dist1d):
+
+    xstr="t" 
+    ts = []
+    Pt = []
+
+    def __init__(self,lengths, angles, dv=1.05319*unit_registry("ps/mm"), wc=3622.40686*unit_registry("THz"), pulse_FWHM=1.8*unit_registry("ps"),verbose=0):
+
+        self.verbose=verbose
+
+        self.dV = dv;
+        self.w0 = wc;
+        self.laser_pulse_FWHM = pulse_FWHM;
+
+        self.crystals = []
+        self.total_crystal_length=0     
+     
+        self.set_crystals(lengths,angles);
+        self.propagate_pulses();
+
+        self.ts = self.get_t_pts(10000)
+        self.set_pdf()
+        self.set_cdf()
+
+    def set_crystals(self,lengths,angles):
+    
+        assert_with_message(len(lengths)==len(angles), "Number of crystal lengths must be the same as the number of angles.")
+
+        self.lengths=lengths
+        self.angles=angles
+        self.angle_offsets=np.zeros(len(angles))
+
+        for ii in range(len(lengths)):
+            assert_with_message(lengths[ii]>0,"Crystal length must be > 0.")              
+            if(ii % 2 ==0):
+                angle_offset= -45*unit_registry("deg")
+            else:
+                angle_offset=   0*unit_registry("deg")
+                 
+            vprint("crystal "+str(ii+1)+ " length = {:0.3f~P}".format(self.lengths[ii]),self.verbose>0,2,False)
+            vprint(", angle = {:0.3f~P}".format(self.angles[ii]),self.verbose>0,0,True)
+
+            self.crystals.append({"length":lengths[ii],"angle":angles[ii],"angle_offset":angle_offset})    
+
+    def propagate_pulses(self):
+
+        self.total_crystal_length = 0;
+        self.pulses=[]
+
+        initial_pulse={"intensity":1,"polarization_angle":0*unit_registry("rad"),"relative_delay":0}
+        self.pulses.append(initial_pulse)
+
+        for ii in range(len(self.crystals)): 
+            vprint("applying crystal: "+str(ii+1),self.verbose>1,3,True);
+            self.apply_crystal(self.crystals[ii]);
+
+        #[t_min t_max] is the default range over which to sample rho(u)
+        self.t_max = 0.5*self.total_crystal_length*self.dV + 5.0*self.laser_pulse_FWHM;  
+        self.t_min = -self.t_max;
+
+        vprint("Pulses propagated: min t = {:0.3f~P}".format(self.t_min) + ", max t = {:0.3f~P}".format(self.t_max),self.verbose>0,2,True) 
+
+    def apply_crystal(self,next_crystal):
+        #FUNCTION TO GENERATE TWO PULSES WHEN PASSING THROUGH CRYSTAL:
+
+        #add to total crystal length
+        self.total_crystal_length += next_crystal["length"];
+        
+        theta_fast = next_crystal["angle"]-next_crystal["angle_offset"];  
+        theta_slow = theta_fast + 0.5*pi;
+
+        new_pulses = []
+
+        for initial_pulse in self.pulses:
+
+            #the sign convention is chosen so that (-) time represents the head of the electron bunch,
+            #and (+) time represents the tail
+
+            #create new pulses:
+            pulse_fast={}
+            pulse_slow={}
+
+            pulse_fast["intensity"] = initial_pulse["intensity"]*np.cos(initial_pulse["polarization_angle"] - theta_fast);
+            pulse_fast["polarization_angle"] = theta_fast;
+            pulse_fast["relative_delay"] = initial_pulse["relative_delay"] - self.dV*next_crystal["length"]*0.5;
+
+            pulse_slow["intensity"] = initial_pulse["intensity"]*np.cos(initial_pulse["polarization_angle"] - theta_slow);
+            pulse_slow["polarization_angle"] = theta_slow;
+            pulse_slow["relative_delay"] = initial_pulse["relative_delay"] + self.dV*next_crystal["length"]*0.5;
+
+            new_pulses.append(pulse_fast);
+            new_pulses.append(pulse_slow);
+
+        self.pulses=new_pulses
+
+    def evaluate_sech_fields(self, axis_angle, pulse, t, field):
+
+        #Evaluates the real and imaginary parts of one component of the E-field:
+        normalization = pulse["intensity"]*np.cos(pulse["polarization_angle"] - axis_angle);
+        w = 2*np.arccosh(np.sqrt(2))/self.laser_pulse_FWHM;
+
+        field[0] = field[0] + normalization*np.cos(self.w0*(t-pulse["relative_delay"])) / np.cosh(w*(t-pulse["relative_delay"]))
+        field[1] = field[1] + normalization*np.sin(self.w0*(t-pulse["relative_delay"])) / np.cosh(w*(t-pulse["relative_delay"]))
+
+    def get_t_pts(self,n):
+        return linspace(self.t_min,self.t_max.to(self.t_min),n)
+  
+    def get_x_pts(self,n):
+        return self.get_t_pts(n)
+
+    def set_pdf(self):
+
+        ex=np.zeros((2,len(self.ts)))*unit_registry("")
+        ey=np.zeros((2,len(self.ts)))*unit_registry("")
+
+        for pulse in self.pulses: 
+            self.evaluate_sech_fields(0.5*pi,pulse,self.ts,ex);
+            self.evaluate_sech_fields(0.0,   pulse,self.ts,ey);
+
+        self.Pt = ( (ex[0,:]**2 + ex[1,:]**2) + (ey[0,:]**2 + ey[1,:]**2) ).magnitude * unit_registry("THz")
+        self.Pt = self.Pt/trapz(self.Pt,self.ts)
+
+    def set_cdf(self):
+        self.Ct = cumtrapz(self.Pt,self.ts,initial=0)
+
+    def pdf(self,t):
+        return interp(t,self.ts,self.Pt)
+
+    def cdfinv(self,rns):
+       return interp(rns*unit_registry(""),self.Ct,self.ts)
+
+    def avg(self):
+        return trapz(self.ts*self.Pt,self.ts)
+
+    def std(self):
+        return np.sqrt(trapz(self.ts*self.ts*self.Pt,self.ts))
+
+class distrad():
+
+    rgen = randgen()
+
+    rs = []    # r pts [0,inf]
+    Pr = []    # Probability Distribution Function Pr(r)
+    Cr = []    # Cumulative Disrtirbution Functoin Cr(r) = int(r Pr dr), has length(Pr) + 1
+
+    def __init__(self,rs,Pr):
+
+        self.rs = rs
+        self.Pr = Pr
+
+        norm = radint(self.Pr,self.rs)
+        if(norm<=0):
+            raise ValueError("Normalization of PDF was <= 0")
+       
+        self.Pr = self.Pr/norm
+        self.Cr,self.rb = radcumint(self.Pr,self.rs)
+        
+    def get_r_pts(self,n):
+        return linspace(self.rs[0],self.rs[-1],n)
+
+    def pdf(self,r):
+        return interp(r,self.rs,self.rs*self.Pr)
+
+    def cdf(self,r):
+        return interp(r**2,self.rs**2,self.Cr)
+
+    def cdfinv(self,rns):
+
+        rns=np.squeeze(rns)
+        indsL = np.searchsorted(self.Cr,rns)-1
+        indsH = indsL+1
+
+        c1 = self.Cr[indsL]
+        c2 = self.Cr[indsH]
+
+        r1 = self.rb[indsL]
+        r2 = self.rb[indsH]
+
+        same_rs = ( (r1.magnitude)==(r2.magnitude))
+        diff_rs = np.logical_not(same_rs)        
+
+        r = np.zeros(rns.shape)*unit_registry(str(self.rs.units))  
+
+        r[same_rs]=r1[same_rs]
+        r[diff_rs] = np.sqrt( ( r2[diff_rs]*r2[diff_rs]*(rns[diff_rs]-c1[diff_rs]) + r1[diff_rs]*r1[diff_rs]*(c2[diff_rs]-rns[diff_rs]))/(c2[diff_rs]-c1[diff_rs]) )
+
+        return r
+    
+    def sample(self,N,sequence=None,params=None):
+        return self.cdfinv(self.rgen.rand( (N,1),sequence,params)*unit_registry("dimensionless"))
+
+    def plot_pdf(self,n=1000):
+        r=self.get_r_pts(n)
+        plt.figure()
+        plt.plot(r,self.pdf(r))
+        plt.xlabel("r")
+        plt.ylabel("PDF(r)")
+
+    def plot_cdf(self,n=1000):
+        r=self.get_r_pts(n)
+        plt.figure()
+        plt.plot(r,self.cdf(r))
+        plt.xlabel("r")
+        plt.ylabel("CDF(r)")
+
+    def avg(self):
+        return np.sum( ((self.rb[1:]**3 - self.rb[:-1]**3)/3.0)*self.Pr ) 
+
+    def rms(self):
+        return np.sqrt( np.sum( ((self.rb[1:]**4 - self.rb[:-1]**4)/4.0)*self.Pr ) )
+
+    def std(self):
+        avg=self.avg()
+        rms=self.rms()
+        return np.sqrt(rms*rms-avg*avg)
+
+    def test_sampling(self):
+     
+        rs=self.sample(100000,sequence="hammersley")    
+        r = self.get_r_pts(1000)
+        pdf = self.pdf(r)
+
+        rho,edges = np.histogram(rs,bins=100)
+        rhist = (edges[1:] + edges[:-1]) / 2
+        rho = rho/np.trapz(rho,rhist)
+
+        avgr = rs.mean()
+        avgr_str = "{:0.3f~P}".format(avgr)
+        stdr = rs.std()
+        stdr_str = "{:0.3f~P}".format(stdr)
+        
+        davgr = self.avg()
+        dstdr = self.std()
+
+        davgr_str = "{:0.3f~P}".format(davgr)
+        dstdr_str = "{:0.3f~P}".format(dstdr)  
+
+        plt.figure()
+        plt.plot(r, pdf/r, rhist, rho/rhist, 'or')
+        plt.xlabel("r")
+        plt.ylabel("PDF(r)/r")
+        plt.title("Sample stats: <r> = "+avgr_str+", $\sigma_r$ = "+stdr_str+"\nDist. stats: <r> = "+davgr_str+", $\sigma_r$ = "+dstdr_str)
+        plt.legend(["PDF/r","Hist. of Sampling/r"])
+  
+        plt.show()
+
+        
+class uniformrad(distrad):
+ 
+    rL=0
+    rR=0
+
+    def __init__(self,rL,rR):
+
+        self.rL = rL
+        self.rR = rR
+
+        if(rL>=rR):
+            raise ValueError("Radial uniform dist must have rL < rR")
+        if(rR<0):
+            raise ValueError("Radial uniform dist must have rR >= 0")
+
+    def get_r_pts(self,n):
+        f = 0.2
+        dr = f*np.abs(self.avg())
+        return np.linspace(self.rL-dr,self.rR+dr,n)
+
+    def avg(self):
+        return (2.0/3.0)*(self.rR**3 - self.rL**3)/(self.rR**2-self.rL**2)
+
+    def rms(self):
+        return np.sqrt( (self.rR**2 + self.rL**2)/2.0 )
+
+    def pdf(self,r):
+        nonzero = (r >= self.rL) & (r <= self.rR)
+        res = np.zeros(len(r))
+        res[nonzero]=r[nonzero]*2.0/(self.rR**2-self.rL**2)
+        return res
+
+    def cdfinv(self,rns):
+        return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
+
+class normrad(distrad):
+
+    sigma = 0 
+
+    def __init__(self,sigxy):
+
+        self.sigma = np.abs(sigxy)
+
+    def pdf(self,r):
+        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma )*r 
+
+    def cdf(self,r):
+        return 1 - np.exp(-r*r/2.0/self.sigma/self.sigma)
+
+    def get_r_pts(self,n=1000):
+        return np.linspace(0,+5*self.sigma.magnitude,n)*unit_registry(str(self.sigma.units))
+        
+    def avg(self):
+        return math.sqrt(math.pi/2)*self.sigma
+
+    def rms(self):
+        return np.sqrt(2)*self.sigma
+
+    def cdfinv(self,rns):
+        return self.sigma*np.sqrt(-2*np.log(1-rns))
+
+class normrad_trunc(distrad):
+
+    f = 0
+    R = 0
+    sigma_inf = 0
+    
+    def __init__(self,radius,fraction):
+    
+        if(radius<=0):
+            raise ValueError("For truncated gaussian, radius has to be > 0")
+        if(fraction > 1 or fraction < 0):
+            raise ValueErorr("For truncated gaussian, fraction must satisfy: f > 0 and f < 1")
+
+        self.f = fraction
+        self.R = radius
+        self.sigma_inf = radius/np.sqrt(2)/np.sqrt(np.log(1/fraction))
+
+    def pdf(self,r):
+        res = np.zeros(len(r))
+        nonzero = r<=self.R 
+        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)*r[nonzero]
+        return res
+
+    def cdf(self,r):
+        return (1-np.exp(-r*r/2/self.sigma_inf**2))/(1-self.f)
+
+    def cdfinv(self,rns):
+        return np.sqrt( 2*self.sigma_inf**2 * ( np.log(1/(rns*(self.f-1)+1)) )) 
+
+    def get_r_pts(self,n=1000):
+        return np.linspace(0,1.2*self.R.magnitude,n)*unit_registry(str(self.R.units))
+
+    def avg(self):
+        return (self.sigma_inf*math.sqrt(math.pi/2)*scipy.special.erf(self.R/np.sqrt(2)/self.sigma_inf)-self.R*self.f)/(1-self.f)
+
+    def rms(self):
+        return np.sqrt( 2*self.sigma_inf**2 - self.R**2 * self.f/(1-self.f) )
+
+class radfile(distrad):
+
+    def __init__(self,distfile,units="m"):
+
+        self.distfile = distfile
+        f = open(distfile,'r')
+        headers = f.readline().split()
+        f.close()
+
+        if(len(headers)!=2):
+            raise ValueError("radial distribution file must have two columns")
+        data = np.loadtxt(distfile,skiprows=1)
+
+        rs = data[:,0]*unit_registry(units)
+        Pr = data[:,1]*unit_registry.parse_expression("1/"+units+"/"+units)
+      
+        if(np.count_nonzero(rs < 0 )):
+            raise ValueError("Radial distribution r-values must be >= 0.")
+       
+        super().__init__(rs,Pr)
+
+class dist2d():
+
+    xstr = ""
+    ystr = ""
+    xs = []    # x pts
+    ys = []
+    Pxy = []    # Probability Distribution Function P(x,y)
+    
+    rgen = randgen()
+
+    def __init__(self,xs,ys,Pxy,xstr="x",ystr="y"):
+
+        self.xs=xs
+        self.ys=ys
+        self.Pxy = Pxy
+        self.xstr=xstr
+        self.ystr=ystr
+    
+        self.xb = np.zeros(len(self.xs.magnitude)+1)*unit_registry(str(self.xs.units))
+        self.xb[1:-1] = (self.xs[1:]+self.xs[:-1])/2.0
+
+        dxL = self.xb[+1]-self.xs[+0]
+        dxR = self.xs[-1]-self.xb[-2]
+
+        self.xb[+0] = self.xs[+0]-dxL
+        self.xb[-1] = self.xs[-1]+dxR
+        
+        self.yb = np.zeros(len(ys)+1)*unit_registry(str(self.ys.units))
+        self.yb[1:-1] = (self.ys[1:]+self.ys[:-1])/2.0
+
+        dyL = self.yb[+1]-self.ys[+0]
+        dyR = self.ys[-1]-self.yb[-2]
+
+        self.yb[+0] = self.ys[+0]-dyL
+        self.yb[-1] = self.ys[-1]+dyR
+
+        # Integrate out y to get rho(x) = int(rho(x,y)dy)
+        self.dx = self.xb[1:]-self.xb[:-1] 
+        self.dy = self.yb[1:]-self.yb[:-1] 
+
+        self.Px = np.matmul(np.transpose(Pxy.magnitude),self.dy.magnitude)*unit_registry("1/"+str(self.ys.units))
+        self.Px = self.Px/np.sum(self.Px*self.dx)
+        
+        self.Cx = np.zeros(len(self.xb))*unit_registry("dimensionless")
+        self.Cx[1:] = np.cumsum(self.Px*self.dx)
+
+        # Get cumulative distributions along y as a function of x:
+        self.Cys=np.zeros((len(self.yb),len(self.xs)))
+
+        norms = np.sum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))), axis=0)
+
+        self.Cys[1:,:] = np.cumsum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))),axis=0)/norms
+        self.Cys=self.Cys*unit_registry("dimensionless")
+
+    def pdf(self,x,y):
+        x=0
+   
+    def plot_pdf(self):
+        plt.figure()
+        extent = [(self.xs.min()).magnitude,(self.xs.max()).magnitude,(self.ys.min()).magnitude,(self.ys.max()).magnitude]
+        plt.imshow(self.Pxy,extent=extent)
+        plt.xlabel(self.xstr+" ("+str(self.xs.units)+")")
+        plt.ylabel(self.ystr+" ("+str(self.ys.units)+")")
+      
+    def pdfx(self,x):
+        return interp(x,self.xs,self.Px)
+
+    def plot_pdfx(self):
+        plt.figure()
+        plt.plot(self.xs,self.Px)
+
+    def cdfx(self,x):
+        return interp(x,self.xb,self.Cx)
+
+    def plot_cdfx(self):
+        plt.figure()
+        plt.plot(self.xb,self.Cx)    
+
+    def cdfxinv(self,ps):
+        return interp(ps,self.Cx,self.xb)
+
+    def plot_cdfys(self):
+        plt.figure()
+        for ii in range(len(self.xs)):
+            plt.plot(self.yb,self.Cys[:,ii])    
+
+    def sample(self,N,sequence=None,params=None):
+        rns = self.rgen.rand((N,2),sequence,params)*unit_registry("dimensionless")
+        x,y = self.cdfinv(rns)       
+        return (x,y)
+
+    def cdfinv(self,rns):
+
+        x = self.cdfxinv(rns[0,:])
+        indx = np.searchsorted(self.xb,x)-1
+        
+        y = np.zeros(x.shape)*unit_registry(str(x.units))
+        for ii in range(self.Cys.shape[1]):
+            in_column = (ii==indx)
+            if(np.count_nonzero(in_column)>0):
+                y[in_column] = interp(rns[1,in_column],self.Cys[:,ii],self.yb)
+
+        return (x,y)
+
+    def test_sampling(self):
+        x,y = self.sample(100000,sequence="hammersley")
+        #plt.plot(x,y,'*')
+        #plt.figure()
+        #xhist,xedges=np.histogram(x,bins=100)
+        #xhistx = (xedges[1:]+xedges[:-1])/2.0
+        #plt.plot(xhistx,xhist)
+ 
+        plt.figure()
+        plt.plot(x,y,'*')
+
+class file2d(dist2d):
+
+    def __init__(self, filename):
+
+        xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
+        super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
+
+def main():
+
+    #udist = uniform(-2*unit_registry("m"),1*unit_registry("m"))
+    #udist.test_sampling()
+
+    #ndist = norm(-2*unit_registry("mm"),3*unit_registry("mm"))
+    #ndist.test_sampling()
+
+    #urad = uniformrad(1*unit_registry("mm"),2*unit_registry("mm"))
+    #urad.test_sampling()
+
+    #nrad = normrad(3*unit_registry("mm"))
+    #nrad.test_sampling()
+
+    #tnrad = normrad_trunc(1*unit_registry("mm"),0.5*unit_registry("dimensionless"))
+    #tnrad.test_sampling()
+
+    #lengths = 1.887*np.array([8,4,2,1])*unit_registry("mm")
+    #angles = [0.6,1.8,-0.9,-0.5]*unit_registry("deg")
+
+    #cdist = temporal_laser_pulse_stacking(lengths,angles,verbose=1)
+    #cdist.test_sampling()
+
+    #fdist = file1d("cutgauss.1d.txt",xstr="x")
+    #fdist.test_sampling()
+   
+    #rfile = radfile("cutgauss.rad.txt",units="mm")
+    #rfile.test_sampling()
+
+    #f2d = file2d('checker.test.dist.txt')
+    f2d = file2d('laser.prof.example.txt')
+    #f2d.plot_cdfys()
+    #f2d.plot_pdfx()
+    #f2d.plot_cdfx()
+    f2d.test_sampling()
+    #f2d.plot_pdf()
+    #x,y=f2d.sample(100000,sequence="hammersley")
+    #plt.plot(x,y,'*')
+
+    plt.show()
+
+# ---------------------------------------------------------------------------- 
+#   This allows the main function to be at the beginning of the file
+# ---------------------------------------------------------------------------- 
+if __name__ == '__main__':
+    main()
+
+
+
+
