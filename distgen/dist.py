@@ -27,6 +27,13 @@ class randgen():
     """
         
     def rand(self,shape,sequence=None,params=None):
+        """
+        Method for obtaining random numbers on the unit interval
+        Inputs: shape is a tuple describing the shape of the output array of random numbers
+                sequence is a str describing what type of random sequence to draw from, 
+                defaults to rand(), or user can request Hammersley
+                params is a dict for supply extra params (sequence parameters)
+        """
     
         if(sequence is None):
             return np.random.random(shape)
@@ -90,9 +97,15 @@ class dist1d():
         return interp(x,self.xs,self.Cx)
 
     def cdfinv(self,rns):
+        """
+        Evaluates the inverse of the cdf at probabilities rns
+        """
         return interp(rns,self.Cx,self.xs)
 
     def sample(self,N,sequence=None,params=None):
+        """
+        Generate coordinates by sampling the underlying pdf
+        """
         return self.cdfinv(self.rgen.rand((N,1),sequence,params)*unit_registry("dimensionless"))
 
     def plot_pdf(self,n=1000):
@@ -110,13 +123,21 @@ class dist1d():
         plt.ylabel("CDF("+self.xstr+")")
 
     def avg(self):
+        """
+        Defines the 1st moment of the pdf, defaults to using trapz integration
+        """
         return trapz(self.xs*self.Px,self.xs)
-        
   
     def rms(self):
+        """
+        Defines the rms of the pdf, defaults to using trapz integration
+        """
         return np.sqrt(trapz(self.xs*self.xs*self.Px,self.xs))
 
     def std(self):
+        """
+        Defines the sqrt of the variance of the pdf, defaults to using trapz integration
+        """
         avg = self.avg()
         rms = self.rms()
         return np.sqrt(rms*rms - avg*avg)

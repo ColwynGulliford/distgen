@@ -53,7 +53,7 @@ def get_unit_str(ustr):
 def assert_with_message(bool_val,msg):
 
     """Assert that boolean condition bool_val is true, raise value error with msg if false"""
-    
+
     if(not bool_val):
         raise ValueError(msg)
 
@@ -83,7 +83,6 @@ def trapz(f,q):
     Inputs: quantity arrays q, f(q).
     Returns: integral( f(q) dq) as a float with units [result] = [f][q]
     """
-
     uqstr = str(q.units)
     ufstr = str(f.units)
     return np.trapz(f.magnitude,q.magnitude)*unit_registry.parse_expression(uqstr+"*"+ufstr)
@@ -94,7 +93,6 @@ def cumtrapz(f,q,initial=None):
     Inputs: quantity arrays q, f(q), initial value for cumulative array
     Returns: cumulative integral( f(q) dq) as an array with units [result] = [f][q]
     """
-
     uqstr = str(q.units)
     ufstr = str(f.units)
 
@@ -136,7 +134,11 @@ def cumrectint(f,x,initial):
     return crint
 
 def interp(x,xs,fs):
-
+    """
+    Wraps the numpy interp function for arrays carrying units. 
+    Inputs: quantity arrays xs, f(xs) and points to interpolate f at.
+    Returns: f(x), based on interpolation of xs,fs
+    """
     x.ito(xs.units)
     return np.interp(x.magnitude,xs.magnitude,fs.magnitude)*unit_registry(str(fs.units))
 
@@ -155,8 +157,10 @@ def radint(f,r):
     return np.sum(0.5*(rbins[1:]**2-rbins[:-1]**2)*f.magnitude)*unit_registry(urstr+"*"+urstr+"*"+ufstr)
 
 def radcumint(f,r,initial=None):
-
-    # for integrating function with rdr as the jacobian: int(r*f(r)*dr)
+    """
+    Defines cumulative radial integration with the rdr jacobian
+    Inputs: r, f(r) with units, returns int( f(r) * r dr)_-inf^r
+    """
     urstr = str(r.units)
     ufstr = str(f.units)
     rbins = ((r.magnitude)[:-1]+(r.magnitude)[1:])/2.0
@@ -199,6 +203,9 @@ def read_2d_file(filename):
     return (xs,ys,Pxy,xstr,ystr)
 
 def nearest_neighbor(array,values):
+    """
+    find the nearest neighbor index in array for each value in values
+    """
     array = array.magnitude
     values = values.magnitude
     return np.abs(np.subtract.outer(array, values)).argmin(0)
