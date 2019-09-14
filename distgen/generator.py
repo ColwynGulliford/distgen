@@ -63,7 +63,7 @@ class generator():
 
         # Look for required arguements in user supplied list
         for preq in preqs:
-            print(x,preq)
+            #print(x,preq)
             if(preq == "file"):
                 if(x!="xy"):
                     ps[preq] = {"file":params[x+"_dist"][1],"units":get_unit_str(params[x+"_dist"][2])}

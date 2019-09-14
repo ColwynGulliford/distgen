@@ -2,29 +2,30 @@
 
 from optparse import OptionParser
 
-from physical_constants import *
-from tools import stopwatch, vprint
-from reader import reader
-from writers import get_writer
-from generator import generator
+from .physical_constants import *
+from .tools import stopwatch, vprint
+from .reader import reader
+from .writers import get_writer
+from .generator import generator
 #from plot import plot_beam
 
-def run_distgen(inputfile=None,outputfile=None,outputype="gpt",verbose=0):
+def run_distgen(inputs={},outputfile=None,outputype="gpt",verbose=0):
 
     watch = stopwatch()
     watch.start()
     vprint("**************************************************",verbose>0,0,True)
-    vprint( "           PyDist Generator v 0.0",verbose>0,True,True)
+    vprint( "             Dist Generator v 0.0",verbose>0,True,True)
     vprint("**************************************************",verbose>0,0,True)
-
-    if(inputfile is not None):
+    
+    if(isinstance(inputs,str)):
         # Read input file
-        par = reader(inputfile,verbose,unit_registry)
+        par = reader(inputs,verbose,unit_registry)
         par.read()
         params = par.get_params()
-
+    elif(isinstance(inputs,dict)):
+        params = inputs
     else:
-        params = []
+        raise ValueError("Unsupported input parameter: "+str(type(inputs)))
 
     # Make distribution
     gen = generator(verbose)
