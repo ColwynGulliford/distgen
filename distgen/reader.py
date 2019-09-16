@@ -4,11 +4,20 @@ import time
 import os
 from collections import OrderedDict as odict
 
+def basic_read(filename):
+    
+    flines = []
+    f = open(filename,'r')
+    for line in f:
+        flines.append(line)
+        #print(line)
+
+    return flines
+        
 class reader():
   
     verbose = 0
     unit_register = []
-
 
     # File data
     filename = None
@@ -38,6 +47,7 @@ class reader():
         f = open(self.filename,'r')
         for line in f:
             self.flines.append(line)
+            #print(line)
         
         f.close()
         watch.stop()
@@ -53,6 +63,8 @@ class reader():
                 if(len(tokens)>=2):
                     if(tokens[0] not in self.params.keys()):
                         self.params[tokens[0]]=tokens[1:]
+                    else:
+                        print("mutiple definitions of "+tokens[0])
                 else:
                     raise ValueError("Parameter "+tokens[0]+" on line " + str(count) + " had no associated values.")
  

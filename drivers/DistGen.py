@@ -2,20 +2,23 @@
 
 from optparse import OptionParser
 
-from .physical_constants import *
-from .tools import stopwatch, vprint
-from .reader import reader
-from .writers import get_writer
-from .generator import generator
-#from plot import plot_beam
+from distgen.physical_constants import *
+from distgen.tools import stopwatch, vprint
+from distgen.reader import reader
+from distgen.writers import get_writer
+from distgen.generator import generator
 
-def run_distgen(inputs={},outputfile=None,outputype="gpt",verbose=0):
+def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
 
     watch = stopwatch()
     watch.start()
     vprint("**************************************************",verbose>0,0,True)
     vprint( "             Dist Generator v 0.0",verbose>0,True,True)
     vprint("**************************************************",verbose>0,0,True)
+    
+    f=open(inputs,'r')
+    print(f.readline())
+    f.close()
     
     if(isinstance(inputs,str)):
         # Read input file
@@ -25,13 +28,19 @@ def run_distgen(inputs={},outputfile=None,outputype="gpt",verbose=0):
     elif(isinstance(inputs,dict)):
         params = inputs
     else:
-        raise ValueError("Unsupported input parameter: "+str(type(inputs)))
-
+        raise ValueError("Unsupported input parameter: "+str(type(inputs)))  
+        
+    print(params)    
+        
     # Make distribution
     gen = generator(verbose)
     gen.parse_input(params)
     beam,outfile = gen.get_beam()
-
+    
+    f=open(inputs,'r')
+    print(f.readline())
+    f.close()
+    
     if(outputfile is not None):
         
         # Print distribution to file
@@ -70,7 +79,7 @@ def main():
     output = options.output    
     #plots_on = options.plots_on
 
-    run_distgen(outputtype=output,verbose=verbose)
+    run_distgen(inputs=inputfile,output_type=output,verbose=verbose)
     #---------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------- 

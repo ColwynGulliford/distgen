@@ -51,6 +51,15 @@ class randgen():
             raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
 
+class dist_manager():
+    
+    dist_info = {}
+    
+    def __init__(self):
+        # Register
+        self.dist_info["uniform"]={"abreviation:u"}#,"params":uniform().get_params_list()}
+         
+            
 class dist1d():
 
     """
@@ -67,7 +76,7 @@ class dist1d():
     Cx = []    # Cumulative Disrtirbution Functoin Cx(x)
     
     rgen = randgen()
-
+    
     def __init__(self,xs,Px,xstr="x"):
 
         self.xs = xs
@@ -80,7 +89,7 @@ class dist1d():
 
         self.Px = self.Px/norm
         self.Cx = cumtrapz(self.Px,self.xs,initial=0)
-        
+    
     def get_x_pts(self,n):
         return linspace(self.xs[0],self.xs[-1],n)
 
@@ -177,6 +186,9 @@ class dist1d():
         plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
         plt.legend(["PDF","Hist. of Sampling"])
         
+    def get_params_list(self,var):
+        return []
+    
 class uniform(dist1d):
 
     xL = -1
@@ -191,6 +203,11 @@ class uniform(dist1d):
         if(xL>=xR):
             raise ValueError("Uniform dist must have xL < xR")
 
+    #def set_params(self,**kwargs):
+        
+    #    for key, value in kwargs.items():
+    #        print("The value of {} is {}".format(key, value))
+   
     def get_x_pts(self,n):
         f = 0.2
         dx = f*np.abs(self.avg())
@@ -222,6 +239,9 @@ class uniform(dist1d):
         std=self.std()
         return np.sqrt(std*std + avg*avg)
 
+    def get_params_list(self,var):
+        return (["min_"+var,"max_"+var],[])
+    
 class norm(dist1d):
 
     mu = 0
@@ -256,6 +276,9 @@ class norm(dist1d):
         std=self.std()
         return np.sqrt(std*std + avg*avg)
 
+    def get_params_list(self,var):
+        return (["sigma_"+var],["avg_"+var])
+    
 class file1d(dist1d):
 
     distfile = None
@@ -276,6 +299,9 @@ class file1d(dist1d):
 
         super().__init__(xs,Px,xstr)
 
+    def get_params_list(self,var):
+        return ([var+"_file"],["avg_"+var,"sigma_"+var])
+        
 class temporal_laser_pulse_stacking(dist1d):
 
     xstr="t" 
@@ -405,7 +431,7 @@ class temporal_laser_pulse_stacking(dist1d):
         return interp(t,self.ts,self.Pt)
 
     def cdfinv(self,rns):
-       return interp(rns*unit_registry(""),self.Ct,self.ts)
+        return interp(rns*unit_registry(""),self.Ct,self.ts)
 
     def avg(self):
         return trapz(self.ts*self.Pt,self.ts)
@@ -413,6 +439,9 @@ class temporal_laser_pulse_stacking(dist1d):
     def std(self):
         return np.sqrt(trapz(self.ts*self.ts*self.Pt,self.ts))
 
+    def get_params_list(self,var):
+        return (["crystal_length_$N","crystal_angle_$N"],["laser_pulse_FWHM","avg_"+var,"std_"+var])
+    
 class distrad():
 
     rgen = randgen()
@@ -765,7 +794,7 @@ class file2d(dist2d):
         xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
         super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
 
-def main():
+#def main():
 
     #udist = uniform(-2*unit_registry("m"),1*unit_registry("m"))
     #udist.test_sampling()
@@ -795,23 +824,23 @@ def main():
     #rfile.test_sampling()
 
     #f2d = file2d('checker.test.dist.txt')
-    f2d = file2d('laser.prof.example.txt')
+    #f2d = file2d('laser.prof.example.txt')
     #f2d.plot_cdfys()
     #f2d.plot_pdfx()
     #f2d.plot_cdfx()
-    f2d.test_sampling()
+    #f2d.test_sampling()
     #f2d.plot_pdf()
     #x,y=f2d.sample(100000,sequence="hammersley")
     #plt.plot(x,y,'*')
 
-    plt.show()
+    #plt.show()
 
+    
 # ---------------------------------------------------------------------------- 
 #   This allows the main function to be at the beginning of the file
 # ---------------------------------------------------------------------------- 
-if __name__ == '__main__':
-    main()
-
+#if __name__ == '__main__':
+#    main()
 
 
 

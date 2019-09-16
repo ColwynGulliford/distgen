@@ -53,7 +53,6 @@ def get_unit_str(ustr):
 def assert_with_message(bool_val,msg):
 
     """Assert that boolean condition bool_val is true, raise value error with msg if false"""
-
     if(not bool_val):
         raise ValueError(msg)
 

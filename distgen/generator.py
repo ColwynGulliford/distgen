@@ -2,6 +2,8 @@ from .physical_constants import *
 from .beam import beam
 from .tools import *
 from .dist import *
+#from .dist import uniform
+#from .dist import dist_manager 
 from collections import OrderedDict as odic
 import numpy as np
 from matplotlib import pyplot as plt
@@ -22,7 +24,7 @@ class generator():
         self.verbose = verbose 
         
     def parse_input(self,params):
-
+        
         self.input_params = params
         self.check_input_consistency(params)
         self.set_beam_params(params)
@@ -41,9 +43,11 @@ class generator():
 
     def check_input_consistency(self,params):
         ''' Perform consistency checks on the user input data'''
- 
-        assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
-        assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
+        
+        if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
+            assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
+        if( ("r_dist" in params) or ("y_dist" in params) or ("xy_dist" in params) ):
+            assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
         
         if(params["start_type"][0] == "cathode"):
             #assert_with_message("px_dist" not in params,"If cathode start, do not specify px distribution.")
@@ -339,10 +343,14 @@ class generator():
         dist=None
 
         if(dtype=="u" or dtype=="uniform"):
+            
             vprint("uniform",self.verbose>0,0,True)
             vprint("min_"+x+" = {:0.3f~P}".format(dparams["min_"+x])+", max_"+x+" = {:0.3f~P}".format(dparams["max_"+x]),self.verbose>0,2,True)
             dist = uniform(dparams["min_"+x],dparams["max_"+x],xstr=x)
 
+            kwargs = {"tony":1,"beef":"x"}
+            #dist.set_params(**kwargs)
+            
         elif(dtype=="g" or dtype=="gaussian"):
 
             vprint("Gaussian",self.verbose>0,0,True)

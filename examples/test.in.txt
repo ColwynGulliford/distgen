@@ -1,4 +1,4 @@
-particle_count 200000
+particle_count 10000
 dist_name gpt_particles
 output_format gpt
 total_charge 1 [pC]
@@ -7,8 +7,8 @@ start_type cathode
 rand_type  hammersley
 asci2gdf_binary asci2gdf
 
-r_dist_file cutgauss.rad.txt [mm]
-sigma_xy 2 [mm]
+#r_dist_file cutgauss.rad.txt [mm]
+#sigma_xy 2 [mm]
 #sigma_x 1 [mm]
 #sigma_y 2 [mm]
 
@@ -21,12 +21,9 @@ sigma_xy 2 [mm]
 #sigma_x 140 [um]
 #sigma_y 140 [um]
 
-#x_dist u
-#min_x -2 [mm]
-#max_x  2 [mm]
-
-#y_dist g
-#sigma_y 5 [mm]
+x_dist u
+min_x -2 [mm]
+max_x  2 [mm]
 
 #r_tail 0
 #r_dip 0
