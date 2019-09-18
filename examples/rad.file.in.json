@@ -1,0 +1,2 @@
+{"beam": {"start_type": "cathode", "rand_type": "hammersley", "particle_count": 200000, "params": {"total_charge": {"value": 10, "units": "pC"}, "MTE": {"value": 150, "units": "meV"}}}, 
+"r_dist": {"type": "radfile", "params": {"file":"cutgauss.rad.txt","units":"mm"}}, "output": {"type": "gpt", "file": "rad.gaussian.out.txt"}}

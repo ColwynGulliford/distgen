@@ -84,16 +84,49 @@ def plot_beam(beam,units={"x":"mm","y":"mm","z":"mm","px":"eV/c","py":"eV/c","pz
     plt.title('Laser Temporal Profile: $\sigma_t$ = '+stdt_str)
     plt.show()
 
+def plot_1d(beam,var,units,**params):
+    
+    if("nbins" in params):
+        bins = params["nbins"]
+    else:
+        bins = 10
 
-def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, params=None):
+    thist,tedges = np.histogram( (beam[var].to(units)).magnitude,bins=100)
+    ts = (tedges[1:] + tedges[:-1]) / 2
+    rhot = thist/np.trapz(thist,ts)
+    
+    tst = np.zeros(len(ts)+2)
+    tst[1:-1]=ts
+    tst[0]=ts[0]; tst[-1]=ts[-1]
+    
+    rhott = np.zeros(len(ts)+2)
+    rhott[1:-1]=rhot
+    rhott[0]=0; rhott[-1]=0
+    
+    avgt = np.mean( (beam[var].to(units)) )
+    stdt = np.std( (beam[var].to(units)) )
+    
+    avgt_str = "{:0.3f~P}".format(avgt)
+    stdt_str = "{:0.3f~P}".format(stdt)
+    
+    plt.title('$<'+var+'>$ = '+avgt_str+', $\sigma_{'+var+'}$ = '+stdt_str)
+    plt.xlabel(var+' ('+units+')')
+    plt.ylabel('$pdf('+var+')$')
+    plt.plot(tst,rhott)
+    
+def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
 
-    plt.figure(Nfig)
+    #plt.figure(Nfig)
     
     if(ptype=="scatter"):
-        plt.plot(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude,'*')
+        fig,ax =plt.plot(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude,'*')
     if(ptype=="scatter_hist2d"):
-        plt.plt.plot(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude,'*')
-        scat = scatter_hist2d(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
+        if("nbins" in params):
+            nbins=params["nbins"]
+        else:
+            nbins=10
+        ax = scatter_hist2d(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
+        
     if(ptype=="kde"):
    
         data=np.zeros((len(beam[var1].to(units1).magnitude),2))
@@ -101,9 +134,52 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, params=None):
         data[:,1]=beam[var2].to(units2).magnitude
         df = pd.DataFrame(data, columns=[var1, var2])
 
-        g = sns.jointplot(x=var1, y=var2, data=df, kind="kde",n_levels=1000, shade=True, colormap="r")
-    
+        ax = sns.jointplot(x=var1, y=var2, data=df, kind="kde",n_levels=1000, shade=True, colormap="r")
+        
+    if("axis" in params and params["axis"]=="equal"):
+        plt.gca().set_aspect('equal', adjustable='box')
 
+    plt.xlabel(var1 + " ("+units1+")")
+    plt.ylabel(var2 + " ("+units2+")")
+    
+    stdx = beam[var1].std().to(units1)
+    stdy = beam[var2].std().to(units2)
+    stdx_str = "{:0.3f~P}".format(stdx)
+    stdy_str = "{:0.3f~P}".format(stdy)
+    if(stdx==0):
+        plt.xlim([-1,1])
+    if(stdy==0):
+        plt.ylim([-1,1])
+    plt.title('$\sigma_{'+var1+'}$ = '+stdx_str+', $\sigma_{'+var2+'}$ = '+stdy_str)
+    
+    return ax
+        
+    
+def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100):
+    
+    plt.figure(Nfig)
+    thist,tedges = np.histogram(beam["t"].to(units["t"]),bins=nbins)
+    qb = beam.q.to(units["q"])
+    ts = (tedges[1:] + tedges[:-1]) / 2
+    I0 = qb/(1*unit_registry(units["t"]))
+    I0 = I0.to_compact()
+    rhot = I0*thist/np.trapz(thist,ts)
+
+    tst = np.zeros(len(ts)+2)
+    tst[1:-1]=ts
+    tst[0]=ts[0]; tst[-1]=ts[-1]
+    
+    rhott = np.zeros(len(ts)+2)
+    rhott[1:-1]=rhot.magnitude
+    rhott[0]=0; rhott[-1]=0
+    
+    stdt = beam["t"].std().to(units["t"])
+    stdt_str = "{:0.3f~P}".format(stdt)
+    
+    plt.xlabel("t ("+units["t"]+")")
+    plt.ylabel("I(t) + ("+str(rhot.units)+")")
+    plt.plot(tst,rhott)
+    
 def map_hist(x, y, h, bins):
     xi = np.digitize(x, bins[0]) - 1
     yi = np.digitize(y, bins[1]) - 1

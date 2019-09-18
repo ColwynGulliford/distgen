@@ -16,10 +16,6 @@ def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
     vprint( "             Dist Generator v 0.0",verbose>0,True,True)
     vprint("**************************************************",verbose>0,0,True)
     
-    f=open(inputs,'r')
-    print(f.readline())
-    f.close()
-    
     if(isinstance(inputs,str)):
         # Read input file
         par = reader(inputs,verbose,unit_registry)
@@ -28,18 +24,12 @@ def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
     elif(isinstance(inputs,dict)):
         params = inputs
     else:
-        raise ValueError("Unsupported input parameter: "+str(type(inputs)))  
-        
-    print(params)    
+        raise ValueError("Unsupported input parameter: "+str(type(inputs)))    
         
     # Make distribution
     gen = generator(verbose)
     gen.parse_input(params)
     beam,outfile = gen.get_beam()
-    
-    f=open(inputs,'r')
-    print(f.readline())
-    f.close()
     
     if(outputfile is not None):
         

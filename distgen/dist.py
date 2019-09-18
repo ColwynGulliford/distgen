@@ -9,13 +9,10 @@ from .hammersley import create_hammersley_samples
 from .physical_constants import *
 from .tools import *
 
-
-
 import numpy as np
 import numpy.matlib as mlib
 import scipy
 import math
-
 
 from matplotlib import pyplot as plt
 
@@ -51,15 +48,29 @@ class randgen():
             raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
 
-class dist_manager():
+def get_dist(var,dtype,params=None,verbose=0):
     
-    dist_info = {}
-    
-    def __init__(self):
-        # Register
-        self.dist_info["uniform"]={"abreviation:u"}#,"params":uniform().get_params_list()}
-         
+    if(dtype=="uniform" or dtype=="u"):
+        dist = uniform(var,verbose=verbose,**params)
+    elif(dtype=="gaussian" or dtype=="g"):
+        dist = norm(var,verbose=verbose,**params)
+    elif(dtype=="file1d"):
+        dist = file1d(var,verbose=verbose,**params)
+    elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
+        dist = uniformrad(verbose=verbose,**params)
+    elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
+        dist = normrad(verbose=verbose,**params)
+    elif(dtype=="radfile" and var=="r"):
+        dist = radfile(verbose=verbose,**params)
+    elif((dtype=="radial_truncated_gaussian" or dtype=="rtg") and var=="r"):
+        dist = normrad_trunc(verbose=verbose,**params)
+    elif(dtype=="file2d"):
+        dist = file2d("x","y",verbose=verbose,**params)
+    else:
+        raise ValueError("Distribution type '"+dtype+"' is not supported.")
             
+    return dist
+    
 class dist1d():
 
     """
@@ -185,28 +196,27 @@ class dist1d():
             plt.ylabel("PDF("+self.xstr+")")
         plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
         plt.legend(["PDF","Hist. of Sampling"])
-        
-    def get_params_list(self,var):
-        return []
     
 class uniform(dist1d):
 
-    xL = -1
-    xH = +1 
-
-    def __init__(self,xL,xR,xstr="x"):
-
-        self.xL = xL
-        self.xR = xR
-        self.xstr = xstr
-
-        if(xL>=xR):
-            raise ValueError("Uniform dist must have xL < xR")
-
-    #def set_params(self,**kwargs):
+    def __init__(self,var,verbose=0,**kwargs):
         
-    #    for key, value in kwargs.items():
-    #        print("The value of {} is {}".format(key, value))
+        self.xstr = var
+        
+        minstr = "min_"+var
+        if(minstr in kwargs.keys()):
+            self.xL = kwargs[minstr]
+        else:
+            raise ValueError("Uniform dist required parameter "+minstr+" not found in input parameters.")
+            
+        maxstr = "max_"+var
+        if(maxstr in kwargs.keys()):
+            self.xR = kwargs[maxstr]
+        else:
+            raise ValueError("Uniform dist required parameter "+maxstr+" not found in input parameters.")
+        
+        vprint("uniform",verbose>0,0,True)
+        vprint(minstr+" = {:0.3f~P}".format(self.xL)+", "+maxstr+" = {:0.3f~P}".format(self.xR),verbose>0,2,True)
    
     def get_x_pts(self,n):
         f = 0.2
@@ -238,21 +248,37 @@ class uniform(dist1d):
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
-
-    def get_params_list(self,var):
-        return (["min_"+var,"max_"+var],[])
     
 class norm(dist1d):
 
-    mu = 0
-    sigma = 0 
+#    mu = 0
+#    sigma = 0 
 
-    def __init__(self,mu,sigma,xstr="x"):
+#    def __init__(self,mu,sigma,xstr="x"):
+#
+#        self.mu = mu
+#        self.sigma = np.abs(sigma)
+#        self.xstr=xstr
 
-        self.mu = mu
-        self.sigma = np.abs(sigma)
-        self.xstr=xstr
+    def __init__(self,var,verbose=0,**kwargs):
+        
+        self.xstr = var
+        
+        sigmastr = "sigma_"+var
+        if(sigmastr in kwargs.keys()):
+            self.sigma = kwargs[sigmastr]
+        else:
+            raise ValueError("Norm dist required parameter "+sigmastr+" not found in input parameters.")
+            
+        avgstr = "avg_"+var
+        if(avgstr in kwargs.keys()):
+            self.mu = kwargs[avgstr]
+        else:
+            self.mu = 0*unit_registry(str(self.sigma.units))
 
+        vprint("Gaussian",verbose>0,0,True)
+        vprint("avg_"+var+" = {:0.3f~P}".format(self.mu)+", sigma_"+var+" = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
+            
     def get_x_pts(self,n):
         return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
 
@@ -275,32 +301,59 @@ class norm(dist1d):
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
-
-    def get_params_list(self,var):
-        return (["sigma_"+var],["avg_"+var])
     
 class file1d(dist1d):
-
-    distfile = None
     
-    def __init__(self,distfile,unit="dimensionless",xstr="x"):
-
-        self.distfile = distfile
-        f = open(distfile,'r')
+    def __init__(self,var,verbose=0,**kwargs):
+        
+        self.xstr=var
+        
+        if("file" in kwargs):
+            self.distfile = kwargs["file"]
+        else:
+            raise ValueError("File 1D distribution required parameter 'file' not found.")
+        
+        if("units" in kwargs):
+            units = kwargs["units"]
+        else:
+            units = "dimensionless"
+        
+        vprint(var+"-distribution file: '"+self.distfile+"'",verbose>0,0,True)
+        f = open(self.distfile,'r')
         headers = f.readline().split()
         f.close()
 
         if(len(headers)!=2):
             raise ValueError("file1D distribution file must have two columns")
-        data = np.loadtxt(distfile,skiprows=1)
+            
+        #if(headers[0]!=self.xstr):
+        #    raise ValueError("Input distribution file variable must be = "+var)
+        #if(headers[1]!="P"+self.xstr):
+        #    raise ValueError("Input distribution file pdf name must be = P"+var)    
+            
+        data = np.loadtxt(self.distfile,skiprows=1)
 
-        xs = data[:,0]*unit_registry(unit)
-        Px = data[:,1]*unit_registry.parse_expression("1/"+unit)
+        xs = data[:,0]*unit_registry(units)
+        Px =data[:,1]*unit_registry.parse_expression("1/"+units)
+        
+        super().__init__(xs,Px,self.xstr)
+        
+        
+    #def __init__(self,distfile,unit="dimensionless",xstr="x"):
 
-        super().__init__(xs,Px,xstr)
+    #    self.distfile = distfile
+    #    f = open(distfile,'r')
+    #    headers = f.readline().split()
+    #    f.close()
 
-    def get_params_list(self,var):
-        return ([var+"_file"],["avg_"+var,"sigma_"+var])
+    #    if(len(headers)!=2):
+    #        raise ValueError("file1D distribution file must have two columns")
+    #    data = np.loadtxt(distfile,skiprows=1)
+
+    #    xs = data[:,0]*unit_registry(unit)
+    #    Px = data[:,1]*unit_registry.parse_expression("1/"+unit)
+
+    #    super().__init__(xs,Px,xstr)
         
 class temporal_laser_pulse_stacking(dist1d):
 
@@ -557,15 +610,27 @@ class uniformrad(distrad):
     rL=0
     rR=0
 
-    def __init__(self,rL,rR):
-
-        self.rL = rL
-        self.rR = rR
-
-        if(rL>=rR):
+    def __init__(self,verbose=0,**kwargs):
+            
+        maxstr = "max_r"
+        if(maxstr in kwargs.keys()):
+            self.rR = kwargs[maxstr]
+        else:
+            raise ValueError("Radial uniform dist required parameter "+maxstr+" not found in input parameters.")
+        
+        minstr = "min_r"
+        if(minstr in kwargs.keys()):
+            self.rL = kwargs[minstr]
+        else:
+            self.rL=0*unit_registry(str(self.rR.units()))
+        
+        if(self.rL>=self.rR):
             raise ValueError("Radial uniform dist must have rL < rR")
-        if(rR<0):
+        if(self.rR<0):
             raise ValueError("Radial uniform dist must have rR >= 0")
+        
+        vprint("radial uniform",verbose>0,0,True)
+        vprint(minstr+" = {:0.3f~P}".format(self.rL)+", "+maxstr+" = {:0.3f~P}".format(self.rR),verbose>0,2,True)
 
     def get_r_pts(self,n):
         f = 0.2
@@ -591,9 +656,15 @@ class normrad(distrad):
 
     sigma = 0 
 
-    def __init__(self,sigxy):
-
-        self.sigma = np.abs(sigxy)
+    def __init__(self,verbose=0,**kwargs):
+        
+        if("sigma_xy" in kwargs):
+            self.sigma = kwargs["sigma_xy"]
+        else:
+            raise ValueError("Radial Gaussian required parameter sigma_xy not found.")
+         
+        vprint("radial Gaussian",verbose>0,0,True)
+        vprint("sigma_xy = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
 
     def pdf(self,r):
         return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma )*r 
@@ -619,8 +690,18 @@ class normrad_trunc(distrad):
     R = 0
     sigma_inf = 0
     
-    def __init__(self,radius,fraction):
+    def __init__(self,radius=None,fraction=None,**params):
     
+        if(radius is None and "pinhole_size" not in params):
+            raise ValueError("Radial truncated Gaussian requires either a radius or pinhole size as input parameter.")
+        elif(radius is None):
+            radius = params["pinhole_size"]/2.0
+          
+        if(fraction is None and "fraction" not in params):
+            raise ValueError("Radial truncated Gaussian input parameter 'fraction' not found.")
+        elif(radius is None):
+            fraction = params["fraction"]/2.0
+        
         if(radius<=0):
             raise ValueError("For truncated gaussian, radius has to be > 0")
         if(fraction > 1 or fraction < 0):
@@ -653,8 +734,16 @@ class normrad_trunc(distrad):
 
 class radfile(distrad):
 
-    def __init__(self,distfile,units="m"):
+    def __init__(self,**params):
 
+        if("file" not in params):
+            raise ValueError("Radial distribution file required input parameter 'distribution file' not found.")
+        if("units" not in params):
+            raise ValueError("Radial distribution file required input parameter 'units' not found.")    
+        
+        distfile = params["file"]
+        units = params["units"]
+        
         self.distfile = distfile
         f = open(distfile,'r')
         headers = f.readline().split()
@@ -789,8 +878,15 @@ class dist2d():
 
 class file2d(dist2d):
 
-    def __init__(self, filename):
+    def __init__(self, var1, var2, filename=None,**params):
 
+        
+        
+        if(filename is None and "file" not in params):
+            raise ValueError("File 2D distribution requires an input file.")
+        elif(filename is None):
+            filename = params['file']
+        
         xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
         super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
 

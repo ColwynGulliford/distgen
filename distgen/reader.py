@@ -3,34 +3,18 @@ from .tools import vprint, stopwatch, is_floatable, is_unit_str
 import time
 import os
 from collections import OrderedDict as odict
-
-def basic_read(filename):
-    
-    flines = []
-    f = open(filename,'r')
-    for line in f:
-        flines.append(line)
-        #print(line)
-
-    return flines
+import json
         
 class reader():
-  
-    verbose = 0
-    unit_register = []
 
-    # File data
-    filename = None
-    flines = []
-
-    params = odict()
-
-    def __init__(self,filename,verbose,ureg):
+    def __init__(self,filename,verbose):
 
         self.filename=filename
         self.verbose=verbose
-        self.unit_register = ureg
 
+        self.flines = []
+        self.params = {}
+        
     def read(self):
     
         if(self.filename is None):
@@ -45,36 +29,25 @@ class reader():
         vprint("Reading file '"+self.filename+"'...",self.verbose>0,0,False)    
        
         f = open(self.filename,'r')
-        for line in f:
-            self.flines.append(line)
-            #print(line)
-        
+        try:
+            # Try loading as a json
+            params = json.load(f) 
+            
+        except:
+            
+            for line in f:
+                self.flines.append(line)
+            
         f.close()
         watch.stop()
         vprint("done. Time Ellapsed: "+watch.print(),self.verbose>0,0,True) 
 
-        watch.start()
-        vprint("Parsing data...",self.verbose>0,0,False)   
-        count = 1 
-        for line in self.flines:
-            line = line.split("#")[0].strip()
-            if(line!=""):
-                tokens = line.split()
-                if(len(tokens)>=2):
-                    if(tokens[0] not in self.params.keys()):
-                        self.params[tokens[0]]=tokens[1:]
-                    else:
-                        print("mutiple definitions of "+tokens[0])
-                else:
-                    raise ValueError("Parameter "+tokens[0]+" on line " + str(count) + " had no associated values.")
- 
-        watch.stop()
-        vprint("done. Time Ellapsed: "+watch.print(),self.verbose>0,0,True)
-
-        if(self.verbose>=2):
-            for param in self.params:
-                print(param+": ",self.params[param])
-
+        self.params=params
+        return params
+        
+    def reset(self,filename,verbose):
+        self.__init__(filename,verbose)
+        
     def get_params(self):
         return self.params
             

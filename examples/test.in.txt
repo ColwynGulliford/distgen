@@ -1,4 +1,4 @@
-particle_count 10000
+particle_count 12000
 dist_name gpt_particles
 output_format gpt
 total_charge 1 [pC]
