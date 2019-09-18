@@ -1,8 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from .tools import *
-import seaborn as sns
-import pandas as pd
+
 
 def plot_beam(beam,units={"x":"mm","y":"mm","z":"mm","px":"eV/c","py":"eV/c","pz":"eV/c","t":"ps","q":"pC"}):
 
@@ -127,15 +126,6 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
             nbins=10
         ax = scatter_hist2d(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
         
-    if(ptype=="kde"):
-   
-        data=np.zeros((len(beam[var1].to(units1).magnitude),2))
-        data[:,0]=beam[var1].to(units1).magnitude
-        data[:,1]=beam[var2].to(units2).magnitude
-        df = pd.DataFrame(data, columns=[var1, var2])
-
-        ax = sns.jointplot(x=var1, y=var2, data=df, kind="kde",n_levels=1000, shade=True, colormap="r")
-        
     if("axis" in params and params["axis"]=="equal"):
         plt.gca().set_aspect('equal', adjustable='box')
 
@@ -154,7 +144,6 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
     
     return ax
         
-    
 def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100):
     
     plt.figure(Nfig)
@@ -177,7 +166,7 @@ def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100):
     stdt_str = "{:0.3f~P}".format(stdt)
     
     plt.xlabel("t ("+units["t"]+")")
-    plt.ylabel("I(t) + ("+str(rhot.units)+")")
+    plt.ylabel("I(t) ("+str(rhot.units)+")")
     plt.plot(tst,rhott)
     
 def map_hist(x, y, h, bins):

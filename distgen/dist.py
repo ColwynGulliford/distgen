@@ -66,6 +66,8 @@ def get_dist(var,dtype,params=None,verbose=0):
         dist = normrad_trunc(verbose=verbose,**params)
     elif(dtype=="file2d"):
         dist = file2d("x","y",verbose=verbose,**params)
+    elif(dtype=="crystals"):
+        dist = temporal_laser_pulse_stacking(verbose=verbose,**params)
     else:
         raise ValueError("Distribution type '"+dtype+"' is not supported.")
             
@@ -251,15 +253,6 @@ class uniform(dist1d):
     
 class norm(dist1d):
 
-#    mu = 0
-#    sigma = 0 
-
-#    def __init__(self,mu,sigma,xstr="x"):
-#
-#        self.mu = mu
-#        self.sigma = np.abs(sigma)
-#        self.xstr=xstr
-
     def __init__(self,var,verbose=0,**kwargs):
         
         self.xstr = var
@@ -338,33 +331,45 @@ class file1d(dist1d):
         
         super().__init__(xs,Px,self.xstr)
         
-        
-    #def __init__(self,distfile,unit="dimensionless",xstr="x"):
-
-    #    self.distfile = distfile
-    #    f = open(distfile,'r')
-    #    headers = f.readline().split()
-    #    f.close()
-
-    #    if(len(headers)!=2):
-    #        raise ValueError("file1D distribution file must have two columns")
-    #    data = np.loadtxt(distfile,skiprows=1)
-
-    #    xs = data[:,0]*unit_registry(unit)
-    #    Px = data[:,1]*unit_registry.parse_expression("1/"+unit)
-
-    #    super().__init__(xs,Px,xstr)
-        
 class temporal_laser_pulse_stacking(dist1d):
 
     xstr="t" 
     ts = []
     Pt = []
 
-    def __init__(self,lengths, angles, dv=1.05319*unit_registry("ps/mm"), wc=3622.40686*unit_registry("THz"), pulse_FWHM=1.8*unit_registry("ps"),verbose=0):
+    def __init__(self,lengths=None, angles=None, dv=None, wc=None, pulse_FWHM=None,verbose=0,**params):
 
         self.verbose=verbose
 
+        vprint("crystal temporal laser shaping",self.verbose>0,0,True)
+        
+        if(lengths is None):
+            lengths=[]
+            for key in params:
+                if("crystal_length_" in key):
+                    lengths.append(params[key])
+                    
+        if(angles is None):
+            angles=[]
+            for key in params:
+                if("crystal_angle_" in key):
+                    angles.append(params[key])
+                    
+        if(dv is None and "dv" not in params):
+            dv=1.05319*unit_registry("ps/mm")
+        elif(dv is None):
+            dv=params["dv"]
+            
+        if(wc is None and "wc" not in params):  
+            wc=3622.40686*unit_registry("THz")
+        elif(wc is None):
+            wc=params["wc"]
+        
+        if(pulse_FWHM is None and "pulse_FWHM" not in params):
+            pulse_FWHM=1.8*unit_registry("ps")
+        elif(pulse_FWHM is None):
+            pulse_FWHM = params["pulse_FWHM"]
+        
         self.dV = dv;
         self.w0 = wc;
         self.laser_pulse_FWHM = pulse_FWHM;

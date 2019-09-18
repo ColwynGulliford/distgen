@@ -22,7 +22,7 @@ class writer():
 
         self.outfile = outfile
         
-    def write(self,dist,verbose,params):
+    def write(self,dist,verbose=0,params=None):
 
         print("Undefined writer")
 
@@ -31,7 +31,7 @@ class gpt_writer(writer):
     def __init__(self,outfile):
         super().__init__(outfile)
 
-    def write(self,beam,verbose,params):  
+    def write(self,beam,verbose=0,params=None):  
 
         watch = stopwatch()
 
@@ -42,7 +42,7 @@ class gpt_writer(writer):
         beam.params["q"] = (np.full( (beam.n,), 1.0)*qe).to("coulomb")
         beam.params["nmacro"] = np.full( (beam.n,), np.abs(beam.q.to("coulomb")/qe/beam.n).magnitude )*unit_registry("dimensionless")
 
-        vprint("\nPrinting particles to '"+self.outfile+"'...",verbose>0,0,True)
+        vprint("\nPrinting "+str(beam.n)+" particles to '"+self.outfile+"': ",verbose>0,0,False)
         
         # Scale parameters to GPT units
         for var in gpt_units:
@@ -54,7 +54,7 @@ class gpt_writer(writer):
         data = np.zeros( (len(beam["x"]),len(headers)) )
         for index, var in enumerate(headers):
             data[:,index] = beam[var].magnitude
-        np.savetxt(self.outfile,data,header=header)
+        np.savetxt(self.outfile,data,header=header,comments='')
  
         if("asci2gdf_binary" in params):
             gdfwatch = stopwatch()
@@ -86,46 +86,46 @@ class astra_writer(writer):
     def __init__(self,outfile):
         super().__init__(outfile)
 
-    def write(self,beam,verbose,params):  
+    def write(self,beam,verbose=0,params=None):  
 
         watch = stopwatch()
 
         # Format particles
-        astra_units={"x":"m", "y":"m", "z":"m","px":"eV/c","py":"eV/c","pz":"eV/c","t":"ns"}
+        astra_units={"x":"m", "y":"m", "z":"m","px":"eV/c","py":"eV/c","pz":"eV/c","t":"ns","q":"nC"}
  
         watch.start()
         qs = (np.full( (beam.n,), beam.n)*qe).to("nanocoulomb")
         particle_index = 1;
         particle_status = -1;
-
-        vprint("\nPrinting particles to '"+self.outfile+"': ",verbose>0,0,False)
-        f = open(self.outfile,'w')
-
-        sp = "  "
-
+        
+        astra_units["q"]="nC"
+        beam["q"]=qs 
+        
+        vprint("\nPrinting "+str(beam.n)+" particles to '"+self.outfile+"': ",verbose>0,0,False)
+        
         # Scale parameters to ASTRA units
         for var in astra_units:
             beam[var].ito(astra_units[var])
 
-        pz0 = np.mean(beam["pz"])
+        data = np.zeros( (len(beam["x"]),len(astra_units.keys())+2) )
+        for index, var in enumerate(astra_units.keys()):
+            data[:,index] = beam[var].magnitude
+            
+        ref_particle = [np.mean(beam["x"]).magnitude,
+                        np.mean(beam["y"]).magnitude,
+                        np.mean(beam["z"]).magnitude,
+                        np.mean(beam["px"]).magnitude,
+                        np.mean(beam["py"]).magnitude,
+                        np.mean(beam["pz"]).magnitude,
+                        np.mean(beam["t"]).magnitude,
+                        beam["q"][0].magnitude, 1,-1]
         
-        line = "0.0"+sp+"0.0"+sp+"0.0"+sp+"0.0"+sp+"0.0"+sp+str(pz0.magnitude)+sp+"0.0"+sp+str(qs[0].magnitude)+sp+str(particle_index)+sp+str(particle_status)+"\n"
-        f.write(line)
-
-        for ii in range(len(beam["x"])-1):
-            line = (
-                    str(beam["x"][ii].magnitude)  + sp + 
-                    str(beam["y"][ii].magnitude)  + sp + 
-                    str(beam["z"][ii].magnitude)  + sp + 
-                    str(beam["px"][ii].magnitude) + sp + 
-                    str(beam["py"][ii].magnitude) +  sp + 
-                    str(beam["pz"][ii].magnitude-pz0.magnitude) + sp +
-                    str(-beam["t"][ii].magnitude) + sp +
-                    str(qs[ii].magnitude) + sp + str(particle_index) + str(particle_status) +
-                    "\n")
-            f.write(line)
-
-        f.close()
+        data[:,-2]=particle_index
+        data[:,-1]=particle_status
+        data[0,:] = ref_particle
+        
+        np.savetxt(self.outfile,data)    
+            
         watch.stop() 
         vprint("...done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
 
