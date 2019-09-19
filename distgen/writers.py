@@ -42,6 +42,7 @@ class gpt_writer(writer):
         beam.params["q"] = (np.full( (beam.n,), 1.0)*qe).to("coulomb")
         beam.params["nmacro"] = np.full( (beam.n,), np.abs(beam.q.to("coulomb")/qe/beam.n).magnitude )*unit_registry("dimensionless")
 
+        print("poom",verbose)
         vprint("\nPrinting "+str(beam.n)+" particles to '"+self.outfile+"': ",verbose>0,0,False)
         
         # Scale parameters to GPT units

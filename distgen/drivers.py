@@ -26,11 +26,11 @@ def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
     gen = generator(verbose)
     gen.parse_input(params)
     beam,outfile = gen.get_beam()
-    
-    if(outputfile is not None):
+    print(outfile,verbose,params)
+    if(outfile is not None):
         
         # Print distribution to file
-        file_writer = get_writer(output,outfile)
+        file_writer = get_writer(params["output"]["type"],outfile)
         file_writer.write(beam,verbose,params)
 
     # Print beam stats
