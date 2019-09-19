@@ -42,48 +42,6 @@ class generator():
             self.input_params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
             self.input_params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
             self.input_params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
-            
-    def get_dist_params_list(self,x,dist,params):
-
-        if(dist=="uniform" or dist=="u"):
-            self.npop = self.npop + 1
-            return (["min_"+x,"max_"+x],[])
-        if(dist=="gaussian" or dist=="g"):
-            self.npop = self.npop + 1
-            return (["sigma_"+x],["avg_"+x])
-        if(dist=="rg" or dist=="radial_gaussian"):
-            self.npop = self.npop + 1
-            return (["sigma_xy"],["sigma_x","sigma_y"])
-        if(dist=="truncated_gaussian" or dist=="tg"):
-            self.npop = self.npop + 1
-            return (["truncation_fraction","pinhole_size"],[])
-        if(dist=="crystals"):
-            self.npop = self.npop + 1
-            return ([p for p in params if ("crystal_length_" in p or "crystal_angle_" in p)],["avg_t"])
-        if(dist=="file" and x=="xy"):
-            self.npop = self.npop + 2
-            return (["file"],["avg_x","avg_y"])
-        elif(dist=="file"):
-            self.npop = self.npop + 2
-            return (["file"],["avg_"+x])
-        
-        else:
-            raise ValueError("Unkown distribution type: "+dist)
-
-    def is_physical_param(ps):
-
-        if( (len(ps)==2 and is_floatable(ps[0]) and is_unit_str(ps[1])) or (len(ps)==1 and is_floatable(ps[0])) ):
-            return True
-        return False
-
-    def parse_physical_param(self,ps):
-
-        if(len(ps)==2 and is_floatable(ps[0]) and is_unit_str(ps[1])):
-            return float(ps[0])*unit_registry(ps[1][1:-1])
-        elif(len(ps)==1 and is_floatable(ps[0])):
-            return float(ps[0])*unit_registry("dimensionless")  
-        else:
-            raise ValueError("Could not parse '"+str(ps)+"' to physical parameter.")
                 
     def convert_params(self,all_params):
         
