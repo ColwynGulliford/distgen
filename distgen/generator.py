@@ -255,10 +255,28 @@ class generator():
             avgf = avgs[x]
             stdf = stds[x]
 
+            # Scale and center each coordinate
             if(stdi.magnitude>0):
-                bdist[x] = (avgf + (stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
+                #bdist[x] = (avgf + (stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
+                bdist[x] = ((stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
             else:
-                bdist[x] = (avgf + (bdist[x] - avgi)).to(avgi.units)
+                #bdist[x] = (avgf + (bdist[x] - avgi)).to(avgi.units)
+                bdist[x] = (bdist[x] - avgi).to(avgi.units)
+        
+        # Perform any coordinate rotations before shifting to final average locations
+        if("rotate_xy" in beam_params["params"]):
+            angle = beam_params["params"]["rotate_xy"]
+            C = np.cos(angle)
+            S = np.sin(angle)
+            
+            x =  C*bdist["x"]-S*bdist["y"]
+            y = +S*bdist["x"]+C*bdist["y"]
+            
+            bdist["x"]=x
+            bdist["y"]=y
+        
+        for x in avgs:
+            bdist[x] = avgs[x] + bdist[x]
         
         if(beam_params["start_type"]=="cathode"):
 
