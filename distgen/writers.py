@@ -55,7 +55,7 @@ class gpt_writer(writer):
         for index, var in enumerate(headers):
             data[:,index] = beam[var].magnitude
         np.savetxt(self.outfile,data,header=header,comments='')
- 
+
         if("asci2gdf_binary" in params):
             gdfwatch = stopwatch()
             gdfwatch.start()
@@ -79,7 +79,8 @@ class gpt_writer(writer):
             vprint("done. Time ellapsed: "+gdfwatch.print()+".",verbose>0,0,True)
 
         watch.stop() 
-        vprint("...done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
+        vprint("...done. Time ellapsed: "+watch.print()+".",verbose>0 and "asci2gdf_binary" in params,0,True)
+        vprint("done. Time ellapsed: "+watch.print()+".",verbose>0 and not ("asci2gdf_binary" in params),0,True)
 
 class astra_writer(writer):
 
