@@ -39,7 +39,7 @@ class beam():
         """
         Prints averages and standard deviations of the beam variables.
         """
-        vprint("Beam stats:",True,0,True)
+        vprint("\nBeam stats:",True,0,True)
         for x in self.params:
             vprint("avg_"+x+ " = {:0.3f~P}".format(np.mean(self.params[x])) +", sigma_"+x+" = {:0.3f~P}".format(np.std(self.params[x])), True, 1, True)
             

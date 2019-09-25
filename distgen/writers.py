@@ -42,7 +42,6 @@ class gpt_writer(writer):
         beam.params["q"] = (np.full( (beam.n,), 1.0)*qe).to("coulomb")
         beam.params["nmacro"] = np.full( (beam.n,), np.abs(beam.q.to("coulomb")/qe/beam.n).magnitude )*unit_registry("dimensionless")
 
-        print("poom",verbose)
         vprint("\nPrinting "+str(beam.n)+" particles to '"+self.outfile+"': ",verbose>0,0,False)
         
         # Scale parameters to GPT units
@@ -128,6 +127,6 @@ class astra_writer(writer):
         np.savetxt(self.outfile,data)    
             
         watch.stop() 
-        vprint("...done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
+        vprint("done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
 
 
