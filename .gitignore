@@ -4,4 +4,6 @@
 .DS_Store
 __pycache__
 
+devel/*
+
 */*.ipynb_checkpoints
