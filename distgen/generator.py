@@ -6,20 +6,29 @@ from collections import OrderedDict as odic
 import numpy as np
 from matplotlib import pyplot as plt
 
-#import seaborn
-
+"""
+This class defines the main run engine object for distgen and is responsible for
+1. Parsing the input data dictionary passed from a Reader object
+2. Check the input for internal consistency
+3. Collect the parameters for distributions requested in the params dictionary 
+4. Form a the Beam object and populated the particle phase space coordinates
+"""
 class generator():
 
     def __init__(self,verbose):
-        
+        """
+        The class initialization takes in a verbose level for controlling text output to the user
+        """
         self.verbose = verbose 
-        self.supported_dists = ['r','theta','x','y','z','px','py','pz','t','r','E','crystals',"file","xy"]
     
     def parse_input(self,params):
-        
-        params = self.convert_params(params)
-        self.input_params = params
-        self.check_input_consistency(params)
+        """
+        Parse the input structure passed from a Reader object.  
+        The structure is then converted to an easier form for use in populating the Beam object.
+        """
+        params = self.convert_params(params)  # Conversion of the input dictionary
+        self.input_params = params            # Saving the converted dictionary to the Generator object
+        self.check_input_consistency(params)  # Check that the result is logically sound 
 
     def check_input_consistency(self,params):
         ''' Perform consistency checks on the user input data'''
@@ -301,9 +310,6 @@ class generator():
             vprint("uniform",self.verbose>0,0,True)
             vprint("min_"+x+" = {:0.3f~P}".format(dparams["min_"+x])+", max_"+x+" = {:0.3f~P}".format(dparams["max_"+x]),self.verbose>0,2,True)
             dist = uniform(dparams["min_"+x],dparams["max_"+x],xstr=x)
-
-            #kwargs = {"tony":1,"beef":"x"}
-            #dist.set_params(**kwargs)
             
         elif(dtype=="g" or dtype=="gaussian"):
 

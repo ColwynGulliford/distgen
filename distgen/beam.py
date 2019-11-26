@@ -8,8 +8,8 @@ This class defines the container for an initial particle distribution
 
 class beam():
   
-    n = 0
-    q = 0
+    #n = 0
+    #q = 0
 
     params = {}
 

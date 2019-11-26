@@ -100,7 +100,7 @@ class astra_writer(writer):
         particle_status = -1;
         
         astra_units["q"]="nC"
-        beam["q"]=qs 
+        beam.params["q"]=qs 
         
         vprint("\nPrinting "+str(beam.n)+" particles to '"+self.outfile+"': ",verbose>0,0,False)
         

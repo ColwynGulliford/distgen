@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from distgen.tools import stopwatch, vprint
-from distgen.reader import reader
+from distgen.reader import Reader
 from distgen.writers import get_writer
 from distgen.generator import generator
 
@@ -15,7 +15,7 @@ def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
 
     if(isinstance(inputs,str)):
         # Read input file
-        par = reader(inputs,verbose=verbose)
+        par = Reader(inputs,verbose=verbose)
         params = par.read()
     elif(isinstance(inputs,dict)):
         params = inputs
