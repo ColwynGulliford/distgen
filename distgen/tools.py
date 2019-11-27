@@ -56,7 +56,7 @@ def assert_with_message(bool_val,msg):
     if(not bool_val):
         raise ValueError(msg)
 
-class stopwatch():
+class StopWatch():
 
     ureg = unit_registry
 
@@ -74,6 +74,23 @@ class stopwatch():
     def print(self):
         dt = self.tstop - self.tstart
         return "{0:.2f}".format(dt.to_compact())
+
+# statistical operations:
+def mean(x,weights=None):
+
+    if(weights is None):
+        return np.mean(x)
+    else:
+        return np.sum(x*weights)
+
+def std(x,weights=None):
+
+    if(weights is None):
+        return np.std(x)
+    else:
+        return np.sqrt(np.sum( weights*(x-mean(x,weights))**2 ) )
+    
+
 
 # Numerical integration routines
 def trapz(f,q):

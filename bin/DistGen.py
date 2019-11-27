@@ -23,7 +23,7 @@ def main():
     verbose = int(options.verbose)  
     output = options.output    
 
-    run_distgen(inputs=inputfile,output_type=output,verbose=verbose)
+    run_distgen(inputs=inputfile,verbose=verbose)
     #---------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------- 

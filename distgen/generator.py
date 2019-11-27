@@ -1,5 +1,5 @@
 from .physical_constants import *
-from .beam import beam
+from .beam import Beam
 from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
@@ -13,7 +13,7 @@ This class defines the main run engine object for distgen and is responsible for
 3. Collect the parameters for distributions requested in the params dictionary 
 4. Form a the Beam object and populated the particle phase space coordinates
 """
-class generator():
+class Generator():
 
     def __init__(self,verbose):
         """
@@ -79,9 +79,9 @@ class generator():
                 
         return dparams
                 
-    def get_beam(self):
+    def beam(self):
     
-        watch = stopwatch()
+        watch = StopWatch()
         watch.start()
     
         verbose = self.verbose
@@ -99,7 +99,7 @@ class generator():
         vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
         
         N = int(beam_params["particle_count"])
-        bdist = beam(N, beam_params["params"]["total_charge"])
+        bdist = Beam(N, beam_params["params"]["total_charge"])
         
         if("file" in out_params):
             outfile = out_params["file"]
@@ -120,6 +120,7 @@ class generator():
         bdist.params["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
         bdist.params["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
         bdist.params["t"] = np.full((N,), 0.0)*unit_registry("s")
+        bdist.params["w"] = np.full((N,), 1/bdist.n)*unit_registry("dimensionless")
 
         avgs = odic()
         avgs["x"] = 0*unit_registry("meter")
@@ -150,7 +151,7 @@ class generator():
                 elif(vstr in ["xy"]):
                     npop = npop + 2
             
-        rgen = randgen()
+        rgen = RandGen()
         shape = ( N, npop )
         if(beam_params["rand_type"]=="hammersley"):
             rns = rgen.rand(shape, sequence="hammersley",params={"burnin":-1,"primes":()})
@@ -177,7 +178,7 @@ class generator():
                     
                 # Sample to get beam coordinates
                 params = {"min_theta":0*unit_registry("rad"),"max_theta":2*pi}
-                ths=(uniform("theta",**params)).cdfinv(rns[-1,:]*unit_registry("dimensionless"))        
+                ths=(Uniform("theta",**params)).cdfinv(rns[-1,:]*unit_registry("dimensionless"))        
    
                 avgr=0*unit_registry("m")
 
@@ -220,8 +221,8 @@ class generator():
             count = count + 2
             dist_params.pop("xy")
 
-            stds["x"]=bdist["x"].std()
-            stds["y"]=bdist["y"].std()
+            stds["x"]=bdist.std("x")
+            stds["y"]=bdist.std("y")
         
         # Do all other specified single coordinate dists   
         for x in dist_params.keys():
@@ -259,8 +260,8 @@ class generator():
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
 
-            avgi = np.mean(bdist[x])
-            stdi = np.std(bdist[x])
+            avgi = bdist.avg(x)
+            stdi = bdist.std(x)
             avgf = avgs[x]
             stdf = stds[x]
 
@@ -295,10 +296,10 @@ class generator():
 
         else:
             raise ValueError("Beam start '"+beam_params["start_type"]+"' is not supported!")
-
+        
         watch.stop()
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)
-        return (bdist,outfile)
+        return bdist
 
     def get_dist(self,x,dparams):
 

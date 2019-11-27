@@ -17,7 +17,7 @@ import math
 from matplotlib import pyplot as plt
 
 
-class randgen():
+class RandGen():
 
     """
     Defines object responsible for providing random numbers
@@ -51,29 +51,29 @@ class randgen():
 def get_dist(var,dtype,params=None,verbose=0):
     
     if(dtype=="uniform" or dtype=="u"):
-        dist = uniform(var,verbose=verbose,**params)
+        dist = Uniform(var,verbose=verbose,**params)
     elif(dtype=="gaussian" or dtype=="g"):
-        dist = norm(var,verbose=verbose,**params)
+        dist = Norm(var,verbose=verbose,**params)
     elif(dtype=="file1d"):
-        dist = file1d(var,verbose=verbose,**params)
+        dist = File1d(var,verbose=verbose,**params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
-        dist = uniformrad(verbose=verbose,**params)
+        dist = UniformRad(verbose=verbose,**params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
-        dist = normrad(verbose=verbose,**params)
+        dist = NormRad(verbose=verbose,**params)
     elif(dtype=="radfile" and var=="r"):
-        dist = radfile(verbose=verbose,**params)
+        dist = RadFile(verbose=verbose,**params)
     elif((dtype=="radial_truncated_gaussian" or dtype=="rtg") and var=="r"):
-        dist = normrad_trunc(verbose=verbose,**params)
+        dist = NormRadTrunc(verbose=verbose,**params)
     elif(dtype=="file2d"):
-        dist = file2d("x","y",verbose=verbose,**params)
+        dist = File2d("x","y",verbose=verbose,**params)
     elif(dtype=="crystals"):
-        dist = temporal_laser_pulse_stacking(verbose=verbose,**params)
+        dist = TemporalLaserPulseStacking(verbose=verbose,**params)
     else:
         raise ValueError("Distribution type '"+dtype+"' is not supported.")
             
     return dist
     
-class dist1d():
+class Dist1d():
 
     """
     Defines the base class for 1 dimensional distribution functions.  
@@ -88,7 +88,7 @@ class dist1d():
     Px = []    # Probability Distribution Function Px(x)
     Cx = []    # Cumulative Disrtirbution Functoin Cx(x)
     
-    rgen = randgen()
+    rgen = RandGen()
     
     def __init__(self,xs,Px,xstr="x"):
 
@@ -199,7 +199,7 @@ class dist1d():
         plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
         plt.legend(["PDF","Hist. of Sampling"])
     
-class uniform(dist1d):
+class Uniform(Dist1d):
 
     def __init__(self,var,verbose=0,**kwargs):
         
@@ -251,7 +251,7 @@ class uniform(dist1d):
         std=self.std()
         return np.sqrt(std*std + avg*avg)
     
-class norm(dist1d):
+class Norm(Dist1d):
 
     def __init__(self,var,verbose=0,**kwargs):
         
@@ -295,7 +295,7 @@ class norm(dist1d):
         std=self.std()
         return np.sqrt(std*std + avg*avg)
     
-class file1d(dist1d):
+class File1d(Dist1d):
     
     def __init__(self,var,verbose=0,**kwargs):
         
@@ -331,7 +331,7 @@ class file1d(dist1d):
         
         super().__init__(xs,Px,self.xstr)
         
-class temporal_laser_pulse_stacking(dist1d):
+class TemporalLaserPulseStacking(Dist1d):
 
     xstr="t" 
     ts = []
@@ -500,9 +500,9 @@ class temporal_laser_pulse_stacking(dist1d):
     def get_params_list(self,var):
         return (["crystal_length_$N","crystal_angle_$N"],["laser_pulse_FWHM","avg_"+var,"std_"+var])
     
-class distrad():
+class DistRad():
 
-    rgen = randgen()
+    rgen = RandGen()
 
     rs = []    # r pts [0,inf]
     Pr = []    # Probability Distribution Function Pr(r)
@@ -610,7 +610,7 @@ class distrad():
         plt.show()
 
         
-class uniformrad(distrad):
+class UniformRad(DistRad):
  
     rL=0
     rR=0
@@ -657,7 +657,7 @@ class uniformrad(distrad):
     def cdfinv(self,rns):
         return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
 
-class normrad(distrad):
+class NormRad(DistRad):
 
     sigma = 0 
 
@@ -689,7 +689,7 @@ class normrad(distrad):
     def cdfinv(self,rns):
         return self.sigma*np.sqrt(-2*np.log(1-rns))
 
-class normrad_trunc(distrad):
+class NormRadTrunc(DistRad):
 
     f = 0
     R = 0
@@ -737,7 +737,7 @@ class normrad_trunc(distrad):
     def rms(self):
         return np.sqrt( 2*self.sigma_inf**2 - self.R**2 * self.f/(1-self.f) )
 
-class radfile(distrad):
+class RadFile(DistRad):
 
     def __init__(self,**params):
 
@@ -766,7 +766,7 @@ class radfile(distrad):
        
         super().__init__(rs,Pr)
 
-class dist2d():
+class Dist2d():
 
     xstr = ""
     ystr = ""
@@ -774,7 +774,7 @@ class dist2d():
     ys = []
     Pxy = []    # Probability Distribution Function P(x,y)
     
-    rgen = randgen()
+    rgen = RandGen()
 
     def __init__(self,xs,ys,Pxy,xstr="x",ystr="y"):
 
@@ -881,7 +881,7 @@ class dist2d():
         plt.figure()
         plt.plot(x,y,'*')
 
-class file2d(dist2d):
+class File2d(Dist2d):
 
     def __init__(self, var1, var2, filename=None,**params):
 

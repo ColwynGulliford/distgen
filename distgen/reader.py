@@ -1,4 +1,4 @@
-from .tools import vprint, stopwatch, is_floatable, is_unit_str
+from .tools import vprint, StopWatch, is_floatable, is_unit_str
 
 import time
 import os
@@ -10,7 +10,7 @@ This class handles input file reading and currently supports reading json files.
 Coming soon ascii files.
     
 """
-class reader():
+class Reader():
 
     def __init__(self,file_name,verbose=0):
 
@@ -37,7 +37,7 @@ class reader():
             raise ValueError("PyDist::reader: input file doesn't exist!")
                 
         # Get a stop watch for timeing the file read
-        watch = stopwatch()
+        watch = StopWatch()
         watch.start()
         vprint("Reading file '"+self.file_name+"'...",self.verbose>0,0,False)    
        
@@ -83,7 +83,6 @@ class reader():
             return False
 
     def get_parameter(self,name):
- 
         """
 	Return the value for a the key "name" (str) in the stored parameter dictionary
         """
