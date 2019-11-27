@@ -33,12 +33,23 @@ class Beam():
         else:
             raise ValueError("Beam object has no parameter "+var)
 
-    def avg(self,var):
-        return mean(self.params[var],self.params["w"])
-  
-    def std(self,var):
-        return std(self.params[var],self.params["w"])        
+    def avg(self,var,desired_units=None):
 
+        if(desired_units is None):
+            return mean(self.params[var],self.params["w"])
+        else:
+            avgvar = mean(self.params[var],self.params["w"])
+            return avgvar.to(desired_units)
+  
+    def std(self,var,desired_units=None):
+        
+        if(desired_units is None):
+            return std(self.params[var],self.params["w"])   
+        else:
+            stdvar = std(self.params[var],self.params["w"]) 
+            return stdvar.to(desired_units)
+
+        print("BOOF")
 
     def print_stats(self):
         """
