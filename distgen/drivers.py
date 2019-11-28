@@ -24,7 +24,10 @@ def set_param(param_struct, keystring, val, sep=':'):
         d = d[k]
     final_key = keys[-1]
     # Set
-    d[final_key] = val
+    if final_key in d:
+        d[final_key] = val
+    else:
+        print(f'Error: keystring {keystring} key does not exist:', final_key)
 
 def get_param(param_struct, keystring, sep=':'):
     """
@@ -76,7 +79,17 @@ def run_distgen(
     inputs='distgen.json',
     verbose=0):
     """
+    Driver routine to generate a beam accordng to inputs (json or dict)
     
+    Settings can contain modifications to inputs, with nested keys separated by :. 
+    
+    
+    beam=distgen.drivers.run_distgen(
+        settings = {'beam:params:total_charge:value': 456,
+                    'output:type':'astra',
+                    'output:file':'astra_particles.dat'},
+        inputs = 'gunb_gaussian.json',
+        verbose=True)
     
     """
     
@@ -91,11 +104,11 @@ def run_distgen(
         raise ValueError("Unsupported input parameter: "+str(type(inputs)))    
     
     # Replace these with custom settings
-    #for key, value in settings.items():
-        
-    #    set_param(params, key, value)
-    #    # Check
-    #    print(key, get_param(params, key))
+    for key, value in settings.items():    
+        set_param(params, key, value)
+        # Check
+        if verbose:
+            print('replaced: ', key, 'with:', get_param(params, key))
     
     # Make distribution
     gen = Generator(verbose)
