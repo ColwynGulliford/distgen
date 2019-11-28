@@ -15,7 +15,7 @@ This class defines the main run engine object for distgen and is responsible for
 """
 class Generator():
 
-    def __init__(self,verbose):
+    def __init__(self,verbose=0):
         """
         The class initialization takes in a verbose level for controlling text output to the user
         """
@@ -292,7 +292,7 @@ class Generator():
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
             vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
-            vprint("avg_pz -> {:0.3f~P}".format(np.mean(bdist["pz"]))+", sigma_pz -> {:0.3f~P}".format(np.std(bdist["pz"])),verbose>0,2,True)
+            vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
 
         else:
             raise ValueError("Beam start '"+beam_params["start_type"]+"' is not supported!")

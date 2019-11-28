@@ -90,8 +90,6 @@ def std(x,weights=None):
     else:
         return np.sqrt(np.sum( weights*(x-mean(x,weights))**2 ) )
     
-
-
 # Numerical integration routines
 def trapz(f,q):
 
