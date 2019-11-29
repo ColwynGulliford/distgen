@@ -5,6 +5,7 @@ import numpy as np
 import subprocess
 import os
 from collections import OrderedDict as odict
+from h5py import File
 
 def get_species_charge(species):
 
@@ -15,13 +16,8 @@ def get_species_charge(species):
 
 def writer(output_format,beam,outfile,verbose=0,params=None):
 
-    if(output_format=="gpt"):
-
-        write_gpt(beam,outfile,verbose=verbose,params=params)
-
-    elif(output_format=="astra"):
-        write_astra(beam,outfile,verbose=verbose,params=params)
-
+    file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
+    file_writer[output_format](beam,outfile,verbose,params)
 
 def write_gpt(beam,outfile,verbose=0,params=None):  
 
@@ -174,6 +170,83 @@ def write_astra(beam,
     np.savetxt(outfile, data, fmt = ' '.join(8*['%20.12e']+2*['%4i']))
     watch.stop() 
     vprint("done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
+
+def fstr(s):
+    """
+    Makes a fixed string for h5 files
+    """
+    return np.string_(s)
+
+def write_openPMD(beam,outfile,verbose=0, params=None):
+
+    with File(outfile, 'w') as h5:
+
+        if(params):
+            name = params["name"]
+        else:
+            name = None
+
+        watch = StopWatch()
+        watch.start()
+        vprint("Printing "+str(beam.n)+" particles to '"+outfile+"': ",verbose>0,0,False)
+        write_openpmd_h5(beam, h5, name=name, verbose=0)
+        watch.stop() 
+        vprint("done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
+    
+
+def write_openpmd_h5(beam, h5, name=None, verbose=0):
+    """
+    Write particle data at a screen in openPMD BeamPhysics format
+    https://github.com/DavidSagan/openPMD-standard/blob/EXT_BeamPhysics/EXT_BeamPhysics.md
+    """    
+
+    if name:
+        g = h5.create_group(name)
+    else:
+        g = h5
+    
+    species = beam.species    
+
+    n_particle = beam.n
+    q_total = beam.q.to('C').magnitude
+
+    g.attrs['speciesType'] = fstr(species)
+    g.attrs['numParticles'] = n_particle
+    g.attrs['chargeLive'] = q_total
+    g.attrs['chargeUnitSI'] = 1
+    g.attrs['chargeUnitDimension']=(0., 0., 1, 1., 0., 0., 0.) # Amp*s = Coulomb
+    g.attrs['totalCharge'] = q_total
+
+    # Position
+    g['position/x']=beam['x'].to('m').magnitude # in meters
+    g['position/y']=beam['y'].to('m').magnitude
+    g['position/z']=beam['z'].to('m').magnitude
+    g['position'].attrs['unitSI'] = 1.0
+    g['position'].attrs['unitDimension']=(1., 0., 0., 0., 0., 0., 0.) # m
+    
+    # momenta
+    g['momentum/x']=beam['px'].to('eV/c').magnitude #  m*c*gamma*beta_x in eV/c
+    g['momentum/y']=beam['py'].to('eV/c').magnitude
+    g['momentum/z']=beam['pz'].to('eV/c').magnitude
+    g['momentum'].attrs['unitSI']= 5.34428594864784788094e-28 # eV/c in J/(m/s) =  kg*m / s
+    g['momentum'].attrs['unitDimension']=(1., 1., -1., 0., 0., 0., 0.) # kg*m / s
+       
+    # Time
+    g['time'] = beam['t'].to('s').magnitude
+    g['time'].attrs['unitSI'] = 1.0 # s
+    g['time'].attrs['unitDimension'] = (0., 0., 1., 0., 0., 0., 0.) # s
+        
+    # Weights
+    #g['weight'] = beam['q'].to('C').magnitude
+    g['weight'] = beam["w"].magnitude
+    g['weight'].attrs['unitSI'] = 1.0
+    g['weight'].attrs['unitDimension']=(0., 0., 1, 1., 0., 0., 0.) # Amp*s = Coulomb
+    
+    
+    # Status
+    #g['particleStatus'] = astra_data['status']
+
+
 
 #def write_astra(beam,outfile,verbose=0,params=None):  
 
