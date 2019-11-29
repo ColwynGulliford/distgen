@@ -1,44 +1,10 @@
 #!/usr/bin/env python
 
-from distgen.tools import StopWatch, vprint
+from distgen.tools import StopWatch, vprint, set_nested_dict, get_nested_dict
 from distgen.reader import Reader
 from distgen.writers import writer
 from distgen.generator import Generator
 
-def set_param(param_struct, keystring, val, sep=':'):
-    """
-    Set a value inside nested dicts using a key string. 
-    Example:
-        set_distgen_param(
-        {d['key1']['key2']['key3']},
-        'key1:key2:key3', 999
-        )
-        is equivalent to:
-        d['key1']['key2']['key3'] = 999
-    
-    """
-    keys = keystring.split(':')
-    d = param_struct
-    # Go through nested dicts
-    for k in keys[0:-1]:
-        d = d[k]
-    final_key = keys[-1]
-    # Set
-    if final_key in d:
-        d[final_key] = val
-    else:
-        print(f'Error: keystring {keystring} key does not exist:', final_key)
-
-def get_param(param_struct, keystring, sep=':'):
-    """
-    
-    """
-    keys = keystring.split(':')
-    d = param_struct
-    # Go through nested dicts
-    for k in keys:
-        d = d[k]
-    return d
 
 #def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
 
@@ -105,10 +71,10 @@ def run_distgen(
     
     # Replace these with custom settings
     for key, value in settings.items():    
-        set_param(params, key, value)
+        set_nested_dict(params, key, value)
         # Check
         if verbose:
-            print('replaced: ', key, 'with:', get_param(params, key))
+            print('replaced: ', key, 'with:', get_nested_dict(params, key))
     
     # Make distribution
     gen = Generator(verbose)

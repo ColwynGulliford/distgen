@@ -4,7 +4,6 @@ from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
 import numpy as np
-from matplotlib import pyplot as plt
 
 """
 This class defines the main run engine object for distgen and is responsible for
