@@ -83,13 +83,13 @@ def run_distgen(
     
     Settings can contain modifications to inputs, with nested keys separated by :. 
     
-    
-    beam=distgen.drivers.run_distgen(
-        settings = {'beam:params:total_charge:value': 456,
-                    'output:type':'astra',
-                    'output:file':'astra_particles.dat'},
-        inputs = 'gunb_gaussian.json',
-        verbose=True)
+    Example:
+        beam=distgen.drivers.run_distgen(
+            settings = {'beam:params:total_charge:value': 456,
+                        'output:type':'astra',
+                        'output:file':'astra_particles.dat'},
+            inputs = 'gunb_gaussian.json',
+            verbose=True)
     
     """
     

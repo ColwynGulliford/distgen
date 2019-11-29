@@ -225,3 +225,43 @@ def nearest_neighbor(array,values):
     return np.abs(np.subtract.outer(array, values)).argmin(0)
 
 
+
+
+def flatten_dict(dd, sep=':', prefix=''):
+    """
+    Flattens a nested dict into a single dict, with keys concatenated with sep.
+    
+    Similar to pandas.io.json.json_normalize
+    
+    Example:
+        A dict of dicts:
+            dd = {'a':{'x':1}, 'b':{'d':{'y':3}}}
+            flatten_dict(dd, prefix='Z')
+        Returns: {'Z:a:x': 1, 'Z:b:d:y': 3}
+    
+    """
+    return { prefix + sep + k if prefix else k : v
+             for kk, vv in dd.items()
+             for k, v in flatten_dict(vv, sep, kk).items()
+             } if isinstance(dd, dict) else { prefix : dd }
+
+def unflatten_dict(d, sep=':', prefix=''):
+    """
+    Inverse of flatten_dict. Forms a nested dict.
+    """
+    dd = {}
+    for kk, vv in d.items():
+        if kk.startswith(prefix+sep):
+            kk=kk[len(prefix+sep):]
+            
+        klist = kk.split(sep)
+        d1 = dd
+        for k in klist[0:-1]:
+            if k not in d1:
+                d1[k] = {}
+            d1 = d1[k]
+        
+        d1[klist[-1]] = vv
+    return dd
+
+
