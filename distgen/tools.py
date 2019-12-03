@@ -2,8 +2,18 @@ from .physical_constants import unit_registry
 import time
 import numpy as np
 from scipy.integrate import cumtrapz as scipy_cumtrapz 
+import os
+
 
 # HELPER FUNCTIONS:
+
+def full_path(path):
+    """
+    Helper function to expand enviromental variables and return the absolute path
+    """
+    return os.path.abspath(os.path.expandvars(path))
+
+
 def vprint(out_str,verbose,indent_number,new_line):
 
     """Defines verbose printing used for output:
