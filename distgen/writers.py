@@ -189,10 +189,31 @@ def write_openPMD(beam,outfile,verbose=0, params=None):
         watch = StopWatch()
         watch.start()
         vprint("Printing "+str(beam.n)+" particles to '"+outfile+"': ",verbose>0,0,False)
-        write_openpmd_h5(beam, h5, name=name, verbose=0)
+        
+        opmd_init(h5)
+        write_openpmd_h5(beam, h5, name='/data/0/particles/', verbose=0)
+        
         watch.stop() 
         vprint("done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
     
+    
+def opmd_init(h5):
+    """
+    Root attribute initialization.
+    
+    h5 should be the root of the file.
+    """
+    d = {
+        'basePath':'/data/%T/',
+        'dataType':'openPMD',
+        'openPMD':'2.0.0',
+        'openPMDextension':'BeamPhysics;SpeciesType',
+        'particlesPath':'particles/'        
+    }
+    for k,v in d.items():
+        h5.attrs[k] = np.string_(v)
+    h5.create_group('/data/')
+
 
 def write_openpmd_h5(beam, h5, name=None, verbose=0):
     """
@@ -240,7 +261,7 @@ def write_openpmd_h5(beam, h5, name=None, verbose=0):
         
     # Weights
     #g['weight'] = beam['q'].to('C').magnitude
-    g['weight'] = beam["w"].magnitude
+    g['weight'] = beam["w"].magnitude * abs(q_total) # should be a charge
     g['weight'].attrs['unitSI'] = 1.0
     g['weight'].attrs['unitDimension']=(0., 0., 1, 1., 0., 0., 0.) # Amp*s = Coulomb
     
