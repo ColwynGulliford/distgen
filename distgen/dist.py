@@ -627,7 +627,7 @@ class UniformRad(DistRad):
         if(minstr in kwargs.keys()):
             self.rL = kwargs[minstr]
         else:
-            self.rL=0*unit_registry(str(self.rR.units()))
+            self.rL=0*unit_registry(str(self.rR.units))
         
         if(self.rL>=self.rR):
             raise ValueError("Radial uniform dist must have rL < rR")
