@@ -2,8 +2,18 @@ from .physical_constants import unit_registry
 import time
 import numpy as np
 from scipy.integrate import cumtrapz as scipy_cumtrapz 
+import os
+
 
 # HELPER FUNCTIONS:
+
+def full_path(path):
+    """
+    Helper function to expand enviromental variables and return the absolute path
+    """
+    return os.path.abspath(os.path.expandvars(path))
+
+
 def vprint(out_str,verbose,indent_number,new_line):
 
     """Defines verbose printing used for output:
@@ -223,5 +233,86 @@ def nearest_neighbor(array,values):
     array = array.magnitude
     values = values.magnitude
     return np.abs(np.subtract.outer(array, values)).argmin(0)
+
+
+
+
+def flatten_dict(dd, sep=':', prefix=''):
+    """
+    Flattens a nested dict into a single dict, with keys concatenated with sep.
+    
+    Similar to pandas.io.json.json_normalize
+    
+    Example:
+        A dict of dicts:
+            dd = {'a':{'x':1}, 'b':{'d':{'y':3}}}
+            flatten_dict(dd, prefix='Z')
+        Returns: {'Z:a:x': 1, 'Z:b:d:y': 3}
+    
+    """
+    return { prefix + sep + k if prefix else k : v
+             for kk, vv in dd.items()
+             for k, v in flatten_dict(vv, sep, kk).items()
+             } if isinstance(dd, dict) else { prefix : dd }
+
+def unflatten_dict(d, sep=':', prefix=''):
+    """
+    Inverse of flatten_dict. Forms a nested dict.
+    """
+    dd = {}
+    for kk, vv in d.items():
+        if kk.startswith(prefix+sep):
+            kk=kk[len(prefix+sep):]
+            
+        klist = kk.split(sep)
+        d1 = dd
+        for k in klist[0:-1]:
+            if k not in d1:
+                d1[k] = {}
+            d1 = d1[k]
+        
+        d1[klist[-1]] = vv
+    return dd
+def set_nested_dict(dd, flatkey, val, sep=':', prefix=''):
+    """
+    Set a value inside nested dicts using a key string. 
+    Example:
+        dd = {'key1':{'key2':{'key3':9}}}
+        set_nested_dict(dd, 'P:key1:key2:key3', 4, prefix='P')
+        
+        will set dd in place as:
+            {'key1': {'key2': {'key3': 4}}}
+        
+    
+    """
+    if flatkey.startswith(prefix+sep):
+        flatkey=flatkey[len(prefix+sep):]    
+    keys = flatkey.split(':')
+    d = dd
+    # Go through nested dicts
+    for k in keys[0:-1]:
+        d = d[k]
+    final_key = keys[-1]
+    # Set
+    if final_key in d:
+        d[final_key] = val
+    else:
+        print(f'Error: flat key {flatkey} key does not exist:', final_key)
+
+def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
+    """
+    Gets the value in a nested dict from a flattened key.
+    See: flatten_dict
+    """
+    if flatkey.startswith(prefix+sep):
+        flatkey=flatkey[len(prefix+sep):]
+    keys = flatkey.split(':')
+    d = dd
+    # Go through nested dicts
+    for k in keys:
+        d = d[k]
+    return d
+
+
 
 

@@ -163,7 +163,7 @@ def write_astra(beam,
         data[4]['y'] = 1.0*sigma['y'];data[4]['t'] = -sigma['t']
         data[5]['x'] = 1.5*sigma['x'];data[5]['t'] =  1.5*sigma['t']
         data[6]['y'] = 1.5*sigma['y'];data[6]['t'] = -1.5*sigma['t']        
-        data[1:7]['status'] = -3
+        data[1:7]['status'] = 3
         data[1:7]['pz'] = 0 #? This is what the Astra Generator does
     
     # Save in the 'high_res = T' format
@@ -189,10 +189,31 @@ def write_openPMD(beam,outfile,verbose=0, params=None):
         watch = StopWatch()
         watch.start()
         vprint("Printing "+str(beam.n)+" particles to '"+outfile+"': ",verbose>0,0,False)
-        write_openpmd_h5(beam, h5, name=name, verbose=0)
+        
+        opmd_init(h5)
+        write_openpmd_h5(beam, h5, name='/data/0/particles/', verbose=0)
+        
         watch.stop() 
         vprint("done. Time ellapsed: "+watch.print()+".",verbose>0,0,True)
     
+    
+def opmd_init(h5):
+    """
+    Root attribute initialization.
+    
+    h5 should be the root of the file.
+    """
+    d = {
+        'basePath':'/data/%T/',
+        'dataType':'openPMD',
+        'openPMD':'2.0.0',
+        'openPMDextension':'BeamPhysics;SpeciesType',
+        'particlesPath':'particles/'        
+    }
+    for k,v in d.items():
+        h5.attrs[k] = np.string_(v)
+    h5.create_group('/data/')
+
 
 def write_openpmd_h5(beam, h5, name=None, verbose=0):
     """
@@ -212,24 +233,26 @@ def write_openpmd_h5(beam, h5, name=None, verbose=0):
 
     g.attrs['speciesType'] = fstr(species)
     g.attrs['numParticles'] = n_particle
-    g.attrs['chargeLive'] = q_total
+    g.attrs['chargeLive'] = abs(q_total)
     g.attrs['chargeUnitSI'] = 1
-    g.attrs['chargeUnitDimension']=(0., 0., 1, 1., 0., 0., 0.) # Amp*s = Coulomb
-    g.attrs['totalCharge'] = q_total
+    #g.attrs['chargeUnitDimension']=(0., 0., 1, 1., 0., 0., 0.) # Amp*s = Coulomb
+    g.attrs['totalCharge'] = abs(q_total)
 
     # Position
     g['position/x']=beam['x'].to('m').magnitude # in meters
     g['position/y']=beam['y'].to('m').magnitude
     g['position/z']=beam['z'].to('m').magnitude
-    g['position'].attrs['unitSI'] = 1.0
-    g['position'].attrs['unitDimension']=(1., 0., 0., 0., 0., 0., 0.) # m
+    for component in ['position/x', 'position/y', 'position/z', 'position']: # Add units to all components
+        g[component].attrs['unitSI'] = 1.0
+        g[component].attrs['unitDimension']=(1., 0., 0., 0., 0., 0., 0.) # m
     
     # momenta
     g['momentum/x']=beam['px'].to('eV/c').magnitude #  m*c*gamma*beta_x in eV/c
     g['momentum/y']=beam['py'].to('eV/c').magnitude
     g['momentum/z']=beam['pz'].to('eV/c').magnitude
-    g['momentum'].attrs['unitSI']= 5.34428594864784788094e-28 # eV/c in J/(m/s) =  kg*m / s
-    g['momentum'].attrs['unitDimension']=(1., 1., -1., 0., 0., 0., 0.) # kg*m / s
+    for component in ['momentum/x', 'momentum/y', 'momentum/z', 'momentum']: 
+        g[component].attrs['unitSI']= 5.34428594864784788094e-28 # eV/c in J/(m/s) =  kg*m / s
+        g[component].attrs['unitDimension']=(1., 1., -1., 0., 0., 0., 0.) # kg*m / s
        
     # Time
     g['time'] = beam['t'].to('s').magnitude
@@ -238,7 +261,7 @@ def write_openpmd_h5(beam, h5, name=None, verbose=0):
         
     # Weights
     #g['weight'] = beam['q'].to('C').magnitude
-    g['weight'] = beam["w"].magnitude
+    g['weight'] = beam["w"].magnitude * abs(q_total) # should be a charge
     g['weight'].attrs['unitSI'] = 1.0
     g['weight'].attrs['unitDimension']=(0., 0., 1, 1., 0., 0., 0.) # Amp*s = Coulomb
     
