@@ -282,7 +282,8 @@ class Norm(Dist1d):
         return 0.5*(1+scipy.special.erf( (x-self.mu)/self.sigma/math.sqrt(2) ) )
 
     def cdfinv(self,rns):
-        return self.mu + math.sqrt(2)*self.sigma*scipy.special.erfinv((2*rns-1))
+        rns_np = rns.magnitude
+        return self.mu + math.sqrt(2)*self.sigma*scipy.special.erfinv((2*rns_np-1))
 
     def avg(self):
         return self.mu
