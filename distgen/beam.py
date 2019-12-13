@@ -51,6 +51,15 @@ class Beam():
 
         print("BOOF")
 
+    def data(self):
+        """
+        Converts to fixed units and returns a dict of data.
+        
+        See function Sbeam_data
+        """
+        return beam_data(self)
+    
+        
     def print_stats(self):
         """
         Prints averages and standard deviations of the beam variables.
@@ -63,3 +72,51 @@ class Beam():
             if(x not in stat_exceptions):
                 vprint("avg_"+x+ " = {:0.3f~P}".format(mean(self.params[x], self.params["w"])) +", sigma_"+x+" = {:0.3f~P}".format(std(self.params[x],weights=self.params["w"])), True, 1, True)
             
+
+            
+            
+            
+            
+            
+def beam_data(beam):
+    """
+    Converts all units to standard units and strips them as a data dict with:
+        str: species
+        int: n_particle
+        np.array: x, px, y, py, z, pz, t, status, weight
+    where:
+        x, y, z are positions in units of [m]
+        px, py, pz are momenta in units of [eV/c]
+        t is time in [s]
+        status = 1 
+        weight is the macro-charge weight in [C]
+        
+
+    """
+    #assert species == 'electron' # TODO: add more species
+    
+    # number of lines in file
+    n_particle = beam.n
+    total_charge = (beam.q.to('C')).magnitude
+    species = beam.species
+    
+    # weight
+    weight = (beam['w'].magnitude) * total_charge # Weight should be macrocharge in C
+    
+    # Status
+    status = np.full(n_particle, 1) # Status == 1 means live
+    
+    # standard units and types
+    names = ['x', 'y', 'z', 'px',   'py',   'pz',   't']
+    units = ['m', 'm', 'm', 'eV/c', 'eV/c', 'eV/c', 's']
+    
+    data = {'n_particle':n_particle,
+            'species':species,
+            'weight':weight,
+            'status':status
+    }
+    
+    for name, unit in zip(names, units):
+        data[name] = (beam[name].to(unit)).magnitude
+    
+    return data            

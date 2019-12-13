@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distgen.tools import StopWatch, vprint, set_nested_dict, get_nested_dict
+from distgen.tools import StopWatch, vprint, flatten_dict, unflatten_dict
 from distgen.reader import Reader
 from distgen.writers import writer
 from distgen.generator import Generator
@@ -69,16 +69,21 @@ def run_distgen(
     else:
         raise ValueError("Unsupported input parameter: "+str(type(inputs)))    
     
-    # Replace these with custom settings
-    for key, value in settings.items():    
-        set_nested_dict(params, key, value)
-        # Check
+    # Flatten for simple replacement
+    flat_params = flatten_dict(params)
+
+    for key, value in settings.items():
         if verbose:
-            print('replaced: ', key, 'with:', get_nested_dict(params, key))
+            if key in flat_params:
+                print(f'Replacing param {key} with value {value}')
+            else:
+                print(f'New param {key} with value {value}')
+        flat_params[key] = value
+        
+    params = unflatten_dict(flat_params)
     
     # Make distribution
-    gen = Generator(verbose)
-    gen.parse_input(params)
+    gen = Generator(params=params, verbose=verbose)
     beam = gen.beam()
     
     # Write to file
