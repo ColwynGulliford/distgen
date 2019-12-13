@@ -8,8 +8,6 @@ This class defines the container for an initial particle distribution
 
 class Beam():
 
-    params = {}
-
     def __init__(self,n,q,species="electron"):
         """
         Initializes a beam class object with n particles and bunch charge q
@@ -17,6 +15,7 @@ class Beam():
         self.n = n
         self.q = q
         self.species = species
+        self.params = {}
 
     def __getitem__(self,var):
         """
