@@ -273,6 +273,33 @@ def unflatten_dict(d, sep=':', prefix=''):
         
         d1[klist[-1]] = vv
     return dd
+
+def update_nested_dict(d, settings, verbose=False):
+    """
+    Updates a nested dict with flattened settings
+    """
+    flat_params = flatten_dict(d)
+
+    for key, value in settings.items():
+        if verbose:
+            if key in flat_params:
+                print(f'Replacing param {key} with value {value}')
+            else:
+                print(f'New param {key} with value {value}')
+        flat_params[key] = value
+        
+    new_dict = unflatten_dict(flat_params)
+    
+    return new_dict
+
+
+
+
+
+
+
+
+
 def set_nested_dict(dd, flatkey, val, sep=':', prefix=''):
     """
     Set a value inside nested dicts using a key string. 

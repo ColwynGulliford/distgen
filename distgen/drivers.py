@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distgen.tools import StopWatch, vprint, flatten_dict, unflatten_dict
+from distgen.tools import StopWatch, vprint, update_nested_dict
 from distgen.reader import Reader
 from distgen.writers import writer
 from distgen.generator import Generator
@@ -69,18 +69,7 @@ def run_distgen(
     else:
         raise ValueError("Unsupported input parameter: "+str(type(inputs)))    
     
-    # Flatten for simple replacement
-    flat_params = flatten_dict(params)
-
-    for key, value in settings.items():
-        if verbose:
-            if key in flat_params:
-                print(f'Replacing param {key} with value {value}')
-            else:
-                print(f'New param {key} with value {value}')
-        flat_params[key] = value
-        
-    params = unflatten_dict(flat_params)
+    params = update_nested_dict(params, settings, verbose=verbose)
     
     # Make distribution
     gen = Generator(params=params, verbose=verbose)
