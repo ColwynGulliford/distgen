@@ -12,13 +12,17 @@ This class defines the main run engine object for distgen and is responsible for
 3. Collect the parameters for distributions requested in the params dictionary 
 4. Form a the Beam object and populated the particle phase space coordinates
 """
-class Generator():
+class Generator:
 
-    def __init__(self,verbose=0):
+    def __init__(self, params=None, verbose=0):
         """
         The class initialization takes in a verbose level for controlling text output to the user
         """
         self.verbose = verbose 
+    
+        if params:
+            self.parse_input(params)
+            
     
     def parse_input(self,params):
         """
@@ -67,7 +71,9 @@ class Generator():
             if(key=="params"): # make physical quantity
                 params = {}
                 for p in all_params[dname]["params"]:
-                    if(isinstance(all_params[dname]["params"][p],dict) and "value" in all_params[dname]["params"][p] and "units" in all_params[dname]["params"][p]):
+                    if(isinstance(all_params[dname]["params"][p],dict) and
+                       "value" in all_params[dname]["params"][p] and 
+                       "units" in all_params[dname]["params"][p]):
                         params[p]=all_params[dname]["params"][p]["value"]*unit_registry(all_params[dname]["params"][p]["units"])
                     else:
                         params[p]=all_params[dname]["params"][p]

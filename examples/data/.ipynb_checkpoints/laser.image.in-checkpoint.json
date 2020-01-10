@@ -1,0 +1,3 @@
+{"beam": {"start_type": "cathode", "rand_type": "hammersley", "particle_count": 1000000, "params": {"total_charge": {"value": 10, "units": "pC"}, "MTE": {"value": 150, "units": "meV"}}}, 
+"xy_dist": {"type": "file2d", "params": {"file":"laser.image.txt"}},
+"output": {"type": "gpt", "file": "rad.uniform.out.txt"}}

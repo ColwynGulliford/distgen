@@ -1,3 +1,0 @@
-{"beam": {"start_type": "cathode", "rand_type": "hammersley", "particle_count": 200000, "params": {"total_charge": {"value": 10, "units": "pC"}, "MTE": {"value": 150, "units": "meV"}}}, 
-"r_dist": {"type": "rtg", "params": {"pinhole_size": {"value": 2, "units": "mm"}, "fraction": {"value": 0.5, "units": "dimensionless"}}},
-"output": {"type": "gpt", "file": "rad.uniform.out.txt"}}
