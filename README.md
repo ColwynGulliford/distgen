@@ -1,0 +1,2 @@
+# distgen
+Particle distribution generator
