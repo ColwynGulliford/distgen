@@ -19,7 +19,7 @@ def writer(output_format,beam,outfile,verbose=0,params=None):
     file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
     file_writer[output_format](beam,outfile,verbose,params)
 
-def write_gpt(beam,outfile,verbose=0,params=None):  
+def write_gpt(beam,outfile,verbose=0,asci2gdf_bin=None):  
 
         watch = StopWatch()
 
@@ -57,20 +57,24 @@ def write_gpt(beam,outfile,verbose=0,params=None):
                 data[:,index] = beam[var].magnitude
         np.savetxt(outfile,data,header=header,comments='')
 
-        if("asci2gdf_binary" in params):
-            gdfwatch = stopwatch()
+        if(asci2gdf_bin):
+            gdfwatch = StopWatch()
             gdfwatch.start()
             vprint("Converting file to GDF: ",verbose>0,1,False)
-            if(".txt"==self.outfile[-4:]):
+     
+            if(".txt"==outfile[-4:]):
                 gdffile = outfile[:-4]+".gdf"
+            elif('.gdf'==outfile[-4:]):
+                gdffile = outfile
             else:
                 gdffile = outfile+".gdf"
 
             try:
-                os.system(params["asci2gdf_binary"][0]+" -o "+gdffile+" "+self.outfile)
+                
+                result = os.system(asci2gdf_bin+" -o "+gdffile+" "+outfile)
                  #subprocess.call([params["asci2gdf_binary"][0], "-o ",gdffile, self.outfile],shell=True)
                 
-                subprocess.call(["rm",self.outfile])
+                subprocess.call(["rm",outfile])
                 gdfwatch.stop() 
             except Exception as ex:
                 print("Error occured while converting ascii to gdf file: ")
