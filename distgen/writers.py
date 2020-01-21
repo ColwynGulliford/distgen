@@ -84,8 +84,8 @@ def write_gpt(beam,outfile,verbose=0,asci2gdf_bin=None):
             vprint("done. Time ellapsed: "+gdfwatch.print()+".",verbose>0,0,True)
 
         watch.stop() 
-        vprint("...done. Time ellapsed: "+watch.print()+".",verbose>0 and "asci2gdf_binary" in params,0,True)
-        vprint("done. Time ellapsed: "+watch.print()+".",verbose>0 and not ("asci2gdf_binary" in params),0,True)
+        vprint("...done. Time ellapsed: "+watch.print()+".",verbose>0 and asci2gdf_bin,0,True)
+        vprint("done. Time ellapsed: "+watch.print()+".",verbose>0 and not asci2gdf_bin,0,True)
 
 
 def write_astra(beam,
