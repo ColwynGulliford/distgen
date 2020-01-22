@@ -210,7 +210,7 @@ class Generator:
             avgs["y"] = avgr*avgSin
 
             stds["x"] = rrms*np.sqrt(avgCos2)
-            stds["y"] = rrms*np.sqrt(avgSin2)       
+            stds["y"] = rrms*np.sqrt(avgSin2)   
 
             # remove r from list of distributions to sample
             dist_params.pop("r")
@@ -269,6 +269,8 @@ class Generator:
             stdi = bdist.std(x)
             avgf = avgs[x]
             stdf = stds[x]
+
+            vprint("Scaling sigma_"+x+" -> {:0.3f~P}".format(stdf),verbose>0 and stdi!=stdf,1,True)
 
             # Scale and center each coordinate
             if(stdi.magnitude>0):
