@@ -914,7 +914,7 @@ class TukeyRad(DistRad):
             cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
             flat_region = np.logical_and(r < Lflat, r >= 0)
             res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
-            res[flat_region]=1.0/self.L
+            res[flat_region]=1.0
         
         #res = res*r
         res = res*unit_registry('1/'+str(self.L.units))

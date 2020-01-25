@@ -308,58 +308,58 @@ class Generator:
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)
         return bdist
 
-    def get_dist2(self,x,dparams):
+#    def get_dist2(self,x,dparams):
 
-        dtype = dparams["type"]
-        dist=None
+#        dtype = dparams["type"]
+#        dist=None
 
-        if(dtype=="u" or dtype=="uniform"):
+#        if(dtype=="u" or dtype=="uniform"):
             
-            vprint("uniform",self.verbose>0,0,True)
-            vprint("min_"+x+" = {:0.3f~P}".format(dparams["min_"+x])+", max_"+x+" = {:0.3f~P}".format(dparams["max_"+x]),self.verbose>0,2,True)
-            dist = uniform(dparams["min_"+x],dparams["max_"+x],xstr=x)
+#            vprint("uniform",self.verbose>0,0,True)
+#            vprint("min_"+x+" = {:0.3f~P}".format(dparams["min_"+x])+", max_"+x+" = {:0.3f~P}".format(dparams["max_"+x]),self.verbose>0,2,True)
+#            dist = uniform(dparams["min_"+x],dparams["max_"+x],xstr=x)
             
-        elif(dtype=="g" or dtype=="gaussian"):
+#        elif(dtype=="g" or dtype=="gaussian"):
 
-            vprint("Gaussian",self.verbose>0,0,True)
-            if("avg_"+x not in dparams):
-                dparams["avg_"+x] = 0*dparams["sigma_"+x].units
-            vprint("avg_"+x+" = {:0.3f~P}".format(dparams["avg_"+x])+", sigma_"+x+" = {:0.3f~P}".format(dparams["sigma_"+x]),self.verbose>0,2,True)
-            dist = norm(dparams["avg_"+x],dparams["sigma_"+x],xstr=x)
+#            vprint("Gaussian",self.verbose>0,0,True)
+ #           if("avg_"+x not in dparams):
+#                dparams["avg_"+x] = 0*dparams["sigma_"+x].units
+#            vprint("avg_"+x+" = {:0.3f~P}".format(dparams["avg_"+x])+", sigma_"+x+" = {:0.3f~P}".format(dparams["sigma_"+x]),self.verbose>0,2,True)
+#            dist = norm(dparams["avg_"+x],dparams["sigma_"+x],xstr=x)
 
-        elif(dtype=="crystals"):
+#        elif(dtype=="crystals"):
 
-            vprint("crystal temporal laser shaping",self.verbose>0,0,True)
-            lengths = [dparams[dp] for dp in dparams if "crystal_length" in dp]
-            angles  = [dparams[dp] for dp in dparams if "crystal_angle" in dp]
-            dist = temporal_laser_pulse_stacking(lengths,angles,verbose=self.verbose)
+#            vprint("crystal temporal laser shaping",self.verbose>0,0,True)
+#            lengths = [dparams[dp] for dp in dparams if "crystal_length" in dp]
+#            angles  = [dparams[dp] for dp in dparams if "crystal_angle" in dp]
+#            dist = temporal_laser_pulse_stacking(lengths,angles,verbose=self.verbose)
             
 
-        elif( (dtype=="rg" or dtype=="radial_gaussian") and x=="r"):
+#        elif( (dtype=="rg" or dtype=="radial_gaussian") and x=="r"):
+#
+#            vprint("radial Gaussian",self.verbose>0,0,True)
+#            vprint("sigma_xy = {:0.3f~P}".format(dparams["sigma_xy"]),self.verbose>0,2,True)
+#            dist = normrad(dparams["sigma_xy"])
+#
+#        elif( (dtype=="tg" or dtype=="truncated_radial_gaussian") and x=="r"):
+#
+#            vprint("radial Gaussian",self.verbose>0,0,True)
+#            vprint("f = {:0.3f~P}".format(dparams["truncation_fraction"]),self.verbose>0,2,False)
+#            vprint(", pinhole size = {:0.3f~P}".format(dparams["pinhole_size"]),self.verbose>0,0,True)
+#            dist = normrad_trunc(dparams["pinhole_size"]/2.0, dparams["truncation_fraction"]) 
 
-            vprint("radial Gaussian",self.verbose>0,0,True)
-            vprint("sigma_xy = {:0.3f~P}".format(dparams["sigma_xy"]),self.verbose>0,2,True)
-            dist = normrad(dparams["sigma_xy"])
-
-        elif( (dtype=="tg" or dtype=="truncated_radial_gaussian") and x=="r"):
-
-            vprint("radial Gaussian",self.verbose>0,0,True)
-            vprint("f = {:0.3f~P}".format(dparams["truncation_fraction"]),self.verbose>0,2,False)
-            vprint(", pinhole size = {:0.3f~P}".format(dparams["pinhole_size"]),self.verbose>0,0,True)
-            dist = normrad_trunc(dparams["pinhole_size"]/2.0, dparams["truncation_fraction"]) 
-
-        elif(dtype == "file" and x == "r"):
+#        elif(dtype == "file" and x == "r"):
            
-            vprint("radial distribution file: '"+dparams["file"]["file"]+"' ["+dparams["file"]["units"]+"]",self.verbose>0,0,True)
-            dist = radfile(dparams["file"]["file"],units=dparams["file"]["units"])
+#            vprint("radial distribution file: '"+dparams["file"]["file"]+"' ["+dparams["file"]["units"]+"]",self.verbose>0,0,True)
+#            dist = radfile(dparams["file"]["file"],units=dparams["file"]["units"])
 
-        elif(dtype == "file" and x == "xy"):
+#        elif(dtype == "file" and x == "xy"):
 
-            vprint("xy distribution file: '"+dparams["file"]["file"],self.verbose>0,0,True)
-            dist = file2d(dparams["file"]["file"])
+#            vprint("xy distribution file: '"+dparams["file"]["file"],self.verbose>0,0,True)
+#            dist = file2d(dparams["file"]["file"])#
 
-        else:
-            raise ValueError("Distribution type '"+dtype+"' is not supported.")
+#        else:
+#            raise ValueError("Distribution type '"+dtype+"' is not supported.")
 
-        return dist
+#        return dist
 
