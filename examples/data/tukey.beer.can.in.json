@@ -1,0 +1,4 @@
+{"beam": {"start_type": "cathode", "rand_type": "hammersley", "particle_count": 200000, "params": {"total_charge": {"value": 10, "units": "pC"}, "MTE": {"value": 150, "units": "meV"}}}, 
+"r_dist": {"type": "radial_tukey", "params": {"length":{"value":2,"units":"mm"},"ratio":{"value":0.5,"units":""}}}, 
+"t_dist": {"type": "tukey", "params": {"length":{"value":2.0,"units":"ps"},"ratio":{"value":0.5,"units":""}}},
+"output": {"type": "gpt", "file": "beer.can.out.txt"}}

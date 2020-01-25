@@ -173,7 +173,7 @@ class Generator:
                 
             # Get distribution
             dist = get_dist(r,dist_params[r]["type"],dist_params[r]["params"],verbose=verbose)      
-            rs = dist.cdfinv(rns[count,:])        # Sample to get beam coordinates
+            rs = dist.cdfinv(rns[count,:]*unit_registry("dimensionless") )       # Sample to get beam coordinates
 
             count = count + 1
 
@@ -308,7 +308,7 @@ class Generator:
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)
         return bdist
 
-    def get_dist(self,x,dparams):
+    def get_dist2(self,x,dparams):
 
         dtype = dparams["type"]
         dist=None
@@ -333,6 +333,7 @@ class Generator:
             lengths = [dparams[dp] for dp in dparams if "crystal_length" in dp]
             angles  = [dparams[dp] for dp in dparams if "crystal_angle" in dp]
             dist = temporal_laser_pulse_stacking(lengths,angles,verbose=self.verbose)
+            
 
         elif( (dtype=="rg" or dtype=="radial_gaussian") and x=="r"):
 

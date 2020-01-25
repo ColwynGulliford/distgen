@@ -11,7 +11,7 @@ from .tools import *
 
 import numpy as np
 import numpy.matlib as mlib
-import scipy
+#import scipy
 import math
 
 from matplotlib import pyplot as plt
@@ -56,6 +56,8 @@ def get_dist(var,dtype,params=None,verbose=0):
         dist = Norm(var,verbose=verbose,**params)
     elif(dtype=="file1d"):
         dist = File1d(var,verbose=verbose,**params)
+    elif(dtype=='tukey'):
+        dist = Tukey(var,verbose=verbose,**params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose,**params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
@@ -64,6 +66,8 @@ def get_dist(var,dtype,params=None,verbose=0):
         dist = RadFile(verbose=verbose,**params)
     elif((dtype=="radial_truncated_gaussian" or dtype=="rtg") and var=="r"):
         dist = NormRadTrunc(verbose=verbose,**params)
+    elif(dtype=="radial_tukey"):
+        dist = TukeyRad(verbose=verbose,**params)
     elif(dtype=="file2d"):
         dist = File2d("x","y",verbose=verbose,**params)
     elif(dtype=="crystals"):
@@ -170,7 +174,7 @@ class Dist1d():
         x = self.get_x_pts(1000)
         pdf = self.pdf(x)
 
-        rho,edges = np.histogram(xs,bins=100)
+        rho,edges = histogram(xs,bins=100)
         xhist = (edges[1:] + edges[:-1]) / 2
         rho = rho/np.trapz(rho,xhist)
 
@@ -226,9 +230,11 @@ class Uniform(Dist1d):
         return np.linspace(self.xL-dx,self.xR+dx,n)
 
     def pdf(self,x):
+        #print(self.xL,self.xR,x)
         nonzero = (x >= self.xL) & (x <= self.xR)
         res = np.zeros(len(x))
         res[nonzero]=1/(self.xR-self.xL)
+        res = res*unit_registry('1/'+str(self.xL.units))
         return res
 
     def cdf(self,x):
@@ -279,11 +285,12 @@ class Norm(Dist1d):
         return (1/np.sqrt(2*math.pi*self.sigma*self.sigma))*np.exp( -(x-self.mu)**2/2.0/self.sigma**2 ) 
 
     def cdf(self,x):
-        return 0.5*(1+scipy.special.erf( (x-self.mu)/self.sigma/math.sqrt(2) ) )
+        theta = (x-self.mu)/self.sigma/math.sqrt(2)
+        print(erf)
+        return 0.5*(1+erf( (x-self.mu)/self.sigma/math.sqrt(2) ) )
 
     def cdfinv(self,rns):
-        rns_np = rns.magnitude
-        return self.mu + math.sqrt(2)*self.sigma*scipy.special.erfinv((2*rns_np-1))
+        return self.mu + math.sqrt(2)*self.sigma*erfinv((2*rns-1))
 
     def avg(self):
         return self.mu
@@ -349,7 +356,7 @@ class TemporalLaserPulseStacking(Dist1d):
             for key in params:
                 if("crystal_length_" in key):
                     lengths.append(params[key])
-                    
+
         if(angles is None):
             angles=[]
             for key in params:
@@ -489,6 +496,9 @@ class TemporalLaserPulseStacking(Dist1d):
     def pdf(self,t):
         return interp(t,self.ts,self.Pt)
 
+    def cdf(self,t):
+        return interp(t,self.ts,self.Ct)
+
     def cdfinv(self,rns):
         return interp(rns*unit_registry(""),self.Ct,self.ts)
 
@@ -500,6 +510,87 @@ class TemporalLaserPulseStacking(Dist1d):
 
     def get_params_list(self,var):
         return (["crystal_length_$N","crystal_angle_$N"],["laser_pulse_FWHM","avg_"+var,"std_"+var])
+
+class Tukey(Dist1d):
+
+    def __init__(self,var,verbose=0,**kwargs):
+        
+        self.xstr = var
+        
+        sigmastr = "sigma_"+var
+        if(sigmastr in kwargs.keys()):
+            self.sigma = kwargs[sigmastr]
+        else:
+            self.sigma=1.0
+         
+        if('ratio' in kwargs.keys()):
+            self.r = kwargs['ratio']
+        else:
+            raise ValueError("Tukey 1D dist required parameter 'ratio' not found in input parameters.")
+
+        if('length' in kwargs.keys()):
+            self.L = kwargs['length']
+        else:
+            raise ValueError("Tukey 1D dist required parameter 'length' not found in input parameters.")
+
+        vprint("Tukey",verbose>0,0,True)
+        vprint("legnth = {:0.3f~P}".format(self.L)+", ratio = {:0.3f~P}".format(self.r),verbose>0,2,True)
+            
+    def get_x_pts(self,n):
+        return 1.1*linspace(-self.L/2.0,self.L/2.0,n)
+
+    def pdf(self,x):        
+        res = np.zeros(x.shape)
+
+        if(self.r==0):
+           flat_region = np.logical_and(x <= self.L/2.0, x >= -self.L/2.0)
+           res[flat_region]=1/self.L
+       
+        else:
+            
+            Lflat = self.L*(1-self.r)
+            Lcos = self.r*self.L/2.0
+            pcos_region = np.logical_and(x >= +Lflat/2.0, x<=+self.L/2.0)
+            mcos_region = np.logical_and(x <= -Lflat/2.0, x>=-self.L/2.0)
+            flat_region = np.logical_and(x < Lflat/2.0, x > -Lflat/2.0)
+            res[pcos_region]=0.5*(1+np.cos( (pi/Lcos)*(x[pcos_region]-Lflat/2.0) ))/self.L
+            res[mcos_region]=0.5*(1+np.cos( (pi/Lcos)*(x[mcos_region]+Lflat/2.0) ))/self.L
+            res[flat_region]=1.0/self.L
+
+            res[x<-self.L]=0 
+
+        res = res*unit_registry('1/'+str(self.L.units))
+        
+        return res/trapz(res,x)
+
+    def cdf(self,x):
+        xpts = self.get_x_pts(10000)
+        pdfs = self.pdf(xpts)
+        cdfs = cumtrapz(self.pdf(xpts),xpts,initial=0)
+        cdfs = cdfs/cdfs[-1]
+        cdfs = interp(x,xpts,cdfs)
+        cdfs = cdfs/cdfs[-1]
+        return cdfs
+
+    def cdfinv(self,p):
+        xpts = self.get_x_pts(10000)
+        cdfs = self.cdf(xpts)
+        return interp(p,cdfs,xpts)
+    
+    def avg(self):
+        xpts = self.get_x_pts(10000)
+        return trapz(self.pdf(xpts)*xpts,xpts)
+
+    def std(self):
+        xpts = self.get_x_pts(10000)
+        avgx=self.avg()
+        return np.sqrt(trapz(self.pdf(xpts)*(xpts-avgx)*(xpts-avgx),xpts))
+
+    def rms(self):
+        avg=self.avg()
+        std=self.std()
+        return np.sqrt(std*std + avg*avg)
+
     
 class DistRad():
 
@@ -586,7 +677,7 @@ class DistRad():
         r = self.get_r_pts(1000)
         pdf = self.pdf(r)
 
-        rho,edges = np.histogram(rs,bins=100)
+        rho,edges = histogram(rs,bins=100)
         rhist = (edges[1:] + edges[:-1]) / 2
         rho = rho/np.trapz(rho,rhist)
 
@@ -706,7 +797,7 @@ class NormRadTrunc(DistRad):
         if(fraction is None and "fraction" not in params):
             raise ValueError("Radial truncated Gaussian input parameter 'fraction' not found.")
         elif(radius is None):
-            fraction = params["fraction"]/2.0
+            fraction = params["fraction"]  
         
         if(radius<=0):
             raise ValueError("For truncated gaussian, radius has to be > 0")
@@ -733,7 +824,7 @@ class NormRadTrunc(DistRad):
         return np.linspace(0,1.2*self.R.magnitude,n)*unit_registry(str(self.R.units))
 
     def avg(self):
-        return (self.sigma_inf*math.sqrt(math.pi/2)*scipy.special.erf(self.R/np.sqrt(2)/self.sigma_inf)-self.R*self.f)/(1-self.f)
+        return (self.sigma_inf*math.sqrt(math.pi/2)*erf(self.R/np.sqrt(2)/self.sigma_inf)-self.R*self.f)/(1-self.f)
 
     def rms(self):
         return np.sqrt( 2*self.sigma_inf**2 - self.R**2 * self.f/(1-self.f) )
@@ -766,6 +857,95 @@ class RadFile(DistRad):
             raise ValueError("Radial distribution r-values must be >= 0.")
        
         super().__init__(rs,Pr)
+
+class TukeyRad(DistRad):
+
+    def __init__(self,verbose=0,**kwargs):
+         
+        if('ratio' in kwargs.keys()):
+            self.r = kwargs['ratio']
+        else:
+            raise ValueError("TukeyRad dist required parameter 'ratio' not found in input parameters.")
+
+        if('length' in kwargs.keys()):
+            self.L = kwargs['length']
+        else:
+            raise ValueError("TukeyRad dist required parameter 'length' not found in input parameters.")
+
+        vprint("TukeyRad",verbose>0,0,True)
+        vprint("legnth = {:0.3f~P}".format(self.L)+", ratio = {:0.3f~P}".format(self.r),verbose>0,2,True)
+
+    def get_r_pts(self,n=1000):
+        return np.linspace(0,1.2*self.L.magnitude,n)*unit_registry(str(self.L.units))
+
+    def pdf(self,r):        
+        res = np.zeros(r.shape)
+
+        if(self.r==0):
+           flat_region = np.logical_and(r <= self.L, x >= 0.0)
+           res[flat_region]=1.0
+       
+        else:
+            
+            Lflat = self.L*(1-self.r)
+            Lcos = self.r*self.L
+            cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
+            flat_region = np.logical_and(r < Lflat, r >= 0)
+            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
+            res[flat_region]=1.0/self.L
+        
+        res = res*r
+        res = res*unit_registry('1/'+str(self.L.units))
+        
+        return res/radint(res,r)
+
+    def pdfr(self,r):
+
+        res = np.zeros(r.shape)
+
+        if(self.r==0):
+           flat_region = np.logical_and(r <= self.L, x >= 0.0)
+           res[flat_region]=1.0
+       
+        else:
+            
+            Lflat = self.L*(1-self.r)
+            Lcos = self.r*self.L
+            cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
+            flat_region = np.logical_and(r < Lflat, r >= 0)
+            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
+            res[flat_region]=1.0/self.L
+        
+        #res = res*r
+        res = res*unit_registry('1/'+str(self.L.units))
+        
+        return res/radint(res,r)
+   
+
+    def cdf(self,r):
+        rpts = self.get_r_pts(10000)
+        pdfs = self.pdfr(rpts)
+        
+        cdfs,rbins = radcumint(pdfs,rpts,initial=0)
+        cdfs = cdfs/cdfs[-1]
+        cdfs = interp(r,rbins,cdfs)
+        cdfs = cdfs/cdfs[-1]
+        return cdfs
+
+    def cdfinv(self,p):
+        rpts = self.get_r_pts(10000)
+        cdfs = self.cdf(rpts)
+        return interp(p,cdfs,rpts)
+
+    def avg(self):
+        rpts = self.get_r_pts(10000)
+        pdfs = self.pdfr(rpts)
+        return radint(pdfs*rpts,rpts)
+
+    def rms(self):
+        rpts = self.get_r_pts(10000)
+        pdfs = self.pdfr(rpts)
+        return np.sqrt(radint(pdfs*rpts*rpts,rpts))
 
 class Dist2d():
 
@@ -896,7 +1076,10 @@ class File2d(Dist2d):
         xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
         super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
 
-#def main():
+#def test():
+
+    #tukey = Tukey1D('x')#,'sigma_x'=1*unit_registry('mm'),'tukey_window_ratio'=0*unit_registry('dimensionless'))
+    #tukwy.test_sampling()
 
     #udist = uniform(-2*unit_registry("m"),1*unit_registry("m"))
     #udist.test_sampling()
@@ -942,7 +1125,7 @@ class File2d(Dist2d):
 #   This allows the main function to be at the beginning of the file
 # ---------------------------------------------------------------------------- 
 #if __name__ == '__main__':
-#    main()
+#    test()
 
 
 

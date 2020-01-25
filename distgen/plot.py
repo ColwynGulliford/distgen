@@ -147,7 +147,7 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
 def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100):
     
     plt.figure(Nfig)
-    thist,tedges = np.histogram(beam["t"].to(units["t"]),bins=nbins)
+    thist,tedges = histogram(beam["t"].to(units["t"]),bins=nbins)
     qb = beam.q.to(units["q"])
     ts = (tedges[1:] + tedges[:-1]) / 2
     I0 = qb/(1*unit_registry(units["t"]))

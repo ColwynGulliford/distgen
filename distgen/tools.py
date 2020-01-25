@@ -2,6 +2,8 @@ from .physical_constants import unit_registry
 import time
 import numpy as np
 from scipy.integrate import cumtrapz as scipy_cumtrapz 
+from scipy.special import erf as sci_erf
+from scipy.special import erfinv as sci_erfinv
 import os
 
 
@@ -195,6 +197,19 @@ def radcumint(f,r,initial=None):
     rcint[1:] = np.cumsum(0.5*(rbins[1:]**2-rbins[:-1]**2)*f.magnitude)
 
     return (rcint*unit_registry(urstr+"*"+urstr+"*"+ufstr),rbins*unit_registry(urstr))
+
+def histogram(x,bins=100):
+
+    xmag = x.magnitude
+    hist,edges = np.histogram(xmag,bins=bins)
+    return (hist,edges)
+
+def erf(x):
+
+    return sci_erf(x.magnitude)*unit_registry('dimensionless')
+
+def erfinv(x):
+    return sci_erfinv(x.magnitude)*unit_registry('dimensionless')
 
 # File reading
 
