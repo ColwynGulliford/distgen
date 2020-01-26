@@ -132,22 +132,23 @@ class Dist1d():
         """
         Generate coordinates by sampling the underlying pdf
         """
-        return self.cdfinv(self.rgen.rand((N,1),sequence,params)*unit_registry("dimensionless"))
+        return self.cdfinv( self.rgen.rand((N,1),sequence,params)*unit_registry("dimensionless") )
 
     def plot_pdf(self,n=1000):
         x=self.get_x_pts(n)
+        p=self.pdf(x)
         plt.figure()
         plt.plot(x,self.pdf(x))
-        plt.xlabel(self.xstr)
-        plt.ylabel("PDF("+self.xstr+")")
+        plt.xlabel(self.xstr+" ({:~P}".format(x.units)+")")
+        plt.ylabel("PDF("+self.xstr+") ({:~P}".format(p.units)+")")
 
     def plot_cdf(self,n=1000):
         x=self.get_x_pts(n)
         plt.figure()
         plt.plot(x,self.cdf(x))
-        plt.xlabel(self.xstr)
+        plt.xlabel(self.xstr+" ({:~P}".format(x.units)+")")
         plt.ylabel("CDF("+self.xstr+")")
-
+        
     def avg(self):
         """
         Defines the 1st moment of the pdf, defaults to using trapz integration
@@ -201,7 +202,7 @@ class Dist1d():
         else:
             plt.ylabel("PDF("+self.xstr+")")
         plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
-        plt.legend(["PDF","Hist. of Sampling"])
+        plt.legend(["PDF","Normalized Sampling"])
     
 class Uniform(Dist1d):
 
@@ -230,7 +231,6 @@ class Uniform(Dist1d):
         return np.linspace(self.xL-dx,self.xR+dx,n)
 
     def pdf(self,x):
-        #print(self.xL,self.xR,x)
         nonzero = (x >= self.xL) & (x <= self.xR)
         res = np.zeros(len(x))
         res[nonzero]=1/(self.xR-self.xL)
@@ -240,7 +240,8 @@ class Uniform(Dist1d):
     def cdf(self,x):
         nonzero = (x >= self.xL) & (x <= self.xR)
         res = np.zeros(len(x))
-        res[nonzero]=(x[nonzero]-self.xL)/(self.xR-self.xL)
+        res[nonzero]=(x[nonzero]-self.xL)/(self.xR-self.xL)*unit_registry('dimensionless')
+       
         return res
 
     def cdfinv(self,rns):
@@ -285,8 +286,6 @@ class Norm(Dist1d):
         return (1/np.sqrt(2*math.pi*self.sigma*self.sigma))*np.exp( -(x-self.mu)**2/2.0/self.sigma**2 ) 
 
     def cdf(self,x):
-        theta = (x-self.mu)/self.sigma/math.sqrt(2)
-        print(erf)
         return 0.5*(1+erf( (x-self.mu)/self.sigma/math.sqrt(2) ) )
 
     def cdfinv(self,rns):
@@ -615,6 +614,9 @@ class DistRad():
     def get_r_pts(self,n):
         return linspace(self.rs[0],self.rs[-1],n)
 
+    def rho(self,r):
+        return interp(r,self.rs,self.Pr)
+
     def pdf(self,r):
         return interp(r,self.rs,self.rs*self.Pr)
 
@@ -648,16 +650,26 @@ class DistRad():
 
     def plot_pdf(self,n=1000):
         r=self.get_r_pts(n)
-        plt.figure()
-        plt.plot(r,self.pdf(r))
-        plt.xlabel("r")
-        plt.ylabel("PDF(r)")
+        p = self.rho(r)
+        P = self.pdf(r)
+        fig, (a1,a2) = plt.subplots(1,2)
+        #print(a1,a2)
+        #print(r)
+        a1.plot(r,p)
+        a1.set(xlabel='r ({:~P})'.format(r.units))
+        a1.set(ylabel='2$\pi\\rho$(r) ({:~P})'.format(p.units))
+        
+        a2.plot(r,P)
+        a2.set(xlabel='r ({:~P})'.format(r.units))
+        a2.set(ylabel='PDF(r) ({:~P})'.format(P.units))
+
+        plt.tight_layout()
 
     def plot_cdf(self,n=1000):
         r=self.get_r_pts(n)
         plt.figure()
         plt.plot(r,self.cdf(r))
-        plt.xlabel("r")
+        plt.xlabel('r ({:~P})'.format(r.units))
         plt.ylabel("CDF(r)")
 
     def avg(self):
@@ -675,7 +687,9 @@ class DistRad():
      
         rs=self.sample(100000,sequence="hammersley")    
         r = self.get_r_pts(1000)
-        pdf = self.pdf(r)
+        p = self.rho(r)
+        P = self.pdf(r)
+        
 
         rho,edges = histogram(rs,bins=100)
         rhist = (edges[1:] + edges[:-1]) / 2
@@ -693,11 +707,11 @@ class DistRad():
         dstdr_str = "{:0.3f~P}".format(dstdr)  
 
         plt.figure()
-        plt.plot(r, pdf/r, rhist, rho/rhist, 'or')
-        plt.xlabel("r")
-        plt.ylabel("PDF(r)/r")
+        plt.plot(r, P/r, rhist, rho/rhist, 'or')
+        plt.xlabel("r ({:~P})".format(r.units))
+        plt.ylabel("2$\pi\\rho$(r) ({:~P})".format(p.units))
         plt.title("Sample stats: <r> = "+avgr_str+", $\sigma_r$ = "+stdr_str+"\nDist. stats: <r> = "+davgr_str+", $\sigma_r$ = "+dstdr_str)
-        plt.legend(["PDF/r","Hist. of Sampling/r"])
+        plt.legend(["2$\pi\\rho$(r)","Normalized Sampling"])
   
         plt.show()
 
@@ -744,6 +758,21 @@ class UniformRad(DistRad):
         nonzero = (r >= self.rL) & (r <= self.rR)
         res = np.zeros(len(r))
         res[nonzero]=r[nonzero]*2.0/(self.rR**2-self.rL**2)
+        res = res*unit_registry('1/'+str(r.units))
+        return res
+
+    def rho(self,r):
+        nonzero = (r >= self.rL) & (r <= self.rR)
+        res = np.zeros(len(r))
+        res[nonzero]=2/(self.rR**2-self.rL**2)
+        res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+        return res
+
+    def cdf(self,r):
+        nonzero = (r >= self.rL) & (r <= self.rR)
+        res = np.zeros(len(r))
+        res[nonzero]=(r[nonzero]*r[nonzero] - self.rL**2)/(self.rR**2-self.rL**2)
+        res = res*unit_registry('dimensionless')
         return res
 
     def cdfinv(self,rns):
@@ -765,6 +794,10 @@ class NormRad(DistRad):
 
     def pdf(self,r):
         return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma )*r 
+
+    def rho(self,r):
+
+        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma ) 
 
     def cdf(self,r):
         return 1 - np.exp(-r*r/2.0/self.sigma/self.sigma)
@@ -812,10 +845,21 @@ class NormRadTrunc(DistRad):
         res = np.zeros(len(r))
         nonzero = r<=self.R 
         res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)*r[nonzero]
+        res = res*unit_registry('1/'+str(r.units))
+        return res
+
+    def rho(self,r):
+        res = np.zeros(len(r))
+        nonzero = r<=self.R 
+        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)
+        res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         return res
 
     def cdf(self,r):
-        return (1-np.exp(-r*r/2/self.sigma_inf**2))/(1-self.f)
+        res = np.zeros(len(r))
+        nonzero = r<=self.R 
+        res[nonzero]=(1-np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2))/(1-self.f)
+        return res
 
     def cdfinv(self,rns):
         return np.sqrt( 2*self.sigma_inf**2 * ( np.log(1/(rns*(self.f-1)+1)) )) 
@@ -858,6 +902,7 @@ class RadFile(DistRad):
        
         super().__init__(rs,Pr)
 
+
 class TukeyRad(DistRad):
 
     def __init__(self,verbose=0,**kwargs):
@@ -879,27 +924,10 @@ class TukeyRad(DistRad):
         return np.linspace(0,1.2*self.L.magnitude,n)*unit_registry(str(self.L.units))
 
     def pdf(self,r):        
-        res = np.zeros(r.shape)
+        rho = self.rho(r)
+        return r*rho
 
-        if(self.r==0):
-           flat_region = np.logical_and(r <= self.L, x >= 0.0)
-           res[flat_region]=1.0
-       
-        else:
-            
-            Lflat = self.L*(1-self.r)
-            Lcos = self.r*self.L
-            cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
-            flat_region = np.logical_and(r < Lflat, r >= 0)
-            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
-            res[flat_region]=1.0/self.L
-        
-        res = res*r
-        res = res*unit_registry('1/'+str(self.L.units))
-        
-        return res/radint(res,r)
-
-    def pdfr(self,r):
+    def rho(self,r):
 
         res = np.zeros(r.shape)
 
@@ -916,20 +944,21 @@ class TukeyRad(DistRad):
             res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
             res[flat_region]=1.0
         
-        #res = res*r
-        res = res*unit_registry('1/'+str(self.L.units))
-        
-        return res/radint(res,r)
+        res = res*unit_registry('1/'+str(self.L.units)+"/"+str(self.L.units))
+        res = res/radint(res,r)
+        return res
    
 
     def cdf(self,r):
         rpts = self.get_r_pts(10000)
-        pdfs = self.pdfr(rpts)
+        pdfs = self.rho(rpts)
         
         cdfs,rbins = radcumint(pdfs,rpts,initial=0)
         cdfs = cdfs/cdfs[-1]
         cdfs = interp(r,rbins,cdfs)
         cdfs = cdfs/cdfs[-1]
+        cdfs*unit_registry('dimensionless')
+
         return cdfs
 
     def cdfinv(self,p):
@@ -939,12 +968,12 @@ class TukeyRad(DistRad):
 
     def avg(self):
         rpts = self.get_r_pts(10000)
-        pdfs = self.pdfr(rpts)
+        pdfs = self.rho(rpts)
         return radint(pdfs*rpts,rpts)
 
     def rms(self):
         rpts = self.get_r_pts(10000)
-        pdfs = self.pdfr(rpts)
+        pdfs = self.rho(rpts)
         return np.sqrt(radint(pdfs*rpts*rpts,rpts))
 
 class Dist2d():
@@ -1002,7 +1031,7 @@ class Dist2d():
         self.Cys=self.Cys*unit_registry("dimensionless")
 
     def pdf(self,x,y):
-        x=0
+        pass
    
     def plot_pdf(self):
         plt.figure()
