@@ -19,7 +19,7 @@ def writer(output_format,beam,outfile,verbose=0,params=None):
     file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
     file_writer[output_format](beam,outfile,verbose,params)
 
-def write_gpt(beam,outfile,verbose=0,asci2gdf_bin=None):  
+def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):  
 
         watch = StopWatch()
 
