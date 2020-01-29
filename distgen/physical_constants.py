@@ -3,8 +3,12 @@ Defines common/useful physical constants.
 """
 
 import math
+import warnings
+from pint import UnitRegistry, Quantity
 
-from pint import UnitRegistry
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    Quantity([])
 
 unit_registry = UnitRegistry()
 unit_registry.setup_matplotlib()
