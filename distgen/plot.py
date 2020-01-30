@@ -115,6 +115,8 @@ def plot_1d(beam,var,units,**params):
     
 def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
 
+    labels={'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}'}
+
     #plt.figure(Nfig)
     
     if(ptype=="scatter"):
@@ -129,9 +131,14 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
     if("axis" in params and params["axis"]=="equal"):
         plt.gca().set_aspect('equal', adjustable='box')
 
-    plt.xlabel(var1 + " ("+units1+")")
-    plt.ylabel(var2 + " ("+units2+")")
+    plt.xlabel('$'+labels[var1] + "$ ("+units1+")")
+    plt.ylabel('$'+labels[var2] + "$ ("+units2+")")
     
+    avgx = beam[var1].mean().to(units1)
+    avgy = beam[var2].mean().to(units2)
+    avgx_str = "{:0.3f~P}".format(avgx)
+    avgy_str = "{:0.3f~P}".format(avgy)
+
     stdx = beam[var1].std().to(units1)
     stdy = beam[var2].std().to(units2)
     stdx_str = "{:0.3f~P}".format(stdx)
@@ -140,7 +147,8 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
         plt.xlim([-1,1])
     if(stdy==0):
         plt.ylim([-1,1])
-    plt.title('$\sigma_{'+var1+'}$ = '+stdx_str+', $\sigma_{'+var2+'}$ = '+stdy_str)
+    plt.title('$<'+labels[var1]+'>$ = '+avgx_str+', $<'+labels[var2]+'>$ = '+avgy_str+'\n$\sigma_{'+labels[var1]+'}$ = '+stdx_str+', $\sigma_{'+labels[var2]+'}$ = '+stdy_str)
+    #plt.title('$\sigma_{'+var1+'}$ = '+stdx_str+', $\sigma_{'+var2+'}$ = '+stdy_str)
     
     return ax
         
