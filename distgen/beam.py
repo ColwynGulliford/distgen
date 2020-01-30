@@ -66,6 +66,17 @@ class Beam():
             stdvar = std(self.params[var],self.params["w"]) 
             return stdvar.to(desired_units)
 
+    def emitt(self,var,desired_units=None):
+
+        pvar = 'p'+var
+
+        if(desired_units is None):
+
+            x2 = self.std(var)**2
+            p2 = self.std(pvar)**2
+            xp = mean( (self.params[var]-self.avg(var))*(self.params[pvar]-self.avg(pvar)), self.params['w'] )
+            return np.sqrt( x2*p2 - xp**2 )
+
     def data(self):
         """
         Converts to fixed units and returns a dict of data.
