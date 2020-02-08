@@ -5,6 +5,7 @@ from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
 import numpy as np
+import yaml
 
 """
 This class defines the main run engine object for distgen and is responsible for
@@ -25,11 +26,16 @@ class Generator:
             self.parse_input(params)
             
     
-    def parse_input(self,params):
+    def parse_input(self, params):
         """
         Parse the input structure passed from a Reader object.  
         The structure is then converted to an easier form for use in populating the Beam object.
+        
+        YAML or JSON is accepted if params is a filename (str)
         """
+        if isinstance(params, str):
+            params = yaml.safe_load(open(params))
+        
         params = self.convert_params(params)  # Conversion of the input dictionary
         self.input_params = params            # Saving the converted dictionary to the Generator object
         self.check_input_consistency(params)  # Check that the result is logically sound 
