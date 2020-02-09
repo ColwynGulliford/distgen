@@ -54,26 +54,20 @@ def run_distgen(
             settings = {'beam:params:total_charge:value': 456,
                         'output:type':'astra',
                         'output:file':'astra_particles.dat'},
-            inputs = 'gunb_gaussian.json',
+            input = 'gunb_gaussian.json',
             verbose=True)
     
     """
     
-    # Get basic inputs
-    if(isinstance(inputs,str)):
-        # Read input file
-        par = Reader(inputs, verbose=verbose)
-        params = par.read()
-    elif(isinstance(inputs, dict)):
-        params = inputs
-    else:
-        raise ValueError("Unsupported input parameter: "+str(type(inputs)))    
-    
-    params = update_nested_dict(params, settings, verbose=verbose)
-    
     # Make distribution
-    gen = Generator(params=params, verbose=verbose)
+    gen = Generator(inputs, verbose=verbose)
+
+    gen.input = update_nested_dict(gen.input, settings, verbose=verbose)
+
     beam = gen.beam()
+    
+    # Get params
+    params = gen.params
     
     # Write to file
     if 'file' in params['output']:

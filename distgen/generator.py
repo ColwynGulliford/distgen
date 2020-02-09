@@ -16,31 +16,43 @@ This class defines the main run engine object for distgen and is responsible for
 """
 class Generator:
 
-    def __init__(self, params=None, verbose=0):
+    def __init__(self, input=None, verbose=0):
         """
         The class initialization takes in a verbose level for controlling text output to the user
         """
         self.verbose = verbose 
     
-        if params:
-            self.parse_input(params)
+        self.input = input
+        
+        if input:
+            self.parse_input(input)
+            self.configure()
             
     
-    def parse_input(self, params):
+    def parse_input(self, input):
         """
         Parse the input structure passed from a Reader object.  
         The structure is then converted to an easier form for use in populating the Beam object.
         
         YAML or JSON is accepted if params is a filename (str)
         """
-        if isinstance(params, str):
-            params = yaml.safe_load(open(params))
+        if isinstance(input, str):
+            if os.path.exists(input):
+                # Try file
+                input = yaml.safe_load(open(input))
+            else:
+                #Try raw string
+                input = yaml.safe_load(input)
+        self.input = input
         
-        params = self.convert_params(params)  # Conversion of the input dictionary
-        self.input_params = params            # Saving the converted dictionary to the Generator object
-        self.check_input_consistency(params)  # Check that the result is logically sound 
 
-    def check_input_consistency(self,params):
+
+    def configure(self):
+        self.params = self.convert_params(self.input )  # Conversion of the input dictionary
+                        # Saving the converted dictionary to the Generator object
+        self.check_input_consistency(self.params)  # Check that the result is logically sound 
+        
+    def check_input_consistency(self, params):
         ''' Perform consistency checks on the user input data'''
         
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
@@ -56,11 +68,11 @@ class Generator:
             assert_with_message("MTE" in params["beam"]["params"],"User must specify the MTE for cathode start.") 
 
             # Handle momentum distribution for cathode
-            MTE = self.input_params["beam"]["params"]["MTE"]
+            MTE = self.params["beam"]["params"]["MTE"]
             sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
-            self.input_params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
-            self.input_params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
-            self.input_params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
+            self.params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
+            self.params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
+            self.params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
                 
     def convert_params(self,all_params):
         
@@ -93,20 +105,22 @@ class Generator:
                 
     def beam(self):
     
+        self.configure()
+    
         watch = StopWatch()
         watch.start()
     
         verbose = self.verbose
         outputfile = []
         
-        beam_params = self.input_params["beam"]
-        out_params = self.input_params["output"]
+        beam_params = self.params["beam"]
+        out_params = self.params["output"]
 
         dist_params = {}
-        for p in self.input_params:
+        for p in self.params:
             if("_dist" in p):
                 var = p[:-5]
-                dist_params[var]=self.input_params[p]
+                dist_params[var]=self.params[p]
         
         vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
         
@@ -154,7 +168,7 @@ class Generator:
         
         # Get number of populations:
         npop = 0
-        for param in self.input_params:
+        for param in self.params:
 
             if("_dist" in param):
                 vstr = param[:-5]
@@ -319,6 +333,11 @@ class Generator:
         watch.stop()
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)
         return bdist
+    
+    
+    def __repr__(self):
+        s = '<disgten.Generator with input: \n'
+        return s+yaml.dump(self.input)+'\n>'
 
 
 
