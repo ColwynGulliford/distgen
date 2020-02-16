@@ -1,6 +1,19 @@
 from .physical_constants import unit_registry
 import numpy as np
 
+ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta']
+
+TRANFORMS={'translate':translate,'scale':scale, 'rotate2d':rotate2d, 'sheer':sheer}
+
+def get_variables(varstr):
+
+   varstr=varstr.strip()
+   variables = varstr.split(':')
+   for variable in variables:
+       assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
+   return variables
+   
+# Single variable transforms:
 
 def translate(beam, var, new_avg):
     beam[var] = new_avg + (beam[var]-beam[var].mean())
@@ -28,7 +41,7 @@ def set_avg_and_std(beam, var, new_avg, new_std):
     beam = translate(beam, var, new_avg)
     return beam
 
-# 2 variable transforms
+# 2 variable transforms:
 def rotate2d(beam, variables, angle, origin=None):
 
     if(isinstance(variables,str) and len(variables.split(":"))==2):
@@ -79,6 +92,10 @@ def sheer(beam, variables, sheer_coefficient, origin=None):
     return beam
 
 
+def transform(beam,transform, varstr, *args, **kwargs):
+    variables = get_variables(varstr)
+    return TRANSFORMS[transform](beam, variables, *args, **kwargs)
+
 #def polynomial(beam, variables, coefficients):
 
 #    if(isinstance(variables,str) and len(variables.split(":"))==2):
@@ -96,9 +113,9 @@ def sheer(beam, variables, sheer_coefficient, origin=None):
         
 
 
-def transform(func):
-    @functools.wraps(func)
-    def transform_wrapper(*args,**kwargs):
-        func(*args, **kwargs)
-        return func(*args, **kwargs)
-    return transform_wrapper
+#def transform(func):
+#    @functools.wraps(func)
+#    def transform_wrapper(*args,**kwargs):
+#        func(*args, **kwargs)
+#        return func(*args, **kwargs)
+#    return transform_wrapper

@@ -1,6 +1,6 @@
 from .physical_constants import *
 from .beam import Beam
-from .transforms import set_avg_and_std
+from .transforms import set_avg_and_std, transform
 from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
@@ -62,10 +62,11 @@ class Generator:
         
         if(params["beam"]["start_type"] == "cathode"):
 
-            vprint("Ignoring user specified px distribution for cathode start.",self.verbose>0 and "px_dist" in params,0,True )
-            vprint("Ignoring user specified py distribution for cathode start.",self.verbose>0 and "py_dist" in params,0,True )
-            vprint("Ignoring user specified pz distribution for cathode start.",self.verbose>0 and "pz_dist" in params,0,True )
-            assert_with_message("MTE" in params["beam"]["params"],"User must specify the MTE for cathode start.") 
+            vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0 and "z_dist" in params,0,True )
+            vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
+            vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
+            vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
+            assert "MTE" in params["beam"]["params"], "User must specify the MTE for cathode start." 
 
             # Handle momentum distribution for cathode
             MTE = self.params["beam"]["params"]["MTE"]
@@ -80,6 +81,7 @@ class Generator:
         for key in all_params:
             cparams[key]=self.get_dist_params(key,all_params)
             
+        print(cparams)
         return cparams
         
     def get_dist_params(self,dname,all_params):
@@ -115,12 +117,15 @@ class Generator:
         
         beam_params = self.params["beam"]
         out_params = self.params["output"]
-
         dist_params = {}
+        transforms={}
+
         for p in self.params:
             if("_dist" in p):
                 var = p[:-5]
                 dist_params[var]=self.params[p]
+            elif(p not in ["beam","output"]):
+                 transforms[p]=self.params[p]
         
         vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
         
@@ -290,36 +295,25 @@ class Generator:
             vprint("Shifting avg_"+x+" -> {:0.3f~P}".format(avgs[x]),verbose>0 and bdist[x].mean()!=avgs[x],1,True)
             bdist = set_avg_and_std(bdist,x,avgs[x],stds[x])
 
-
-            #avgi = bdist.avg(x)
-            #stdi = bdist.std(x)
-            #avgf = avgs[x]
-            #stdf = stds[x]
-
-            #vprint("Scaling sigma_"+x+" -> {:0.3f~P}".format(stdf),verbose>0 and stdi!=stdf,1,True)
-
-            # Scale and center each coordinate
-            #if(stdi.magnitude>0):
-                #bdist[x] = (avgf + (stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
-            #    bdist[x] = ((stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
-            #else:
-            #    #bdist[x] = (avgf + (bdist[x] - avgi)).to(avgi.units)
-            #    bdist[x] = (bdist[x] - avgi).to(avgi.units)
+        # Apply any user desired coordinate transformations
+        for t in transforms:
+            bdist = transform(bdist, t['type'], t['variables'], **t['params'])
         
+
         # Perform any coordinate rotations before shifting to final average locations
-        if("rotate_xy" in beam_params["params"]):
-            angle = beam_params["params"]["rotate_xy"]
-            C = np.cos(angle)
-            S = np.sin(angle)
-            
-            x =  C*bdist["x"]-S*bdist["y"]
-            y = +S*bdist["x"]+C*bdist["y"]
-            
-            bdist["x"]=x
-            bdist["y"]=y
+        #if("rotate_xy" in beam_params["params"]):
+        #    angle = beam_params["params"]["rotate_xy"]
+        #    C = np.cos(angle)
+        #    S = np.sin(angle)
+        #    
+        #    x =  C*bdist["x"]-S*bdist["y"]
+        #    y = +S*bdist["x"]+C*bdist["y"]
+        #    
+        #    bdist["x"]=x
+        #    bdist["y"]=y
         
-        for x in avgs:
-            bdist[x] = avgs[x] + bdist[x]
+        #for x in avgs:
+        #    bdist[x] = avgs[x] + bdist[x]
         
         if(beam_params["start_type"]=="cathode"):
 
