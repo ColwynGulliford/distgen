@@ -6,6 +6,7 @@ from .dist import *
 from collections import OrderedDict as odic
 import numpy as np
 import yaml
+import copy
 
 """
 This class defines the main run engine object for distgen and is responsible for
@@ -23,7 +24,7 @@ class Generator:
         self.verbose = verbose 
     
         self.input = input
-        
+
         if input:
             self.parse_input(input)
             self.configure()
@@ -44,13 +45,12 @@ class Generator:
                 #Try raw string
                 input = yaml.safe_load(input)
         self.input = input
-        
-
 
     def configure(self):
-        self.params = self.convert_params(self.input )  # Conversion of the input dictionary
-                        # Saving the converted dictionary to the Generator object
-        self.check_input_consistency(self.params)  # Check that the result is logically sound 
+
+        self.params = copy.deepcopy(self.input)         # Copy the input dictionary
+        convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
+        self.check_input_consistency(self.params)       # Check that the result is logically sound 
         
     def check_input_consistency(self, params):
         ''' Perform consistency checks on the user input data'''
@@ -75,35 +75,33 @@ class Generator:
             self.params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
             self.params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
                 
-    def convert_params(self,all_params):
+    #def convert_params(self,all_params):
         
-        cparams = {}
-        for key in all_params:
-            cparams[key]=self.get_dist_params(key,all_params)
-            
-        print(cparams)
-        return cparams
+    #    cparams = {}
+    #    for key in all_params:
+    #        cparams[key]=self.get_dist_params(key,all_params)
+    #    return cparams
         
-    def get_dist_params(self,dname,all_params):
+    #def get_dist_params(self,dname,all_params):
         
-        dparams = {}
-        for key in all_params[dname].keys():
-            
-            if(key=="params"): # make physical quantity
-                params = {}
-                for p in all_params[dname]["params"]:
-                    if(isinstance(all_params[dname]["params"][p],dict) and
-                       "value" in all_params[dname]["params"][p] and 
-                       "units" in all_params[dname]["params"][p]):
-                        params[p]=all_params[dname]["params"][p]["value"]*unit_registry(all_params[dname]["params"][p]["units"])
-                    else:
-                        params[p]=all_params[dname]["params"][p]
-                dparams["params"]=params
-                
-            else: # Copy over
-                dparams[key]=all_params[dname][key]
-                
-        return dparams
+    #    dparams = {}
+    #    for key in all_params[dname].keys():
+    #        
+    #        if(key=="params"): # make physical quantity
+    #            params = {}
+    #            for p in all_params[dname]["params"]:
+    #                if(isinstance(all_params[dname]["params"][p],dict) and
+    #                   "value" in all_params[dname]["params"][p] and 
+    #                   "units" in all_params[dname]["params"][p]):
+    #                    params[p]=all_params[dname]["params"][p]["value"]*unit_registry(all_params[dname]["params"][p]["units"])
+    #                else:
+    #                    params[p]=all_params[dname]["params"][p]
+    #            dparams["params"]=params
+    #            
+    #        else: # Copy over
+    #            dparams[key]=all_params[dname][key]
+    #            
+    #    return dparams
                 
     def beam(self):
     
@@ -116,16 +114,22 @@ class Generator:
         outputfile = []
         
         beam_params = self.params["beam"]
-        out_params = self.params["output"]
-        dist_params = {}
-        transforms={}
+   
+        if('output' in self.params):
+            out_params = self.params["output"]
+        else:
+            out_params = None
 
+        if('transforms' in self.params):
+            transforms = self.params['transforms']
+        else:
+            transforms = None
+
+        dist_params = {}
         for p in self.params:
             if("_dist" in p):
                 var = p[:-5]
                 dist_params[var]=self.params[p]
-            elif(p not in ["beam","output"]):
-                 transforms[p]=self.params[p]
         
         vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
         
@@ -296,21 +300,10 @@ class Generator:
             bdist = set_avg_and_std(bdist,x,avgs[x],stds[x])
 
         # Apply any user desired coordinate transformations
-        for t in transforms:
-            bdist = transform(bdist, t['type'], t['variables'], **t['params'])
-        
-
-        # Perform any coordinate rotations before shifting to final average locations
-        #if("rotate_xy" in beam_params["params"]):
-        #    angle = beam_params["params"]["rotate_xy"]
-        #    C = np.cos(angle)
-        #    S = np.sin(angle)
-        #    
-        #    x =  C*bdist["x"]-S*bdist["y"]
-        #    y = +S*bdist["x"]+C*bdist["y"]
-        #    
-        #    bdist["x"]=x
-        #    bdist["y"]=y
+        if(transforms):
+            for t,T in transforms.items():
+                vprint('Applying user defined transform "'+t+'"...',verbose>0,1,True)
+                bdist = transform(bdist, T['type'], T['variables'], **T['params'])
         
         #for x in avgs:
         #    bdist[x] = avgs[x] + bdist[x]

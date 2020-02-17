@@ -40,14 +40,5 @@
         "type": "gpt",
         "file": "beer.can.out.txt"
     },
-    "transform1": {
-        "type": "rotate2d",
-        "variables": "x:y",
-        "params": {
-            "angle": {
-                "value": 45,
-                "units": "deg"
-            }
-        }
-    }
+    
 }

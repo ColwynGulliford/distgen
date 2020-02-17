@@ -23,20 +23,11 @@ class Beam():
         """
         Allows direct get access via brackets to the params dictionary with key var.
         """
-        if(var=='r'):
-            return xy_to_r(self.params['x'], self.params['y'])
-
-        if(var=='theta'):
-            return xy_to_theta(self.params['x'], self.params['y'])
-
-        elif(var=='pr'):
-            return xypxpy_to_pr(self.params['x'], self.params['y'], self.params['px'], self.params['py'])
-
-        elif(var=='ptheta'):
-            return xypxpy_to_ptheta(self.params['x'], self.params['y'], self.params['px'], self.params['py'])
-
-        elif(var in self.params):
+        if(var in self.params):
             return self.params[var]
+
+        elif(var in ['r','theta','pr','ptheta']):
+            return getattr(self,'get_'+var)()
 
         else:
             return None
@@ -47,6 +38,9 @@ class Beam():
         """
         if(var in self.params.keys()):
             self.params[var]=item
+        elif(var in ['r','theta','pr','ptheta']):  # Special variables that are functions of the basic coordinates
+            getattr(self,'set_'+var)(item)
+
         else:
             raise ValueError("Beam object has no parameter "+var)
 
@@ -97,6 +91,46 @@ class Beam():
             if(x not in stat_exceptions):
                 vprint("avg_"+x+ " = {:0.3f~P}".format(mean(self.params[x], self.params["w"])) +", sigma_"+x+" = {:0.3f~P}".format(std(self.params[x],weights=self.params["w"])), True, 1, True)
             
+    def get_r(self):
+        return np.sqrt( self.params['x']**2 + self.params['y']**2 )
+
+    def set_r(self,r):
+        theta = self.get_theta()
+        self.params['x']=r*np.cos(theta)
+        self.params['y']=r*np.sin(theta)
+
+    def get_theta(self):
+        return np.arctan2(self.params['y'],self.params['x'])
+
+    def set_theta(self,theta):
+        r = self.get_r()
+        self.params['x']=r*np.cos(theta)
+        self.params['y']=r*np.sin(theta)
+
+    def get_pr(self):
+        theta = self.get_theta()
+        return self.params['px']*np.cos(theta) + self.params['py']*np.sin(theta)
+
+    def set_pr(self,pr):
+        
+        theta = self.get_theta()
+        ptheta = self.get_ptheta()
+
+        self.params['px']=pr*np.cos(theta)-ptheta*np.sin(theta)
+        self.params['py']=pr*np.sin(theta)+ptheta*np.cos(theta)
+
+    def get_ptheta(self):
+        theta = self.get_theta()
+        return -self.params['px']*np.sin(theta) + self.params['py']*np.cos(theta)
+
+    def set_ptheta(self,ptheta):
+
+        theta = self.get_theta()
+        pr = self.get_pr()
+
+        self.params['px']=pr*np.cos(theta)-ptheta*np.sin(theta)
+        self.params['py']=pr*np.sin(theta)+ptheta*np.cos(theta)
+
 # Functions for converting between x,y <-> r,theta
 def xy_to_r(x,y):
     return np.sqrt( x**2 + y**2 )     

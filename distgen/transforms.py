@@ -3,8 +3,6 @@ import numpy as np
 
 ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta']
 
-TRANFORMS={'translate':translate,'scale':scale, 'rotate2d':rotate2d, 'sheer':sheer}
-
 def get_variables(varstr):
 
    varstr=varstr.strip()
@@ -15,7 +13,11 @@ def get_variables(varstr):
    
 # Single variable transforms:
 
-def translate(beam, var, new_avg):
+def translate(beam, var, delta):
+    beam[var] = delta + beam[var]
+    return beam
+
+def set_avg(beam, var, new_avg):
     beam[var] = new_avg + (beam[var]-beam[var].mean())
     return beam
 
@@ -38,7 +40,7 @@ def set_avg_and_std(beam, var, new_avg, new_std):
     if(old_std.magnitude>0):
         beam = scale(beam, var, new_std/old_std, fix_average=True)
 
-    beam = translate(beam, var, new_avg)
+    beam = set_avg(beam, var, new_avg)
     return beam
 
 # 2 variable transforms:
@@ -92,30 +94,9 @@ def sheer(beam, variables, sheer_coefficient, origin=None):
     return beam
 
 
-def transform(beam,transform, varstr, *args, **kwargs):
+def transform(beam, desc, varstr, **kwargs):
     variables = get_variables(varstr)
-    return TRANSFORMS[transform](beam, variables, *args, **kwargs)
-
-#def polynomial(beam, variables, coefficients):
-
-#    if(isinstance(variables,str) and len(variables.split(":"))==2):
-#        var1,var2=variables.split(':')
-
-#    y = np.zeros(beam[var2].shape)*unit_registry(beam[var2].units)
-
-#    for ii,coeff in coefficients:
-#        if(ii==0):
-#            y = coeff
-#        else:
-#            y = y + coeff*np.pow(y,ii)
-
-#    beam[var2]=y
-        
+    transform_fun = globals()[desc]
+    return transform_fun(beam,varstr,**kwargs)
 
 
-#def transform(func):
-#    @functools.wraps(func)
-#    def transform_wrapper(*args,**kwargs):
-#        func(*args, **kwargs)
-#        return func(*args, **kwargs)
-#    return transform_wrapper
