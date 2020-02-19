@@ -4,7 +4,9 @@ from .transforms import set_avg_and_std, transform
 from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
+from pmd_beamphysics import ParticleGroup
 import numpy as np
+import h5py
 import yaml
 import copy
 
@@ -24,6 +26,9 @@ class Generator:
         self.verbose = verbose 
     
         self.input = input
+
+        # This will be set with .run()
+        self.particles = None
 
         if input:
             self.parse_input(input)
@@ -305,6 +310,49 @@ class Generator:
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)
         return bdist
     
+    
+    def run(self):
+        beam = self.beam()
+        self.particles = ParticleGroup(data=beam.data())
+        
+        vprint(f'Created particles in .particles: {self.particles}',self.verbose>0,1,False) 
+    
+    
+    def fingerprint(self):
+        """
+        Data fingerprint using the input. 
+        """
+        return fingerprint(self.input)    
+    
+    def archive(self, h5=None):
+        """
+        Archive all data to an h5 handle or filename.
+        
+        If no file is given, a file based on the fingerprint will be created.
+        
+        """
+        if not h5:
+            h5 = 'distgen_'+self.fingerprint()+'.h5'
+         
+        if isinstance(h5, str):
+            g = h5py.File(h5, 'w')
+            self.vprint(f'Archiving to file {h5}')
+        else:
+            g = h5
+        
+        # Initial particles
+        if self.particles:
+            self.initial_particles.write(g, name='particles')
+        
+        # Input as flattened dict
+        g2 = g.create_group('input')
+        d = flatten_dict(self.input)
+        for k, v in d.items():
+            g2.attrs[k] = v
+        
+              
+        
+        return h5    
     
     def __repr__(self):
         s = '<disgten.Generator with input: \n'
