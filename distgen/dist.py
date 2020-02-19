@@ -276,15 +276,37 @@ class Norm(Dist1d):
         else:
             self.mu = 0*unit_registry(str(self.sigma.units))
 
-        sigma_cutoff_str = "n_sigma_cutoff"
+        sigma_cutoff_str   = "n_sigma_cutoff"
+        sigma_cutoff_left  = "n_sigma_cutoff_left"
+        sigma_cutoff_right = "n_sigma_cutoff_right"
+
+        left_cut_set = False
+        right_cut_set = False
+
+        assert not (sigma_cutoff_str in kwargs.keys() and (sigma_cutoff_left in kwargs.keys() or sigma_cutoff_right in kwargs.keys()) )
+
         if(sigma_cutoff_str in kwargs.keys()):
 
             self.a = -kwargs[sigma_cutoff_str]*self.sigma
             self.b = +kwargs[sigma_cutoff_str]*self.sigma
 
-        else:
- 
+            left_cut_set = True
+            right_cut_set = True
+
+        if(sigma_cutoff_left in kwargs.keys()):
+
+            self.a = kwargs[sigma_cutoff_left]*self.sigma
+            left_cut_set = True
+
+        if(sigma_cutoff_right in kwargs.keys()):
+
+            self.b = kwargs[sigma_cutoff_right]*self.sigma
+            right_cut_set = True 
+
+        if(not left_cut_set):
             self.a = -float('Inf')*unit_registry(str(self.sigma.units))
+
+        if(not right_cut_set):
             self.b = +float('Inf')*unit_registry(str(self.sigma.units))
 
         assert self.a < self.b, 'Right side cut off a = {:0.3f~P}'.format(self.a) + ' must be < left side cut off b = {:0.3f~P}'.format(self.b)
@@ -302,7 +324,7 @@ class Norm(Dist1d):
 
         vprint("Gaussian",verbose>0,0,True)
         vprint("avg_"+var+" = {:0.3f~P}".format(self.mu)+", sigma_"+var+" = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
-        vprint("n_sigma_cutoff = {:0.3f~P}".format(self.b/self.sigma),verbose>0 and self.b.magnitude<float('Inf'),2,True)
+        vprint("Left n_sigma_cutoff = {:0.3f~P}".format(self.b/self.sigma)+', Right n_sigma_cutoff = {:0.3f~P}'.format(self.a/self.sigma),verbose>0 and self.b.magnitude<float('Inf'),2,True)
             
     def get_x_pts(self,n):
         return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
