@@ -93,6 +93,15 @@ def sheer(beam, variables, sheer_coefficient, origin=None):
     beam[var2] = beam[var2] + sheer_coefficient*(beam[var1]-o1)
     return beam
 
+def magnetize(beam, variables, magnetization):
+
+    if(variables=='r:ptheta'):
+
+        sigx = beam['x'].std()
+        sigy = beam['y'].std()
+  
+        return sheer(beam, variables, -magnetization/sigx/sigx ) 
+
 
 def transform(beam, desc, varstr, **kwargs):
     variables = get_variables(varstr)

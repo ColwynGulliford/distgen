@@ -74,34 +74,11 @@ class Generator:
             self.params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
             self.params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
             self.params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
-                
-    #def convert_params(self,all_params):
-        
-    #    cparams = {}
-    #    for key in all_params:
-    #        cparams[key]=self.get_dist_params(key,all_params)
-    #    return cparams
-        
-    #def get_dist_params(self,dname,all_params):
-        
-    #    dparams = {}
-    #    for key in all_params[dname].keys():
-    #        
-    #        if(key=="params"): # make physical quantity
-    #            params = {}
-    #            for p in all_params[dname]["params"]:
-    #                if(isinstance(all_params[dname]["params"][p],dict) and
-    #                   "value" in all_params[dname]["params"][p] and 
-    #                   "units" in all_params[dname]["params"][p]):
-    #                    params[p]=all_params[dname]["params"][p]["value"]*unit_registry(all_params[dname]["params"][p]["units"])
-    #                else:
-    #                    params[p]=all_params[dname]["params"][p]
-    #            dparams["params"]=params
-    #            
-    #        else: # Copy over
-    #            dparams[key]=all_params[dname][key]
-    #            
-    #    return dparams
+
+        elif(params['beam']['start_type']=='time'):
+
+            vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
+            params.pop('t_dist')
                 
     def beam(self):
     
@@ -305,14 +282,21 @@ class Generator:
                 vprint('Applying user defined transform "'+t+'"...',verbose>0,1,True)
                 bdist = transform(bdist, T['type'], T['variables'], **T['params'])
         
-        #for x in avgs:
-        #    bdist[x] = avgs[x] + bdist[x]
-        
+        # Handle any start type specific settings
         if(beam_params["start_type"]=="cathode"):
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
             vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
             vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
+
+        elif(beam_params['start_type']=='time'):
+            
+            if('tstart' in beam_params['params']):
+                tstart = beam_params['start_type']
+            else:
+                tstart = 0*unit_registry('sec')
+            vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart));
+            bdist['t'] = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
 
         else:
             raise ValueError("Beam start '"+beam_params["start_type"]+"' is not supported!")
