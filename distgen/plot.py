@@ -113,7 +113,7 @@ def plot_1d(beam,var,units,**params):
     plt.ylabel('$pdf('+var+')$')
     plt.plot(tst,rhott)
     
-def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
+def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
 
     labels={'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}'}
 
@@ -126,13 +126,16 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
             nbins=params["nbins"]
         else:
             nbins=10
-        ax = scatter_hist2d(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
+        scatter_hist2d(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'),ax=ax)
         
-    if("axis" in params and params["axis"]=="equal"):
-        plt.gca().set_aspect('equal', adjustable='box')
+    if(ax is None):
+        ax = plt.gca()
 
-    plt.xlabel('$'+labels[var1] + "$ ("+units1+")")
-    plt.ylabel('$'+labels[var2] + "$ ("+units2+")")
+    if("axis" in params and params["axis"]=="equal"):
+        ax.set_aspect('equal', adjustable='box')
+
+    ax.set_xlabel('$'+labels[var1] + "$ ("+units1+")")
+    ax.set_ylabel('$'+labels[var2] + "$ ("+units2+")")
     
     avgx = beam[var1].mean().to(units1)
     avgy = beam[var2].mean().to(units2)
@@ -143,11 +146,14 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, **params):
     stdy = beam[var2].std().to(units2)
     stdx_str = "{:0.3f~P}".format(stdx)
     stdy_str = "{:0.3f~P}".format(stdy)
+
     if(stdx==0):
         plt.xlim([-1,1])
     if(stdy==0):
         plt.ylim([-1,1])
-    plt.title('$<'+labels[var1]+'>$ = '+avgx_str+', $<'+labels[var2]+'>$ = '+avgy_str+'\n$\sigma_{'+labels[var1]+'}$ = '+stdx_str+', $\sigma_{'+labels[var2]+'}$ = '+stdy_str)
+
+    if('title_on' in params and params['title_on']):
+        ax.set_title('$<'+labels[var1]+'>$ = '+avgx_str+', $<'+labels[var2]+'>$ = '+avgy_str+'\n$\sigma_{'+labels[var1]+'}$ = '+stdx_str+', $\sigma_{'+labels[var2]+'}$ = '+stdy_str)
     #plt.title('$\sigma_{'+var1+'}$ = '+stdx_str+', $\sigma_{'+var2+'}$ = '+stdy_str)
     
     return ax

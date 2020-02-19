@@ -1,8 +1,23 @@
 from .physical_constants import unit_registry
 import numpy as np
 
+ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta']
 
-def translate(beam, var, new_avg):
+def get_variables(varstr):
+
+   varstr=varstr.strip()
+   variables = varstr.split(':')
+   for variable in variables:
+       assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
+   return variables
+   
+# Single variable transforms:
+
+def translate(beam, var, delta):
+    beam[var] = delta + beam[var]
+    return beam
+
+def set_avg(beam, var, new_avg):
     beam[var] = new_avg + (beam[var]-beam[var].mean())
     return beam
 
@@ -25,10 +40,10 @@ def set_avg_and_std(beam, var, new_avg, new_std):
     if(old_std.magnitude>0):
         beam = scale(beam, var, new_std/old_std, fix_average=True)
 
-    beam = translate(beam, var, new_avg)
+    beam = set_avg(beam, var, new_avg)
     return beam
 
-# 2 variable transforms
+# 2 variable transforms:
 def rotate2d(beam, variables, angle, origin=None):
 
     if(isinstance(variables,str) and len(variables.split(":"))==2):
@@ -78,27 +93,19 @@ def sheer(beam, variables, sheer_coefficient, origin=None):
     beam[var2] = beam[var2] + sheer_coefficient*(beam[var1]-o1)
     return beam
 
+def magnetize(beam, variables, magnetization):
 
-#def polynomial(beam, variables, coefficients):
+    if(variables=='r:ptheta'):
 
-#    if(isinstance(variables,str) and len(variables.split(":"))==2):
-#        var1,var2=variables.split(':')
-
-#    y = np.zeros(beam[var2].shape)*unit_registry(beam[var2].units)
-
-#    for ii,coeff in coefficients:
-#        if(ii==0):
-#            y = coeff
-#        else:
-#            y = y + coeff*np.pow(y,ii)
-
-#    beam[var2]=y
-        
+        sigx = beam['x'].std()
+        sigy = beam['y'].std()
+  
+        return sheer(beam, variables, -magnetization/sigx/sigx ) 
 
 
-def transform(func):
-    @functools.wraps(func)
-    def transform_wrapper(*args,**kwargs):
-        func(*args, **kwargs)
-        return func(*args, **kwargs)
-    return transform_wrapper
+def transform(beam, desc, varstr, **kwargs):
+    variables = get_variables(varstr)
+    transform_fun = globals()[desc]
+    return transform_fun(beam,varstr,**kwargs)
+
+

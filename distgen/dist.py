@@ -276,26 +276,80 @@ class Norm(Dist1d):
         else:
             self.mu = 0*unit_registry(str(self.sigma.units))
 
+        sigma_cutoff_str = "n_sigma_cutoff"
+        if(sigma_cutoff_str in kwargs.keys()):
+
+            self.a = -kwargs[sigma_cutoff_str]*self.sigma
+            self.b = +kwargs[sigma_cutoff_str]*self.sigma
+
+        else:
+ 
+            self.a = -float('Inf')*unit_registry(str(self.sigma.units))
+            self.b = +float('Inf')*unit_registry(str(self.sigma.units))
+
+        assert self.a < self.b, 'Right side cut off a = {:0.3f~P}'.format(self.a) + ' must be < left side cut off b = {:0.3f~P}'.format(self.b)
+
+        self.A = (self.a - self.mu)/self.sigma
+        self.B = (self.b - self.mu)/self.sigma
+        
+        self.pA = self.canonical_pdf(self.A)
+        self.pB = self.canonical_pdf(self.B)
+
+        self.PA = self.canonical_cdf(self.A)
+        self.PB = self.canonical_cdf(self.B)
+
+        self.Z = self.PB - self.PA
+
         vprint("Gaussian",verbose>0,0,True)
         vprint("avg_"+var+" = {:0.3f~P}".format(self.mu)+", sigma_"+var+" = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
+        vprint("n_sigma_cutoff = {:0.3f~P}".format(self.b/self.sigma),verbose>0 and self.b.magnitude<float('Inf'),2,True)
             
     def get_x_pts(self,n):
         return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
 
+    def canonical_pdf(self,csi):
+        return (1/np.sqrt(2*math.pi))*np.exp( -csi**2/2.0 ) 
+
     def pdf(self,x):        
-        return (1/np.sqrt(2*math.pi*self.sigma*self.sigma))*np.exp( -(x-self.mu)**2/2.0/self.sigma**2 ) 
+        csi = (x-self.mu)/self.sigma
+        res = self.canonical_pdf(csi)/self.Z/self.sigma
+        x_out_of_range = (x<self.a) | (x>self.b)
+        res[x_out_of_range] = 0*unit_registry('1/'+str(self.sigma.units))
+        return res
+
+    def canonical_cdf(self,csi):
+        return 0.5*(1+erf(csi/math.sqrt(2) ) )
 
     def cdf(self,x):
-        return 0.5*(1+erf( (x-self.mu)/self.sigma/math.sqrt(2) ) )
+        csi = (x-self.mu)/self.sigma
+        res = (self.canonical_cdf(csi) - self.PA)/self.Z
+        x_out_of_range = (x<self.a) | (x>self.b)
+        res[x_out_of_range] = 0*unit_registry('dimensionless')
+        return res
+
+    def canonical_cdfinv(self,rns):
+        return math.sqrt(2)*erfinv((2*rns-1))
 
     def cdfinv(self,rns):
-        return self.mu + math.sqrt(2)*self.sigma*erfinv((2*rns-1))
+        scaled_rns = rns*self.Z + self.PA
+        return self.mu + self.sigma*self.canonical_cdfinv(scaled_rns)
 
     def avg(self):
-        return self.mu
+        return self.mu + self.sigma*(self.pA - self.pB)/self.Z 
     
     def std(self):
-        return self.sigma
+
+        if(self.A.magnitude == -float('Inf')):
+            ApA = 0*unit_registry('dimensionless')
+        else:
+            ApA = self.A*self.pA
+
+        if(self.B.magnitude == +float('Inf')):
+            BpB = 0*unit_registry('dimensionless')
+        else:
+            BpB = self.B*self.pB
+       
+        return self.sigma*np.sqrt( 1 + (ApA - BpB)/self.Z + ((self.pA - self.pB)/self.Z)**2 )
 
     def rms(self):
         avg=self.avg()

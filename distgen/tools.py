@@ -358,6 +358,22 @@ def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
     return d
 
 
+def convert_params(d):
+    
+    for k, v in d.items():
+        if(k=='params' and isinstance(v,dict)):
+            params = {}
+            for p in v.keys():
+                if(isinstance(v[p],dict) and 'value' in v[p] and 'units' in v[p]):
+                    params[p]=v[p]["value"]*unit_registry(v[p]["units"])
+                else:
+                    params[p]=v[p]
+            d[k]=params
+
+        elif isinstance(v, dict):
+            convert_params(v)
+
+
 
 class NpEncoder(json.JSONEncoder):
     """

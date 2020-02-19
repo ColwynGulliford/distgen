@@ -1,6 +1,6 @@
 from .physical_constants import *
 from .beam import Beam
-from .transforms import set_avg_and_std
+from .transforms import set_avg_and_std, transform
 from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
@@ -8,6 +8,7 @@ from pmd_beamphysics import ParticleGroup
 import numpy as np
 import h5py
 import yaml
+import copy
 
 """
 This class defines the main run engine object for distgen and is responsible for
@@ -25,10 +26,10 @@ class Generator:
         self.verbose = verbose 
     
         self.input = input
-        
+
         # This will be set with .run()
         self.particles = None
-        
+
         if input:
             self.parse_input(input)
             self.configure()
@@ -49,13 +50,12 @@ class Generator:
                 #Try raw string
                 input = yaml.safe_load(input)
         self.input = input
-        
-
 
     def configure(self):
-        self.params = self.convert_params(self.input )  # Conversion of the input dictionary
-                        # Saving the converted dictionary to the Generator object
-        self.check_input_consistency(self.params)  # Check that the result is logically sound 
+
+        self.params = copy.deepcopy(self.input)         # Copy the input dictionary
+        convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
+        self.check_input_consistency(self.params)       # Check that the result is logically sound 
         
     def check_input_consistency(self, params):
         ''' Perform consistency checks on the user input data'''
@@ -67,10 +67,11 @@ class Generator:
         
         if(params["beam"]["start_type"] == "cathode"):
 
-            vprint("Ignoring user specified px distribution for cathode start.",self.verbose>0 and "px_dist" in params,0,True )
-            vprint("Ignoring user specified py distribution for cathode start.",self.verbose>0 and "py_dist" in params,0,True )
-            vprint("Ignoring user specified pz distribution for cathode start.",self.verbose>0 and "pz_dist" in params,0,True )
-            assert_with_message("MTE" in params["beam"]["params"],"User must specify the MTE for cathode start.") 
+            vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0 and "z_dist" in params,0,True )
+            vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
+            vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
+            vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
+            assert "MTE" in params["beam"]["params"], "User must specify the MTE for cathode start." 
 
             # Handle momentum distribution for cathode
             MTE = self.params["beam"]["params"]["MTE"]
@@ -78,35 +79,11 @@ class Generator:
             self.params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
             self.params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
             self.params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
-                
-    def convert_params(self,all_params):
-        
-        cparams = {}
-        for key in all_params:
-            cparams[key]=self.get_dist_params(key,all_params)
-            
-        return cparams
-        
-    def get_dist_params(self,dname,all_params):
-        
-        dparams = {}
-        for key in all_params[dname].keys():
-            
-            if(key=="params"): # make physical quantity
-                params = {}
-                for p in all_params[dname]["params"]:
-                    if(isinstance(all_params[dname]["params"][p],dict) and
-                       "value" in all_params[dname]["params"][p] and 
-                       "units" in all_params[dname]["params"][p]):
-                        params[p]=all_params[dname]["params"][p]["value"]*unit_registry(all_params[dname]["params"][p]["units"])
-                    else:
-                        params[p]=all_params[dname]["params"][p]
-                dparams["params"]=params
-                
-            else: # Copy over
-                dparams[key]=all_params[dname][key]
-                
-        return dparams
+
+        elif(params['beam']['start_type']=='time'):
+
+            vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
+            params.pop('t_dist')
                 
     def beam(self):
     
@@ -119,7 +96,16 @@ class Generator:
         outputfile = []
         
         beam_params = self.params["beam"]
-        out_params = self.params["output"]
+   
+        if('output' in self.params):
+            out_params = self.params["output"]
+        else:
+            out_params = None
+
+        if('transforms' in self.params):
+            transforms = self.params['transforms']
+        else:
+            transforms = None
 
         dist_params = {}
         for p in self.params:
@@ -295,42 +281,27 @@ class Generator:
             vprint("Shifting avg_"+x+" -> {:0.3f~P}".format(avgs[x]),verbose>0 and bdist[x].mean()!=avgs[x],1,True)
             bdist = set_avg_and_std(bdist,x,avgs[x],stds[x])
 
-
-            #avgi = bdist.avg(x)
-            #stdi = bdist.std(x)
-            #avgf = avgs[x]
-            #stdf = stds[x]
-
-            #vprint("Scaling sigma_"+x+" -> {:0.3f~P}".format(stdf),verbose>0 and stdi!=stdf,1,True)
-
-            # Scale and center each coordinate
-            #if(stdi.magnitude>0):
-                #bdist[x] = (avgf + (stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
-            #    bdist[x] = ((stdf/stdi)*(bdist[x] - avgi)).to(avgi.units)
-            #else:
-            #    #bdist[x] = (avgf + (bdist[x] - avgi)).to(avgi.units)
-            #    bdist[x] = (bdist[x] - avgi).to(avgi.units)
+        # Apply any user desired coordinate transformations
+        if(transforms):
+            for t,T in transforms.items():
+                vprint('Applying user defined transform "'+t+'"...',verbose>0,1,True)
+                bdist = transform(bdist, T['type'], T['variables'], **T['params'])
         
-        # Perform any coordinate rotations before shifting to final average locations
-        if("rotate_xy" in beam_params["params"]):
-            angle = beam_params["params"]["rotate_xy"]
-            C = np.cos(angle)
-            S = np.sin(angle)
-            
-            x =  C*bdist["x"]-S*bdist["y"]
-            y = +S*bdist["x"]+C*bdist["y"]
-            
-            bdist["x"]=x
-            bdist["y"]=y
-        
-        for x in avgs:
-            bdist[x] = avgs[x] + bdist[x]
-        
+        # Handle any start type specific settings
         if(beam_params["start_type"]=="cathode"):
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
             vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
             vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
+
+        elif(beam_params['start_type']=='time'):
+            
+            if('tstart' in beam_params['params']):
+                tstart = beam_params['start_type']
+            else:
+                tstart = 0*unit_registry('sec')
+            vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart));
+            bdist['t'] = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
 
         else:
             raise ValueError("Beam start '"+beam_params["start_type"]+"' is not supported!")
