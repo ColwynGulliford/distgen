@@ -64,8 +64,6 @@ def get_dist(var,dtype,params=None,verbose=0):
         dist = NormRad(verbose=verbose,**params)
     elif(dtype=="radfile" and var=="r"):
         dist = RadFile(verbose=verbose,**params)
-    elif((dtype=="radial_truncated_gaussian" or dtype=="rtg") and var=="r"):
-        dist = NormRadTrunc(verbose=verbose,**params)
     elif(dtype=="radial_tukey"):
         dist = TukeyRad(verbose=verbose,**params)
     elif(dtype=="file2d"):
@@ -725,6 +723,7 @@ class DistRad():
         return self.cdfinv(self.rgen.rand( (N,1),sequence,params)*unit_registry("dimensionless"))
 
     def plot_pdf(self,n=1000):
+
         r=self.get_r_pts(n)
         p = self.rho(r)
         P = self.pdf(r)
@@ -854,100 +853,231 @@ class UniformRad(DistRad):
     def cdfinv(self,rns):
         return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
 
-class NormRad(DistRad):
+#class NormRad(DistRad):
 
-    sigma = 0 
+#    sigma = 0 
 
-    def __init__(self,verbose=0,**kwargs):
+#    def __init__(self,verbose=0,**kwargs):
         
-        if("sigma_xy" in kwargs):
-            self.sigma = kwargs["sigma_xy"]
-        else:
-            raise ValueError("Radial Gaussian required parameter sigma_xy not found.")
-         
-        vprint("radial Gaussian",verbose>0,0,True)
-        vprint("sigma_xy = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
+#        if("sigma_xy" in kwargs):
+#            self.sigma = kwargs["sigma_xy"]
+#        else:
+#            raise ValueError("Radial Gaussian required parameter sigma_xy not found.")
+#         
+#        vprint("radial Gaussian",verbose>0,0,True)
+#        vprint("sigma_xy = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
 
-    def pdf(self,r):
-        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma )*r 
+#    def pdf(self,r):
+#        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma )*r 
 
-    def rho(self,r):
+#    def rho(self,r):
 
-        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma ) 
+#        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma ) 
+#
+#   def cdf(self,r):
+#        return 1 - np.exp(-r*r/2.0/self.sigma/self.sigma)
 
-    def cdf(self,r):
-        return 1 - np.exp(-r*r/2.0/self.sigma/self.sigma)
-
-    def get_r_pts(self,n=1000):
-        return np.linspace(0,+5*self.sigma.magnitude,n)*unit_registry(str(self.sigma.units))
+#    def get_r_pts(self,n=1000):
+#        return np.linspace(0,+5*self.sigma.magnitude,n)*unit_registry(str(self.sigma.units))
         
-    def avg(self):
-        return math.sqrt(math.pi/2)*self.sigma
+#    def avg(self):
+#        return math.sqrt(math.pi/2)*self.sigma
 
-    def rms(self):
-        return np.sqrt(2)*self.sigma
+#    def rms(self):
+#        return np.sqrt(2)*self.sigma
 
-    def cdfinv(self,rns):
-        return self.sigma*np.sqrt(-2*np.log(1-rns))
+#    def cdfinv(self,rns):
+#        return self.sigma*np.sqrt(-2*np.log(1-rns))
 
-class NormRadTrunc(DistRad):
+#class NormRadTrunc(DistRad):
 
-    f = 0
-    R = 0
-    sigma_inf = 0
+#    f = 0
+#    R = 0
+#    sigma_inf = 0
     
-    def __init__(self,radius=None,fraction=None,**params):
-    
-        if(radius is None and "pinhole_size" not in params):
-            raise ValueError("Radial truncated Gaussian requires either a radius or pinhole size as input parameter.")
-        elif(radius is None):
-            radius = params["pinhole_size"]/2.0
+#   def __init__(self,radius=None,fraction=None,**params):
+#    
+#        if(radius is None and "pinhole_size" not in params):
+#            raise ValueError("Radial truncated Gaussian requires either a radius or pinhole size as input parameter.")
+#        elif(radius is None):
+#            radius = params["pinhole_size"]/2.0
           
-        if(fraction is None and "fraction" not in params):
-            raise ValueError("Radial truncated Gaussian input parameter 'fraction' not found.")
-        elif(radius is None):
-            fraction = params["fraction"]  
+#        if(fraction is None and "fraction" not in params):
+#            raise ValueError("Radial truncated Gaussian input parameter 'fraction' not found.")
+#        elif(radius is None):
+#            fraction = params["fraction"]  
         
-        if(radius<=0):
-            raise ValueError("For truncated gaussian, radius has to be > 0")
-        if(fraction > 1 or fraction < 0):
-            raise ValueErorr("For truncated gaussian, fraction must satisfy: f > 0 and f < 1")
+#        if(radius<=0):
+#            raise ValueError("For truncated gaussian, radius has to be > 0")
+#        if(fraction > 1 or fraction < 0):
+#            raise ValueErorr("For truncated gaussian, fraction must satisfy: f > 0 and f < 1")
 
-        self.f = fraction
-        self.R = radius
-        self.sigma_inf = radius/np.sqrt(2)/np.sqrt(np.log(1/fraction))
+#        self.f = fraction
+#        self.R = radius
+#        self.sigma_inf = radius/np.sqrt(2)/np.sqrt(np.log(1/fraction))
 
-    def pdf(self,r):
-        res = np.zeros(len(r))
-        nonzero = r<=self.R 
-        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)*r[nonzero]
-        res = res*unit_registry('1/'+str(r.units))
-        return res
+#    def pdf(self,r):
+
+#        print(r[0],self.R)
+#        res = np.zeros(len(r))
+#        nonzero = r<=self.R 
+#        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)*r[nonzero]
+#        res = res*unit_registry('1/'+str(r.units))
+#        return res
+
+#    def rho(self,r):
+#        res = np.zeros(len(r))
+ #       nonzero = r<=self.R 
+#        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)
+#        res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+#        return res
+
+#    def cdf(self,r):
+#        res = np.zeros(len(r))
+#        nonzero = r<=self.R 
+#        res[nonzero]=(1-np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2))/(1-self.f)
+#        return res
+
+#    def cdfinv(self,rns):
+#        return np.sqrt( 2*self.sigma_inf**2 * ( np.log(1/(rns*(self.f-1)+1)) )) 
+
+#    def get_r_pts(self,n=1000):
+#        return np.linspace(0,1.2*self.R.magnitude,n)*unit_registry(str(self.R.units))
+
+#    def avg(self):
+#        return (self.sigma_inf*math.sqrt(math.pi/2)*erf(self.R/np.sqrt(2)/self.sigma_inf)-self.R*self.f)/(1-self.f)
+
+#    def rms(self):
+#        return np.sqrt( 2*self.sigma_inf**2 - self.R**2 * self.f/(1-self.f) )
+
+
+class NormRad(DistRad):
+    
+    def __init__(self, **params):
+
+
+        assert (not ('sigma_xy' in params and 'truncation_fraction' in params)), 'User must specify either a sigma_xy or truncation fraction, not both'
+        assert (not ('sigma_xy' not in params and 'truncation_fraction' not in params)), 'User must specify sigma_xy or a truncation fraction for radial normal distribution'
+
+        self.rR = None
+        self.rL = None
+
+        if('sigma_xy' in params):
+            self.sigma = params['sigma_xy']
+
+            if('truncation_radius_left' in params and 'truncation_radius_right' in params):
+
+                self.rL = params['truncation_radius_left']
+                self.rR = params['truncation_radius_right']
+
+            elif('truncation_radius' in params):
+
+                self.rL = 0*unit_registry('mm')
+                self.rR = params['truncation_radius']
+
+            elif('n_sigma_cutoff_left' in params and 'n_sigma_cutoff_right' in params):
+
+                self.rL = params['n_sigma_cutoff_left']*self.sigma
+                self.rR = params['n_sigma_cutoff_right']*self.sigma
+
+            elif('n_sigma_cutoff' in params):
+
+                self.rL = 0*unit_registry('mm')
+                self.rR = params['n_sigma_cutoff']*self.sigma
+
+            else:
+                self.rL = 0*unit_registry('mm')
+                self.rR = float('Inf')*unit_registry('mm')
+
+        elif('truncation_fraction' in params):
+            f = params['truncation_fraction']
+
+            if('truncation_radius' in params):
+
+                R = params['truncation_radius']
+                
+                self.sigma = R*np.sqrt( 1.0/2.0/np.log(1/f) )
+                self.rL=0*unit_registry('mm')
+                self.rR = R  
+
+            elif('truncation_radius_left' in params and 'truncation_radius_right' in params):
+                
+                self.rL = params['truncation_radius_right']
+                self.rR = params['truncation_radius_right']
+                self.sigma = self.rR*np.sqrt( 1.0/2.0/np.log(1/f) )
+
+        #print(self.sigma, self.rL, self.rR)
+
+        assert self.rR.magnitude >= 0, "Radial Gaussian right cut radius must be >= 0"
+        assert self.rL < self.rR, "Radial Gaussian left cut radius must be < right cut radius"
+
+        self.pR = self.canonical_rho(self.rR/self.sigma)
+        self.pL = self.canonical_rho(self.rL/self.sigma)
+        self.dp = self.pL-self.pR
+
+        #print(self.pR, self.pL, self.dp)
+
+    def canonical_rho(self,xi):
+        return (1/2.0/math.pi)*np.exp(-xi**2/2)
 
     def rho(self,r):
+
+        xi = (r/self.sigma)
+        res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+        nonzero =  (r>=self.rL) & (r<=self.rR)
+        res[nonzero]= (1/2.0/math.pi)*self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
+        return res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+
+    def pdf(self,r):
+   
+        xi = (r/self.sigma)
         res = np.zeros(len(r))
-        nonzero = r<=self.R 
-        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)
-        res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
-        return res
+        nonzero =  (r>=self.rL) & (r<=self.rR)
+        res[nonzero] = r[nonzero]*self.canonical_rho(xi[nonzero])/self.dp/self.sigma**2
+        return res*unit_registry('1/'+str(r.units))
 
     def cdf(self,r):
+
         res = np.zeros(len(r))
-        nonzero = r<=self.R 
-        res[nonzero]=(1-np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2))/(1-self.f)
+        nonzero =  (r>=self.rL) & (r<=self.rR)
+        xi = (r/self.sigma)
+        res[nonzero]=(self.pL - self.canonical_rho(xi[nonzero]))/self.dp
         return res
 
     def cdfinv(self,rns):
-        return np.sqrt( 2*self.sigma_inf**2 * ( np.log(1/(rns*(self.f-1)+1)) )) 
+        return np.sqrt( 2*self.sigma**2 * np.log(1/2/math.pi/( self.pL - self.dp*rns )) ) 
 
     def get_r_pts(self,n=1000):
-        return np.linspace(0,1.2*self.R.magnitude,n)*unit_registry(str(self.R.units))
+        if(self.rR.magnitude==float('Inf')):
+            endr = 5*self.sigma
+        else:
+            endr = 1.2*self.rR
+        return linspace(0.88*self.rL,endr,n)
 
     def avg(self):
-        return (self.sigma_inf*math.sqrt(math.pi/2)*erf(self.R/np.sqrt(2)/self.sigma_inf)-self.R*self.f)/(1-self.f)
+
+        xiL = self.rL/self.sigma
+        xiR = self.rR/self.sigma
+   
+        erfL = erf(xiL/np.sqrt(2))
+        erfR = erf(xiR/np.sqrt(2))
+
+        if(self.rR.magnitude==float('Inf')):
+            xiRpR = 0*unit_registry('')
+        else:
+            xiRpR = xiR*self.pR
+
+        return self.sigma*( (xiL*self.pL - xiRpR) + (1.0/2.0/np.sqrt(2*math.pi))*(erfR-erfL) )/self.dp 
 
     def rms(self):
-        return np.sqrt( 2*self.sigma_inf**2 - self.R**2 * self.f/(1-self.f) )
+
+        if(self.rR.magnitude==float('Inf')):
+            pRrR2 = 0*unit_registry('mm^2')
+        else:
+            pRrR2 = self.pR*self.rR**2
+
+        pRrL2 = self.pR*self.rL**2
+        return np.sqrt( 2*self.sigma**2 - self.rL**2 + (pRrL2 - pRrR2)/self.dp )
 
 class RadFile(DistRad):
 
