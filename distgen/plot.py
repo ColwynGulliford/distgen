@@ -113,6 +113,10 @@ def plot_1d(beam,var,units,**params):
     plt.ylabel('$pdf('+var+')$')
     plt.plot(tst,rhott)
     
+def plot_rad(beam, Nfig, ptype, ax=None, **params):
+    pass
+    
+
 def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
 
     labels={'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}'}
