@@ -765,7 +765,6 @@ class DistRad():
         p = self.rho(r)
         P = self.pdf(r)
         
-
         rho,edges = histogram(rs,bins=100)
         rhist = (edges[1:] + edges[:-1]) / 2
         rho = rho/np.trapz(rho,rhist)
