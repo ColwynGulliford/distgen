@@ -1,7 +1,7 @@
 from .physical_constants import unit_registry
 import numpy as np
 
-ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta']
+ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta','xp','yp']
 
 def get_variables(varstr):
 
@@ -73,7 +73,7 @@ def rotate2d(beam, variables, angle, origin=None):
 
     return beam
 
-def sheer(beam, variables, sheer_coefficient, origin=None):
+def shear(beam, variables, sheer_coefficient, origin=None):
 
     if(isinstance(variables,str) and len(variables.split(":"))==2):
         var1,var2=variables.split(':')
@@ -93,6 +93,18 @@ def sheer(beam, variables, sheer_coefficient, origin=None):
     beam[var2] = beam[var2] + sheer_coefficient*(beam[var1]-o1)
     return beam
 
+def matrix2d(beam, variables, m11, m12, m21, m22):
+
+   variables = get_variables(variables)
+   v1 = beam[variables[0]]
+   v2 = beam[variables[1]]
+
+   beam[variables[0]] = m11*v1 + m12*v2
+   beam[variables[1]] = m21*v1 + m22*v2
+
+   return beam
+
+   
 def magnetize(beam, variables, magnetization):
 
     if(variables=='r:ptheta'):
@@ -100,8 +112,37 @@ def magnetize(beam, variables, magnetization):
         sigx = beam['x'].std()
         sigy = beam['y'].std()
   
-        return sheer(beam, variables, -magnetization/sigx/sigx ) 
+        return shear(beam, variables, -magnetization/sigx/sigx ) 
 
+def set_twiss(beam,plane, beta, alpha, eps):
+
+    if(plane not in ['x','y']):
+        raise ValueError('set_twiss -> unsupported twiss plane: '+plane)
+
+    xstr = plane
+    pstr = plane+'p'
+
+    x0 = beam[xstr]
+    p0 = beam[pstr]
+
+    avg_x0 = x0.mean()
+    beam[xstr]=beam[xstr]-avg_x0
+
+    avg_p0 = p0.mean()
+    beam[pstr]=beam[pstr]-avg_p0
+
+    beta0,alpha0,eps0 = beam.twiss(xstr)
+
+    m11 = (np.sqrt(beta*eps/beta0/eps0)).to_base_units()
+    m12 = (0*unit_registry(str(beam[xstr].units)+'/'+str(beam[pstr].units))).to_base_units()
+    m21 = (( (alpha0-alpha)/np.sqrt(beta*beta0) )*np.sqrt(eps/eps0)).to_base_units()
+    m22 = (np.sqrt(beta0/beta)*np.sqrt(eps/eps0)).to_base_units()
+
+    beam = matrix2d(beam, xstr+':'+pstr, m11, m12, m21, m22)
+    beam[xstr] = avg_x0 + beam[xstr]
+    beam[pstr] = avg_p0 + beam[pstr]
+
+    return beam
 
 def transform(beam, desc, varstr, **kwargs):
     variables = get_variables(varstr)

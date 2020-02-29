@@ -26,7 +26,7 @@ class Beam():
         if(var in self.params):
             return self.params[var]
 
-        elif(var in ['r','theta','pr','ptheta']):
+        elif(var in ['r','theta','pr','ptheta','xp','yp','thetax','thetay']):
             return getattr(self,'get_'+var)()
 
         else:
@@ -38,7 +38,7 @@ class Beam():
         """
         if(var in self.params.keys()):
             self.params[var]=item
-        elif(var in ['r','theta','pr','ptheta']):  # Special variables that are functions of the basic coordinates
+        elif(var in ['r','theta','pr','ptheta','xp','yp','thetax','thetay']):  # Special variables that are functions of the basic coordinates
             getattr(self,'set_'+var)(item)
 
         else:
@@ -60,16 +60,58 @@ class Beam():
             stdvar = std(self.params[var],self.params["w"]) 
             return stdvar.to(desired_units)
 
-    def emitt(self,var,desired_units=None):
+    def beta(self,var):
 
-        pvar = 'p'+var
+        varx = self.std(var)**2
+        eps = self.emitt(var,'geometric')
 
-        if(desired_units is None):
+        return varx/eps
+    
+    def alpha(self,var):
 
-            x2 = self.std(var)**2
-            p2 = self.std(pvar)**2
-            xp = mean( (self.params[var]-self.avg(var))*(self.params[pvar]-self.avg(pvar)), self.params['w'] )
-            return np.sqrt( x2*p2 - xp**2 )
+        pvar = var+'p'
+        x = self.params[var]
+        x0 = mean(x,self.params['w'])
+
+        p = self.__getitem__(pvar)
+        p0 = mean(p,self.params['w'])
+
+        xp = mean( (x-x0)*(p-p0), self.params['w'])
+        eps = self.emitt(var,'geometric')
+
+        return -xp/eps
+
+    def gamma(self,var):
+
+        p = self.__getitem__('xp')
+        varp = std(p,self.params['w'])
+        eps = self.emitt(var,'geometric')
+
+        return varp/eps        
+
+    def emitt(self,var,units='normalized'):
+
+        if(units == 'normalized'):
+
+            x = self.params[var]
+            p = self.params['p'+var].to('GB')
+
+        elif(units == 'geometric'): 
+
+            x = self.params[var]    
+            p = self.__getitem__(var+'p')
+
+        x0 = mean(x,self.params['w'])
+        p0 = mean(p,self.params['w'])
+
+        x2 = std(x,self.params['w'])**2
+        p2 = std(p,self.params['w'])**2
+        xp = mean( (x-x0)*(p-p0), self.params['w'] )
+
+        return np.sqrt( x2*p2 - xp**2 )
+   
+    def twiss(self,var):
+        return (self.beta(var), self.alpha(var), self.emitt(var,'geometric'))
 
     def data(self):
         """
@@ -130,6 +172,41 @@ class Beam():
 
         self.params['px']=pr*np.cos(theta)-ptheta*np.sin(theta)
         self.params['py']=pr*np.sin(theta)+ptheta*np.cos(theta)
+
+    # Transverse Derivatives and Angles
+
+    def get_dvdz(self,vstr):
+        pstr='p'+vstr
+        return self.params[pstr]/( self.params['pz'].to(str(self.params[pstr].units)) )
+
+    def get_xp(self):
+        return self.get_dvdz('x')
+  
+    def get_yp(self):
+        return self.get_dvdz('y')
+
+    def set_dvdz(self,vstr,dvdz):
+        pstr='p'+vstr
+        self.params[pstr] = dvdz * (self.params['pz'].to(str(self.params[pstr].units)) )
+
+    def set_xp(self,xp):
+        self.set_dvdz('x',xp)
+
+    def set_yp(self,yp):
+        self.set_dvdz('y',yp)
+
+    def get_thetax(self):
+        return np.arctan2( self.params['px'],  self.params['pz'].to(str(self.params['px'].units)))
+
+    def set_thetax(self,thetax):
+        self.params['px'] =  self.params['pz']*np.tan(thetax)
+
+    def get_thetay(self):
+        return np.arctan2( self.params['pz'].to(str(self.params['py'].units)) , self.params['py'])
+
+    def set_thetay(self,thetay):
+        self.params['py'] =  self.params['pz']*np.tan(thetay)
+
 
 # Functions for converting between x,y <-> r,theta
 def xy_to_r(x,y):

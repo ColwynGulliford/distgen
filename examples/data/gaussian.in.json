@@ -2,6 +2,6 @@
 "r_dist": {"type": "radial_gaussian", "params": {"sigma_xy":{"value":2,"units":"mm"}}}, 
 "px_dist":{"type": "gaussian", "params": {"sigma_px":{"value":1,"units":"keV/c"}} },
 "py_dist":{"type": "gaussian", "params": {"sigma_py":{"value":1,"units":"keV/c"}} },
-"pz_dist":{"type": "gaussian", "params": {"sigma_pz":{"value":1,"units":"MeV"}, "avg_pz":{"value":1,"units":"GeV/c"}} },
+"pz_dist":{"type": "gaussian", "params": {"sigma_pz":{"value":1,"units":"MeV/c"}, "avg_pz":{"value":1,"units":"GeV/c"}} },
 "t_dist": {"type": "uniform", "params": {"min_t":{"value":-2,"units":"ps"},"max_t":{"value":2,"units":"ps"}}},
 "output": {"type": "gpt", "file": "rad.gaussian.out.txt"}}

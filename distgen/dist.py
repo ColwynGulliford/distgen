@@ -2,7 +2,6 @@
 Defines the random number generator class as well all distribution function objects.
 """
 
-
 #import chaospy
 # Replaced by:
 from .hammersley import create_hammersley_samples
@@ -309,6 +308,8 @@ class Norm(Dist1d):
 
         assert self.a < self.b, 'Right side cut off a = {:0.3f~P}'.format(self.a) + ' must be < left side cut off b = {:0.3f~P}'.format(self.b)
 
+        #print(self.sigma, self.mu)
+
         self.A = (self.a - self.mu)/self.sigma
         self.B = (self.b - self.mu)/self.sigma
         
@@ -613,7 +614,7 @@ class Tukey(Dist1d):
         return 1.1*linspace(-self.L/2.0,self.L/2.0,n)
 
     def pdf(self,x):        
-        res = np.zeros(x.shape)
+        res = np.zeros(x.shape)*unit_registry('1/'+str(self.L.units))
 
         if(self.r==0):
            flat_region = np.logical_and(x <= self.L/2.0, x >= -self.L/2.0)
@@ -630,9 +631,9 @@ class Tukey(Dist1d):
             res[mcos_region]=0.5*(1+np.cos( (pi/Lcos)*(x[mcos_region]+Lflat/2.0) ))/self.L
             res[flat_region]=1.0/self.L
 
-            res[x<-self.L]=0 
+            res[x<-self.L]=0*unit_registry('1/'+str(self.L.units))
 
-        res = res*unit_registry('1/'+str(self.L.units))
+        #res = res*unit_registry('1/'+str(self.L.units))
         
         return res/trapz(res,x)
 

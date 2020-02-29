@@ -297,10 +297,12 @@ class Generator:
         elif(beam_params['start_type']=='time'):
             
             if('tstart' in beam_params['params']):
-                tstart = beam_params['start_type']
+                tstart = beam_params['params']['tstart']
+    
             else:
                 tstart = 0*unit_registry('sec')
-            vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart));
+
+            vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart), verbose>0, 1, True);
             bdist['t'] = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
 
         else:
