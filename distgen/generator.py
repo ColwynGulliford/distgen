@@ -303,7 +303,7 @@ class Generator:
                 tstart = 0*unit_registry('sec')
 
             vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart), verbose>0, 1, True);
-            bdist['t'] = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
+            bdist = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
 
         else:
             raise ValueError("Beam start '"+beam_params["start_type"]+"' is not supported!")
