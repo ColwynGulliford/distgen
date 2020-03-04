@@ -221,8 +221,12 @@ class Dist1d():
 class Uniform(Dist1d):
 
     """
-    Implements a the uniform 1d distribution over a range a <= x <= b
+    Implements a the uniform 1d distribution over a range a <= x <= b.
+
+
     """
+
+
 
     def __init__(self,var,verbose=0,**kwargs):
         
@@ -842,9 +846,22 @@ class DistRad():
 
         
 class UniformRad(DistRad):
- 
-    rL=0
-    rR=0
+
+    """
+    Implements a uniform (constant) distribution between 0 <= min_r < r <= max_r.  
+
+    Typical use example in YAML format:
+
+    r_dist: 
+    type: uniform
+    params: 
+        min_r: 
+            value: 1
+            units: mm
+        max_t:
+            value: 2
+            units: ps
+    """
 
     def __init__(self,verbose=0,**kwargs):
             
@@ -1187,11 +1204,11 @@ class TukeyRad(DistRad):
 
         ustr = '1/'+str(self.L.units)+"/"+str(self.L.units)
 
-        res = np.zeros(r.shape)*unit_registry('1/'+str(r.units) +'^2')
+        res = np.zeros(r.shape)*unit_registry(ustr)
 
         if(self.r==0):
            flat_region = np.logical_and(r <= self.L, x >= 0.0)
-           res[flat_region]=1.0
+           res[flat_region]=1.0*unit_registry(ustr)
        
         else:
             
@@ -1199,10 +1216,10 @@ class TukeyRad(DistRad):
             Lcos = self.r*self.L
             cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
             flat_region = np.logical_and(r < Lflat, r >= 0)
-            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
-            res[flat_region]=1.0
+            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))*unit_registry(ustr)
+            res[flat_region]=1.0*unit_registry(ustr)
         
-        res = res*unit_registry('1/'+str(self.L.units)+"/"+str(self.L.units))
+        res = res
         res = res/radint(res,r)
         return res
    
