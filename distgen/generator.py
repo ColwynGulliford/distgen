@@ -43,8 +43,9 @@ class Generator:
         YAML or JSON is accepted if params is a filename (str)
         """
         if isinstance(input, str):
-            if os.path.exists(input):
+            if os.path.exists(os.path.expandvars(input)):
                 # Try file
+                input = os.path.expandvars(input)
                 input = yaml.safe_load(open(input))
             else:
                 #Try raw string
