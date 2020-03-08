@@ -227,7 +227,7 @@ class Dist1d():
 
         # Make sure all required parameters are specified
         for req in self.required_params:
-            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init(**kwargs) was not found.'
+            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
         
     
 
@@ -855,7 +855,7 @@ class DistRad():
 
         # Make sure all required parameters are specified
         for req in self.required_params:
-            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init(**kwargs) was not found.'
+            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
            
 class UniformRad(DistRad):
 
@@ -1394,7 +1394,7 @@ class Dist2d():
 
         # Make sure all required parameters are specified
         for req in self.required_params:
-            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init(**kwargs) was not found.'
+            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 
 class File2d(Dist2d):
 

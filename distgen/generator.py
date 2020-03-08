@@ -106,6 +106,8 @@ class Generator:
    
         if('output' in self.params):
             out_params = self.params["output"]
+            for op in out_params:
+                assert op in ['file','type'], 'Unexpected output parameter specified: '+op
         else:
             out_params = None
 
