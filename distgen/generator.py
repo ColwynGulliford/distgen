@@ -113,6 +113,10 @@ class Generator:
             if("_dist" in p):
                 var = p[:-5]
                 dist_params[var]=self.params[p]
+
+        for var in dist_params:
+            for p in dist_params[var]:
+                assert p in ['type','params'],'Unexpected distribution parameter:' + var+ '_dist:'+p
         
         vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
         
