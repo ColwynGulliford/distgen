@@ -87,7 +87,7 @@ class Generator:
             params.pop('t_dist')
 
         for p in params['beam']:
-            assert p in ['start_type','rand_type','params','particle_count'],'Unexpected beam parameter input '+p+'.'
+            assert p in ['start_type','rand_type','params','particle_count','species'],'Unexpected beam parameter input '+p+'.'
                 
     def beam(self):
     
