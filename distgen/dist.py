@@ -48,7 +48,13 @@ class RandGen():
 
 
 def get_dist(var,dtype,params=None,verbose=0):
-    
+    """
+    Translates user input strings and evaluated corrector corresponding distribution function.
+    Inputs: var [str] name of variable (x,y,px,...,etc) for distribution,
+            dtype [str] user string or shorthand for distribution function
+            params [dict] required user parameters for distribution function
+            verbose [bool] flag for more or less output to screen
+    """
     if(dtype=="uniform" or dtype=="u"):
         dist = Uniform(var,verbose=verbose,**params)
     elif(dtype=="gaussian" or dtype=="g"):
@@ -132,6 +138,9 @@ class Dist1d():
         return self.cdfinv( self.rgen.rand((N,1),sequence,params)*unit_registry("dimensionless") )
 
     def plot_pdf(self,n=1000):
+        """
+        Plots the associated pdf function sampled with n points
+        """
         x=self.get_x_pts(n)
         p=self.pdf(x)
         plt.figure()
@@ -140,6 +149,9 @@ class Dist1d():
         plt.ylabel("PDF("+self.xstr+") ({:~P}".format(p.units)+")")
 
     def plot_cdf(self,n=1000):
+        """ 
+        Plots the associtated cdf function sampled with n points
+        """
         x=self.get_x_pts(n)
         plt.figure()
         plt.plot(x,self.cdf(x))
@@ -168,6 +180,11 @@ class Dist1d():
 
     def test_sampling(self):
 
+        """
+        Useful for verifying the distribution object works correctly when sampling.
+
+        Plots the pdf, cdf, and histogram of 10000 samples from the PDF.
+        """
         xs=self.sample(100000,sequence="hammersley")
         x = self.get_x_pts(1000)
         pdf = self.pdf(x)
@@ -203,8 +220,26 @@ class Dist1d():
     
 class Uniform(Dist1d):
 
+    """
+    Implements a the uniform 1d distribution over a range a <= x <= b.
+
+
+    """
+
+
+
     def __init__(self,var,verbose=0,**kwargs):
         
+        """
+        Sets the required parameters for the 1d uniform dist:
+        var [str] =  the name of the distribution variable
+        verbose [int] controls the level of string output to the terminal
+        **kwargs [dict] provides all other input parameters.  
+        The class requires physical parameters with keys "min_{var}" and "max_{var}" 
+        in order to set the range for the distribution.
+
+        """
+
         self.xstr = var
         
         minstr = "min_"+var
@@ -223,18 +258,27 @@ class Uniform(Dist1d):
         vprint(minstr+" = {:0.3f~P}".format(self.xL)+", "+maxstr+" = {:0.3f~P}".format(self.xR),verbose>0,2,True)
    
     def get_x_pts(self,n):
+        """
+        Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
+        Inputs: n [int]
+        """
         f = 0.2
         dx = f*np.abs(self.avg())
         return np.linspace(self.xL-dx,self.xR+dx,n)
 
     def pdf(self,x):
+        """
+        Returns the PDF at the values in x [array w/units].  PDF has units of 1/[x]
+        """
         nonzero = (x >= self.xL) & (x <= self.xR)
-        res = np.zeros(len(x))
+        res = np.zeros(len(x))*unit_registry('1/'+str(self.xL.units))
         res[nonzero]=1/(self.xR-self.xL)
-        res = res*unit_registry('1/'+str(self.xL.units))
         return res
 
     def cdf(self,x):
+        """
+        Returns the CDF at the values of x [array w/units].  CDF is dimensionless
+        """
         nonzero = (x >= self.xL) & (x <= self.xR)
         res = np.zeros(len(x))
         res[nonzero]=(x[nonzero]-self.xL)/(self.xR-self.xL)*unit_registry('dimensionless')
@@ -242,15 +286,27 @@ class Uniform(Dist1d):
         return res
 
     def cdfinv(self,rns):
+        """
+        Returns the inverse of the CDF function for probabilies rns [array], providing a sampling of the PDF.
+        """
         return (self.xR-self.xL)*rns + self.xL
 
     def avg(self):
+        """
+        Returns the first moment of the PDF: <x> = (a + b)/2
+        """
         return 0.5*(self.xR+self.xL)
 
     def std(self):
+        """
+        Returns the square root of the variance of the PDF: <x> = (b-a)/sqrt(12)
+        """
         return (self.xR-self.xL)/np.sqrt(12) 
   
     def rms(self):
+        """
+        Returns the rms of the distribution computed from the avg and std.
+        """
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
@@ -370,7 +426,7 @@ class Norm(Dist1d):
         else:
             BpB = self.B*self.pB
        
-        return self.sigma*np.sqrt( 1 + (ApA - BpB)/self.Z + ((self.pA - self.pB)/self.Z)**2 )
+        return self.sigma*np.sqrt( 1 + (ApA - BpB)/self.Z - ((self.pA - self.pB)/self.Z)**2 )
 
     def rms(self):
         avg=self.avg()
@@ -632,8 +688,6 @@ class Tukey(Dist1d):
             res[flat_region]=1.0/self.L
 
             res[x<-self.L]=0*unit_registry('1/'+str(self.L.units))
-
-        #res = res*unit_registry('1/'+str(self.L.units))
         
         return res/trapz(res,x)
 
@@ -792,9 +846,22 @@ class DistRad():
 
         
 class UniformRad(DistRad):
- 
-    rL=0
-    rR=0
+
+    """
+    Implements a uniform (constant) distribution between 0 <= min_r < r <= max_r.  
+
+    Typical use example in YAML format:
+
+    r_dist: 
+    type: uniform
+    params: 
+        min_r: 
+            value: 1
+            units: mm
+        max_t:
+            value: 2
+            units: ps
+    """
 
     def __init__(self,verbose=0,**kwargs):
             
@@ -1135,11 +1202,13 @@ class TukeyRad(DistRad):
 
     def rho(self,r):
 
-        res = np.zeros(r.shape)
+        ustr = '1/'+str(self.L.units)+"/"+str(self.L.units)
+
+        res = np.zeros(r.shape)*unit_registry(ustr)
 
         if(self.r==0):
            flat_region = np.logical_and(r <= self.L, x >= 0.0)
-           res[flat_region]=1.0
+           res[flat_region]=1.0*unit_registry(ustr)
        
         else:
             
@@ -1147,10 +1216,10 @@ class TukeyRad(DistRad):
             Lcos = self.r*self.L
             cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
             flat_region = np.logical_and(r < Lflat, r >= 0)
-            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))
-            res[flat_region]=1.0
+            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))*unit_registry(ustr)
+            res[flat_region]=1.0*unit_registry(ustr)
         
-        res = res*unit_registry('1/'+str(self.L.units)+"/"+str(self.L.units))
+        res = res
         res = res/radint(res,r)
         return res
    

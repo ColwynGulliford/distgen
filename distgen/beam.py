@@ -207,6 +207,9 @@ class Beam():
     def set_thetay(self,thetay):
         self.params['py'] =  self.params['pz']*np.tan(thetay)
 
+    def get_E(self):
+        pass
+
 
 # Functions for converting between x,y <-> r,theta
 def xy_to_r(x,y):

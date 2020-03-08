@@ -11,15 +11,29 @@ def get_variables(varstr):
        assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
    return variables
    
+def get_origin(beam,varstr,origin):
+
+    if(origin=='centroid'):
+        o = beam[varstr].mean()
+    elif(origin is None):
+        o = 0*unit_registry(str(beam[varstr].units))
+    else:
+        o = origin
+
+    return o
+
+
 # Single variable transforms:
 
 def translate(beam, var, delta):
     beam[var] = delta + beam[var]
     return beam
 
+
 def set_avg(beam, var, new_avg):
     beam[var] = new_avg + (beam[var]-beam[var].mean())
     return beam
+
 
 def scale(beam, var, scale, fix_average=False):
 
@@ -34,7 +48,10 @@ def scale(beam, var, scale, fix_average=False):
 
     return beam
 
+
 def set_avg_and_std(beam, var, new_avg, new_std):
+
+    #print(beam, var, new_avg)
 
     old_std = beam[var].std()
     if(old_std.magnitude>0):
@@ -42,6 +59,7 @@ def set_avg_and_std(beam, var, new_avg, new_std):
 
     beam = set_avg(beam, var, new_avg)
     return beam
+
 
 # 2 variable transforms:
 def rotate2d(beam, variables, angle, origin=None):
@@ -73,6 +91,7 @@ def rotate2d(beam, variables, angle, origin=None):
 
     return beam
 
+
 def shear(beam, variables, sheer_coefficient, origin=None):
 
     if(isinstance(variables,str) and len(variables.split(":"))==2):
@@ -93,6 +112,45 @@ def shear(beam, variables, sheer_coefficient, origin=None):
     beam[var2] = beam[var2] + sheer_coefficient*(beam[var1]-o1)
     return beam
 
+
+def polynomial(beam, variables, polynomial_coefficients, origin=None, zero_dependent_var=False):
+
+    variables = get_variables(variables)
+
+    v1 = beam[variables[0]]
+
+    units = beam[variables[1]].units
+
+    if(zero_dependent_var):
+        v2 = np.zeros(beam[variables[1]].shape)*unit_registry( str(units)  )
+    else:
+        v2 = beam[variables[1]]
+   
+    origin = get_origin(beam,variables[0],origin)
+
+    for n, coefficient in enumerate(polynomial_coefficients):
+        v2 = v2 + coefficient*np.power(v1-origin,n)
+
+    beam[variables[1]] = v2
+    return beam
+
+def cosine(beam, variables, amplitude, phase, omega, zero_dependent_var=False):
+
+    variables = get_variables(variables)
+
+    v1 = beam[variables[0]]
+
+    units = beam[variables[1]].units
+
+    if(zero_dependent_var):
+        v2 = np.zeros(beam[variables[1]].shape)*unit_registry( str(units)  )
+    else:
+        v2 = beam[variables[1]]
+
+    beam[variables[1]] = v2 + amplitude*np.cos( omega*v1 + phase )
+    return beam
+
+
 def matrix2d(beam, variables, m11, m12, m21, m22):
 
    variables = get_variables(variables)
@@ -104,7 +162,7 @@ def matrix2d(beam, variables, m11, m12, m21, m22):
 
    return beam
 
-   
+
 def magnetize(beam, variables, magnetization):
 
     if(variables=='r:ptheta'):
