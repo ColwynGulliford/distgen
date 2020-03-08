@@ -60,6 +60,9 @@ class Generator:
         
     def check_input_consistency(self, params):
         ''' Perform consistency checks on the user input data'''
+
+        for p in params:
+            assert p in ['beam','output','transforms'] or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
         
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
             assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
