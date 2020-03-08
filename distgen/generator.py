@@ -85,6 +85,9 @@ class Generator:
 
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
             params.pop('t_dist')
+
+        for p in params['beam']:
+            assert p in ['start_type','rand_type','params','particle_count'],'Unexpected beam parameter input '+p+'.'
                 
     def beam(self):
     
@@ -116,12 +119,12 @@ class Generator:
 
         for var in dist_params:
             for p in dist_params[var]:
-                assert p in ['type','params'],'Unexpected distribution parameter:' + var+ '_dist:'+p
+                assert p in ['type','params'],'Unexpected distribution parameter:' + var+'_dist:'+p
         
         vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
         
         N = int(beam_params["particle_count"])
-        bdist = Beam(N, beam_params["params"]["total_charge"])
+        bdist = Beam(N,**beam_params['params'])
         
         if("file" in out_params):
             outfile = out_params["file"]

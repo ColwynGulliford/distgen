@@ -10,14 +10,30 @@ This class defines the container for an initial particle distribution
 
 class Beam():
 
-    def __init__(self, n, q, species="electron"):
+    def __init__(self, particle_count, **kwargs):
         """
         Initializes a beam class object with n particles and bunch charge q
         """
-        self.n = n
-        self.q = q
-        self.species = species
+        
+        self.required_inputs = ['total_charge']
+        self.optional_inputs = ['MTE']
+
+        self.check_inputs(kwargs)
+
+        self.n = particle_count
+        self.q = kwargs['total_charge']
+        self.species = 'electron'   # <- Hard coded for now...
+
         self.params = {}
+
+    def check_inputs(self,inputs):
+        allowed_params = self.optional_inputs + self.required_inputs + ['verbose']
+        for input_param in inputs:
+            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
+
+        # Make sure all required parameters are specified
+        for req in self.required_inputs:
+            assert req in inputs, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 
     def __getitem__(self, var):
         """
