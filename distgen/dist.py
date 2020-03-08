@@ -217,7 +217,20 @@ class Dist1d():
             plt.ylabel("PDF("+self.xstr+")")
         plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
         plt.legend(["PDF","Normalized Sampling"])
+
+    def check_inputs(self,input_params):
+
+        # Make sure user isn't passing the wrong parameters:
+        allowed_params = self.optional_params + self.required_params + ['verbose']
+        for input_param in input_params:
+            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
+
+        # Make sure all required parameters are specified
+        for req in self.required_params:
+            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init(**kwargs) was not found.'
+        
     
+
 class Uniform(Dist1d):
 
     """
@@ -225,8 +238,6 @@ class Uniform(Dist1d):
 
 
     """
-
-
 
     def __init__(self,var,verbose=0,**kwargs):
         
@@ -241,22 +252,19 @@ class Uniform(Dist1d):
         """
 
         self.xstr = var
-        
         minstr = "min_"+var
-        if(minstr in kwargs.keys()):
-            self.xL = kwargs[minstr]
-        else:
-            raise ValueError("Uniform dist required parameter "+minstr+" not found in input parameters.")
-            
         maxstr = "max_"+var
-        if(maxstr in kwargs.keys()):
-            self.xR = kwargs[maxstr]
-        else:
-            raise ValueError("Uniform dist required parameter "+maxstr+" not found in input parameters.")
         
+        self.required_params = [minstr, maxstr]
+        self.optional_params = []
+
+        self.check_inputs(kwargs)
+       
+        self.xL = kwargs[minstr]           
+        self.xR = kwargs[maxstr]
         vprint("uniform",verbose>0,0,True)
         vprint(minstr+" = {:0.3f~P}".format(self.xL)+", "+maxstr+" = {:0.3f~P}".format(self.xR),verbose>0,2,True)
-   
+  
     def get_x_pts(self,n):
         """
         Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
@@ -315,23 +323,27 @@ class Norm(Dist1d):
 
     def __init__(self,var,verbose=0,**kwargs):
         
+
+        self.type='Norm'
         self.xstr = var
-        
+
         sigmastr = "sigma_"+var
-        if(sigmastr in kwargs.keys()):
-            self.sigma = kwargs[sigmastr]
-        else:
-            raise ValueError("Norm dist required parameter "+sigmastr+" not found in input parameters.")
-            
-        avgstr = "avg_"+var
-        if(avgstr in kwargs.keys()):
-            self.mu = kwargs[avgstr]
-        else:
-            self.mu = 0*unit_registry(str(self.sigma.units))
+        self.required_params=[sigmastr]
 
         sigma_cutoff_str   = "n_sigma_cutoff"
         sigma_cutoff_left  = "n_sigma_cutoff_left"
         sigma_cutoff_right = "n_sigma_cutoff_right"
+        avgstr = "avg_"+var
+        self.optional_params=[sigma_cutoff_str,sigma_cutoff_left,sigma_cutoff_right,avgstr]
+
+        self.check_inputs(kwargs)
+
+        self.sigma = kwargs[sigmastr]
+            
+        if(avgstr in kwargs.keys()):
+            self.mu = kwargs[avgstr]
+        else:
+            self.mu = 0*unit_registry(str(self.sigma.units))
 
         left_cut_set = False
         right_cut_set = False
@@ -437,17 +449,15 @@ class File1d(Dist1d):
     
     def __init__(self,var,verbose=0,**kwargs):
         
+
+        self.required_params = ['file','units']
+        self.optional_params = []
+        self.check_inputs(kwargs)
+
         self.xstr=var
         
-        if("file" in kwargs):
-            self.distfile = kwargs["file"]
-        else:
-            raise ValueError("File 1D distribution required parameter 'file' not found.")
-        
-        if("units" in kwargs):
-            units = kwargs["units"]
-        else:
-            units = "dimensionless"
+        self.distfile = kwargs["file"]
+        self.units = kwargs["units"]
         
         vprint(var+"-distribution file: '"+self.distfile+"'",verbose>0,0,True)
         f = open(self.distfile,'r')
@@ -464,8 +474,8 @@ class File1d(Dist1d):
             
         data = np.loadtxt(self.distfile,skiprows=1)
 
-        xs = data[:,0]*unit_registry(units)
-        Px =data[:,1]*unit_registry.parse_expression("1/"+units)
+        xs = data[:,0]*unit_registry(self.units)
+        Px = data[:,1]*unit_registry.parse_expression("1/"+self.units)
         
         super().__init__(xs,Px,self.xstr)
         
@@ -492,6 +502,9 @@ class TemporalLaserPulseStacking(Dist1d):
             for key in params:
                 if("crystal_angle_" in key):
                     angles.append(params[key])
+
+        for param in params:
+            assert 'crystal_angle_' in param or 'crystal_length' in param, 'Unknown keyword parameter sent to '+self.__class__.__name__+': '+param
                     
         if(dv is None and "dv" not in params):
             dv=1.05319*unit_registry("ps/mm")
@@ -646,22 +659,13 @@ class Tukey(Dist1d):
     def __init__(self,var,verbose=0,**kwargs):
         
         self.xstr = var
-        
-        sigmastr = "sigma_"+var
-        if(sigmastr in kwargs.keys()):
-            self.sigma = kwargs[sigmastr]
-        else:
-            self.sigma=1.0
          
-        if('ratio' in kwargs.keys()):
-            self.r = kwargs['ratio']
-        else:
-            raise ValueError("Tukey 1D dist required parameter 'ratio' not found in input parameters.")
-
-        if('length' in kwargs.keys()):
-            self.L = kwargs['length']
-        else:
-            raise ValueError("Tukey 1D dist required parameter 'length' not found in input parameters.")
+        self.required_params = ['ratio','length']
+        self.optional_params = []
+        self.check_inputs(kwargs)
+            
+        self.r = kwargs['ratio']
+        self.L = kwargs['length']
 
         vprint("Tukey",verbose>0,0,True)
         vprint("legnth = {:0.3f~P}".format(self.L)+", ratio = {:0.3f~P}".format(self.r),verbose>0,2,True)
@@ -844,7 +848,15 @@ class DistRad():
   
         plt.show()
 
-        
+    def check_inputs(self,input_params):
+        allowed_params = self.optional_params + self.required_params + ['verbose']
+        for input_param in input_params:
+            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
+
+        # Make sure all required parameters are specified
+        for req in self.required_params:
+            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init(**kwargs) was not found.'
+           
 class UniformRad(DistRad):
 
     """
@@ -866,12 +878,14 @@ class UniformRad(DistRad):
     def __init__(self,verbose=0,**kwargs):
             
         maxstr = "max_r"
-        if(maxstr in kwargs.keys()):
-            self.rR = kwargs[maxstr]
-        else:
-            raise ValueError("Radial uniform dist required parameter "+maxstr+" not found in input parameters.")
-        
         minstr = "min_r"
+
+        self.required_params=[maxstr]
+        self.optional_params=[minstr]
+        self.check_inputs(kwargs)
+
+        self.rR = kwargs[maxstr]
+
         if(minstr in kwargs.keys()):
             self.rL = kwargs[minstr]
         else:
@@ -1022,6 +1036,13 @@ class NormRad(DistRad):
     
     def __init__(self, **params):
 
+        self.required_params=[]
+        self.optional_params=['sigma_xy','truncation_fraction',
+				'truncation_radius_left','truncation_radius_right',
+				'n_sigma_cutoff_left','n_sigma_cutoff_left','n_sigma_cutoff',
+				'truncation_radius','truncation_radius_left','truncation_radius_right']
+
+        self.check_inputs(params)
 
         assert (not ('sigma_xy' in params and 'truncation_fraction' in params)), 'User must specify either a sigma_xy or truncation fraction, not both'
         assert (not ('sigma_xy' not in params and 'truncation_fraction' not in params)), 'User must specify sigma_xy or a truncation fraction for radial normal distribution'
@@ -1150,10 +1171,9 @@ class RadFile(DistRad):
 
     def __init__(self,**params):
 
-        if("file" not in params):
-            raise ValueError("Radial distribution file required input parameter 'distribution file' not found.")
-        if("units" not in params):
-            raise ValueError("Radial distribution file required input parameter 'units' not found.")    
+        self.required_params=['file','units']
+        self.optional_params=[]
+        self.check_inputs(params)
         
         distfile = params["file"]
         units = params["units"]
@@ -1179,16 +1199,13 @@ class RadFile(DistRad):
 class TukeyRad(DistRad):
 
     def __init__(self,verbose=0,**kwargs):
-         
-        if('ratio' in kwargs.keys()):
-            self.r = kwargs['ratio']
-        else:
-            raise ValueError("TukeyRad dist required parameter 'ratio' not found in input parameters.")
 
-        if('length' in kwargs.keys()):
-            self.L = kwargs['length']
-        else:
-            raise ValueError("TukeyRad dist required parameter 'length' not found in input parameters.")
+        self.required_params=['ratio','length']
+        self.optional_params=[]
+        self.check_inputs(kwargs)
+         
+        self.r = kwargs['ratio']
+        self.L = kwargs['length']
 
         vprint("TukeyRad",verbose>0,0,True)
         vprint("legnth = {:0.3f~P}".format(self.L)+", ratio = {:0.3f~P}".format(self.r),verbose>0,2,True)
@@ -1253,13 +1270,13 @@ class TukeyRad(DistRad):
 
 class Dist2d():
 
-    xstr = ""
-    ystr = ""
-    xs = []    # x pts
-    ys = []
-    Pxy = []    # Probability Distribution Function P(x,y)
+    #xstr = ""
+    #ystr = ""
+    #xs = []    # x pts
+    #ys = []
+    #Pxy = []    # Probability Distribution Function P(x,y)
     
-    rgen = RandGen()
+    #rgen = RandGen()
 
     def __init__(self,xs,ys,Pxy,xstr="x",ystr="y"):
 
@@ -1268,6 +1285,8 @@ class Dist2d():
         self.Pxy = Pxy
         self.xstr=xstr
         self.ystr=ystr
+
+        self.rgen = RandGen()
     
         self.xb = np.zeros(len(self.xs.magnitude)+1)*unit_registry(str(self.xs.units))
         self.xb[1:-1] = (self.xs[1:]+self.xs[:-1])/2.0
@@ -1366,16 +1385,25 @@ class Dist2d():
         plt.figure()
         plt.plot(x,y,'*')
 
+    def check_inputs(self,input_params):
+
+        # Make sure user isn't passing the wrong parameters:
+        allowed_params = self.optional_params + self.required_params + ['verbose']
+        for input_param in input_params:
+            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
+
+        # Make sure all required parameters are specified
+        for req in self.required_params:
+            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init(**kwargs) was not found.'
+
 class File2d(Dist2d):
 
-    def __init__(self, var1, var2, filename=None,**params):
+    def __init__(self, var1, var2, **params):
 
-        
-        
-        if(filename is None and "file" not in params):
-            raise ValueError("File 2D distribution requires an input file.")
-        elif(filename is None):
-            filename = params['file']
+        self.required_params=['file']
+        self.optional_params=[]
+
+        filename = params['file']
         
         xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
         super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
