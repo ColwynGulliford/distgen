@@ -16,7 +16,7 @@ class Beam():
         """
         
         self.required_inputs = ['total_charge']
-        self.optional_inputs = ['MTE','tstart']
+        self.optional_inputs = ['MTE','tstart','species']
 
         self.check_inputs(kwargs)
 
