@@ -1,4 +1,20 @@
-{"beam": {"start_type": "time", "rand_type": "hammersley", "particle_count": 200000, "params": {"total_charge": {"value": 10, "units": "pC"}, "tstart": {"value": 0, "units": "seconds"}}}, 
+{
+"generator":{
+    "start":{
+        "type":"time",
+        "params":{
+            "tstart": {
+                "value": 0, 
+                "units": "sec"
+                },
+        }
+    },
+    "rand":{
+        "type":"hammersley",
+        "count":100000
+    }
+},
+"beam": {"params": {"total_charge": {"value": 10, "units": "pC"}}}, 
 "r_dist": {"type": "radial_gaussian", "params": {"sigma_xy":{"value":2,"units":"mm"}}}, 
 "z_dist":{"type": "gaussian", "params": {"sigma_z":{"value":1,"units":"mm"}}},
 "px_dist":{"type": "gaussian", "params": {"sigma_px":{"value":1,"units":"keV/c"}} },

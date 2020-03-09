@@ -1,4 +1,55 @@
-{"beam": {"start_type": "cathode", "rand_type": "hammersley", "particle_count": 200000, "params": {"total_charge": {"value": 10, "units": "pC"}, "MTE": {"value": 150, "units": "meV"}}}, 
-"r_dist": {"type": "radial_tukey", "params": {"length":{"value":5,"units":"mm"},"ratio":{"value":0.25,"units":""}}}, 
-"t_dist": {"type": "tukey", "params": {"length":{"value":5.0,"units":"ps"},"ratio":{"value":0.75,"units":""}}},
-"output": {"type": "gpt", "file": "beer.can.out.txt"}}
+{
+    "beam": {
+        "params": {
+            "total_charge": {
+                "units": "pC",
+                "value": 10
+            }
+        }
+    },
+    "generator": {
+        "rand": {
+            "count": 100000,
+            "type": "hammersley"
+        },
+        "start": {
+            "params": {
+                "MTE": {
+                    "units": "meV",
+                    "value": 150
+                }
+            },
+            "type": "cathode"
+        }
+    },
+    "output": {
+        "file": "tukey.beer.can.out.txt",
+        "type": "gpt"
+    },
+    "r_dist": {
+        "params": {
+            "length": {
+                "units": "mm",
+                "value": 5
+            },
+            "ratio": {
+                "units": "",
+                "value": 0.25
+            }
+        },
+        "type": "radial_tukey"
+    },
+    "t_dist": {
+        "params": {
+            "length": {
+                "units": "ps",
+                "value": 5.0
+            },
+            "ratio": {
+                "units": "",
+                "value": 0.75
+            }
+        },
+        "type": "tukey"
+    }
+}

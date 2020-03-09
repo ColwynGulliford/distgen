@@ -79,8 +79,25 @@ def get_dist(var,dtype,params=None,verbose=0):
         raise ValueError("Distribution type '"+dtype+"' is not supported.")
             
     return dist
+
+
+class Dist():
+
+    def __init__(self):
+        pass
+
+    def check_inputs(self,params):
+
+        # Make sure user isn't passing the wrong parameters:
+        allowed_params = self.optional_params + self.required_params + ['verbose']
+        for param in params:
+            assert param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+param+'\nAllowed params: '+str(allowed_params)
+
+        # Make sure all required parameters are specified
+        for req in self.required_params:
+            assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
     
-class Dist1d():
+class Dist1d(Dist):
 
     """
     Defines the base class for 1 dimensional distribution functions.  
@@ -216,20 +233,7 @@ class Dist1d():
         else:
             plt.ylabel("PDF("+self.xstr+")")
         plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
-        plt.legend(["PDF","Normalized Sampling"])
-
-    def check_inputs(self,input_params):
-
-        # Make sure user isn't passing the wrong parameters:
-        allowed_params = self.optional_params + self.required_params + ['verbose']
-        for input_param in input_params:
-            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
-
-        # Make sure all required parameters are specified
-        for req in self.required_params:
-            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
-        
-    
+        plt.legend(["PDF","Normalized Sampling"])    
 
 class Uniform(Dist1d):
 
@@ -724,7 +728,7 @@ class Tukey(Dist1d):
         return np.sqrt(std*std + avg*avg)
 
     
-class DistRad():
+class DistRad(Dist):
 
     rgen = RandGen()
 
@@ -848,15 +852,6 @@ class DistRad():
   
         plt.show()
 
-    def check_inputs(self,input_params):
-        allowed_params = self.optional_params + self.required_params + ['verbose']
-        for input_param in input_params:
-            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
-
-        # Make sure all required parameters are specified
-        for req in self.required_params:
-            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
-           
 class UniformRad(DistRad):
 
     """
@@ -1268,7 +1263,7 @@ class TukeyRad(DistRad):
         pdfs = self.rho(rpts)
         return np.sqrt(radint(pdfs*rpts*rpts,rpts))
 
-class Dist2d():
+class Dist2d(Dist):
 
     #xstr = ""
     #ystr = ""
@@ -1384,17 +1379,6 @@ class Dist2d():
  
         plt.figure()
         plt.plot(x,y,'*')
-
-    def check_inputs(self,input_params):
-
-        # Make sure user isn't passing the wrong parameters:
-        allowed_params = self.optional_params + self.required_params + ['verbose']
-        for input_param in input_params:
-            assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
-
-        # Make sure all required parameters are specified
-        for req in self.required_params:
-            assert req in input_params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 
 class File2d(Dist2d):
 

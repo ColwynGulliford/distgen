@@ -59,39 +59,58 @@ class Generator:
         self.check_input_consistency(self.params)       # Check that the result is logically sound 
         
     def check_input_consistency(self, params):
+
         ''' Perform consistency checks on the user input data'''
 
+        # Make sure all required top level params are present
+        required_params = ['generator','beam']
+        for rp in required_params:
+            assert rp in params, 'Required generator parameter ' + rp + ' not found.'
+
+        # Check that only allowed params present at top level
+        allowed_params = required_params + ['output','transforms']
         for p in params:
-            assert p in ['beam','output','transforms'] or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
+            assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
         
+        # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
             assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
         if( ("r_dist" in params) or ("y_dist" in params) or ("xy_dist" in params) ):
             assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
-        
-        if(params["beam"]["start_type"] == "cathode"):
+
+        if(params["generator"]["start"]['type'] == "cathode"):
 
             vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0 and "z_dist" in params,0,True )
             vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
             vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
             vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
-            assert "MTE" in params["beam"]["params"], "User must specify the MTE for cathode start." 
+            assert "MTE" in params['generator']['start']['params'], "User must specify the MTE for cathode start." 
 
             # Handle momentum distribution for cathode
-            MTE = self.params["beam"]["params"]["MTE"]
+            MTE = self.params['generator']['start']['params']["MTE"]
             sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
             self.params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
             self.params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
             self.params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
 
-        elif(params['beam']['start_type']=='time'):
+        elif(params["generator"]["start"]['type']=='time'):
 
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
             params.pop('t_dist')
 
-        for p in params['beam']:
-            assert p in ['start_type','rand_type','params','particle_count','species'],'Unexpected beam parameter input '+p+'.'
-                
+        if('output' in self.params):
+            out_params = self.params["output"]
+            for op in out_params:
+                assert op in ['file','type'], 'Unexpected output parameter specified: '+op
+        else:
+            self.params['output'] = {"type":None}
+
+    def __getitem__(self, varstr):
+         return get_nested_dict(self.input, varstr, sep=':', prefix='distgen')
+
+    def __setitem__(self, varstr, val):
+        return set_nested_dict(self.input, varstr, val, sep=':', prefix='distgen')
+   
     def beam(self):
     
         self.configure()
@@ -103,13 +122,6 @@ class Generator:
         outputfile = []
         
         beam_params = self.params["beam"]
-   
-        if('output' in self.params):
-            out_params = self.params["output"]
-            for op in out_params:
-                assert op in ['file','type'], 'Unexpected output parameter specified: '+op
-        else:
-            out_params = None
 
         if('transforms' in self.params):
             transforms = self.params['transforms']
@@ -126,17 +138,17 @@ class Generator:
             for p in dist_params[var]:
                 assert p in ['type','params'],'Unexpected distribution parameter:' + var+'_dist:'+p
         
-        vprint("Distribution format: "+out_params["type"],self.verbose>0,0,True)
+        vprint("Distribution format: "+str(self.params['output']["type"]), self.verbose>0, 0, True)
+
+        N = int(self.params['generator']['rand']['count'])
+        bdist = Beam(**beam_params['params'])
         
-        N = int(beam_params["particle_count"])
-        bdist = Beam(N,**beam_params['params'])
-        
-        if("file" in out_params):
-            outfile = out_params["file"]
+        if("file" in self.params['output']):
+            outfile = self.params['output']["file"]
         else:
-            outfile = "test.out.txt"
-            vprint("Warning: no output file specified, defaulting to "+outfile+".",verbose>0,1,True)
-        vprint("Output file: "+outfile,verbose>0,0,True)
+            outfile = "None"
+            vprint("Warning: no output file specified, defaulting to "+outfile+".", verbose>0, 1, True)
+        vprint("Output file: "+outfile, verbose>0, 0, True)
         
         vprint("\nCreating beam distribution....",verbose>0,0,True)
         vprint("Beam starting from: cathode.",verbose>0,1,True)
@@ -150,7 +162,7 @@ class Generator:
         bdist.params["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
         bdist.params["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
         bdist.params["t"] = np.full((N,), 0.0)*unit_registry("s")
-        bdist.params["w"] = np.full((N,), 1/bdist.n)*unit_registry("dimensionless")
+        bdist.params["w"] = np.full((N,), 1/N)*unit_registry("dimensionless")
 
         avgs = odic()
         avgs["x"] = 0*unit_registry("meter")
@@ -183,7 +195,7 @@ class Generator:
             
         rgen = RandGen()
         shape = ( N, npop )
-        if(beam_params["rand_type"]=="hammersley"):
+        if(self.params['generator']['rand']['type']=="hammersley"):
             rns = rgen.rand(shape, sequence="hammersley",params={"burnin":-1,"primes":()})
         else:
             rns = rgen.rand(shape)
@@ -301,19 +313,20 @@ class Generator:
                 bdist = transform(bdist, T['type'], T['variables'], **T['params'])
         
         # Handle any start type specific settings
-        if(beam_params["start_type"]=="cathode"):
+        if(self.params['generator']['start']['type']=="cathode"):
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
             vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
             vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
 
-        elif(beam_params['start_type']=='time'):
+        elif(self.params['generator']['start']['type']=='time'):
             
-            if('tstart' in beam_params['params']):
-                tstart = beam_params['params']['tstart']
+            if('tstart' in self.params['generator']['start']['params']):
+                tstart = self.params['generator']['start']['params']['tstart']
     
             else:
                 tstart = 0*unit_registry('sec')
+
 
             vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart), verbose>0, 1, True);
             bdist = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
@@ -373,5 +386,14 @@ class Generator:
         s = '<disgten.Generator with input: \n'
         return s+yaml.dump(self.input)+'\n>'
 
+    def check_inputs(self,params):
 
+        # Make sure user isn't passing the wrong parameters:
+        allowed_params = self.optional_params + self.required_params + ['verbose']
+        for param in params:
+            assert param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+param+'\nAllowed params: '+str(allowed_params)
+
+        # Make sure all required parameters are specified
+        for req in self.required_params:
+            assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 

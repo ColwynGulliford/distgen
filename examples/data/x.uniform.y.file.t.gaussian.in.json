@@ -1,2 +1,62 @@
-{"beam": {"start_type": "cathode", "rand_type": "hammersley", "particle_count": 100000, "params": {"total_charge": {"value": 10, "units": "pC"}, "MTE": {"value": 150, "units": "meV"}}}, 
-"x_dist": {"type": "uniform", "params": {"min_x": {"value": -1, "units": "mm"}, "max_x": {"value": 2, "units": "mm"}}}, "y_dist": {"type": "file1d", "params": {"file": "../regression_tests/cutgauss.1d.txt", "units": "mm"}}, "t_dist": {"type": "gaussian", "params": {"avg_t": {"value": -0.5, "units": "ps"}, "sigma_t": {"value": 1, "units": "ps"}}}, "output": {"type": "gpt", "file": "x.uniform.y.file.t.gaussian.out.txt"}}
+{
+    "beam": {
+        "params": {
+            "total_charge": {
+                "units": "pC",
+                "value": 10
+            }
+        }
+    },
+    "generator": {
+        "rand": {
+            "count": 100000,
+            "type": "hammersley"
+        },
+        "start": {
+            "params": {
+                "MTE": {
+                    "units": "meV",
+                    "value": 120
+                }
+            },
+            "type": "cathode"
+        }
+    },
+    "output": {
+        "file": "x.uniform.y.file.t.gaussian.out.txt",
+        "type": "gpt"
+    },
+    "t_dist": {
+        "params": {
+            "avg_t": {
+                "units": "ps",
+                "value": -0.5
+            },
+            "sigma_t": {
+                "units": "ps",
+                "value": 1
+            }
+        },
+        "type": "gaussian"
+    },
+    "x_dist": {
+        "params": {
+            "max_x": {
+                "units": "mm",
+                "value": 2
+            },
+            "min_x": {
+                "units": "mm",
+                "value": -1
+            }
+        },
+        "type": "uniform"
+    },
+    "y_dist": {
+        "params": {
+            "file": "data/cutgauss.1d.txt",
+            "units": "mm"
+        },
+        "type": "file1d"
+    }
+}

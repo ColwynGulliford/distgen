@@ -68,10 +68,11 @@ def run_distgen(
     
     # Get params
     params = gen.params
-    
+
     # Write to file
     if 'file' in params['output']:
         writer(params['output']['type'], beam, params['output']['file'],verbose, params)
+
     # Print beam stats
     if(verbose>0):
         beam.print_stats()

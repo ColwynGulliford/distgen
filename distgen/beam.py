@@ -10,17 +10,16 @@ This class defines the container for an initial particle distribution
 
 class Beam():
 
-    def __init__(self, particle_count, **kwargs):
+    def __init__(self,  **kwargs):
         """
         Initializes a beam class object with n particles and bunch charge q
         """
         
         self.required_inputs = ['total_charge']
-        self.optional_inputs = ['MTE','tstart','species']
+        self.optional_inputs = ['species']
 
         self.check_inputs(kwargs)
 
-        self.n = particle_count
         self.q = kwargs['total_charge']
         self.species = 'electron'   # <- Hard coded for now...
 
@@ -42,7 +41,7 @@ class Beam():
         if(var in self.params):
             return self.params[var]
 
-        elif(var in ['r','theta','pr','ptheta','xp','yp','thetax','thetay']):
+        elif(var in ['r','theta','pr','ptheta','xp','yp','thetax','thetay','n']):
             return getattr(self,'get_'+var)()
 
         else:
@@ -149,6 +148,13 @@ class Beam():
             if(x not in stat_exceptions):
                 vprint("avg_"+x+ " = {:0.3f~P}".format(mean(self.params[x], self.params["w"])) +", sigma_"+x+" = {:0.3f~P}".format(std(self.params[x],weights=self.params["w"])), True, 1, True)
             
+    def get_n(self):
+
+        ns = [len(self.params[p]) for p in self.params]
+        assert len(np.unique(ns))==1, 'Length of coordinate vectors in ' + self.__class__.__name__ + ' are not the same.  Error in creating beam has occured'
+        return ns[0]
+        
+
     def get_r(self):
         return np.sqrt( self.params['x']**2 + self.params['y']**2 )
 

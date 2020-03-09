@@ -28,7 +28,7 @@ def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):
 
         qspecies = get_species_charge(beam.species)
         qspecies.ito("coulomb")
-        qs = np.full((beam.n,),1.0)*qspecies
+        qs = np.full((beam['n'],),1.0)*qspecies
         qbunch = beam.q.to("coulomb")
 
         watch.start()
@@ -38,7 +38,7 @@ def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):
         nspecies = np.abs(qbunch.magnitude/qspecies.magnitude)
         nmacro = nspecies*beam["w"]    #np.full((beam.n,),1)*np.abs( (beam.q.to("coulomb")).magnitude/beam.n/qspecies.magnitude)
 
-        vprint("Printing "+str(beam.n)+" particles to '"+outfile+"': ",verbose>0,0,False)
+        vprint("Printing "+str(beam['n'])+" particles to '"+outfile+"': ",verbose>0,0,False)
         
         # Scale parameters to GPT units
         for var in gpt_units:
@@ -104,12 +104,12 @@ def write_astra(beam,
     watch = StopWatch()
     watch.start()
 
-    vprint("Printing "+str(beam.n)+" particles to '"+outfile+"': ",verbose>0,0,False)
+    vprint("Printing "+str(beam['n'])+" particles to '"+outfile+"': ",verbose>0,0,False)
 
     assert species == 'electron' # TODO: add more species
     
     # number of lines in file
-    size = beam.n + 1 # Allow one for reference particle
+    size = beam['n'] + 1 # Allow one for reference particle
     i_start = 1 # Start for data particles
     if probe:
         # Add six probe particles, according to the manual
@@ -117,9 +117,9 @@ def write_astra(beam,
         i_start += 6
     
     # macro charge for each particle
-    q_macro = beam.q.to('nC').magnitude / beam.n
+    q_macro = beam.q.to('nC').magnitude / beam['n']
     
-    qs = np.full((beam.n,), 1.0)*q_macro*unit_registry("nanocoulomb")
+    qs = np.full((beam['n'],), 1.0)*q_macro*unit_registry("nanocoulomb")
 
     # Astra units and types
     units = ['m', 'm', 'm', 'eV/c', 'eV/c', 'eV/c', 'ns', 'nC']
@@ -192,7 +192,7 @@ def write_openPMD(beam,outfile,verbose=0, params=None):
 
         watch = StopWatch()
         watch.start()
-        vprint("Printing "+str(beam.n)+" particles to '"+outfile+"': ",verbose>0,0,False)
+        vprint("Printing "+str(beam['n'])+" particles to '"+outfile+"': ",verbose>0,0,False)
         
         opmd_init(h5)
         write_openpmd_h5(beam, h5, name='/data/0/particles/', verbose=0)
@@ -232,7 +232,7 @@ def write_openpmd_h5(beam, h5, name=None, verbose=0):
     
     species = beam.species    
 
-    n_particle = beam.n
+    n_particle = beam['n']
     q_total = beam.q.to('C').magnitude
 
     g.attrs['speciesType'] = fstr(species)
