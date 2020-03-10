@@ -285,7 +285,7 @@ def beam_data(beam):
     #assert species == 'electron' # TODO: add more species
     
     # number of lines in file
-    n_particle = beam.n
+    n_particle = beam['n']
     total_charge = (beam.q.to('C')).magnitude
     species = beam.species
     
