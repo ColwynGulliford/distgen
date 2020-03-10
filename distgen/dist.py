@@ -30,14 +30,19 @@ class RandGen():
                 defaults to rand(), or user can request Hammersley
                 params is a dict for supply extra params (sequence parameters)
         """
-    
+
         if(sequence is None):
             return np.random.random(shape)
 
         elif(sequence=="hammersley"):
-            N = shape[0] 
-            dim = shape[1]
+
+            N = shape[1]
+            dim = shape[0]
+
+            #N = shape[0] 
+            #dim = shape[1]
             if(params is None):
+                print('word')
                 #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
                 return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
             else:
@@ -46,6 +51,23 @@ class RandGen():
         else:
             raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
+
+def random_generator(shape,sequence=None,params=None):
+
+    if(sequence is None):
+        return np.random.random(shape)
+
+    elif(sequence=="hammersley"):
+        
+        dim = shape[0]
+        N = shape[1] 
+
+        if(params is None):
+            return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
+        else:
+            return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
+    else:
+        raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
 def get_dist(var,params,verbose=0):
     """
@@ -115,7 +137,7 @@ class Dist1d(Dist):
     Px = []    # Probability Distribution Function Px(x)
     Cx = []    # Cumulative Disrtirbution Functoin Cx(x)
     
-    rgen = RandGen()
+    #rgen = RandGen()
     
     def __init__(self,xs,Px,xstr="x"):
 
@@ -155,7 +177,7 @@ class Dist1d(Dist):
         """
         Generate coordinates by sampling the underlying pdf
         """
-        return self.cdfinv( self.rgen.rand((N,1),sequence,params)*unit_registry("dimensionless") )
+        return self.cdfinv( random_generator((N,1),sequence,params)*unit_registry("dimensionless") )
 
     def plot_pdf(self,n=1000):
         """
@@ -383,8 +405,6 @@ class Norm(Dist1d):
 
         assert self.a < self.b, 'Right side cut off a = {:0.3f~P}'.format(self.a) + ' must be < left side cut off b = {:0.3f~P}'.format(self.b)
 
-        #print(self.sigma, self.mu)
-
         self.A = (self.a - self.mu)/self.sigma
         self.B = (self.b - self.mu)/self.sigma
         
@@ -511,7 +531,7 @@ class TemporalLaserPulseStacking(Dist1d):
                     angles.append(params[key])
 
         for param in params:
-            assert 'crystal_angle_' in param or 'crystal_length' in param, 'Unknown keyword parameter sent to '+self.__class__.__name__+': '+param
+            assert 'crystal_angle_' in param or 'crystal_length' in param or param=='type', 'Unknown keyword parameter sent to '+self.__class__.__name__+': '+param
                     
         if(dv is None and "dv" not in params):
             dv=1.05319*unit_registry("ps/mm")

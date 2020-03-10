@@ -1,36 +1,24 @@
 {
-    "beam": {
-        "params": {
-            "total_charge": {
-                "units": "pC",
-                "value": 10
-            }
-        }
+    "n_particle":200000,
+    "random_type":"hammersley",
+    "total_charge": {
+        "units": "pC",
+        "value": 10
     },
-    "generator": {
-        "rand": {
-            "count": 200000,
-            "type": "hammersley"
+    "start_type": {
+        "type": "cathode",
+        "MTE": {
+            "units": "meV",
+            "value": 150
         },
-        "start": {
-            "params": {
-                "MTE": {
-                    "units": "meV",
-                    "value": 150
-                }
-            },
-            "type": "cathode"
-        }
+    },
+    "r_dist": {
+        "file": "data/cutgauss.rad.txt",
+        "units": "mm",
+        "type": "radfile",
     },
     "output": {
         "file": "rad.file.out.txt",
         "type": "gpt"
     },
-    "r_dist": {
-        "params": {
-            "file": "data/cutgauss.rad.txt",
-            "units": "mm"
-        },
-        "type": "radfile"
-    }
 }

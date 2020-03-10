@@ -1,62 +1,49 @@
 {
-    "beam": {
-        "params": {
-            "total_charge": {
-                "units": "pC",
-                "value": 10
-            }
-        }
+    "n_particle":200000,
+    "total_charge": {
+        "units": "pC",
+        "value": 10
     },
-    "generator": {
-        "rand": {
-            "count": 100000,
-            "type": "hammersley"
-        },
-        "start": {
-            "params": {
-                "MTE": {
-                    "units": "meV",
-                    "value": 120
-                }
-            },
-            "type": "cathode"
+    "random_type":"hammersley",
+    "start_type": {
+        "type": "cathode",
+        "MTE": {
+            "units": "meV",
+            "value": 120
         }
+
+    },
+    "t_dist": {
+        "type": "gaussian",
+        "avg_t": {
+            "units": "ps",
+            "value": -0.5
+        },
+        "sigma_t": {
+            "units": "ps",
+            "value": 1
+
+        },
+    },
+    "x_dist": {
+        "type": "uniform",
+        "max_x": {
+            "units": "mm",
+            "value": 2
+        },
+        "min_x": {
+            "units": "mm",
+            "value": -1
+        },
+        
+    },
+    "y_dist": {
+        "file": "data/cutgauss.1d.txt",
+        "units": "mm",
+        "type": "file1d"
     },
     "output": {
         "file": "x.uniform.y.file.t.gaussian.out.txt",
         "type": "gpt"
     },
-    "t_dist": {
-        "params": {
-            "avg_t": {
-                "units": "ps",
-                "value": -0.5
-            },
-            "sigma_t": {
-                "units": "ps",
-                "value": 1
-            }
-        },
-        "type": "gaussian"
-    },
-    "x_dist": {
-        "params": {
-            "max_x": {
-                "units": "mm",
-                "value": 2
-            },
-            "min_x": {
-                "units": "mm",
-                "value": -1
-            }
-        },
-        "type": "uniform"
-    },
-    "y_dist": {
-        "params": {
-            "file": "data/cutgauss.1d.txt",
-            "units": "mm"
-        },
-        "type": "file1d"
-    }
 }

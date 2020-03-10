@@ -357,21 +357,20 @@ def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
         d = d[k]
     return d
 
-
-def convert_params(d):
-    
-    for k, v in d.items():
-        if(k=='params' and isinstance(v,dict)):
-            params = {}
-            for p in v.keys():
-                if(isinstance(v[p],dict) and 'value' in v[p] and 'units' in v[p]):
-                    params[p]=v[p]["value"]*unit_registry(v[p]["units"])
-                else:
-                    params[p]=v[p]
-            d[k]=params
-
-        elif isinstance(v, dict):
-            convert_params(v)
+#def convert_params(d):
+#    
+#    for k, v in d.items():
+#        if(k=='params' and isinstance(v,dict)):
+#            params = {}
+#            for p in v.keys():
+#                if(isinstance(v[p],dict) and 'value' in v[p] and 'units' in v[p]):
+#                    params[p]=v[p]["value"]*unit_registry(v[p]["units"])
+#                else:
+#                    params[p]=v[p]
+#            d[k]=params
+#
+#        elif isinstance(v, dict):
+#            convert_params(v)
 
 def is_quantity(d):
 
@@ -385,13 +384,13 @@ def dict_to_quantity(qd):
     assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
     return qd['value']*unit_registry(qd['units'])
         
-def convert_params2(d):
+def convert_params(d):
 
     for k, v in d.items():
         if(is_quantity(v)):
             d[k]=dict_to_quantity(v)
         elif isinstance(v, dict):
-            convert_params2(v)
+            convert_params(v)
             
 
 class NpEncoder(json.JSONEncoder):

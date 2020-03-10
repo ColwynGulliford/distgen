@@ -55,7 +55,7 @@ class Generator:
     def configure(self):
 
         self.params = copy.deepcopy(self.input)         # Copy the input dictionary
-        convert_params2(self.params)                     # Conversion of the input dictionary using tools.convert_params
+        convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
         self.check_input_consistency(self.params)       # Check that the result is logically sound 
         
     def check_input_consistency(self, params):
@@ -191,16 +191,11 @@ class Generator:
                     npop = npop + 1
                 elif(vstr in ["xy"]):
                     npop = npop + 2
-            
-        rgen = RandGen()
-        shape = ( N, npop )
-        if(self.params['random_type']=="hammersley"):
-            rns = rgen.rand(shape, sequence="hammersley",params={"burnin":-1,"primes":()})
-        else:
-            rns = rgen.rand(shape)
-        
+
+        shape = ( npop, N)
+        rns = random_generator(shape,sequence=self.params['random_type'])
         count = 0
-            
+
         # Do radial dist first if requested
         if("r" in dist_params):
                 
@@ -236,6 +231,7 @@ class Generator:
                 avgSin2 = 0.5
                    
             else:
+
                 count = count+1
                 dist_params.pop("theta")
   
@@ -257,7 +253,7 @@ class Generator:
         if("xy" in dist_params):
 
             vprint("xy distribution: ",verbose>0,1,False) 
-            dist = get_dist("xy",dist_params["xy"]["type"],dist_params["xy"],verbose=0)
+            dist = get_dist("xy",dist_params["xy"],verbose=0)
             bdist["x"],bdist["y"] = dist.cdfinv(rns[count:count+2,:]*unit_registry("dimensionless"))
             count = count + 2
             dist_params.pop("xy")
@@ -267,11 +263,11 @@ class Generator:
         
         # Do all other specified single coordinate dists   
         for x in dist_params.keys():
-
+            
             vprint(x+" distribution: ",verbose>0,1,False)   
-            dist = get_dist(x, dist_params[x], verbose=verbose)      # Get distribution
+            dist = get_dist(x, dist_params[x], verbose=verbose)                             # Get distribution
             bdist[x]=dist.cdfinv(rns[count,:]*unit_registry("dimensionless"))               # Sample to get beam coordinates
-              
+
             # Fix up the avg and std so they are exactly what user asked for
             if("avg_"+x in dist_params[x]):
                 avgs[x]=dist_params[x]["avg_"+x]
@@ -284,7 +280,7 @@ class Generator:
                 stds[x] = dist.std()
                
             count=count+1
-        
+
         # Allow user to overite the distribution moments if desired
         for x in ["x","y","t"]:
             if("avg_"+x in beam_params):
@@ -342,7 +338,6 @@ class Generator:
     def run(self):
         beam = self.beam()
         self.particles = ParticleGroup(data=beam.data())
-        
         vprint(f'Created particles in .particles: {self.particles}',self.verbose>0,1,False) 
     
     

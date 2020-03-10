@@ -26,6 +26,7 @@ class Beam():
         self.params = {}
 
     def check_inputs(self,inputs):
+
         allowed_params = self.optional_inputs + self.required_inputs + ['verbose']
         for input_param in inputs:
             assert input_param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+input_param+'\nAllowed params: '+str(allowed_params)
@@ -35,6 +36,7 @@ class Beam():
             assert req in inputs, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 
     def __getitem__(self, var):
+
         """
         Allows direct get access via brackets to the params dictionary with key var.
         """
@@ -48,6 +50,7 @@ class Beam():
             return None
     
     def __setitem__(self, var, item):
+
         """
         Allows direct set access via brackets to the params dictionary with key var and value item.
         """

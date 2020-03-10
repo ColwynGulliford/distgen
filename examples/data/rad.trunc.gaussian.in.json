@@ -1,42 +1,31 @@
 {
-    "beam": {
-        "params": {
-            "total_charge": {
-                "units": "pC",
-                "value": 10
-            }
-        }
+    "n_particle":200000,
+    "random_type":"hammersley",
+    "total_charge": {
+        "units": "pC",
+        "value": 10
     },
-    "generator": {
-        "rand": {
-            "count": 200000,
-            "type": "hammersley"
+    "start_type":{
+        "type":"cathode",
+        "MTE":{
+            "value":150,
+            "units":"meV"
         },
-        "start": {
-            "params": {
-                "MTE": {
-                    "units": "meV",
-                    "value": 150
-                }
-            },
-            "type": "cathode"
-        }
+    },
+    "r_dist": {
+        "truncation_fraction": {
+            "units": "dimensionless",
+            "value": 0.5
+        },
+        "truncation_radius": {
+            "units": "mm",
+            "value": 1
+        },
+        "type": "rg"
     },
     "output": {
         "file": "rad.trunc.gaussian.out.txt",
         "type": "gpt"
     },
-    "r_dist": {
-        "params": {
-            "truncation_fraction": {
-                "units": "dimensionless",
-                "value": 0.5
-            },
-            "truncation_radius": {
-                "units": "mm",
-                "value": 1
-            }
-        },
-        "type": "rg"
-    }
+   
 }
