@@ -1,24 +1,58 @@
 {
-"generator":{
-    "start":{
+    "n_particle":200000,
+    "total_charge": {
+        "value": 10,
+        "units": "pC"
+    },
+    "start_type":{
         "type":"time",
-        "params":{
-            "tstart": {
-                "value": 0, 
-                "units": "sec"
-                },
+        "tstart": {
+            "value": 0,
+            "units": "sec"
+        },
+    },
+    "random_type":"hammersley",
+    "r_dist":{
+        "type":"radial_gaussian",
+        "sigma_xy":{
+            "units":"mm",
+            "value":1.0
         }
     },
-    "rand":{
-        "type":"hammersley",
-        "count":100000
+    "px_dist":{
+        "type":"gaussian",
+        "sigma_px":{
+            "units":"keV/c",
+            "value":1.0
+        }
+   },
+   "py_dist":{
+        "type":"gaussian",
+        "sigma_py":{
+            "units":"keV/c",
+            "value":1.0
+        }
+    },
+    "pz_dist":{
+        "type":"gaussian",
+        "sigma_pz":{
+            "units":"MeV/c",
+            "value":1.0
+        },
+        "avg_pz":{
+            "units":"GeV/c",
+            "value":0
+        }
+    },
+    "z_dist":{
+        "type":"gaussian",
+        "sigma_z":{
+            "units":"mm",
+            "value":2.0
+        },
+        "avg_z":{
+            "units":"mm",
+            "value":0
+        }
     }
-},
-"beam": {"params": {"total_charge": {"value": 10, "units": "pC"}}}, 
-"r_dist": {"type": "radial_gaussian", "params": {"sigma_xy":{"value":2,"units":"mm"}}}, 
-"z_dist":{"type": "gaussian", "params": {"sigma_z":{"value":1,"units":"mm"}}},
-"px_dist":{"type": "gaussian", "params": {"sigma_px":{"value":1,"units":"keV/c"}} },
-"py_dist":{"type": "gaussian", "params": {"sigma_py":{"value":1,"units":"keV/c"}} },
-"pz_dist":{"type": "gaussian", "params": {"sigma_pz":{"value":100,"units":"eV/c"}, "avg_pz":{"value":100,"units":"eV/c"}} },
-"t_dist": {"type": "uniform", "params": {"min_t":{"value":-2,"units":"ps"},"max_t":{"value":2,"units":"ps"}}},
-"output": {"type": "gpt", "file": "rad.gaussian.out.txt"}}
+}

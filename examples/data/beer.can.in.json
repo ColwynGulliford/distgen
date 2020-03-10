@@ -1,48 +1,33 @@
 {
-    "generator":{
-        "start": {
-            "type":"cathode",
-            "params": {
-                "MTE":{
-                    "value":150,
-                    "units":"meV"
-                }
-            },
-        },
-        "rand": {
-            "type":"hammersley",
-            "count": 200000,
-        },
-    },
-    "beam": {
-        "params": {
-            "total_charge": {
-                "value": 10,
-                "units": "pC"
-            },
-            
+    "start_type": {
+        "type":"cathode",
+        "MTE":{
+            "value":150,
+            "units":"meV"
         }
+    },
+    "random_type": "hammersley",
+    "n_particle":200000,
+    "total_charge": {
+        "value": 10,
+        "units": "pC"
     },
     "r_dist": {
         "type": "radial_uniform",
-        "params": {
-            "max_r": {
-                "value": 2,
-                "units": "mm"
-            }
+        "max_r": {
+            "value": 2,
+            "units": "mm"
         }
     },
     "t_dist": {
         "type": "uniform",
-        "params": {
-            "min_t": {
-                "value": -2,
-                "units": "ps"
-            },
-            "max_t": {
-                "value": 2,
-                "units": "ps"
-            }
+        "min_t": {
+            "value": -2,
+            "units": "ps"
+        },
+        "max_t": {
+            "value": 2,
+            "units": "ps"
         }
     },
     "output": {

@@ -1,47 +1,37 @@
 {
-    "beam": {
-        "params": {
-            "total_charge": {
-                "units": "pC",
-                "value": 10
-            }
-        }
+    "n_particle": 200000,
+    "random_type": "hammersley",
+    "total_charge":{
+        "units": "pC",
+        "value": 10,
     },
-    "generator": {
-        "rand": {
-            "count": 200000,
-            "type": "hammersley"
-        },
-        "start": {
-            "params": {
-                "MTE": {
-                    "units": "meV",
-                    "value": 150
-                }
-            },
-            "type": "cathode"
+    "start_type":{
+        "type":"cathode",
+        "MTE":{
+            "value":150,
+            "units":"meV"
         }
     },
     "r_dist": {
-        "params": {
-            "sigma_xy": {
-                "units": "mm",
-                "value": 2
-            }
+        "type": "radial_gaussian",
+        "sigma_xy": {
+            "units": "mm",
+            "value": 2
         },
-        "type": "radial_gaussian"
     },
     "t_dist": {
-        "params": {
-            "max_t": {
-                "units": "ps",
-                "value": 2
-            },
-            "min_t": {
-                "units": "ps",
-                "value": -2
-            }
+        "type": "uniform",
+        "max_t": {
+            "units": "ps",
+            "value": 2
         },
-        "type": "uniform"
-    }
+        "min_t": {
+            "units": "ps",
+            "value": -2
+        }
+    },
+    "output": {
+        "type": "gpt",
+        "file": "beer.can.out.txt"
+    },
 }

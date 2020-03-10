@@ -154,6 +154,8 @@ class Beam():
         assert len(np.unique(ns))==1, 'Length of coordinate vectors in ' + self.__class__.__name__ + ' are not the same.  Error in creating beam has occured'
         return ns[0]
         
+    def get_q(self):
+        return self.params['w']*self.q
 
     def get_r(self):
         return np.sqrt( self.params['x']**2 + self.params['y']**2 )

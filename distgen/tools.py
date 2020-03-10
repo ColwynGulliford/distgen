@@ -373,7 +373,26 @@ def convert_params(d):
         elif isinstance(v, dict):
             convert_params(v)
 
+def is_quantity(d):
 
+    if(isinstance(d,dict) and len(d.keys())==2 and "value" in d and "units" in d):
+        return True
+    else:
+        return False
+
+def dict_to_quantity(qd):
+
+    assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
+    return qd['value']*unit_registry(qd['units'])
+        
+def convert_params2(d):
+
+    for k, v in d.items():
+        if(is_quantity(v)):
+            d[k]=dict_to_quantity(v)
+        elif isinstance(v, dict):
+            convert_params2(v)
+            
 
 class NpEncoder(json.JSONEncoder):
     """

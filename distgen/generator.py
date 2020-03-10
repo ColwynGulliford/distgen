@@ -55,7 +55,7 @@ class Generator:
     def configure(self):
 
         self.params = copy.deepcopy(self.input)         # Copy the input dictionary
-        convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
+        convert_params2(self.params)                     # Conversion of the input dictionary using tools.convert_params
         self.check_input_consistency(self.params)       # Check that the result is logically sound 
         
     def check_input_consistency(self, params):
@@ -63,12 +63,12 @@ class Generator:
         ''' Perform consistency checks on the user input data'''
 
         # Make sure all required top level params are present
-        required_params = ['generator','beam']
+        required_params = ['n_particle', 'random_type', 'total_charge']
         for rp in required_params:
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output','transforms']
+        allowed_params = required_params + ['output','transforms','start_type']
         for p in params:
             assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
         
@@ -77,23 +77,25 @@ class Generator:
             assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
         if( ("r_dist" in params) or ("y_dist" in params) or ("xy_dist" in params) ):
             assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
+         
 
-        if(params["generator"]["start"]['type'] == "cathode"):
+        if(params['start_type']['type'] == "cathode"):
 
             vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0 and "z_dist" in params,0,True )
             vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
             vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
             vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
-            assert "MTE" in params['generator']['start']['params'], "User must specify the MTE for cathode start." 
+            assert "MTE" in params['start_type'], "User must specify the MTE for cathode start." 
 
             # Handle momentum distribution for cathode
-            MTE = self.params['generator']['start']['params']["MTE"]
+            MTE = self.params['start_type']["MTE"]
             sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
-            self.params["px_dist"]={"type":"g","params":{"sigma_px":sigma_pxyz}}
-            self.params["py_dist"]={"type":"g","params":{"sigma_py":sigma_pxyz}}
-            self.params["pz_dist"]={"type":"g","params":{"sigma_pz":sigma_pxyz}}
 
-        elif(params["generator"]["start"]['type']=='time'):
+            self.params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
+            self.params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
+            self.params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
+
+        elif(params['start_type']=='time'):
 
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
             params.pop('t_dist')
@@ -112,16 +114,16 @@ class Generator:
         return set_nested_dict(self.input, varstr, val, sep=':', prefix='distgen')
    
     def beam(self):
-    
-        self.configure()
-    
+
         watch = StopWatch()
         watch.start()
     
+        self.configure()
+
         verbose = self.verbose
         outputfile = []
         
-        beam_params = self.params["beam"]
+        beam_params = {'total_charge':self.params['total_charge']}
 
         if('transforms' in self.params):
             transforms = self.params['transforms']
@@ -130,18 +132,15 @@ class Generator:
 
         dist_params = {}
         for p in self.params:
+           
             if("_dist" in p):
                 var = p[:-5]
                 dist_params[var]=self.params[p]
-
-        for var in dist_params:
-            for p in dist_params[var]:
-                assert p in ['type','params'],'Unexpected distribution parameter:' + var+'_dist:'+p
         
         vprint("Distribution format: "+str(self.params['output']["type"]), self.verbose>0, 0, True)
 
-        N = int(self.params['generator']['rand']['count'])
-        bdist = Beam(**beam_params['params'])
+        N = int(self.params['n_particle'])
+        bdist = Beam(**beam_params)
         
         if("file" in self.params['output']):
             outfile = self.params['output']["file"]
@@ -195,7 +194,7 @@ class Generator:
             
         rgen = RandGen()
         shape = ( N, npop )
-        if(self.params['generator']['rand']['type']=="hammersley"):
+        if(self.params['random_type']=="hammersley"):
             rns = rgen.rand(shape, sequence="hammersley",params={"burnin":-1,"primes":()})
         else:
             rns = rgen.rand(shape)
@@ -209,7 +208,7 @@ class Generator:
             vprint("r distribution: ",verbose>0,1,False)  
                 
             # Get distribution
-            dist = get_dist(r,dist_params[r]["type"],dist_params[r]["params"],verbose=verbose)      
+            dist = get_dist(r, dist_params[r], verbose=verbose)      
             rs = dist.cdfinv(rns[count,:]*unit_registry("dimensionless") )       # Sample to get beam coordinates
 
             count = count + 1
@@ -224,10 +223,10 @@ class Generator:
    
                 avgr=0*unit_registry("m")
 
-                if("sigma_xy" in dist_params[r]["params"]):
-                    rrms= math.sqrt(2)*dist_params[r]["params"]["sigma_xy"]
-                elif("sigma_xy" in beam_params["params"]):
-                    rrms= math.sqrt(2)*beam_params["params"]["sigma_xy"]
+                if("sigma_xy" in dist_params[r]):
+                    rrms= math.sqrt(2)*dist_params[r]["sigma_xy"]
+                elif("sigma_xy" in beam_params):
+                    rrms= math.sqrt(2)*beam_params["sigma_xy"]
                 else:
                     rrms = dist.rms()
 
@@ -258,7 +257,7 @@ class Generator:
         if("xy" in dist_params):
 
             vprint("xy distribution: ",verbose>0,1,False) 
-            dist = get_dist("xy",dist_params["xy"]["type"],dist_params["xy"]["params"],verbose=0)
+            dist = get_dist("xy",dist_params["xy"]["type"],dist_params["xy"],verbose=0)
             bdist["x"],bdist["y"] = dist.cdfinv(rns[count:count+2,:]*unit_registry("dimensionless"))
             count = count + 2
             dist_params.pop("xy")
@@ -270,17 +269,17 @@ class Generator:
         for x in dist_params.keys():
 
             vprint(x+" distribution: ",verbose>0,1,False)   
-            dist = get_dist(x,dist_params[x]["type"],dist_params[x]["params"],verbose=verbose)      # Get distribution
+            dist = get_dist(x, dist_params[x], verbose=verbose)      # Get distribution
             bdist[x]=dist.cdfinv(rns[count,:]*unit_registry("dimensionless"))               # Sample to get beam coordinates
               
             # Fix up the avg and std so they are exactly what user asked for
-            if("avg_"+x in dist_params[x]["params"]):
-                avgs[x]=dist_params[x]["params"]["avg_"+x]
+            if("avg_"+x in dist_params[x]):
+                avgs[x]=dist_params[x]["avg_"+x]
             else:
                 avgs[x] = dist.avg()
 
-            if("sigma_"+x in dist_params[x]["params"]):
-                stds[x] = dist_params[x]["params"]["sigma_"+x]
+            if("sigma_"+x in dist_params[x]):
+                stds[x] = dist_params[x]["sigma_"+x]
             else:
                 stds[x] = dist.std()
                
@@ -288,13 +287,13 @@ class Generator:
         
         # Allow user to overite the distribution moments if desired
         for x in ["x","y","t"]:
-            if("avg_"+x in beam_params["params"]):
-                avgx = beam_params["params"]["avg_"+x] 
+            if("avg_"+x in beam_params):
+                avgx = beam_params["avg_"+x] 
                 if(x in avgs and avgx!=avgs[x]):
                     vprint("Overwriting distribution avg "+x+" with user defined value",verbose>0,1,True)
                     avgs[x] = avgx
-            if("sigma_"+x in beam_params["params"]):
-                stdx = beam_params["params"]["sigma_"+x]
+            if("sigma_"+x in beam_params):
+                stdx = beam_params["sigma_"+x]
                 if(x in stds and stdx!=stds[x]):
                     vprint("Overwriting distribution sigma "+x+" with user defined value",verbose>0,1,True)
                 stds[x] = stdx                 
@@ -313,18 +312,19 @@ class Generator:
                 bdist = transform(bdist, T['type'], T['variables'], **T['params'])
         
         # Handle any start type specific settings
-        if(self.params['generator']['start']['type']=="cathode"):
+        if(self.params['start_type']['type']=="cathode"):
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
             vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
             vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
 
-        elif(self.params['generator']['start']['type']=='time'):
+        elif(self.params['start_type']['type']=='time'):
             
-            if('tstart' in self.params['generator']['start']['params']):
-                tstart = self.params['generator']['start']['params']['tstart']
+            if('tstart' in self.params['start_type']):
+                tstart = self.params['start_type']['tstart']
     
             else:
+                vprint("Time start: no start time specified, defaulting to 0 sec.",verbose>0,1,True)
                 tstart = 0*unit_registry('sec')
 
 
@@ -332,7 +332,7 @@ class Generator:
             bdist = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
 
         else:
-            raise ValueError("Beam start '"+beam_params["start_type"]+"' is not supported!")
+            raise ValueError("Beam start type '"+self.params["start_type"]['type']+"' is not supported!")
         
         watch.stop()
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)

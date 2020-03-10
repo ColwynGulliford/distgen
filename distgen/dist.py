@@ -47,7 +47,7 @@ class RandGen():
             raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
 
-def get_dist(var,dtype,params=None,verbose=0):
+def get_dist(var,params,verbose=0):
     """
     Translates user input strings and evaluated corrector corresponding distribution function.
     Inputs: var [str] name of variable (x,y,px,...,etc) for distribution,
@@ -55,6 +55,9 @@ def get_dist(var,dtype,params=None,verbose=0):
             params [dict] required user parameters for distribution function
             verbose [bool] flag for more or less output to screen
     """
+    assert 'type' in params, 'No distribution type for '+var+' specified.'
+    dtype = params['type']
+
     if(dtype=="uniform" or dtype=="u"):
         dist = Uniform(var,verbose=verbose,**params)
     elif(dtype=="gaussian" or dtype=="g"):
@@ -89,7 +92,7 @@ class Dist():
     def check_inputs(self,params):
 
         # Make sure user isn't passing the wrong parameters:
-        allowed_params = self.optional_params + self.required_params + ['verbose']
+        allowed_params = self.optional_params + self.required_params + ['verbose','type']
         for param in params:
             assert param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+param+'\nAllowed params: '+str(allowed_params)
 
