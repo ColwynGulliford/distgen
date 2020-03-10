@@ -1,5 +1,5 @@
 {
-    "start_type": {
+    "start": {
         "type":"cathode",
         "MTE":{
             "value":150,

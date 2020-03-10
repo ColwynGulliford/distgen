@@ -68,7 +68,7 @@ class Generator:
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output','transforms','start_type']
+        allowed_params = required_params + ['output','transforms','start']
         for p in params:
             assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
         
@@ -79,23 +79,23 @@ class Generator:
             assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
          
 
-        if(params['start_type']['type'] == "cathode"):
+        if(params['start']['type'] == "cathode"):
 
             vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0 and "z_dist" in params,0,True )
             vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
             vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
             vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
-            assert "MTE" in params['start_type'], "User must specify the MTE for cathode start." 
+            assert "MTE" in params['start'], "User must specify the MTE for cathode start." 
 
             # Handle momentum distribution for cathode
-            MTE = self.params['start_type']["MTE"]
+            MTE = self.params['start']["MTE"]
             sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
 
             self.params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
             self.params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
             self.params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
 
-        elif(params['start_type']=='time'):
+        elif(params['start']=='time'):
 
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
             params.pop('t_dist')
@@ -308,16 +308,16 @@ class Generator:
                 bdist = transform(bdist, T['type'], T['variables'], **T['params'])
         
         # Handle any start type specific settings
-        if(self.params['start_type']['type']=="cathode"):
+        if(self.params['start']['type']=="cathode"):
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
             vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
             vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
 
-        elif(self.params['start_type']['type']=='time'):
+        elif(self.params['start']['type']=='time'):
             
-            if('tstart' in self.params['start_type']):
-                tstart = self.params['start_type']['tstart']
+            if('tstart' in self.params['start']):
+                tstart = self.params['start']['tstart']
     
             else:
                 vprint("Time start: no start time specified, defaulting to 0 sec.",verbose>0,1,True)
@@ -328,7 +328,7 @@ class Generator:
             bdist = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
 
         else:
-            raise ValueError("Beam start type '"+self.params["start_type"]['type']+"' is not supported!")
+            raise ValueError("Beam start type '"+self.params["start"]['type']+"' is not supported!")
         
         watch.stop()
         vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)

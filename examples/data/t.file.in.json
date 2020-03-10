@@ -2,7 +2,7 @@
 
     "n_particle": 100000, 
     "random_type": "hammersley", 
-    "start_type": {
+    "start": {
         "type": "cathode", 
         "MTE": {
             "value": 150, 

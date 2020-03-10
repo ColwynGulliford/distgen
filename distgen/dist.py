@@ -16,40 +16,40 @@ import math
 from matplotlib import pyplot as plt
 
 
-class RandGen():
+#class RandGen():
 
-    """
-    Defines object responsible for providing random numbers
-    """
+#    """
+#    Defines object responsible for providing random numbers
+#    """
         
-    def rand(self,shape,sequence=None,params=None):
-        """
-        Method for obtaining random numbers on the unit interval
-        Inputs: shape is a tuple describing the shape of the output array of random numbers
-                sequence is a str describing what type of random sequence to draw from, 
-                defaults to rand(), or user can request Hammersley
-                params is a dict for supply extra params (sequence parameters)
-        """
+#    def rand(self,shape,sequence=None,params=None):
+#        """
+#        Method for obtaining random numbers on the unit interval
+#        Inputs: shape is a tuple describing the shape of the output array of random numbers
+#                sequence is a str describing what type of random sequence to draw from, 
+#                defaults to rand(), or user can request Hammersley
+#                params is a dict for supply extra params (sequence parameters)
+#        """
+#
+#        if(sequence is None):
+#            return np.random.random(shape)
+#
+#        elif(sequence=="hammersley"):
 
-        if(sequence is None):
-            return np.random.random(shape)
-
-        elif(sequence=="hammersley"):
-
-            N = shape[1]
-            dim = shape[0]
+#            N = shape[1]
+#            dim = shape[0]
 
             #N = shape[0] 
             #dim = shape[1]
-            if(params is None):
-                print('word')
-                #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
-                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
-            else:
+#            if(params is None):
+#                print('word')
+#                #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
+#                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
+#            else:
                 #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
-                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
-        else:
-            raise ValueError("Sequence: "+str(sequence)+" is not supported")
+#                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
+#        else:
+#            raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
 
 def random_generator(shape,sequence=None,params=None):
@@ -177,7 +177,7 @@ class Dist1d(Dist):
         """
         Generate coordinates by sampling the underlying pdf
         """
-        return self.cdfinv( random_generator((N,1),sequence,params)*unit_registry("dimensionless") )
+        return self.cdfinv( random_generator((1,N),sequence,params)*unit_registry("dimensionless") )
 
     def plot_pdf(self,n=1000):
         """
@@ -753,11 +753,9 @@ class Tukey(Dist1d):
     
 class DistRad(Dist):
 
-    rgen = RandGen()
-
-    rs = []    # r pts [0,inf]
-    Pr = []    # Probability Distribution Function Pr(r)
-    Cr = []    # Cumulative Disrtirbution Functoin Cr(r) = int(r Pr dr), has length(Pr) + 1
+    #rs = []    # r pts [0,inf]
+    #Pr = []    # Probability Distribution Function Pr(r)
+    #Cr = []    # Cumulative Disrtirbution Functoin Cr(r) = int(r Pr dr), has length(Pr) + 1
 
     def __init__(self,rs,Pr):
 
@@ -806,7 +804,7 @@ class DistRad(Dist):
         return r
     
     def sample(self,N,sequence=None,params=None):
-        return self.cdfinv(self.rgen.rand( (N,1),sequence,params)*unit_registry("dimensionless"))
+        return self.cdfinv(random_generator( (1,N),sequence,params)*unit_registry("dimensionless"))
 
     def plot_pdf(self,n=1000):
 

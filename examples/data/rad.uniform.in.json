@@ -5,7 +5,7 @@
        "value": 10
     },
    "random_type":"hammersley",
-   "start_type": {
+   "start": {
        "type":"cathode",
        "MTE": {
            "units": "meV",
