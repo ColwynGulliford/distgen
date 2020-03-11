@@ -8,7 +8,51 @@ from .tools import vprint, mean, std
 This class defines the container for an initial particle distribution 
 """
 
+class Beam2():
+
+    """
+    The fundamental bunch data is stored in __dict__ with keys
+        pint quantity np.array: x, px, y, py, z, pz, t, weight, 
+        np.array status, 
+        str: species
+    where:
+        x, y, z have a base unit of meters 
+        px, py, pz are momenta in base units [eV/c]
+        t is time in [s]
+        weight is the macro-charge weight in [C], used for all statistical calulations.
+        species is a proper species name: 'electron', etc. 
+    """
+
+    def __init__(self, **kwargs):
+
+        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'status', 'w', 'r', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay']
+        self._settable_scalar_keys = ['species']
+        self._settable_keys =  self._settable_array_keys + self._settable_scalar_keys      
+
+        print(self._settable_keys)
+
+        self.__dict__ = {}
+
+    def __getitem__(self, key):
+        return getattr(self, key) 
+
+    def __setitem__(self,key,value):
+        setattr(self,key,value)
+
 class Beam():
+
+    """
+    The fundamental bunch data is stored in __dict__ with keys
+        pint quantity np.array: x, px, y, py, z, pz, t, weight, 
+        np.array status, 
+        str: species
+    where:
+        x, y, z have a base unit of meters 
+        px, py, pz are momenta in base units [eV/c]
+        t is time in [s]
+        weight is the macro-charge weight in [C], used for all statistical calulations.
+        species is a proper species name: 'electron', etc. 
+    """
 
     def __init__(self,  **kwargs):
         """
@@ -24,6 +68,8 @@ class Beam():
         self.species = 'electron'   # <- Hard coded for now...
 
         self.params = {}
+
+        #self.__dict__ ={}
 
     def check_inputs(self,inputs):
 

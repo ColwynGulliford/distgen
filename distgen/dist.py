@@ -2,8 +2,6 @@
 Defines the random number generator class as well all distribution function objects.
 """
 
-#import chaospy
-# Replaced by:
 from .hammersley import create_hammersley_samples
 from .physical_constants import *
 from .tools import *
@@ -14,43 +12,6 @@ import numpy.matlib as mlib
 import math
 
 from matplotlib import pyplot as plt
-
-
-#class RandGen():
-
-#    """
-#    Defines object responsible for providing random numbers
-#    """
-        
-#    def rand(self,shape,sequence=None,params=None):
-#        """
-#        Method for obtaining random numbers on the unit interval
-#        Inputs: shape is a tuple describing the shape of the output array of random numbers
-#                sequence is a str describing what type of random sequence to draw from, 
-#                defaults to rand(), or user can request Hammersley
-#                params is a dict for supply extra params (sequence parameters)
-#        """
-#
-#        if(sequence is None):
-#            return np.random.random(shape)
-#
-#        elif(sequence=="hammersley"):
-
-#            N = shape[1]
-#            dim = shape[0]
-
-            #N = shape[0] 
-            #dim = shape[1]
-#            if(params is None):
-#                print('word')
-#                #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
-#                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
-#            else:
-                #return np.squeeze(chaospy.distributions.sampler.sequences.hammersley.create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
-#                return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
-#        else:
-#            raise ValueError("Sequence: "+str(sequence)+" is not supported")
-
 
 def random_generator(shape,sequence=None,params=None):
 
@@ -1302,7 +1263,7 @@ class Dist2d(Dist):
         self.xstr=xstr
         self.ystr=ystr
 
-        self.rgen = RandGen()
+        #self.rgen = RandGen()
     
         self.xb = np.zeros(len(self.xs.magnitude)+1)*unit_registry(str(self.xs.units))
         self.xb[1:-1] = (self.xs[1:]+self.xs[:-1])/2.0
