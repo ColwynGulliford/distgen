@@ -32,6 +32,6 @@
     },
     "output": {
         "type": "gpt",
-        "file": "beer.can.out.txt"
+        "file": "rad.gaussian.out.txt"
     },
 }

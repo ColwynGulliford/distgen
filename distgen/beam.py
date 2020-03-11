@@ -25,7 +25,7 @@ class Beam2():
 
     def __init__(self, **kwargs):
 
-        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'status', 'w', 'r', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay']
+        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'w', 'r', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay']
         self._settable_scalar_keys = ['species']
         self._settable_keys =  self._settable_array_keys + self._settable_scalar_keys      
 
@@ -38,6 +38,8 @@ class Beam2():
 
     def __setitem__(self,key,value):
         setattr(self,key,value)
+
+
 
 class Beam():
 

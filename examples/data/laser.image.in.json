@@ -3,7 +3,7 @@
     "random_type": "hammersley",
     "total_charge": {
         "units": "pC",
-        "value": 10,
+        "value": 10
     }, 
     "start":{
         "type":"cathode",
@@ -20,6 +20,6 @@
     "output": {
         "file": "rad.uniform.out.txt",
         "type": "gpt"
-    },
+    }
 }
 
