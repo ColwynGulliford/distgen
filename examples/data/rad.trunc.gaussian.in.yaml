@@ -1,0 +1,21 @@
+n_particle: 200000
+output:
+  file: rad.trunc.gaussian.out.txt
+  type: gpt
+r_dist:
+  truncation_fraction:
+    units: dimensionless
+    value: 0.5
+  truncation_radius:
+    units: mm
+    value: 1
+  type: rg
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+total_charge:
+  units: pC
+  value: 10

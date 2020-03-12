@@ -1,0 +1,29 @@
+n_particle: 100000
+output:
+  file: rad.uniform.out.txt
+  type: gpt
+r_dist:
+  max_r:
+    units: mm
+    value: 2
+  min_r:
+    units: mm
+    value: 1
+  type: radial_uniform
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+t_dist:
+  avg_t:
+    units: ns
+    value: 0.5
+  sigma_t:
+    units: ns
+    value: 2
+  type: gaussian
+total_charge:
+  units: pC
+  value: 10

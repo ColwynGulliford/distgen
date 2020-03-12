@@ -1,0 +1,29 @@
+n_particle: 200000
+output:
+  file: tukey.beer.can.out.txt
+  type: gpt
+r_dist:
+  length:
+    units: mm
+    value: 5
+  ratio:
+    units: ''
+    value: 0.25
+  type: radial_tukey
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+t_dist:
+  length:
+    units: ps
+    value: 5.0
+  ratio:
+    units: ''
+    value: 0.75
+  type: tukey
+total_charge:
+  units: pC
+  value: 10

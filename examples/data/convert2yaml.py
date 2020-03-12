@@ -8,7 +8,7 @@ def main():
             with open(filename) as fid:
                 data = yaml.safe_load(fid)
 
-            newfile = '.'.join( (filename.split('.'))[:-1] )+'.yml'
+            newfile = '.'.join( (filename.split('.'))[:-1] )+'.yaml'
             with open(newfile,'w') as yid:
                 yaml.dump(data, yid, default_flow_style=False)
 
