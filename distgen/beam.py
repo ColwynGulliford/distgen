@@ -23,24 +23,62 @@ class Beam2():
         species is a proper species name: 'electron', etc. 
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, beam, **kwargs):
 
-        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'w', 'r', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay']
-        self._settable_scalar_keys = ['species']
+        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't']#, 'w', 'r', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay']
+        self._settable_scalar_keys = []#['species']
         self._settable_keys =  self._settable_array_keys + self._settable_scalar_keys      
 
-        print(self._settable_keys)
-
-        self.__dict__ = {}
+        for key in self._settable_keys:
+            self.__dict__[key] = beam[key]
 
     def __getitem__(self, key):
         return getattr(self, key) 
 
-    def __setitem__(self,key,value):
-        setattr(self,key,value)
+    # Energy/Momentum
+    @property
+    def p(self):
+        """Total momemtum"""
+        return np.sqrt(self.px**2 + self.py**2 + self.pz**2)
 
+    # Cylindrical coordinates
+    @property
+    def r(self):
+        return np.sqrt( self.x**2 + self.y**2 )
 
+    @property
+    def theta(self):
+        return np.arctan2(self.y, self.x)
 
+    @property
+    def pr(self):
+        return self.px*np.cos(self.theta) + self.py*np.sin(self.theta)
+
+    @property
+    def ptheta(self):
+        return -self.px*np.sin(self.theta) + self.py*np.cos(self.theta)
+
+    # Transverse Derivatives and Angles
+    @property
+    def xp(self):
+        return self.px/( self.pz.to(str(self.px.units)) )
+
+    @property
+    def thetax(self):
+        return np.arctan2( self.px, self.pz.to(str(self.px.units)) )
+
+    @property
+    def yp(self):
+        return self.py/( self.pz.to(str(self.py.units)) )
+
+    @property
+    def thetay(self):
+        return np.arctan2( self.py, self.pz.to(str(self.py.units)) )
+
+    #def __setitem__(self,key,value):
+    #    setattr(self,key,value)
+ 
+   
 class Beam():
 
     """
@@ -289,36 +327,6 @@ class Beam():
     def get_E(self):
         pass
 
-
-# Functions for converting between x,y <-> r,theta
-def xy_to_r(x,y):
-    return np.sqrt( x**2 + y**2 )     
-            
-def xy_to_theta(x,y):
-    return np.arctan2(y,x)
-
-def rtheta_to_x(r,theta):
-    return r*np.cos(theta)
-
-def rtheta_to_y(r,theta):
-    return r*np.sin(theta)  
-
-# Functions for converting px,py <-> pr,ptheta
-def xypxpy_to_pr(x,y,px,py):
-    theta = xy_to_theta(x,y)
-    return px*np.cos(theta) + py*np.sin(theta)
-
-def xypxpy_to_ptheta(x,y,px,py):
-    theta = xy_to_theta(x,y)
-    return -px*np.sin(theta) + py*np.cos(theta)
-
-def xyprptheta_to_px(x,y,pr,ptheta):
-    theta = xy_to_theta(x,y)
-    return pr*np.cos(theta) - ptheta*np.sin(theta)
-
-def xyprptheta_to_py(x,y,pr,ptheta):
-    theta = xy_to_theta(x,y)
-    return pr*np.sin(theta) + ptheta*np.cos(theta)
 
      
             

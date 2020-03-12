@@ -465,6 +465,9 @@ class File1d(Dist1d):
         xs = data[:,0]*unit_registry(self.units)
         Px = data[:,1]*unit_registry.parse_expression("1/"+self.units)
         
+        assert np.count_nonzero(xs.magnitude) > 0, 'Supplied 1d distribution coordinate vector '+var+' is zero everywhere.'
+        assert np.count_nonzero(Px.magnitude) > 0, 'Supplied 1d distribution P'+var+' is zero everywhere.'
+
         super().__init__(xs,Px,self.xstr)
         
 class TemporalLaserPulseStacking(Dist1d):
@@ -1263,7 +1266,7 @@ class Dist2d(Dist):
         self.xstr=xstr
         self.ystr=ystr
 
-        #self.rgen = RandGen()
+        assert np.count_nonzero(Pxy.magnitude) > 0, 'Supplied 2d distribution is zero everywhere.'
     
         self.xb = np.zeros(len(self.xs.magnitude)+1)*unit_registry(str(self.xs.units))
         self.xb[1:-1] = (self.xs[1:]+self.xs[:-1])/2.0

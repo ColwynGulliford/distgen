@@ -1,0 +1,41 @@
+n_particle: 200000
+px_dist:
+  sigma_px:
+    units: keV/c
+    value: 1.0
+  type: gaussian
+py_dist:
+  sigma_py:
+    units: keV/c
+    value: 1.0
+  type: gaussian
+pz_dist:
+  avg_pz:
+    units: GeV/c
+    value: 0
+  sigma_pz:
+    units: MeV/c
+    value: 1.0
+  type: gaussian
+r_dist:
+  sigma_xy:
+    units: mm
+    value: 1.0
+  type: radial_gaussian
+random_type: hammersley
+start:
+  tstart:
+    units: sec
+    value: 0
+  type: time
+total_charge:
+  units: pC
+  value: 10
+z_dist:
+  avg_z:
+    units: mm
+    value: 0
+  sigma_z:
+    units: mm
+    value: 2.0
+  type: gaussian

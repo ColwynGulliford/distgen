@@ -1,0 +1,17 @@
+n_particle: 200000
+output:
+  file: rad.file.out.txt
+  type: gpt
+r_dist:
+  file: data/cutgauss.rad.txt
+  type: radfile
+  units: mm
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+total_charge:
+  units: pC
+  value: 10
