@@ -4,7 +4,10 @@ from .transforms import set_avg_and_std, transform
 from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
-from pmd_beamphysics import ParticleGroup
+from pmd_beamphysics import ParticleGroup, pmd_init
+from . import archive
+
+
 import numpy as np
 import h5py
 import yaml
@@ -347,6 +350,47 @@ class Generator:
         """
         return fingerprint(self.input)    
     
+    
+    def load_archive(self, h5=None):
+        """
+        Loads input and output from archived h5 file.
+        
+        
+        
+        
+        See: Generator.archive
+        
+        
+        """
+        if isinstance(h5, str):
+            g = h5py.File(h5, 'r')
+            
+            glist = archive.find_distgen_archives(g)
+            n = len(glist)
+            if n == 0:
+                # legacy: try top level
+                message = 'legacy'
+            elif n == 1:
+                gname = glist[0]
+                message = f'group {gname} from'
+                g = g[gname]
+            else:
+                raise ValueError(f'Multiple archives found in file {h5}: {glist}')
+            
+            vprint(f'Reading {message} archive file {h5}', self.verbose>0,1,False)             
+        else:
+            g = h5            
+            
+            vprint(f'Reading Distgen archive file {h5}', self.verbose>0,1,False) 
+
+        self.input = archive.read_input_h5(g['input']) 
+        
+        if 'particles' in g:
+            self.particles = ParticleGroup(g['particles'])
+        else:
+            vprint(f'No particles found.', self.verbose>0,1,False) 
+
+
     def archive(self, h5=None):
         """
         Archive all data to an h5 handle or filename.
@@ -356,25 +400,28 @@ class Generator:
         """
         if not h5:
             h5 = 'distgen_'+self.fingerprint()+'.h5'
-         
+            
         if isinstance(h5, str):
-            g = h5py.File(h5, 'w')
-            self.vprint(f'Archiving to file {h5}')
+            g = h5py.File(h5, 'w')    
+            # Proper openPMD init
+            pmd_init(g, basePath='/', particlesPath='particles/')
+            g.attrs['software'] = np.string_('distgen') # makes a fixed string
+            #TODO: add version: g.attrs('version') = np.string_(__version__) 
+
         else:
             g = h5
         
-        # Initial particles
+        # Init
+        archive.distgen_init(g)
+        
+        # Input
+        archive.write_input_h5(g, self.input, name='input')
+        
+        # Particles
         if self.particles:
-            self.initial_particles.write(g, name='particles')
+            self.particles.write(g, name='particles')
         
-        # Input as flattened dict
-        g2 = g.create_group('input')
-        d = flatten_dict(self.input)
-        for k, v in d.items():
-            g2.attrs[k] = v
-        
-              
-        
+
         return h5    
     
     def __repr__(self):

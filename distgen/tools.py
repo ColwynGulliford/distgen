@@ -6,6 +6,7 @@ from scipy.special import erf as sci_erf
 from scipy.special import erfinv as sci_erfinv
 import json
 from hashlib import blake2b
+import datetime
 import os
 
 
@@ -419,6 +420,12 @@ def fingerprint(keyed_data, digest_size=16):
         s = json.dumps(val, sort_keys=True, cls=NpEncoder).encode()
         h.update(s)
     return h.hexdigest()  
+
+
+"""UTC to ISO 8601 with Local TimeZone information without microsecond"""
+def isotime():
+    return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).astimezone().replace(microsecond=0).isoformat()    
+    
 
 
 
