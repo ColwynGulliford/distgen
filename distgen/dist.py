@@ -49,7 +49,7 @@ def get_dist(var,params,verbose=0):
         dist = File1d(var,verbose=verbose,**params)
     elif(dtype=='tukey'):
         dist = Tukey(var,verbose=verbose,**params)
-    elif(dtype=='super_gaussian' or 'sg'):
+    elif(dtype=='super_gaussian' or dtype=='sg'):
         dist = SuperGaussian(var,verbose=verbose,**params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose,**params)
@@ -1358,7 +1358,7 @@ class SuperGaussianRad(DistRad):
         vprint("lambda = {:0.3f~P}".format(self.Lambda)+", power = {:0.3f~P}".format(self.p),verbose>0,2,True)
 
     def get_r_pts(self,n=1000):
-        return np.linspace(0,3*self.Lambda.magnitude,n)*unit_registry(str(self.Lambda.units))
+        return np.linspace(0,5*self.Lambda.magnitude,n)*unit_registry(str(self.Lambda.units))
 
     def pdf(self,r):        
         rho = self.rho(r)
