@@ -1165,7 +1165,7 @@ class NormRad(DistRad):
         self.pL = self.canonical_rho(self.rL/self.sigma)
         self.dp = self.pL-self.pR
 
-        #print(self.pR, self.pL, self.dp)
+        #print('boot')
 
     def canonical_rho(self,xi):
         return (1/2.0/math.pi)*np.exp(-xi**2/2)
