@@ -1326,6 +1326,79 @@ class TukeyRad(DistRad):
         pdfs = self.rho(rpts)
         return np.sqrt(radint(pdfs*rpts*rpts,rpts))
 
+
+class SuperGaussianRad(DistRad):
+
+    def __init__(self,verbose=0,**kwargs):
+
+        self.required_params=['lambda']
+        self.optional_params=['p','alpha']
+        self.check_inputs(kwargs)
+
+        assert not ('alpha' in kwargs and 'p' in kwargs), 'Radial Super Gaussian power parameter must be set using "p" or "alpha", not both.' 
+        assert ('alpha' in kwargs or 'p' in kwargs), 'Radial Super Gaussian power parameter must be set using "p" or "alpha". Neither provided.' 
+
+        self.Lambda = kwargs['lambda']
+
+        if('p' in kwargs):
+            self.p = kwargs['p']
+        elif('alpha' in kwargs):
+            alpha = kwargs['alpha']
+            assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = '+str(alpha)
+            if(alpha.magnitude==0): 
+                self.p = float('Inf')*unit_registry('dimensionless')
+            else:
+                self.p = 1/alpha 
+
+        vprint("SuperGaussianRad",verbose>0,0,True)
+        vprint("lambda = {:0.3f~P}".format(self.Lambda)+", power = {:0.3f~P}".format(self.p),verbose>0,2,True)
+
+    def get_r_pts(self,n=1000):
+        return np.linspace(0,3*self.Lambda.magnitude,n)*unit_registry(str(self.Lambda.units))
+
+    def pdf(self,r):        
+        rho = self.rho(r)
+        return r*rho
+
+    def rho(self,r):
+
+        ustr = '1/'+str(self.Lambda.units)+"/"+str(self.Lambda.units)
+
+        csi = r/self.Lambda
+        nur = 0.5*csi**2
+
+        rho = np.exp(-np.float_power(nur.magnitude,self.p.magnitude))*unit_registry(ustr)
+        rho = rho/radint(rho,r)
+        return rho
+   
+
+    def cdf(self,r):
+        rpts = self.get_r_pts(10000)
+        pdfs = self.rho(rpts)
+        
+        cdfs,rbins = radcumint(pdfs,rpts,initial=0)
+        cdfs = cdfs/cdfs[-1]
+        cdfs = interp(r,rbins,cdfs)
+        cdfs = cdfs/cdfs[-1]
+        cdfs*unit_registry('dimensionless')
+
+        return cdfs
+
+    def cdfinv(self,p):
+        rpts = self.get_r_pts(10000)
+        cdfs = self.cdf(rpts)
+        return interp(p,cdfs,rpts)
+
+    def avg(self):
+        rpts = self.get_r_pts(10000)
+        pdfs = self.rho(rpts)
+        return radint(pdfs*rpts,rpts)
+
+    def rms(self):
+        rpts = self.get_r_pts(10000)
+        pdfs = self.rho(rpts)
+        return np.sqrt(radint(pdfs*rpts*rpts,rpts))
+
 class Dist2d(Dist):
 
     #xstr = ""
