@@ -432,6 +432,84 @@ class Norm(Dist1d):
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
+
+class SuperGaussian(Dist1d):
+
+    def __init__(self,var,verbose=0,**kwargs):
+
+        self.type='Norm'
+        self.xstr = var
+
+        lambda_str = 'lambda'
+        power_str = 'p'
+        alpha_str = 'alpha'
+        avg_str = 'avg_'+var
+
+        self.required_params=[lambda_str]
+        self.optional_params=[avg_str,power_str,alpha_str]
+        self.check_inputs(kwargs)
+
+        assert not (alpha_str in kwargs and power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha", not both.' 
+        assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha". Neither provided.' 
+
+        self.Lambda = kwargs[lambda_str]
+        if(power_str in kwargs):
+            self.p = kwargs[power_str]
+        elif(alpha_str):
+            alpha = kwargs[alpha_str]
+            assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = '+str(alpha)
+            if(alpha.magnitude==0): 
+                self.p = float('Inf')*unit_registry('dimensionless')
+            else:
+                self.p = 1/alpha 
+
+        if(avg_str in kwargs):
+            self.mu = kwargs[avg_str]
+        else:
+            self.mu = 0*unit_registry(str(self.Lambda.units))
+ 
+    def pdf(self,x=None):  
+
+        if(x is None):
+            x=self.get_x_pts(10000)
+      
+        xi = (x-self.mu)/self.Lambda
+        nu1 = 0.5*xi**2
+        rho = np.exp(-np.float_power(nu1.magnitude,self.p.magnitude))*unit_registry('1/'+str(self.Lambda.units))
+
+        return rho/trapz(rho,x)
+        
+    def get_x_pts(self,n):
+        return self.mu + linspace(-5*self.Lambda, +5*self.Lambda,1000)
+
+    def cdf(self,x):
+        xpts = self.get_x_pts(10000)
+        pdfs = self.pdf(xpts)
+        cdfs = cumtrapz(self.pdf(xpts),xpts,initial=0)
+        cdfs = cdfs/cdfs[-1]
+        cdfs = interp(x,xpts,cdfs)
+        cdfs = cdfs/cdfs[-1]
+        return cdfs
+
+    def cdfinv(self,p):
+        xpts = self.get_x_pts(10000)
+        cdfs = self.cdf(xpts)
+        return interp(p,cdfs,xpts)
+    
+    def avg(self):
+        xpts = self.get_x_pts(10000)
+        return trapz(self.pdf(xpts)*xpts,xpts)
+
+    def std(self):
+        xpts = self.get_x_pts(10000)
+        avgx=self.avg()
+        return np.sqrt(trapz(self.pdf(xpts)*(xpts-avgx)*(xpts-avgx),xpts))
+
+    def rms(self):
+        avg=self.avg()
+        std=self.std()
+        return np.sqrt(std*std + avg*avg)
+
     
 class File1d(Dist1d):
     

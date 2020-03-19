@@ -19,6 +19,20 @@ def writer(output_format,beam,outfile,verbose=0,params=None):
     file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
     file_writer[output_format](beam,outfile,verbose,params)
 
+def asci2gdf(gdf_file, txt_file, asci2gdf_bin,remove_txt_file=True):
+
+    if(gdf_file == txt_file):
+        os.rename(txt_file, txt_file+'.tmp')
+        txt_file = txt_file+'.tmp'
+
+    result = os.system(asci2gdf_bin+" -o "+gdf_file+" "+txt_file)
+
+    if(remove_txt_file):
+        os.system('rm '+txt_file)
+
+    return result
+    
+
 def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):  
 
         watch = StopWatch()
@@ -55,27 +69,28 @@ def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):
                 data[:,index]=nmacro.magnitude
             else:
                 data[:,index] = beam[var].magnitude
+
+        if(".txt"==outfile[-4:]):
+        	gdffile = outfile[:-4]+".gdf"
+        elif('.gdf'==outfile[-4:]):
+                gdffile = outfile
+                outfile = outfile+'.txt'
+        else:
+                gdffile = outfile+".gdf"
+
+
         np.savetxt(outfile,data,header=header,comments='')
 
         if(asci2gdf_bin):
             gdfwatch = StopWatch()
             gdfwatch.start()
             vprint("Converting file to GDF: ",verbose>0,1,False)
-     
-            if(".txt"==outfile[-4:]):
-                gdffile = outfile[:-4]+".gdf"
-            elif('.gdf'==outfile[-4:]):
-                gdffile = outfile
-            else:
-                gdffile = outfile+".gdf"
 
             try:
                 
-                result = os.system(asci2gdf_bin+" -o "+gdffile+" "+outfile)
-                 #subprocess.call([params["asci2gdf_binary"][0], "-o ",gdffile, self.outfile],shell=True)
-                
-                subprocess.call(["rm",outfile])
+                asci2gdf(gdffile, outfile, asci2gdf_bin)
                 gdfwatch.stop() 
+
             except Exception as ex:
                 print("Error occured while converting ascii to gdf file: ")
                 print(str(ex))
