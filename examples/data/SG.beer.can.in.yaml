@@ -8,7 +8,7 @@ r_dist:
     value: 1
   alpha:
     units: ''
-    value: 1.0
+    value: 0.0
   type: rsg
 random_type: hammersley
 start:

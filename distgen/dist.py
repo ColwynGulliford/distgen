@@ -1372,7 +1372,7 @@ class SuperGaussianRad(DistRad):
         nur = 0.5*csi**2
 
         rho = np.exp(-np.float_power(nur.magnitude,self.p.magnitude))*unit_registry(ustr)
-        rho = rho/radint(rho,r)
+        rho = rho/radint(rho,r)/2/pi
         return rho
    
 
