@@ -49,10 +49,14 @@ def get_dist(var,params,verbose=0):
         dist = File1d(var,verbose=verbose,**params)
     elif(dtype=='tukey'):
         dist = Tukey(var,verbose=verbose,**params)
+    elif(dtype=='super_gaussian' or 'sg'):
+        dist = SuperGaussian(var,verbose=verbose,**params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose,**params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
         dist = NormRad(verbose=verbose,**params)
+    elif((dtype=="radial_super_gaussian" or dtype=="rsg") and var=="r"):
+        dist = SuperGaussianRad(verbose=verbose,**params)
     elif(dtype=="radfile" and var=="r"):
         dist = RadFile(verbose=verbose,**params)
     elif(dtype=="radial_tukey"):
