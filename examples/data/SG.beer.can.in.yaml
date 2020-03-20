@@ -1,14 +1,16 @@
 n_particle: 200000
+
 output:
   file: SG.beer.can.out.txt
   type: gpt
+
 r_dist:
   lambda:
     units: mm
     value: 1
-  alpha:
+  p:
     units: ''
-    value: 0.0
+    value: Inf
   type: rsg
 
 random_type: hammersley

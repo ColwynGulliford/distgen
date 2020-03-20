@@ -1366,7 +1366,13 @@ class SuperGaussianRad(DistRad):
         vprint("lambda = {:0.3f~P}".format(self.Lambda)+", power = {:0.3f~P}".format(self.p),verbose>0,2,True)
 
     def get_r_pts(self,n=1000):
-        return np.linspace(0,5*self.Lambda.magnitude/self.p.magnitude,n)*unit_registry(str(self.Lambda.units))
+        
+        if(self.p < float('Inf')):
+            f = self.p.magnitude
+        else:
+            f=1
+
+        return np.linspace(0,5*self.Lambda.magnitude/f,n)*unit_registry(str(self.Lambda.units))
 
     def pdf(self,r):        
         rho = self.rho(r)
