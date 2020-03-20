@@ -4,6 +4,7 @@ import numpy as np
 from scipy.integrate import cumtrapz as scipy_cumtrapz 
 from scipy.special import erf as sci_erf
 from scipy.special import erfinv as sci_erfinv
+from scipy.special import gamma as sci_gamma
 import json
 from hashlib import blake2b
 import datetime
@@ -214,6 +215,10 @@ def erf(x):
 def erfinv(x):
     return sci_erfinv(x.magnitude)*unit_registry('dimensionless')
 
+def gamma(x):
+    
+    return sci_gamma(x.magnitude)*unit_registry('dimensionless')
+
 # File reading
 
 def read_2d_file(filename):
@@ -383,7 +388,7 @@ def is_quantity(d):
 def dict_to_quantity(qd):
 
     assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
-    return qd['value']*unit_registry(qd['units'])
+    return float(qd['value'])*unit_registry(qd['units'])
         
 def convert_params(d):
 

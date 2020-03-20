@@ -479,12 +479,18 @@ class SuperGaussian(Dist1d):
       
         xi = (x-self.mu)/self.Lambda
         nu1 = 0.5*xi**2
-        rho = np.exp(-np.float_power(nu1.magnitude,self.p.magnitude))*unit_registry('1/'+str(self.Lambda.units))
 
-        return rho/trapz(rho,x)
+        N = 1./2/np.sqrt(2)/self.Lambda/gamma(1+1.0/2.0/self.p)
+
+        rho = N*np.exp(-np.float_power(nu1.magnitude,self.p.magnitude))#*unit_registry('1/'+str(self.Lambda.units))
         
-    def get_x_pts(self,n):
-        return self.mu + linspace(-5*self.Lambda, +5*self.Lambda,1000)
+ 
+        return rho
+        
+    def get_x_pts(self,n=None):
+        if(n is None):
+            n=10000
+        return self.mu + linspace(-5*self.std(), +5*self.std(),n)
 
     def cdf(self,x):
         xpts = self.get_x_pts(10000)
@@ -501,13 +507,13 @@ class SuperGaussian(Dist1d):
         return interp(p,cdfs,xpts)
     
     def avg(self):
-        xpts = self.get_x_pts(10000)
-        return trapz(self.pdf(xpts)*xpts,xpts)
+        return self.mu
 
     def std(self):
-        xpts = self.get_x_pts(10000)
-        avgx=self.avg()
-        return np.sqrt(trapz(self.pdf(xpts)*(xpts-avgx)*(xpts-avgx),xpts))
+        G1 = gamma(1 + 3.0/2.0/self.p)
+        G2 = gamma(1+1/2/self.p)
+
+        return self.Lambda * np.sqrt(2*G1/3/G2)
 
     def rms(self):
         avg=self.avg()
@@ -1353,12 +1359,14 @@ class SuperGaussianRad(DistRad):
                 self.p = float('Inf')*unit_registry('dimensionless')
             else:
                 self.p = 1/alpha 
-
+  
+        assert self.p > 0, 'Radial Super Gaussian power p must be > 0.'
+ 
         vprint("SuperGaussianRad",verbose>0,0,True)
         vprint("lambda = {:0.3f~P}".format(self.Lambda)+", power = {:0.3f~P}".format(self.p),verbose>0,2,True)
 
     def get_r_pts(self,n=1000):
-        return np.linspace(0,5*self.Lambda.magnitude,n)*unit_registry(str(self.Lambda.units))
+        return np.linspace(0,5*self.Lambda.magnitude/self.p.magnitude,n)*unit_registry(str(self.Lambda.units))
 
     def pdf(self,r):        
         rho = self.rho(r)
@@ -1366,13 +1374,11 @@ class SuperGaussianRad(DistRad):
 
     def rho(self,r):
 
-        ustr = '1/'+str(self.Lambda.units)+"/"+str(self.Lambda.units)
-
         csi = r/self.Lambda
         nur = 0.5*csi**2
+        N = (1.0/gamma(1+1.0/self.p)/self.Lambda**2)
+        rho = N*np.exp(-np.float_power(nur.magnitude,self.p.magnitude))
 
-        rho = np.exp(-np.float_power(nur.magnitude,self.p.magnitude))*unit_registry(ustr)
-        rho = rho/radint(rho,r)
         return rho
    
 
@@ -1394,14 +1400,11 @@ class SuperGaussianRad(DistRad):
         return interp(p,cdfs,rpts)
 
     def avg(self):
-        rpts = self.get_r_pts(10000)
-        pdfs = self.rho(rpts)
-        return radint(pdfs*rpts,rpts)
+        return (2.0*np.sqrt(2.0)/3.0)*(gamma(1+3.0/2.0/self.p)/gamma(1+1.0/self.p))*self.Lambda
 
     def rms(self):
-        rpts = self.get_r_pts(10000)
-        pdfs = self.rho(rpts)
-        return np.sqrt(radint(pdfs*rpts*rpts,rpts))
+        return np.sqrt( gamma(1+2.0/self.p)/gamma(1+1.0/self.p) )*self.Lambda
+
 
 class Dist2d(Dist):
 
