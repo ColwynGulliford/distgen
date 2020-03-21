@@ -162,9 +162,12 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
     
     return ax
         
-def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100):
+def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100,ax=None):
     
-    plt.figure(Nfig)
+    if(ax is None):
+        plt.figure(Nfig)
+        ax = plt.gca()
+
     thist,tedges = histogram(beam["t"].to(units["t"]),bins=nbins)
     qb = beam.q.to(units["q"])
     ts = (tedges[1:] + tedges[:-1]) / 2
@@ -183,9 +186,9 @@ def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100):
     stdt = beam["t"].std().to(units["t"])
     stdt_str = "{:0.3f~P}".format(stdt)
     
-    plt.xlabel("t ("+units["t"]+")")
-    plt.ylabel("I(t) ("+str(rhot.units)+")")
-    plt.plot(tst,rhott)
+    ax.set_xlabel("t ("+units["t"]+")")
+    ax.set_ylabel("I(t) ("+str(rhot.units)+")")
+    ax.plot(tst,rhott)
     
 def map_hist(x, y, h, bins):
     xi = np.digitize(x, bins[0]) - 1

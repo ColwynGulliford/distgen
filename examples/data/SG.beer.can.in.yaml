@@ -8,9 +8,9 @@ r_dist:
   lambda:
     units: mm
     value: 1
-  p:
+  alpha:
     units: ''
-    value: Inf
+    value: 0
   type: rsg
 
 random_type: hammersley
