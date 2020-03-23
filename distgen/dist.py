@@ -3,8 +3,9 @@ Defines the random number generator class as well all distribution function obje
 """
 
 from .hammersley import create_hammersley_samples
-from .physical_constants import *
+from .physical_constants import unit_registry, pi
 from .tools import *
+from pint import Quantity
 
 import numpy as np
 import numpy.matlib as mlib
@@ -86,6 +87,11 @@ class Dist():
         # Make sure all required parameters are specified
         for req in self.required_params:
             assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
+
+        #for p in params:
+        #    if(isinstance(params[p],Quantity)):
+        #        params[p] = unit_registry(str(params[p]))
+
     
 class Dist1d(Dist):
 
@@ -445,27 +451,36 @@ class SuperGaussian(Dist1d):
         self.xstr = var
 
         lambda_str = 'lambda'
+        sigma_str = 'sigma_'+var
         power_str = 'p'
         alpha_str = 'alpha'
         avg_str = 'avg_'+var
 
-        self.required_params=[lambda_str]
-        self.optional_params=[avg_str,power_str,alpha_str]
+        self.required_params=[]
+        self.optional_params=[avg_str, power_str, alpha_str, 'lambda', sigma_str]
         self.check_inputs(kwargs)
 
         assert not (alpha_str in kwargs and power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha", not both.' 
         assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha". Neither provided.' 
 
-        self.Lambda = kwargs[lambda_str]
+        assert not (sigma_str in kwargs and lambda_str in kwargs), 'SuperGaussian length scale must either be set using "lambda" or "'+sigma_str+'", not both.' 
+        assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian length scale must be set using "lambda" or "'+sigma_str+'", Neither provided.' 
+
+
         if(power_str in kwargs):
             self.p = kwargs[power_str]
-        elif(alpha_str):
+        else:
             alpha = kwargs[alpha_str]
             assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = '+str(alpha)
             if(alpha.magnitude==0): 
                 self.p = float('Inf')*unit_registry('dimensionless')
             else:
                 self.p = 1/alpha 
+
+        if('lambda' in kwargs):
+            self.Lambda = kwargs[lambda_str]
+        else: 
+            self.Lambda = self.get_lambda(kwargs[sigma_str])
 
         if(avg_str in kwargs):
             self.mu = kwargs[avg_str]
@@ -484,7 +499,6 @@ class SuperGaussian(Dist1d):
 
         rho = N*np.exp(-np.float_power(nu1.magnitude,self.p.magnitude))#*unit_registry('1/'+str(self.Lambda.units))
         
- 
         return rho
         
     def get_x_pts(self,n=None):
@@ -510,10 +524,16 @@ class SuperGaussian(Dist1d):
         return self.mu
 
     def std(self):
+
         G1 = gamma(1 + 3.0/2.0/self.p)
         G2 = gamma(1+1/2/self.p)
-
         return self.Lambda * np.sqrt(2*G1/3/G2)
+
+    def get_lambda(self,sigma):
+
+        G1 = gamma(1 + 3.0/2.0/self.p)
+        G2 = gamma(1+1/2/self.p)
+        return np.sqrt(3*G2/2.0/G1)*sigma
 
     def rms(self):
         avg=self.avg()
@@ -1341,14 +1361,15 @@ class SuperGaussianRad(DistRad):
 
     def __init__(self,verbose=0,**kwargs):
 
-        self.required_params=['lambda']
-        self.optional_params=['p','alpha']
+        self.required_params=[]
+        self.optional_params=['p', 'alpha', ' lambda', 'sigma_xy']
         self.check_inputs(kwargs)
 
         assert not ('alpha' in kwargs and 'p' in kwargs), 'Radial Super Gaussian power parameter must be set using "p" or "alpha", not both.' 
         assert ('alpha' in kwargs or 'p' in kwargs), 'Radial Super Gaussian power parameter must be set using "p" or "alpha". Neither provided.' 
 
-        self.Lambda = kwargs['lambda']
+        assert not ('lambda' in kwargs and 'sigma_xy' in kwargs), 'Radial Super Gaussian power parameter must be set using "sigma_xy" or "lambda", not both.' 
+        assert ('lambda' in kwargs or 'sigma_xy' in kwargs), 'Radial Super Gaussian power parameter must be set using "sigma_xy" or "lambda". Neither provided.' 
 
         if('p' in kwargs):
             self.p = kwargs['p']
@@ -1359,6 +1380,11 @@ class SuperGaussianRad(DistRad):
                 self.p = float('Inf')*unit_registry('dimensionless')
             else:
                 self.p = 1/alpha 
+
+        if('lambda' in kwargs):
+            self.Lambda = kwargs['lambda']
+        else:
+            self.Lambda = self.get_lambda(kwargs['sigma_xy'])
   
         assert self.p > 0, 'Radial Super Gaussian power p must be > 0.'
  
@@ -1372,7 +1398,7 @@ class SuperGaussianRad(DistRad):
         else:
             f=1
 
-        return np.linspace(0,5*self.Lambda.magnitude/f,n)*unit_registry(str(self.Lambda.units))
+        return np.linspace(0, 5*self.Lambda.magnitude, n)*unit_registry(str(self.Lambda.units))
 
     def pdf(self,r):        
         rho = self.rho(r)
@@ -1384,7 +1410,6 @@ class SuperGaussianRad(DistRad):
         nur = 0.5*csi**2
         N = (1.0/gamma(1+1.0/self.p)/self.Lambda**2)
         rho = N*np.exp(-np.float_power(nur.magnitude,self.p.magnitude))
-
         return rho
    
 
@@ -1410,6 +1435,10 @@ class SuperGaussianRad(DistRad):
 
     def rms(self):
         return np.sqrt( gamma(1+2.0/self.p)/gamma(1+1.0/self.p) )*self.Lambda
+
+    def get_lambda(self,sigma_xy):
+        rrms = sigma_xy/np.sqrt(0.5)
+        return np.sqrt(gamma(1+1.0/self.p)/gamma(1+2.0/self.p))*rrms
 
 
 class Dist2d(Dist):
