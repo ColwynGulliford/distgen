@@ -390,14 +390,21 @@ def dict_to_quantity(qd):
     assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
     return float(qd['value'])*unit_registry(qd['units'])
         
-def convert_params(d):
+def convert_list_params(d):
+
+    for ii,v in enumerate(d):
+        if(is_quantity(v)):
+               d[ii]=dict_to_quantity(v)
+
+def convert_params(d): 
 
     for k, v in d.items():
         if(is_quantity(v)):
             d[k]=dict_to_quantity(v)
-        elif isinstance(v, dict):
-            convert_params(v)
-            
+        elif isinstance(v,list):
+            convert_list_params(v)
+        elif isinstance(v, dict) or isinstance(v,list):
+            convert_params(v)           
 
 class NpEncoder(json.JSONEncoder):
     """

@@ -1,6 +1,6 @@
 from .physical_constants import *
 from .beam import Beam
-from .transforms import set_avg_and_std, transform
+from .transforms import set_avg_and_std, transform, set_avg
 from .tools import *
 from .dist import *
 from collections import OrderedDict as odic
@@ -302,13 +302,14 @@ class Generator:
 
             vprint("Scaling sigma_"+x+" -> {:0.3f~P}".format(stds[x]),verbose>0 and bdist[x].std()!=stds[x],1,True)
             vprint("Shifting avg_"+x+" -> {:0.3f~P}".format(avgs[x]),verbose>0 and bdist[x].mean()!=avgs[x],1,True)
-            bdist = set_avg_and_std(bdist,x,avgs[x],stds[x])
+            
+            bdist = set_avg_and_std(bdist,**{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x]})
 
         # Apply any user desired coordinate transformations
         if(transforms):
             for t,T in transforms.items():
                 vprint('Applying user defined transform "'+t+'"...',verbose>0,1,True)
-                bdist = transform(bdist, T['type'], T['variables'], **T['params'])
+                bdist = transform(bdist, T['type'], T['variables'], **T)
         
         # Handle any start type specific settings
         if(self.params['start']['type']=="cathode"):
@@ -328,7 +329,7 @@ class Generator:
 
 
             vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart), verbose>0, 1, True);
-            bdist = set_avg_and_std(bdist,'t',tstart,0.0*unit_registry('sec'))
+            bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec')})
 
         else:
             raise ValueError("Beam start type '"+self.params["start"]['type']+"' is not supported!")
