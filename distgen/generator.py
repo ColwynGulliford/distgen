@@ -221,12 +221,13 @@ class Generator:
    
                 avgr=0*unit_registry("m")
 
-                if("sigma_xy" in dist_params[r]):
-                    rrms= math.sqrt(2)*dist_params[r]["sigma_xy"]
-                elif("sigma_xy" in beam_params):
-                    rrms= math.sqrt(2)*beam_params["sigma_xy"]
-                else:
-                    rrms = dist.rms()
+                #if("sigma_xy" in dist_params[r]):
+                rrms = dist.rms()
+                    #rrms= math.sqrt(2)*dist_params[r]["sigma_xy"]
+                #elif("sigma_xy" in beam_params):
+                #    rrms= math.sqrt(2)*beam_params["sigma_xy"]
+                #else:
+                #    rrms = dist.rms()
 
                 avgCos = 0
                 avgSin = 0
@@ -252,6 +253,8 @@ class Generator:
             #self.dist_params.pop("x",None)
             #self.dist_params.pop("y",None)
            
+            print(stds['x'],stds['y'])
+
         # Do 2D distributions
         if("xy" in dist_params):
 

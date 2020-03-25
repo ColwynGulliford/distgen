@@ -1080,7 +1080,7 @@ class NormRad(DistRad):
                 self.rR = params['truncation_radius_right']
                 self.sigma = self.rR*np.sqrt( 1.0/2.0/np.log(1/f) )
 
-        #print(self.sigma, self.rL, self.rR)
+        print(self.sigma, self.rL, self.rR)
 
         assert self.rR.magnitude >= 0, "Radial Gaussian right cut radius must be >= 0"
         assert self.rL < self.rR, "Radial Gaussian left cut radius must be < right cut radius"
@@ -1100,7 +1100,7 @@ class NormRad(DistRad):
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         nonzero =  (r>=self.rL) & (r<=self.rR)
         res[nonzero]= (1/2.0/math.pi)*self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
-        return res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+        return res
 
     def pdf(self,r):
    
