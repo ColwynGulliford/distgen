@@ -88,10 +88,6 @@ class Dist():
         for req in self.required_params:
             assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 
-        #for p in params:
-        #    if(isinstance(params[p],Quantity)):
-        #        params[p] = unit_registry(str(params[p]))
-
     
 class Dist1d(Dist):
 
@@ -1022,104 +1018,6 @@ class UniformRad(DistRad):
     def cdfinv(self,rns):
         return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
 
-#class NormRad(DistRad):
-
-#    sigma = 0 
-
-#    def __init__(self,verbose=0,**kwargs):
-        
-#        if("sigma_xy" in kwargs):
-#            self.sigma = kwargs["sigma_xy"]
-#        else:
-#            raise ValueError("Radial Gaussian required parameter sigma_xy not found.")
-#         
-#        vprint("radial Gaussian",verbose>0,0,True)
-#        vprint("sigma_xy = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
-
-#    def pdf(self,r):
-#        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma )*r 
-
-#    def rho(self,r):
-
-#        return (1/self.sigma/self.sigma)*np.exp(-r*r/2.0/self.sigma/self.sigma ) 
-#
-#   def cdf(self,r):
-#        return 1 - np.exp(-r*r/2.0/self.sigma/self.sigma)
-
-#    def get_r_pts(self,n=1000):
-#        return np.linspace(0,+5*self.sigma.magnitude,n)*unit_registry(str(self.sigma.units))
-        
-#    def avg(self):
-#        return math.sqrt(math.pi/2)*self.sigma
-
-#    def rms(self):
-#        return np.sqrt(2)*self.sigma
-
-#    def cdfinv(self,rns):
-#        return self.sigma*np.sqrt(-2*np.log(1-rns))
-
-#class NormRadTrunc(DistRad):
-
-#    f = 0
-#    R = 0
-#    sigma_inf = 0
-    
-#   def __init__(self,radius=None,fraction=None,**params):
-#    
-#        if(radius is None and "pinhole_size" not in params):
-#            raise ValueError("Radial truncated Gaussian requires either a radius or pinhole size as input parameter.")
-#        elif(radius is None):
-#            radius = params["pinhole_size"]/2.0
-          
-#        if(fraction is None and "fraction" not in params):
-#            raise ValueError("Radial truncated Gaussian input parameter 'fraction' not found.")
-#        elif(radius is None):
-#            fraction = params["fraction"]  
-        
-#        if(radius<=0):
-#            raise ValueError("For truncated gaussian, radius has to be > 0")
-#        if(fraction > 1 or fraction < 0):
-#            raise ValueErorr("For truncated gaussian, fraction must satisfy: f > 0 and f < 1")
-
-#        self.f = fraction
-#        self.R = radius
-#        self.sigma_inf = radius/np.sqrt(2)/np.sqrt(np.log(1/fraction))
-
-#    def pdf(self,r):
-
-#        print(r[0],self.R)
-#        res = np.zeros(len(r))
-#        nonzero = r<=self.R 
-#        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)*r[nonzero]
-#        res = res*unit_registry('1/'+str(r.units))
-#        return res
-
-#    def rho(self,r):
-#        res = np.zeros(len(r))
- #       nonzero = r<=self.R 
-#        res[nonzero]=1/self.sigma_inf**2/(1-self.f)*np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2)
-#        res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
-#        return res
-
-#    def cdf(self,r):
-#        res = np.zeros(len(r))
-#        nonzero = r<=self.R 
-#        res[nonzero]=(1-np.exp(-r[nonzero]*r[nonzero]/2/self.sigma_inf**2))/(1-self.f)
-#        return res
-
-#    def cdfinv(self,rns):
-#        return np.sqrt( 2*self.sigma_inf**2 * ( np.log(1/(rns*(self.f-1)+1)) )) 
-
-#    def get_r_pts(self,n=1000):
-#        return np.linspace(0,1.2*self.R.magnitude,n)*unit_registry(str(self.R.units))
-
-#    def avg(self):
-#        return (self.sigma_inf*math.sqrt(math.pi/2)*erf(self.R/np.sqrt(2)/self.sigma_inf)-self.R*self.f)/(1-self.f)
-
-#    def rms(self):
-#        return np.sqrt( 2*self.sigma_inf**2 - self.R**2 * self.f/(1-self.f) )
-
-
 class NormRad(DistRad):
     
     def __init__(self, **params):
@@ -1362,7 +1260,7 @@ class SuperGaussianRad(DistRad):
     def __init__(self,verbose=0,**kwargs):
 
         self.required_params=[]
-        self.optional_params=['p', 'alpha', ' lambda', 'sigma_xy']
+        self.optional_params=['p', 'alpha', 'lambda', 'sigma_xy']
         self.check_inputs(kwargs)
 
         assert not ('alpha' in kwargs and 'p' in kwargs), 'Radial Super Gaussian power parameter must be set using "p" or "alpha", not both.' 

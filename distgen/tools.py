@@ -394,7 +394,9 @@ def convert_list_params(d):
 
     for ii,v in enumerate(d):
         if(is_quantity(v)):
-               d[ii]=dict_to_quantity(v)
+            d[ii]=dict_to_quantity(v)
+        elif(isinstance(v,dict)):
+            convert_params(v)
 
 def convert_params(d): 
 
