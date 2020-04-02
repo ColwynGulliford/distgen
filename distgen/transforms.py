@@ -1,6 +1,8 @@
 from .physical_constants import unit_registry
 from .tools import dict_to_quantity
+from .tools import vprint
 import numpy as np
+
 
 ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta','xp','yp']
 
@@ -41,6 +43,8 @@ def check_inputs(params, required_params, optional_params, n_variables, name):
         if(opt not in params):
             params[opt]=None
 
+    if('verbose' not in params):
+        params['verbose']=False
 
 # Single variable transforms:
 
@@ -49,17 +53,20 @@ def translate(beam, **params):
     check_inputs(params, ['delta'], [], 1, 'translate(beam, **kwargs)')  
     var = params['variables']
     delta = params['delta'] 
+    vprint(f'Translating {var} by {"{:g~P}".format(delta)}', params['verbose'], 2, True)
     beam[var] = delta + beam[var]
+    
 
     return beam
 
 
 def set_avg(beam, **params):
-  
+
     var = params['variables']
     check_inputs(params, ['avg_'+var], [], 1, 'set_avg(beam, **kwargs)')  
     new_avg = params['avg_'+var] 
     beam[var] = new_avg + (beam[var]-beam[var].mean())
+    vprint(f'Setting avg {var} -> {"{:g~P}".format(new_avg)}', params['verbose'], 2, True)
 
     return beam
 
@@ -86,7 +93,7 @@ def set_std(beam, **params):
     var = params['variables'] 
     check_inputs(params, ['sigma_'+var], [], 1, 'set_std(beam, **kwargs)')  
     new_std = params['sigma_'+var]
-
+    vprint(f'Setting avg {var} -> {"{:g~P}".format(new_std)}', params['verbose'], 2, True)
     old_std = beam[var].std()
     if(old_std.magnitude>0):
         beam = scale(beam, **{'variables':var,'scale':new_std/old_std, 'fix_average':True})

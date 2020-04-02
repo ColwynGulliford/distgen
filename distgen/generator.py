@@ -66,12 +66,12 @@ class Generator:
         ''' Perform consistency checks on the user input data'''
 
         # Make sure all required top level params are present
-        required_params = ['n_particle', 'random_type', 'total_charge']
+        required_params = ['n_particle', 'random_type', 'total_charge','start']
         for rp in required_params:
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output','transforms','start']
+        allowed_params = required_params + ['output','transforms']
         for p in params:
             assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
         
@@ -80,7 +80,6 @@ class Generator:
             assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
         if( ("r_dist" in params) or ("y_dist" in params) or ("xy_dist" in params) ):
             assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
-         
 
         if(params['start']['type'] == "cathode"):
 
@@ -106,7 +105,7 @@ class Generator:
         if('output' in self.params):
             out_params = self.params["output"]
             for op in out_params:
-                assert op in ['file','type'], 'Unexpected output parameter specified: '+op
+                assert op in ['file','type'], f'Unexpected output parameter specified: {op}'
         else:
             self.params['output'] = {"type":None}
 
@@ -140,7 +139,7 @@ class Generator:
                 var = p[:-5]
                 dist_params[var]=self.params[p]
         
-        vprint("Distribution format: "+str(self.params['output']["type"]), self.verbose>0, 0, True)
+        vprint(f'Distribution format: {self.params["output"]["type"]}', self.verbose>0, 0, True)
 
         N = int(self.params['n_particle'])
         bdist = Beam(**beam_params)
@@ -149,13 +148,13 @@ class Generator:
             outfile = self.params['output']["file"]
         else:
             outfile = "None"
-            vprint("Warning: no output file specified, defaulting to "+outfile+".", verbose>0, 1, True)
-        vprint("Output file: "+outfile, verbose>0, 0, True)
+            vprint(f'Warning: no output file specified, defaulting to "{outfile}".', verbose>0, 1, True)
+        vprint(f'Output file: {outfile}', verbose>0, 0, True)
         
-        vprint("\nCreating beam distribution....",verbose>0,0,True)
-        vprint("Beam starting from: cathode.",verbose>0,1,True)
-        vprint("Total charge: {:0.3f~P}".format(bdist.q)+".",verbose>0,1,True)
-        vprint("Number of macroparticles: "+str(N)+".",verbose>0,1,True)
+        vprint('\nCreating beam distribution....',verbose>0,0,True)
+        vprint(f"Beam starting from: {self.input['start']['type']}",verbose>0,1,True)
+        vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
+        vprint(f'Number of macroparticles: {N}.',verbose>0,1,True)
         
         bdist.params["x"] = np.full((N,), 0.0)*unit_registry("meter")
         bdist.params["y"] = np.full((N,), 0.0)*unit_registry("meter")
@@ -195,9 +194,10 @@ class Generator:
                 elif(vstr in ["xy"]):
                     npop = npop + 2
 
-        shape = ( npop, N)
-        rns = random_generator(shape,sequence=self.params['random_type'])
-        count = 0
+        if(npop>0):
+            shape = ( npop, N)
+            rns = random_generator(shape,sequence=self.params['random_type'])
+            count = 0
 
         # Do radial dist first if requested
         if("r" in dist_params):
@@ -252,8 +252,6 @@ class Generator:
             dist_params.pop("r")
             #self.dist_params.pop("x",None)
             #self.dist_params.pop("y",None)
-           
-            print(stds['x'],stds['y'])
 
         # Do 2D distributions
         if("xy" in dist_params):
@@ -303,14 +301,15 @@ class Generator:
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
 
-            vprint("Scaling sigma_"+x+" -> {:0.3f~P}".format(stds[x]),verbose>0 and bdist[x].std()!=stds[x],1,True)
-            vprint("Shifting avg_"+x+" -> {:0.3f~P}".format(avgs[x]),verbose>0 and bdist[x].mean()!=avgs[x],1,True)
+            vprint(f'Scaling sigma_{x} -> {stds[x]:G~P}',verbose>0 and bdist[x].std() !=stds[x],1,True)
+            vprint(f'Shifting avg_{x} -> {avgs[x]:G~P}', verbose>0 and bdist[x].mean()!=avgs[x],1,True)
             
-            bdist = set_avg_and_std(bdist,**{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x]})
+            bdist = set_avg_and_std(bdist,**{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':verbose>0})
 
         # Apply any user desired coordinate transformations
         if(transforms):
             for t,T in transforms.items():
+                T['verbose']=verbose>0
                 vprint('Applying user defined transform "'+t+'"...',verbose>0,1,True)
                 bdist = transform(bdist, T['type'], T['variables'], **T)
         
@@ -318,8 +317,8 @@ class Generator:
         if(self.params['start']['type']=="cathode"):
 
             bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
-            vprint("Cathode start: fixing pz momenta to forward hemisphere",verbose>0,1,True)
-            vprint("avg_pz -> {:0.3f~P}".format(bdist.avg("pz"))+", sigma_pz -> {:0.3f~P}".format(bdist.std("pz")),verbose>0,2,True)
+            vprint('Cathode start: fixing pz momenta to forward hemisphere',verbose>0,1,True)
+            vprint(f'avg_pz -> {bdist.avg("pz"):G~P}, sigma_pz -> {bdist.std("pz"):G~P}',verbose>0,2,True)
 
         elif(self.params['start']['type']=='time'):
             
@@ -330,15 +329,15 @@ class Generator:
                 vprint("Time start: no start time specified, defaulting to 0 sec.",verbose>0,1,True)
                 tstart = 0*unit_registry('sec')
 
-
-            vprint('Time start: fixing all particle time values to start time: {:0.3f~P}'.format(tstart), verbose>0, 1, True);
-            bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec')})
+            
+            vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True);
+            bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec'), 'verbose':verbose>0})
 
         else:
-            raise ValueError("Beam start type '"+self.params["start"]['type']+"' is not supported!")
+            raise ValueError(f'Beam start type "{self.params["start"]["type"]}" is not supported!')
         
         watch.stop()
-        vprint("...done. Time Ellapsed: "+watch.print()+".\n",verbose>0,0,True)
+        vprint(f'...done. Time Ellapsed: {watch.print()}.\n',verbose>0,0,True)
         return bdist
     
     

@@ -85,8 +85,8 @@ def plot_beam(beam,units={"x":"mm","y":"mm","z":"mm","px":"eV/c","py":"eV/c","pz
 
 def plot_1d(beam,var,units,**params):
     
-    if("nbins" in params):
-        bins = params["nbins"]
+    if('nbins' in params):
+        bins = params['nbins']
     else:
         bins = 10
 
@@ -137,9 +137,6 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
 
     if("axis" in params and params["axis"]=="equal"):
         ax.set_aspect('equal', adjustable='box')
-
-    ax.set_xlabel('$'+labels[var1] + "$ ("+units1+")")
-    ax.set_ylabel('$'+labels[var2] + "$ ("+units2+")")
     
     avgx = beam[var1].mean().to(units1)
     avgy = beam[var2].mean().to(units2)
@@ -148,8 +145,12 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
 
     stdx = beam[var1].std().to(units1)
     stdy = beam[var2].std().to(units2)
-    stdx_str = "{:0.3f~P}".format(stdx)
-    stdy_str = "{:0.3f~P}".format(stdy)
+
+    stdx_str = f'{stdx:G~P}'
+    stdy_str = f'{stdy:G~P}'
+
+    ax.set_xlabel(f'${labels[var1]}$ ({stdx_str.split()[1]})')
+    ax.set_ylabel(f'${labels[var2]}$ ({stdy_str.split()[1]})')
 
     if(stdx==0):
         plt.xlim([-1,1])
@@ -157,22 +158,22 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
         plt.ylim([-1,1])
 
     if('title_on' in params and params['title_on']):
-        ax.set_title('$<'+labels[var1]+'>$ = '+avgx_str+', $<'+labels[var2]+'>$ = '+avgy_str+'\n$\sigma_{'+labels[var1]+'}$ = '+stdx_str+', $\sigma_{'+labels[var2]+'}$ = '+stdy_str)
+        ax.set_title(f'$<{labels[var1]}>$ = {avgx:G~P}, $<{labels[var2]}>$ = {avgy:G~P}\n$\sigma_{labels[var1]}$ = '+stdx_str+', $\sigma_{'+labels[var2]+'}$ = '+stdy_str)
     #plt.title('$\sigma_{'+var1+'}$ = '+stdx_str+', $\sigma_{'+var2+'}$ = '+stdy_str)
     
     return ax
         
-def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100,ax=None):
+def plot_current_profile(beam, Nfig, units={'t':'ps', 'q':'pC', 'I':'A'}, nbins=100, ax=None, title_on=False):
     
     if(ax is None):
         plt.figure(Nfig)
         ax = plt.gca()
 
-    thist,tedges = histogram(beam["t"].to(units["t"]),bins=nbins)
+    thist, tedges = histogram(beam["t"].to(units["t"]),bins=nbins)
     qb = beam.q.to(units["q"])
     ts = (tedges[1:] + tedges[:-1]) / 2
     I0 = qb/(1*unit_registry(units["t"]))
-    I0 = I0.to_compact()
+    I0 = I0.to(units['I'])
     rhot = I0*thist/np.trapz(thist,ts)
 
     tst = np.zeros(len(ts)+2)
@@ -183,13 +184,20 @@ def plot_current_profile(beam,Nfig,units={"t":"ps","q":"pC"},nbins=100,ax=None):
     rhott[1:-1]=rhot.magnitude
     rhott[0]=0; rhott[-1]=0
     
-    stdt = beam["t"].std().to(units["t"])
-    stdt_str = "{:0.3f~P}".format(stdt)
+    avgt = beam.avg('t').to(units['t'])
+    stdt = beam.std('t').to(units['t'])
+    tunit = (f'{stdt:G~P}').split()[1]
+    Iunit = (f'{I0:G~P}').split()[1]
     
-    ax.set_xlabel("t ("+units["t"]+")")
-    ax.set_ylabel("I(t) ("+str(rhot.units)+")")
+    q = trapz(rhot,ts*unit_registry(units['t'])).to(units['q'])
+
+    ax.set_xlabel(f't ({tunit})')
+    ax.set_ylabel(f'I(t) ({Iunit})')
     ax.plot(tst,rhott)
-    
+
+    if(title_on):
+        ax.set_title(f'<t> = {avgt:G~P}, $\sigma_t$ = {stdt:G~P}, $q_b$ = {q:G~P}')
+
 def map_hist(x, y, h, bins):
     xi = np.digitize(x, bins[0]) - 1
     yi = np.digitize(y, bins[1]) - 1

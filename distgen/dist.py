@@ -67,26 +67,31 @@ def get_dist(var,params,verbose=0):
     elif(dtype=="crystals"):
         dist = TemporalLaserPulseStacking(verbose=verbose,**params)
     else:
-        raise ValueError("Distribution type '"+dtype+"' is not supported.")
+        raise ValueError(f'Distribution type "{dtype}" is not supported.')
             
     return dist
 
 
 class Dist():
-
+    """
+    Defines a base class for all distributions, and includes functionality for strict input checking
+    """
     def __init__(self):
         pass
 
     def check_inputs(self,params):
+        """
+        Checks the input dictionary to derived class.  Derived class supplies lists of required and optional params.
+        """
 
         # Make sure user isn't passing the wrong parameters:
         allowed_params = self.optional_params + self.required_params + ['verbose','type']
         for param in params:
-            assert param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+param+'\nAllowed params: '+str(allowed_params)
+            assert param in allowed_params, f'Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {param}\nAllowed params: {allowed_params}'
 
         # Make sure all required parameters are specified
         for req in self.required_params:
-            assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
+            assert req in params, 'Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found.'
 
     
 class Dist1d(Dist):
@@ -114,12 +119,15 @@ class Dist1d(Dist):
 
         norm = trapz(self.Px,self.xs)
         if(norm<=0):
-            raise ValueError("Normalization of PDF was <= 0")
+            raise ValueError('Normalization of PDF was <= 0')
 
         self.Px = self.Px/norm
         self.Cx = cumtrapz(self.Px,self.xs,initial=0)
     
     def get_x_pts(self,n):
+        """
+        Returns a vector of x pts suitable for sampling the PDF Px(x)
+        """
         return linspace(self.xs[0],self.xs[-1],n)
 
     def pdf(self,x):
@@ -248,8 +256,8 @@ class Uniform(Dist1d):
         """
 
         self.xstr = var
-        minstr = "min_"+var
-        maxstr = "max_"+var
+        minstr = f'min_{var}'
+        maxstr = f'max_{var}'
         
         self.required_params = [minstr, maxstr]
         self.optional_params = []
@@ -258,8 +266,8 @@ class Uniform(Dist1d):
        
         self.xL = kwargs[minstr]           
         self.xR = kwargs[maxstr]
-        vprint("uniform",verbose>0,0,True)
-        vprint(minstr+" = {:0.3f~P}".format(self.xL)+", "+maxstr+" = {:0.3f~P}".format(self.xR),verbose>0,2,True)
+        vprint('uniform',verbose>0,0,True)
+        vprint(f'{minstr} = {self.xL:G~P}, {maxstr} = {self.xR:G~P}', verbose>0, 2, True)
   
     def get_x_pts(self,n):
         """
@@ -323,13 +331,13 @@ class Norm(Dist1d):
         self.type='Norm'
         self.xstr = var
 
-        sigmastr = "sigma_"+var
+        sigmastr = f'sigma_{var}'
         self.required_params=[sigmastr]
 
         sigma_cutoff_str   = "n_sigma_cutoff"
         sigma_cutoff_left  = "n_sigma_cutoff_left"
         sigma_cutoff_right = "n_sigma_cutoff_right"
-        avgstr = "avg_"+var
+        avgstr = f'avg_{var}'
         self.optional_params=[sigma_cutoff_str,sigma_cutoff_left,sigma_cutoff_right,avgstr]
 
         self.check_inputs(kwargs)
@@ -370,7 +378,7 @@ class Norm(Dist1d):
         if(not right_cut_set):
             self.b = +float('Inf')*unit_registry(str(self.sigma.units))
 
-        assert self.a < self.b, 'Right side cut off a = {:0.3f~P}'.format(self.a) + ' must be < left side cut off b = {:0.3f~P}'.format(self.b)
+        assert self.a < self.b, 'Right side cut off a = {a:G~P} must be < left side cut off b = {b:G~P}'
 
         self.A = (self.a - self.mu)/self.sigma
         self.B = (self.b - self.mu)/self.sigma
@@ -383,9 +391,9 @@ class Norm(Dist1d):
 
         self.Z = self.PB - self.PA
 
-        vprint("Gaussian",verbose>0,0,True)
-        vprint("avg_"+var+" = {:0.3f~P}".format(self.mu)+", sigma_"+var+" = {:0.3f~P}".format(self.sigma),verbose>0,2,True)
-        vprint("Left n_sigma_cutoff = {:0.3f~P}".format(self.b/self.sigma)+', Right n_sigma_cutoff = {:0.3f~P}'.format(self.a/self.sigma),verbose>0 and self.b.magnitude<float('Inf'),2,True)
+        vprint('Gaussian',verbose>0,0,True)
+        vprint(f'avg_{var} = {self.mu:G~P}, sigma_{var} = {self.sigma:0.3f~P}',verbose>0,2,True)
+        vprint(f'Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
             
     def get_x_pts(self,n):
         return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
@@ -443,14 +451,14 @@ class SuperGaussian(Dist1d):
 
     def __init__(self,var,verbose=0,**kwargs):
 
-        self.type='Norm'
+        self.type='SuperGaussian'
         self.xstr = var
 
         lambda_str = 'lambda'
-        sigma_str = 'sigma_'+var
+        sigma_str = f'sigma_{var}'
         power_str = 'p'
         alpha_str = 'alpha'
-        avg_str = 'avg_'+var
+        avg_str = f'avg_{var}'
 
         self.required_params=[]
         self.optional_params=[avg_str, power_str, alpha_str, 'lambda', sigma_str]
@@ -459,15 +467,15 @@ class SuperGaussian(Dist1d):
         assert not (alpha_str in kwargs and power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha", not both.' 
         assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha". Neither provided.' 
 
-        assert not (sigma_str in kwargs and lambda_str in kwargs), 'SuperGaussian length scale must either be set using "lambda" or "'+sigma_str+'", not both.' 
-        assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian length scale must be set using "lambda" or "'+sigma_str+'", Neither provided.' 
+        assert not (sigma_str in kwargs and lambda_str in kwargs), 'SuperGaussian length scale must either be set using "lambda" or "{sigma_str}", not both.' 
+        assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian length scale must be set using "lambda" or "{sigma_str}", Neither provided.' 
 
 
         if(power_str in kwargs):
             self.p = kwargs[power_str]
         else:
             alpha = kwargs[alpha_str]
-            assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = '+str(alpha)
+            assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1.'
             if(alpha.magnitude==0): 
                 self.p = float('Inf')*unit_registry('dimensionless')
             else:
@@ -482,6 +490,10 @@ class SuperGaussian(Dist1d):
             self.mu = kwargs[avg_str]
         else:
             self.mu = 0*unit_registry(str(self.Lambda.units))
+
+        vprint('Super Gaussian', verbose>0, 0, True)
+        vprint(f'simga_{var} = {self.std():G~P}, power = {self.p:G~P}', verbose, 2, True)
+        #vprint('Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}'
  
     def pdf(self,x=None):  
 
@@ -551,7 +563,7 @@ class File1d(Dist1d):
         self.distfile = kwargs["file"]
         self.units = kwargs["units"]
         
-        vprint(var+"-distribution file: '"+self.distfile+"'",verbose>0,0,True)
+        vprint(f'{var}-distribution file: "{self.distfile}"',verbose>0,0,True)
         f = open(self.distfile,'r')
         headers = f.readline().split()
         f.close()
@@ -569,8 +581,8 @@ class File1d(Dist1d):
         xs = data[:,0]*unit_registry(self.units)
         Px = data[:,1]*unit_registry.parse_expression("1/"+self.units)
         
-        assert np.count_nonzero(xs.magnitude) > 0, 'Supplied 1d distribution coordinate vector '+var+' is zero everywhere.'
-        assert np.count_nonzero(Px.magnitude) > 0, 'Supplied 1d distribution P'+var+' is zero everywhere.'
+        assert np.count_nonzero(xs.magnitude) > 0, f'Supplied 1d distribution coordinate vector {var} is zero everywhere.'
+        assert np.count_nonzero(Px.magnitude) > 0, f'Supplied 1d distribution P{var} is zero everywhere.'
 
         super().__init__(xs,Px,self.xstr)
         
@@ -630,9 +642,9 @@ class TemporalLaserPulseStacking(Dist1d):
         self.set_pdf()
         self.set_cdf()
 
-    def set_crystals(self,lengths,angles):
+    def set_crystals(self, lengths, angles):
     
-        assert_with_message(len(lengths)==len(angles), "Number of crystal lengths must be the same as the number of angles.")
+        assert_with_message(len(lengths)==len(angles), 'Number of crystal lengths must be the same as the number of angles.')
 
         self.lengths=lengths
         self.angles=angles
@@ -645,8 +657,8 @@ class TemporalLaserPulseStacking(Dist1d):
             else:
                 angle_offset=   0*unit_registry("deg")
                  
-            vprint("crystal "+str(ii+1)+ " length = {:0.3f~P}".format(self.lengths[ii]),self.verbose>0,2,False)
-            vprint(", angle = {:0.3f~P}".format(self.angles[ii]),self.verbose>0,0,True)
+            vprint(f'crystal {ii+1} length = {self.lengths[ii]:G~P}',self.verbose>0,2,False)
+            vprint(f', angle = {self.angles[ii]:G~P}',self.verbose>0,0,True)
 
             self.crystals.append({"length":lengths[ii],"angle":angles[ii],"angle_offset":angle_offset})    
 
@@ -666,7 +678,7 @@ class TemporalLaserPulseStacking(Dist1d):
         self.t_max = 0.5*self.total_crystal_length*self.dV + 5.0*self.laser_pulse_FWHM;  
         self.t_min = -self.t_max;
 
-        vprint("Pulses propagated: min t = {:0.3f~P}".format(self.t_min) + ", max t = {:0.3f~P}".format(self.t_max),self.verbose>0,2,True) 
+        vprint(f'Pulses propagated: min t = {self.t_min:G~P}, max t = {self.t_max:G~P}',self.verbose>0,2,True) 
 
     def apply_crystal(self,next_crystal):
         #FUNCTION TO GENERATE TWO PULSES WHEN PASSING THROUGH CRYSTAL:
@@ -762,8 +774,8 @@ class Tukey(Dist1d):
         self.r = kwargs['ratio']
         self.L = kwargs['length']
 
-        vprint("Tukey",verbose>0,0,True)
-        vprint("legnth = {:0.3f~P}".format(self.L)+", ratio = {:0.3f~P}".format(self.r),verbose>0,2,True)
+        vprint('Tukey',verbose>0,0,True)
+        vprint(f'legnth = {self.L:G~P}, ratio = {self.r:G~P}',verbose>0,2,True)
             
     def get_x_pts(self,n):
         return 1.1*linspace(-self.L/2.0,self.L/2.0,n)
@@ -821,35 +833,31 @@ class Tukey(Dist1d):
     
 class DistRad(Dist):
 
-    #rs = []    # r pts [0,inf]
-    #Pr = []    # Probability Distribution Function Pr(r)
-    #Cr = []    # Cumulative Disrtirbution Functoin Cr(r) = int(r Pr dr), has length(Pr) + 1
-
-    def __init__(self,rs,Pr):
+    def __init__(self, rs, Pr):
 
         self.rs = rs
         self.Pr = Pr
 
-        norm = radint(self.Pr,self.rs)
+        norm = radint(self.Pr, self.rs)
         if(norm<=0):
-            raise ValueError("Normalization of PDF was <= 0")
+            raise ValueError('Normalization of PDF was <= 0')
        
         self.Pr = self.Pr/norm
-        self.Cr,self.rb = radcumint(self.Pr,self.rs)
+        self.Cr,self.rb = radcumint(self.Pr, self.rs)
         
-    def get_r_pts(self,n):
+    def get_r_pts(self, n):
         return linspace(self.rs[0],self.rs[-1],n)
 
-    def rho(self,r):
+    def rho(self, r):
         return interp(r,self.rs,self.Pr)
 
-    def pdf(self,r):
+    def pdf(self, r):
         return interp(r,self.rs,self.rs*self.Pr)
 
-    def cdf(self,r):
-        return interp(r**2,self.rs**2,self.Cr)
+    def cdf(self, r):
+        return interp(r**2,self.rb**2,self.Cr)
 
-    def cdfinv(self,rns):
+    def cdfinv(self, rns):
 
         rns=np.squeeze(rns)
         indsL = np.searchsorted(self.Cr,rns)-1
@@ -892,12 +900,17 @@ class DistRad(Dist):
 
         plt.tight_layout()
 
-    def plot_cdf(self,n=1000):
+    def plot_cdf(self, n=1000, ax=None):
+ 
+        if(ax is None):
+            plt.figure()
+            ax = plt.gca() 
+
         r=self.get_r_pts(n)
-        plt.figure()
-        plt.plot(r,self.cdf(r))
-        plt.xlabel('r ({:~P})'.format(r.units))
-        plt.ylabel("CDF(r)")
+
+        ax.plot(r,self.cdf(r))
+        ax.set_xlabel('r ({:~P})'.format(r.units))
+        ax.set_ylabel("CDF(r)")
 
     def avg(self):
         return np.sum( ((self.rb[1:]**3 - self.rb[:-1]**3)/3.0)*self.Pr ) 
@@ -910,8 +923,12 @@ class DistRad(Dist):
         rms=self.rms()
         return np.sqrt(rms*rms-avg*avg)
 
-    def test_sampling(self):
+    def test_sampling(self,ax=None):
      
+        if(ax is None):
+            plt.figure()
+            ax = plt.gca()
+
         rs=self.sample(100000,sequence="hammersley")    
         r = self.get_r_pts(1000)
         p = self.rho(r)
@@ -922,24 +939,22 @@ class DistRad(Dist):
         rho = rho/np.trapz(rho,rhist)
 
         avgr = rs.mean()
-        avgr_str = "{:0.3f~P}".format(avgr)
+        avgr_str = f'{avgr:G~P}'
         stdr = rs.std()
-        stdr_str = "{:0.3f~P}".format(stdr)
+        stdr_str = f'{stdr:G~P}'
         
         davgr = self.avg()
         dstdr = self.std()
 
-        davgr_str = "{:0.3f~P}".format(davgr)
-        dstdr_str = "{:0.3f~P}".format(dstdr)  
+        davgr_str = f'{davgr:G~P}'
+        dstdr_str = f'{dstdr:G~P}' 
 
-        plt.figure()
-        plt.plot(r, P/r, rhist, rho/rhist, 'or')
-        plt.xlabel("r ({:~P})".format(r.units))
-        plt.ylabel("2$\pi\\rho$(r) ({:~P})".format(p.units))
-        plt.title("Sample stats: <r> = "+avgr_str+", $\sigma_r$ = "+stdr_str+"\nDist. stats: <r> = "+davgr_str+", $\sigma_r$ = "+dstdr_str)
-        plt.legend(["2$\pi\\rho$(r)","Normalized Sampling"])
-  
-        plt.show()
+        
+        ax.plot(r, P/r, rhist, rho/rhist, 'or')
+        ax.set_xlabel("r ({:~P})".format(r.units))
+        ax.set_ylabel("2$\pi\\rho$(r) ({:~P})".format(p.units))
+        ax.set_title("Sample stats: <r> = "+avgr_str+", $\sigma_r$ = "+stdr_str+"\nDist. stats: <r> = "+davgr_str+", $\sigma_r$ = "+dstdr_str)
+        ax.legend(["2$\pi\\rho$(r)","Normalized Sampling"])
 
 class UniformRad(DistRad):
 
@@ -981,7 +996,7 @@ class UniformRad(DistRad):
             raise ValueError("Radial uniform dist must have rR >= 0")
         
         vprint("radial uniform",verbose>0,0,True)
-        vprint(minstr+" = {:0.3f~P}".format(self.rL)+", "+maxstr+" = {:0.3f~P}".format(self.rR),verbose>0,2,True)
+        vprint(f'{minstr} = {self.rL:G~P}, {maxstr} = {self.rR:G~P}',verbose>0,2,True)
 
     def get_r_pts(self,n):
         f = 0.2
@@ -1020,7 +1035,7 @@ class UniformRad(DistRad):
 
 class NormRad(DistRad):
     
-    def __init__(self, **params):
+    def __init__(self, verbose=False, **params):
 
         self.required_params=[]
         self.optional_params=['sigma_xy','truncation_fraction',
@@ -1080,7 +1095,7 @@ class NormRad(DistRad):
                 self.rR = params['truncation_radius_right']
                 self.sigma = self.rR*np.sqrt( 1.0/2.0/np.log(1/f) )
 
-        print(self.sigma, self.rL, self.rR)
+        #print(self.sigma, self.rL, self.rR)
 
         assert self.rR.magnitude >= 0, "Radial Gaussian right cut radius must be >= 0"
         assert self.rL < self.rR, "Radial Gaussian left cut radius must be < right cut radius"
@@ -1089,7 +1104,7 @@ class NormRad(DistRad):
         self.pL = self.canonical_rho(self.rL/self.sigma)
         self.dp = self.pL-self.pR
 
-        #print('boot')
+        vprint('radial Gaussian', verbose, 0, True)
 
     def canonical_rho(self,xi):
         return (1/2.0/math.pi)*np.exp(-xi**2/2)
@@ -1155,7 +1170,7 @@ class NormRad(DistRad):
 
 class RadFile(DistRad):
 
-    def __init__(self,**params):
+    def __init__(self, verbose=0, **params):
 
         self.required_params=['file','units']
         self.optional_params=[]
@@ -1179,8 +1194,10 @@ class RadFile(DistRad):
         if(np.count_nonzero(rs < 0 )):
             raise ValueError("Radial distribution r-values must be >= 0.")
        
-        super().__init__(rs,Pr)
+        super().__init__(rs, Pr)
 
+        vprint('radial file', verbose>0, 0, True)
+        vprint(f'r-dist file: "{distfile}"', verbose>0, 2, True)
 
 class TukeyRad(DistRad):
 
@@ -1273,7 +1290,7 @@ class SuperGaussianRad(DistRad):
             self.p = kwargs['p']
         elif('alpha' in kwargs):
             alpha = kwargs['alpha']
-            assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = '+str(alpha)
+            assert alpha >= 0 and alpha <= 1, f'SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = {alpha}'
             if(alpha.magnitude==0): 
                 self.p = float('Inf')*unit_registry('dimensionless')
             else:
@@ -1286,8 +1303,8 @@ class SuperGaussianRad(DistRad):
   
         assert self.p > 0, 'Radial Super Gaussian power p must be > 0.'
  
-        vprint("SuperGaussianRad",verbose>0,0,True)
-        vprint("lambda = {:0.3f~P}".format(self.Lambda)+", power = {:0.3f~P}".format(self.p),verbose>0,2,True)
+        vprint('SuperGaussianRad',verbose>0,0,True)
+        vprint(f'lambda = {self.Lambda:G~P}, power = {self.p:G~P}',verbose>0,2,True)
 
     def get_r_pts(self,n=1000):
         
@@ -1341,13 +1358,6 @@ class SuperGaussianRad(DistRad):
 
 class Dist2d(Dist):
 
-    #xstr = ""
-    #ystr = ""
-    #xs = []    # x pts
-    #ys = []
-    #Pxy = []    # Probability Distribution Function P(x,y)
-    
-    #rgen = RandGen()
 
     def __init__(self,xs,ys,Pxy,xstr="x",ystr="y"):
 
