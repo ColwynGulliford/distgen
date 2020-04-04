@@ -4,7 +4,22 @@ Defines the random number generator class as well all distribution function obje
 
 from .hammersley import create_hammersley_samples
 from .physical_constants import unit_registry, pi
-from .tools import *
+
+from .tools import interp
+from .tools import linspace
+from .tools import radint
+from .tools import trapz
+from .tools import cumtrapz
+from .tools import radcumint
+from .tools import vprint
+from .tools import histogram
+from .tools import erf
+from .tools import erfinv
+from .tools import gamma
+from .tools import radial_histogram
+from .tools import centers
+from .tools import read_2d_file
+
 from pint import Quantity
 
 import numpy as np
@@ -91,7 +106,7 @@ class Dist():
 
         # Make sure all required parameters are specified
         for req in self.required_params:
-            assert req in params, 'Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found.'
+            assert req in params, f'Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found.'
 
     
 class Dist1d(Dist):
@@ -103,13 +118,6 @@ class Dist1d(Dist):
     Methods should be overloaded for specific derived classes, particularly if
     the distribution allows analytic treatment.
     """
-
-    xstr = ""
-    xs = []    # x pts
-    Px = []    # Probability Distribution Function Px(x)
-    Cx = []    # Cumulative Disrtirbution Functoin Cx(x)
-    
-    #rgen = RandGen()
     
     def __init__(self,xs,Px,xstr="x"):
 
@@ -644,14 +652,14 @@ class TemporalLaserPulseStacking(Dist1d):
 
     def set_crystals(self, lengths, angles):
     
-        assert_with_message(len(lengths)==len(angles), 'Number of crystal lengths must be the same as the number of angles.')
+        assert len(lengths)==len(angles), 'Number of crystal lengths must be the same as the number of angles.'
 
         self.lengths=lengths
         self.angles=angles
         self.angle_offsets=np.zeros(len(angles))
 
         for ii in range(len(lengths)):
-            assert_with_message(lengths[ii]>0,"Crystal length must be > 0.")              
+            assert lengths[ii]>0,"Crystal length must be > 0."           
             if(ii % 2 ==0):
                 angle_offset= -45*unit_registry("deg")
             else:
@@ -830,23 +838,73 @@ class Tukey(Dist1d):
         std=self.std()
         return np.sqrt(std*std + avg*avg)
 
-    
+class DistTheta(Dist):    
+
+    def __init__(self):
+        pass
+
+    def get_theta_pts(self,n):
+        return linspace(0*unit_registry('rad'), 2*pi, n)
+
+
+    def plot_pdf(self,n=1000):
+
+        theta =self.get_theta_pts(n)
+        
+        p=self.pdf(theta)
+
+        print(p[0])
+        plt.figure()
+        plt.plot(theta,p)
+        plt.xlabel(f'$theta$ ({str(theta.unit)}))')
+        plt.ylabel(f'PDF(${self.theta_str}$) ({str(p.unit)})')
+
+#class Cos2Theta(DistTheta):
+
+ #   """
+ #   Defines a separatable theta distribution function cos(nu * theta + phase)
+ #   """
+ #   def __init__(self, verbose=0, **kwargs):
+ #
+ #       self.required_params=['tune']
+ #       self.optional_params=['phase']
+ #       self.check_inputs(kwargs)
+ #       
+ #       self.nu = kwargs['tune']
+#
+#        if('phase' in kwargs):
+#            self.phi = kwargs['phase']
+#        else:
+#            self.phi = 0.0*pi
+#
+#        self.S2pi = np.sin( (2*pi*self.nu) + self.phi )
+#        self.S0 = np.sin(self.phi)
+#
+    #def pdf(self, theta):
+    #    theta = theta.to('rad').magnitude
+    #    return  np.cos(self.nu*theta + self.phi) / (self.S2pi - self.S0)*unit_registry('1/rad')
+
+    #def cdf(self, theta):
+    #    return ( np.sin(self.nu*theta + self.phase) - self.S0 ) / (self.S2pi - self.S0)
+
+
 class DistRad(Dist):
 
     def __init__(self, rs, Pr):
 
         self.rs = rs
         self.Pr = Pr
+        #self.rb =  centers(rs)
 
         norm = radint(self.Pr, self.rs)
         if(norm<=0):
             raise ValueError('Normalization of PDF was <= 0')
        
         self.Pr = self.Pr/norm
-        self.Cr,self.rb = radcumint(self.Pr, self.rs)
+        self.Cr, self.rb = radcumint(self.Pr, self.rs)
         
     def get_r_pts(self, n):
-        return linspace(self.rs[0],self.rs[-1],n)
+        return linspace(self.rs[0], self.rs[-1], n)
 
     def rho(self, r):
         return interp(r,self.rs,self.Pr)
@@ -888,15 +946,14 @@ class DistRad(Dist):
         p = self.rho(r)
         P = self.pdf(r)
         fig, (a1,a2) = plt.subplots(1,2)
-        #print(a1,a2)
-        #print(r)
+
         a1.plot(r,p)
-        a1.set(xlabel='r ({:~P})'.format(r.units))
-        a1.set(ylabel='2$\pi\\rho$(r) ({:~P})'.format(p.units))
+        a1.set(xlabel=f'r ({r.units:~P})')
+        a1.set(ylabel=f'$\\rho_r$(r) ({p.units:~P})')
         
         a2.plot(r,P)
-        a2.set(xlabel='r ({:~P})'.format(r.units))
-        a2.set(ylabel='PDF(r) ({:~P})'.format(P.units))
+        a2.set(xlabel=f'r ({r.units:~P})')
+        a2.set(ylabel=f'PDF(r) ({P.units:~P})')
 
         plt.tight_layout()
 
@@ -909,8 +966,8 @@ class DistRad(Dist):
         r=self.get_r_pts(n)
 
         ax.plot(r,self.cdf(r))
-        ax.set_xlabel('r ({:~P})'.format(r.units))
-        ax.set_ylabel("CDF(r)")
+        ax.set_xlabel(f'$r$ ({r.units:~P})')
+        ax.set_ylabel('CDF$(r)$')
 
     def avg(self):
         return np.sum( ((self.rb[1:]**3 - self.rb[:-1]**3)/3.0)*self.Pr ) 
@@ -933,28 +990,23 @@ class DistRad(Dist):
         r = self.get_r_pts(1000)
         p = self.rho(r)
         P = self.pdf(r)
-        
-        rho,edges = histogram(rs,bins=100)
-        rhist = (edges[1:] + edges[:-1]) / 2
-        rho = rho/np.trapz(rho,rhist)
+
+        r_hist, r_edges = radial_histogram(rs.magnitude,nbins=500)    
+        r_bins = centers(r_edges)*r.units   
+        r_hist = r_hist*unit_registry(f'1/{r.units}/{r.units}')
+        r_hist = r_hist/radint(r_hist, r_bins)
 
         avgr = rs.mean()
-        avgr_str = f'{avgr:G~P}'
         stdr = rs.std()
-        stdr_str = f'{stdr:G~P}'
-        
+
         davgr = self.avg()
         dstdr = self.std()
 
-        davgr_str = f'{davgr:G~P}'
-        dstdr_str = f'{dstdr:G~P}' 
-
-        
-        ax.plot(r, P/r, rhist, rho/rhist, 'or')
-        ax.set_xlabel("r ({:~P})".format(r.units))
-        ax.set_ylabel("2$\pi\\rho$(r) ({:~P})".format(p.units))
-        ax.set_title("Sample stats: <r> = "+avgr_str+", $\sigma_r$ = "+stdr_str+"\nDist. stats: <r> = "+davgr_str+", $\sigma_r$ = "+dstdr_str)
-        ax.legend(["2$\pi\\rho$(r)","Normalized Sampling"])
+        ax.plot(r, p, r_bins, r_hist, 'or')
+        ax.set_xlabel(f'r ({r.units:~P})')
+        ax.set_ylabel(f'$\\rho_r(r)$ ({r_hist.units:~P})')
+        ax.set_title(f'Sample stats: <r> = {avgr:G~P}, $\sigma_r$ = {stdr:G~P}\nDist. stats: <r> = {davgr:G~P}, $\sigma_r$ = {dstdr:G~P}')
+        ax.legend(['$\\rho_r$(r)','Sampling'])
 
 class UniformRad(DistRad):
 
@@ -1105,6 +1157,7 @@ class NormRad(DistRad):
         self.dp = self.pL-self.pR
 
         vprint('radial Gaussian', verbose, 0, True)
+        #vprint('underlying sigma_xy
 
     def canonical_rho(self,xi):
         return (1/2.0/math.pi)*np.exp(-xi**2/2)
@@ -1114,7 +1167,7 @@ class NormRad(DistRad):
         xi = (r/self.sigma)
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         nonzero =  (r>=self.rL) & (r<=self.rR)
-        res[nonzero]= (1/2.0/math.pi)*self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
+        res[nonzero]= self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
         return res
 
     def pdf(self,r):

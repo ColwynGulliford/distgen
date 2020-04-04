@@ -77,9 +77,9 @@ class Generator:
         
         # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
-            assert_with_message( ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution.")
+            assert ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution."
         if( ("r_dist" in params) or ("y_dist" in params) or ("xy_dist" in params) ):
-            assert_with_message( ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH.")
+            assert  ("r_dist" in params)^("y_dist" in params)^("xy_dist" in params),"User must specify r dist OR y dist NOT BOTH."
 
         if(params['start']['type'] == "cathode"):
 

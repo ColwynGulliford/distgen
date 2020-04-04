@@ -66,12 +66,6 @@ def get_unit_str(ustr):
     else:
         raise ValueError("Could not recover units string from "+ustr)
 
-def assert_with_message(bool_val,msg):
-
-    """Assert that boolean condition bool_val is true, raise value error with msg if false"""
-    if(not bool_val):
-        raise ValueError(msg)
-
 class StopWatch():
 
     ureg = unit_registry
@@ -174,26 +168,28 @@ def interp(x,xs,fs):
 
 def linspace(x1,x2,N):
     return np.linspace(x1.to(x2.units).magnitude, x2.magnitude, N)*unit_registry(str(x2.units))
-    
-def radint(f,r):
- 
-    # for integrating function with rdr as the jacobian: int(r*f(r)*dr)
-    urstr = str(r.units)
-    ufstr = str(f.units)
-    rbins = ((r.magnitude)[:-1]+(r.magnitude)[1:])/2.0
-    rbins = np.insert(rbins,0,(r.magnitude)[0])
-    rbins = np.append(rbins,(r.magnitude)[-1])
 
-    return np.sum(0.5*(rbins[1:]**2-rbins[:-1]**2)*f.magnitude)*unit_registry(urstr+"*"+urstr+"*"+ufstr)
+def radint(f, r):
 
-def radcumint(f,r,initial=None):
+    """
+    Computes the integral[r*f(r) dr]
+    """
+
+    r_bins = centers(r)
+    rs = np.zeros( (len(r_bins)+2,) )*r.units
+    rs[1:-1] = r_bins
+    rs[0] = r[0]; rs[-1] = r[-1]
+
+    return np.sum( 0.5*(rs[1:]**2 - rs[:-1]**2)*f )
+
+def radcumintOLD(f, r, initial=None):
     """
     Defines cumulative radial integration with the rdr jacobian
-    Inputs: r, f(r) with units, returns int( f(r) * r dr)_-inf^r
+    Inputs: r, f(r) with units, returns int( f(r) * r dr)_0^r
     """
     urstr = str(r.units)
     ufstr = str(f.units)
-    rbins = ((r.magnitude)[:-1]+(r.magnitude)[1:])/2.0
+    rbins = ((r.magnitude)[:-1]+(r.magnitude)[1:])/2.0  
     rbins = np.insert(rbins,0,(r.magnitude)[0])
     rbins = np.append(rbins,(r.magnitude)[-1])    
 
@@ -202,22 +198,64 @@ def radcumint(f,r,initial=None):
 
     return (rcint*unit_registry(urstr+"*"+urstr+"*"+ufstr),rbins*unit_registry(urstr))
 
-def histogram(x,bins=100):
+def radcumint(f, r, initial=None):
+    """
+    Defines cumulative radial integration with the rdr jacobian
+    Inputs: r, f(r) with units, returns int( f(r) * r dr)_0^r
+    """
+    
+    r_bins = centers(r)
+    rs = np.zeros( (len(r_bins)+2,) )*r.units
+    rs[1:-1] = r_bins
+    rs[0]  = r[0]
+    rs[-1] = r[-1] 
 
-    xmag = x.magnitude
-    hist,edges = np.histogram(xmag,bins=bins)
+    rcint = np.zeros(len(rs))*r.units*r.units*f.units
+    rcint[1:] = np.cumsum(0.5*(rs[1:]**2-rs[:-1]**2)*f)
+
+    return (rcint,rs)
+
+
+def histogram(x, range=None, w = None, bins=100):
+    if(range):
+        range = [range[0].magnitude, range[1].magnitude]
+    hist,edges = np.histogram(x.magnitude, range=range, bins=bins, weights=w)
     return (hist,edges)
 
-def erf(x):
+def radial_histogram(r, weights=None, nbins=100):
 
+    r2 = r*r
+    dr2 = max(r2)/(nbins-2);
+    r2_edges = np.linspace(0, max(r2) + 0.5*dr2, nbins);
+    dr2 = r2_edges[1]-r2_edges[0]
+    edges = np.sqrt(r2_edges)
+    
+    which_bins = np.digitize(r2, r2_edges)-1
+    minlength = r2_edges.size-1
+    hist = np.bincount(which_bins, weights=weights, minlength=minlength)/(np.pi*dr2)
+
+    return (hist,edges)
+
+def centers(x):
+    return (x[1:] + x[:-1]) / 2
+
+def erf(x):
     return sci_erf(x.magnitude)*unit_registry('dimensionless')
 
 def erfinv(x):
     return sci_erfinv(x.magnitude)*unit_registry('dimensionless')
 
 def gamma(x):
-    
     return sci_gamma(x.magnitude)*unit_registry('dimensionless')
+
+def cos(theta):
+    return np.cos( (theta.to('rad')).magnitude )*unit_registry('dimensionless')
+
+def sin(theta):
+    theta = theta.to('rad')
+    print(theta)
+    return np.sin( (theta.to('rad')).magnitude )*unit_registry('dimensionless')
+
 
 # File reading
 

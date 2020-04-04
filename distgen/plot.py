@@ -1,7 +1,18 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from .tools import *
+#f#rom .tools import *
 
+from .physical_constants import unit_registry, pi
+from .tools import histogram
+from .tools import radial_histogram
+from .tools import trapz
+from .tools import interp
+from .tools import radint
+from .tools import linspace
+from .tools import mean
+from .tools import centers
+
+LABELS = {'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}','thetax':'\\theta_x'}
 
 def plot_beam(beam,units={"x":"mm","y":"mm","z":"mm","px":"eV/c","py":"eV/c","pz":"eV/c","t":"ps","q":"pC"}):
 
@@ -83,15 +94,35 @@ def plot_beam(beam,units={"x":"mm","y":"mm","z":"mm","px":"eV/c","py":"eV/c","pz
     plt.title('Laser Temporal Profile: $\sigma_t$ = '+stdt_str)
     plt.show()
 
-def plot_1d(beam,var,units,**params):
+
+def plot_hist_1d_data(x_edges, y, ax=None):
+
+    y_plt = np.empty((y.size*2,), dtype=y.dtype)
+    x_edges_plt = np.empty((y.size*2,), dtype=y.dtype)
+    y_plt[0::2] = y
+    y_plt[1::2] = y
+    x_edges_plt[0::2] = x_edges[:-1]
+    x_edges_plt[1::2] = x_edges[1:]
+
+    if(ax is None):
+       ax = plt.gca()
+    
+    ax.plot(x_edges_plt,y_plt)
+
+    return ax
+
+
+def plot_1d(beam, var, units, ax=None, **params):
     
     if('nbins' in params):
         bins = params['nbins']
     else:
         bins = 10
+  
+    v = beam[var].to(units)
 
-    thist,tedges = np.histogram( (beam[var].to(units)).magnitude,bins=100)
-    ts = (tedges[1:] + tedges[:-1]) / 2
+    thist, tedges = np.histogram( v.magnitude, bins=bins)
+    ts = centers(tedges)
     rhot = thist/np.trapz(thist,ts)
     
     tst = np.zeros(len(ts)+2)
@@ -102,24 +133,89 @@ def plot_1d(beam,var,units,**params):
     rhott[1:-1]=rhot
     rhott[0]=0; rhott[-1]=0
     
-    avgt = np.mean( (beam[var].to(units)) )
-    stdt = np.std( (beam[var].to(units)) )
+    avgt = np.mean( v )
+    stdt = np.std(  v )
     
-    avgt_str = "{:0.3f~P}".format(avgt)
-    stdt_str = "{:0.3f~P}".format(stdt)
+    avgt_str = f'{avgt:~P}'
+    stdt_str = f'{stdt:~P}'
+
+    if(ax is None):
+        ax = plt.gca()
+
+    p = 0*unit_registry(f'1/{avgt.units:~P}')
+
+    ax.set_title(f'$<{var}>$ = {avgt:G~P}, '+'$\sigma_{'+var+'}$ = '+f'{stdt:G~P}, q_b = {beam.q:G~P}')
+    ax.set_xlabel(f'{var} ({units})')
+    ax.set_ylabel(f'Charge density (1/{avgt.units:~P})')
+    ax.plot(tst,rhott)
     
-    plt.title('$<'+var+'>$ = '+avgt_str+', $\sigma_{'+var+'}$ = '+stdt_str)
-    plt.xlabel(var+' ('+units+')')
-    plt.ylabel('$pdf('+var+')$')
-    plt.plot(tst,rhott)
+def plot_radial_1d(beam, r_units, ax=None, **params):
+        
+    if(ax is None):
+        ax = plt.gca()
+
+    if('nbins' in params):
+        nbins = params['nbins']
+    else:
+        nbins = 50
+ 
+    if('q_units' in params):
+        q  = beam.q.to(params['q_units'])
+    else:
+        q = beam.q
+        
+    w = q*beam['w']
+
+    r = beam['r'].to(r_units)
+
+    r_hist, r_edges = radial_histogram(r.magnitude, weights=w.magnitude, nbins=nbins)
+    r_bins =  centers(r_edges)*r.units
+    r_hist = r_hist*unit_registry(f'1/{r_units}^2')
+    r_hist = q*r_hist/radint(r_hist, r_bins)
+
+    qb = radint(r_hist, r_bins)
+
+    if('style' in params):
+        style = params['style']
+    else:
+        style = 'dist'
+
+
+    if(style=='hist'):
+        ax = plot_hist_1d_data(r_edges, r_hist, ax)
+
+    elif(style=='dist'):
+
+        rs = np.zeros((len(r_bins)+2,))*r_bins.units
+        Pr = np.zeros((len(r_bins)+2,))*r_hist.units
+
+        rs[1:-1] = r_bins   
+        rs[0] = r_edges[0]*r_bins.units  
+        rs[-1] = r_edges[-1]*r_bins.units
+
+        Pr[1:-1] = r_hist; 
+        Pr[0] = interp(0*r_bins.units, r_bins, r_hist); 
+        Pr[-1] = 0*Pr.units
+
+        ax.plot(rs,Pr)
+
+    ax.set_xlabel(f'${LABELS["r"]}$ ({r.units:G~P})')
+    ax.set_ylabel(f'Charge Density ({r_hist.units:G~P})')
+
+    ax.set_xlim([0, ax.get_xlim()[1]])
+    ax.set_ylim([0, ax.get_ylim()[1]])
     
-def plot_rad(beam, Nfig, ptype, ax=None, **params):
-    pass
+    if('title_on' in params and params['title_on']):
+        avgr = mean(r, beam['w'])
+        rmsr = np.sqrt( mean(r*r, beam['w']) )
+        ax.set_title(f'$<{LABELS["r"]}>$ = {avgr:G~P}, '+'$r_{rms}$'+f' = {rmsr:G~P}, $q_b$ = {qb:G~P}')
+
+    return ax
     
 
 def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
 
-    labels={'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}','thetax':'\\theta_x'}
+    labels = LABELS
 
     #plt.figure(Nfig)
     
@@ -186,14 +282,13 @@ def plot_current_profile(beam, Nfig, units={'t':'ps', 'q':'pC', 'I':'A'}, nbins=
     
     avgt = beam.avg('t').to(units['t'])
     stdt = beam.std('t').to(units['t'])
-    tunit = (f'{stdt:G~P}').split()[1]
-    Iunit = (f'{I0:G~P}').split()[1]
     
     q = trapz(rhot,ts*unit_registry(units['t'])).to(units['q'])
 
-    ax.set_xlabel(f't ({tunit})')
-    ax.set_ylabel(f'I(t) ({Iunit})')
-    ax.plot(tst,rhott)
+    ax.set_xlabel(f't ({avgt.units:G~P})')
+    ax.set_ylabel(f'I(t) ({units["I"]})')
+    ax.plot(tst, rhott)
+    ax.set_ylim([0, ax.get_ylim()[1]])
 
     if(title_on):
         ax.set_title(f'<t> = {avgt:G~P}, $\sigma_t$ = {stdt:G~P}, $q_b$ = {q:G~P}')
