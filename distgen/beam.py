@@ -146,6 +146,10 @@ class Beam():
         return np.sqrt(self.px**2 + self.py**2 + self.pz**2)
 
     @property
+    def gamma(self):
+        return np.sqrt(1+ (self.p.to('GB').magnitude**2) )*unit_registry('')
+
+    @property
     def beta_x(self):
         """vx/c"""
         return self.px.to('GB')/self.gamma
@@ -159,10 +163,6 @@ class Beam():
     def beta_z(self):
         """vz/c"""
         return self.pz.to('GB')/self.gamma
-
-    @property
-    def gamma(self):
-        return np.sqrt(1+self.p.to('GB')**2)
 
     @property
     def kinetic_energy(self):
@@ -216,7 +216,7 @@ class Beam():
 
     def Gamma(self, var):
 
-        varp = std(getattr(self, f'{var}p'), self.params['w'])**2
+        varp = std(getattr(self, f'{var}p'), getattr(self,'w'))**2
         eps = self.emitt(var, 'geometric')
 
         return varp/eps        
