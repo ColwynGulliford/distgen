@@ -125,7 +125,7 @@ class Generator:
         verbose = self.verbose
         outputfile = []
         
-        beam_params = {'total_charge':self.params['total_charge']}
+        beam_params = {'total_charge':self.params['total_charge'], 'n_particle':self.params['n_particle']}
 
         if('transforms' in self.params):
             transforms = self.params['transforms']
@@ -156,14 +156,23 @@ class Generator:
         vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
         vprint(f'Number of macroparticles: {N}.',verbose>0,1,True)
         
-        bdist.params["x"] = np.full((N,), 0.0)*unit_registry("meter")
-        bdist.params["y"] = np.full((N,), 0.0)*unit_registry("meter")
-        bdist.params["z"] = np.full((N,), 0.0)*unit_registry("meter")
-        bdist.params["px"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        bdist.params["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        bdist.params["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        bdist.params["t"] = np.full((N,), 0.0)*unit_registry("s")
-        bdist.params["w"] = np.full((N,), 1/N)*unit_registry("dimensionless")
+        #bdist.params["x"] = np.full((N,), 0.0)*unit_registry("meter")
+        #bdist.params["y"] = np.full((N,), 0.0)*unit_registry("meter")
+        #bdist.params["z"] = np.full((N,), 0.0)*unit_registry("meter")
+        #bdist.params["px"]= np.full((N,), 0.0)*unit_registry("eV/c")
+        #bdist.params["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
+        #bdist.params["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
+        #bdist.params["t"] = np.full((N,), 0.0)*unit_registry("s")
+        #bdist.params["w"] = np.full((N,), 1/N)*unit_registry("dimensionless")
+
+        bdist["x"] = np.full((N,), 0.0)*unit_registry("meter")
+        bdist["y"] = np.full((N,), 0.0)*unit_registry("meter")
+        bdist["z"] = np.full((N,), 0.0)*unit_registry("meter")
+        bdist["px"]= np.full((N,), 0.0)*unit_registry("eV/c")
+        bdist["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
+        bdist["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
+        bdist["t"] = np.full((N,), 0.0)*unit_registry("s")
+        bdist["w"] = np.full((N,), 1/N)*unit_registry("dimensionless")
 
         avgs = odic()
         avgs["x"] = 0*unit_registry("meter")
@@ -239,8 +248,11 @@ class Generator:
                 count = count+1
                 dist_params.pop("theta")
   
-            bdist.params["x"]=rs*np.cos(ths)
-            bdist.params["y"]=rs*np.sin(ths)
+            bdist["x"]=rs*np.cos(ths)
+            bdist["y"]=rs*np.sin(ths)
+
+            #bdist.params["x"]=rs*np.cos(ths)
+            #bdist.params["y"]=rs*np.sin(ths)
 
             avgs["x"] = avgr*avgCos
             avgs["y"] = avgr*avgSin

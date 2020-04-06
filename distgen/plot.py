@@ -24,7 +24,7 @@ def get_scale(beam, scale):
         return beam.q
 
     elif(scale=='number'):
-        return beam['n']
+        return beam['n_particle']
 
     else:
         raise ValueError('Could not get scale factor for plot.')
