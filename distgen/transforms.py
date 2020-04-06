@@ -1,6 +1,6 @@
 from .physical_constants import unit_registry
 from .tools import dict_to_quantity
-from .tools import vprint
+from .tools import vprint, mean
 import numpy as np
 
 
@@ -17,9 +17,9 @@ def get_variables(varstr):
 def get_origin(beam,varstr,origin):
 
     if(origin=='centroid'):
-        o = beam[varstr].mean()
+        o = beam.avg(varstr)
     elif(origin is None):
-        o = 0*unit_registry(str(beam[varstr].units))
+        o = 0*beam[varstr].units
     else:
         o = origin
 
@@ -53,10 +53,9 @@ def translate(beam, **params):
     check_inputs(params, ['delta'], [], 1, 'translate(beam, **kwargs)')  
     var = params['variables']
     delta = params['delta'] 
-    vprint(f'Translating {var} by {"{:g~P}".format(delta)}', params['verbose'], 2, True)
+    vprint(f'Translating {var} by {delta:g~P}', params['verbose'], 2, True)
     beam[var] = delta + beam[var]
     
-
     return beam
 
 
@@ -156,18 +155,23 @@ def shear(beam, **params):
         var1,var2=variables.split(':')
 
     if(origin=='centroid'):
-        o1 = beam[var1].mean()
+        o1 = beam.avg(var1)
         #o2 = v2.mean()
  
     elif(origin is None):
-        o1 = 0*unit_registry(str(beam[var1].units))
+        o1 = 0*beam[var1].units
         #o2 = 0*unit_registry(str(v1.units))
 
     else:
         o1 = origin[0]
         #o2 = origin[1]
 
-    beam[var2] = beam[var2] + shear_coefficient*(beam[var1]-o1)
+    v1 = beam[var1]
+    v2 = beam[var2]
+
+    beam[var2] = v2 + shear_coefficient*(v1-o1)
+
+    
     return beam
 
 
@@ -240,9 +244,9 @@ def magnetize(beam, **params):
 
     if(variables=='r:ptheta'):
 
-        sigx = beam['x'].std()
-        sigy = beam['y'].std()
-  
+        sigx = beam.std('x')
+        sigy = beam.std('y')
+    
         magnetization = params['magnetization']
         sparams = {'type':'shear','variables':'r:ptheta','shear_coefficient': -magnetization/sigx/sigx }        
 

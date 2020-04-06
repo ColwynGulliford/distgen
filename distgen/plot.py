@@ -170,8 +170,8 @@ def plot_dist2d(beam, var1, units1, var2, units2, style='scatter_hist2d', ax=Non
     if("axis" in params and params["axis"]=="equal"):
         ax.set_aspect('equal', adjustable='box')
     
-    avgx = beam[var1].mean().to(units1)
-    avgy = beam[var2].mean().to(units2)
+    avgx = beam.avg(var1).to(units1)
+    avgy = beam.avg(var2).to(units2)
 
     stdx = beam[var1].std().to(units1)
     stdy = beam[var2].std().to(units2)

@@ -68,35 +68,41 @@ class Beam():
 
     @r.setter
     def r(self, r):
-        self.x = r*np.cos(self.theta)
-        self.y = r*np.sin(self.theta)
+        theta = getattr(self, 'theta')
+        self.x = r * np.cos(theta)
+        self.y = r * np.sin(theta)
 
     @property
     def theta(self):
         return np.arctan2(self.y, self.x)
 
     @theta.setter
-    def theta(self,theta):
-        self.x = r*np.cos(self.theta)
-        self.y = r*np.sin(self.theta) 
+    def theta(self, theta):
+        r = getattr(self,r)
+        self.x = r * np.cos(theta)
+        self.y = r * np.sin(theta) 
 
     @property
     def pr(self):
-        return self.px*np.cos(self.theta) + self.py*np.sin(self.theta)
+        return self.px * np.cos(self.theta) + self.py * np.sin(self.theta)
 
     @pr.setter
-    def pr(self,pr):
-        self.px=pr*np.cos(self.theta)-self.ptheta*np.sin(self.theta)
-        self.py=pr*np.sin(self.theta)+self.ptheta*np.cos(self.theta)
+    def pr(self, pr):
+        ptheta = getattr(self, 'ptheta')
+        theta  = getattr(self, 'theta')
+        self.px = pr * np.cos(theta) - ptheta * np.sin(theta)
+        self.py = pr * np.sin(theta) + ptheta * np.cos(theta)
 
     @property
     def ptheta(self):
-        return -self.px*np.sin(self.theta) + self.py*np.cos(self.theta)
+        return -self.px * np.sin(self.theta) + self.py * np.cos(self.theta)
 
     @ptheta.setter
-    def ptheta(self,ptheta):
-        self.px=self.pr*np.cos(self.theta)-ptheta*np.sin(self.theta)
-        self.py=self.pr*np.sin(self.theta)+ptheta*np.cos(self.theta)
+    def ptheta(self, ptheta):
+        pr = getattr(self, 'pr')
+        theta = getattr(self, 'theta')
+        self.px = pr * np.cos(theta) - ptheta * np.sin(theta)
+        self.py = pr * np.sin(theta) + ptheta * np.cos(theta)
 
 
     # Transverse Derivatives and Angles
@@ -106,7 +112,7 @@ class Beam():
 
     @xp.setter
     def xp(self, xp):
-        self.px = xp*self.pz
+        self.px = xp * self.pz
 
     @property
     def thetax(self):
@@ -114,7 +120,7 @@ class Beam():
 
     @thetax.setter
     def thetax(self, thetax):
-        self.px = np.tan(thetax)*self.pz
+        self.px = np.tan(thetax) * self.pz
 
     @property
     def yp(self):
@@ -122,7 +128,7 @@ class Beam():
 
     @yp.setter
     def yp(self, yp):
-        self.py = yp*self.pz
+        self.py = yp * self.pz
 
     @property
     def thetay(self):
@@ -130,7 +136,7 @@ class Beam():
 
     @thetay.setter
     def thetay(self, thetay):
-        self.py = np.tan(thetay)*self.pz
+        self.py = np.tan(thetay) * self.pz
 
 
     # Relativistic quantities:
@@ -198,12 +204,12 @@ class Beam():
     def Alpha(self, var):
 
         x = getattr(self, var)
-        x0 = mean(x, getattr(self, 'w'))
+        x0 = self.avg(var)
 
         p = getattr(self, f'{var}p')
-        p0 = mean(p, getattr(self, 'w'))
+        p0 = self.avg(f'{var}p')
 
-        xp = mean( (x-x0)*(p-p0), getattr(self, 'w'))
+        xp = mean( (x-x0)*(p-p0), self.w )
         eps = self.emitt(var,'geometric')
 
         return -xp/eps
@@ -220,10 +226,10 @@ class Beam():
         x = getattr(self, var)
 
         if(units == 'normalized'):
-            p = getattr(self, f'p{var}').to('GB')
+            p = getattr(self, f'p{var}').to('GB').magnitude
 
         elif(units == 'geometric'): 
-            p = getattr(self, f'{var}p')
+            p = getattr(self, f'{var}p').magnitude
 
         x0 = mean(x, getattr(self, 'w'))
         p0 = mean(p, getattr(self, 'w'))
