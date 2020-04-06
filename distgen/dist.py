@@ -1,31 +1,34 @@
 """
-Defines the random number generator class as well all distribution function objects.
+Defines the random number generator class and distribution function objects.
 """
 
 from .hammersley import create_hammersley_samples
-from .physical_constants import unit_registry, pi
+from .physical_constants import unit_registry
+from .physical_constants import pi
+
+from .tools import vprint
 
 from .tools import interp
 from .tools import linspace
-from .tools import radint
+from .tools import centers
+
 from .tools import trapz
 from .tools import cumtrapz
+from .tools import radint
 from .tools import radcumint
-from .tools import vprint
+
+
 from .tools import histogram
+from .tools import radial_histogram
+
 from .tools import erf
 from .tools import erfinv
 from .tools import gamma
-from .tools import radial_histogram
-from .tools import centers
-from .tools import read_2d_file
 
-from pint import Quantity
+from .tools import read_2d_file
 
 import numpy as np
 import numpy.matlib as mlib
-#import scipy
-import math
 
 from matplotlib import pyplot as plt
 
@@ -119,69 +122,70 @@ class Dist1d(Dist):
     the distribution allows analytic treatment.
     """
     
-    def __init__(self,xs,Px,xstr="x"):
+    def __init__(self, xs, Px, xstr="x"):
 
         self.xs = xs
         self.Px = Px
         self.xstr = xstr
-
-        norm = trapz(self.Px,self.xs)
+          
+        norm = np.trapz(self.Px, self.xs)
         if(norm<=0):
             raise ValueError('Normalization of PDF was <= 0')
 
         self.Px = self.Px/norm
-        self.Cx = cumtrapz(self.Px,self.xs,initial=0)
+        self.Cx = cumtrapz(self.Px, self.xs)
     
-    def get_x_pts(self,n):
+    def get_x_pts(self, n):
         """
         Returns a vector of x pts suitable for sampling the PDF Px(x)
         """
-        return linspace(self.xs[0],self.xs[-1],n)
+        return linspace(self.xs[0], self.xs[-1],n)
 
-    def pdf(self,x):
+    def pdf(self, x):
         """"
         Evaluates the pdf at the user supplied points in x
         """
-        return interp(x,self.xs,self.Px)
+        return interp(x, self.xs, self.Px)
  
-    def cdf(self,x):
+    def cdf(self, x):
         """"
         Evaluates the cdf at the user supplied points in x
-        """
-        return interp(x,self.xs,self.Cx)
+        """  
+        return interp(x, self.xs, self.Cx)
 
-    def cdfinv(self,rns):
+    def cdfinv(self, rns):
         """
         Evaluates the inverse of the cdf at probabilities rns
         """
         return interp(rns,self.Cx,self.xs)
 
-    def sample(self,N,sequence=None,params=None):
+    def sample(self, N, sequence=None, params=None):
         """
         Generate coordinates by sampling the underlying pdf
         """
         return self.cdfinv( random_generator((1,N),sequence,params)*unit_registry("dimensionless") )
 
-    def plot_pdf(self,n=1000):
+    def plot_pdf(self, n=1000):
         """
         Plots the associated pdf function sampled with n points
         """
         x=self.get_x_pts(n)
         p=self.pdf(x)
         plt.figure()
-        plt.plot(x,self.pdf(x))
-        plt.xlabel(self.xstr+" ({:~P}".format(x.units)+")")
-        plt.ylabel("PDF("+self.xstr+") ({:~P}".format(p.units)+")")
+        plt.plot(x, p)
+        plt.xlabel(f'{self.xstr} ({x.units:~P})')
+        plt.ylabel(f'PDF({self.xstr}) ({p.units:~P})')
 
-    def plot_cdf(self,n=1000):
+    def plot_cdf(self, n=1000):
         """ 
         Plots the associtated cdf function sampled with n points
         """
         x=self.get_x_pts(n)
+        P=self.cdf(x)
         plt.figure()
-        plt.plot(x,self.cdf(x))
-        plt.xlabel(self.xstr+" ({:~P}".format(x.units)+")")
-        plt.ylabel("CDF("+self.xstr+")")
+        plt.plot(x,P)
+        plt.xlabel(f'{self.xstr} ({x.units:~P})')
+        plt.ylabel(f'CDF({self.xstr}) ({P.units})')
         
     def avg(self):
         """
@@ -214,34 +218,26 @@ class Dist1d(Dist):
         x = self.get_x_pts(1000)
         pdf = self.pdf(x)
 
-        rho,edges = histogram(xs,bins=100)
-        xhist = (edges[1:] + edges[:-1]) / 2
-        rho = rho/np.trapz(rho,xhist)
+        rho, edges = histogram(xs, nbins=100)
+        xc = centers(edges)
+        rho = rho/np.trapz(rho,xc)
 
-        avgx = xs.mean()
-        avgx_str = "{:0.3f~P}".format(avgx)
-        stdx = xs.std()
-        stdx_str = "{:0.3f~P}".format(stdx)
+        savgx = xs.mean()
+        sstdx = xs.std()
 
         davgx = self.avg()
-        dstdx = self.std()
-        davgx_str = "{:0.3f~P}".format(davgx)
-        dstdx_str = "{:0.3f~P}".format(dstdx)       
+        dstdx = self.std()      
 
         plt.figure()
-        plt.plot(x, pdf, xhist, rho, 'or')
-        
-        if(isinstance(x,unit_registry.Quantity)):
-            plt.xlabel(self.xstr+" ({:~P}".format(x.units)+")")
-        else:
-            plt.xlabel(self.xstr)
-  
-        if(isinstance(x,unit_registry.Quantity)):
-            plt.ylabel("PDF("+self.xstr+") ({:~P}".format(pdf.units)+")")
-        else:
-            plt.ylabel("PDF("+self.xstr+")")
-        plt.title("Sample stats: <"+self.xstr+"> = "+avgx_str+", $\sigma_{x}$ = "+stdx_str+"\nDist. stats: <"+self.xstr+"> = "+davgx_str+", $\sigma_{x}$ = "+dstdx_str)
-        plt.legend(["PDF","Normalized Sampling"])    
+        plt.plot(x, pdf, xc, rho, 'or')
+        plt.xlabel(f'{self.xstr} ({x.units:~P})')   
+        plt.ylabel(f'PDF ({pdf.units:~P})')  
+
+        stat_line = f'Sample stats: <{self.xstr}> = {savgx:G~P}, '+'$\sigma_{'+str(self.xstr)+'}$'+f' = {sstdx:G~P}'
+        dist_line =  f'Dist. stats: <{self.xstr}> = {davgx:G~P}, '+'$\sigma_{'+str(self.xstr)+'}$'+f' = {dstdx:G~P}'  
+ 
+        plt.title(stat_line+'\n'+dist_line)
+        plt.legend(["PDF","Sampling"])    
 
 class Uniform(Dist1d):
 
@@ -300,8 +296,8 @@ class Uniform(Dist1d):
         Returns the CDF at the values of x [array w/units].  CDF is dimensionless
         """
         nonzero = (x >= self.xL) & (x <= self.xR)
-        res = np.zeros(len(x))
-        res[nonzero]=(x[nonzero]-self.xL)/(self.xR-self.xL)*unit_registry('dimensionless')
+        res = np.zeros(len(x))*unit_registry('dimensionless')
+        res[nonzero]=(x[nonzero]-self.xL)/(self.xR-self.xL)
        
         return res
 
@@ -407,7 +403,7 @@ class Norm(Dist1d):
         return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
 
     def canonical_pdf(self,csi):
-        return (1/np.sqrt(2*math.pi))*np.exp( -csi**2/2.0 ) 
+        return (1/np.sqrt(2*pi))*np.exp( -csi**2/2.0 ) 
 
     def pdf(self,x):        
         csi = (x-self.mu)/self.sigma
@@ -417,7 +413,7 @@ class Norm(Dist1d):
         return res
 
     def canonical_cdf(self,csi):
-        return 0.5*(1+erf(csi/math.sqrt(2) ) )
+        return 0.5*(1+erf(csi/np.sqrt(2) ) )
 
     def cdf(self,x):
         csi = (x-self.mu)/self.sigma
@@ -427,7 +423,7 @@ class Norm(Dist1d):
         return res
 
     def canonical_cdfinv(self,rns):
-        return math.sqrt(2)*erfinv((2*rns-1))
+        return np.sqrt(2)*erfinv((2*rns-1))
 
     def cdfinv(self,rns):
         scaled_rns = rns*self.Z + self.PA
@@ -525,10 +521,13 @@ class SuperGaussian(Dist1d):
     def cdf(self,x):
         xpts = self.get_x_pts(10000)
         pdfs = self.pdf(xpts)
-        cdfs = cumtrapz(self.pdf(xpts),xpts,initial=0)
+        cdfs = cumtrapz(self.pdf(xpts), xpts)
+
         cdfs = cdfs/cdfs[-1]
-        cdfs = interp(x,xpts,cdfs)
+
+        cdfs = interp(x, xpts, cdfs)
         cdfs = cdfs/cdfs[-1]
+        #print(x[0],cdfs[0])
         return cdfs
 
     def cdfinv(self,p):
@@ -749,16 +748,16 @@ class TemporalLaserPulseStacking(Dist1d):
         self.Pt = self.Pt/trapz(self.Pt,self.ts)
 
     def set_cdf(self):
-        self.Ct = cumtrapz(self.Pt,self.ts,initial=0)
+        self.Ct = cumtrapz(self.Pt, self.ts)
 
     def pdf(self,t):
-        return interp(t,self.ts,self.Pt)
+        return interp(t, self.ts, self.Pt)
 
     def cdf(self,t):
-        return interp(t,self.ts,self.Ct)
+        return interp(t, self.ts, self.Ct)
 
-    def cdfinv(self,rns):
-        return interp(rns*unit_registry(""),self.Ct,self.ts)
+    def cdfinv(self, rns):
+        return interp(rns*unit_registry(''),self.Ct,self.ts)
 
     def avg(self):
         return trapz(self.ts*self.Pt,self.ts)
@@ -813,7 +812,7 @@ class Tukey(Dist1d):
     def cdf(self,x):
         xpts = self.get_x_pts(10000)
         pdfs = self.pdf(xpts)
-        cdfs = cumtrapz(self.pdf(xpts),xpts,initial=0)
+        cdfs = cumtrapz(self.pdf(xpts), xpts)
         cdfs = cdfs/cdfs[-1]
         cdfs = interp(x,xpts,cdfs)
         cdfs = cdfs/cdfs[-1]
@@ -991,9 +990,8 @@ class DistRad(Dist):
         p = self.rho(r)
         P = self.pdf(r)
 
-        r_hist, r_edges = radial_histogram(rs.magnitude,nbins=500)    
-        r_bins = centers(r_edges)*r.units   
-        r_hist = r_hist*unit_registry(f'1/{r.units}/{r.units}')
+        r_hist, r_edges = radial_histogram(rs, nbins=500)    
+        r_bins = centers(r_edges)  
         r_hist = r_hist/radint(r_hist, r_bins)
 
         avgr = rs.mean()
@@ -1160,7 +1158,7 @@ class NormRad(DistRad):
         #vprint('underlying sigma_xy
 
     def canonical_rho(self,xi):
-        return (1/2.0/math.pi)*np.exp(-xi**2/2)
+        return (1.0/2.0/pi)*np.exp(-xi**2/2)
 
     def rho(self,r):
 
@@ -1187,7 +1185,7 @@ class NormRad(DistRad):
         return res
 
     def cdfinv(self,rns):
-        return np.sqrt( 2*self.sigma**2 * np.log(1/2/math.pi/( self.pL - self.dp*rns )) ) 
+        return np.sqrt( 2*self.sigma**2 * np.log(1/2/pi/( self.pL - self.dp*rns )) ) 
 
     def get_r_pts(self,n=1000):
         if(self.rR.magnitude==float('Inf')):
@@ -1209,7 +1207,7 @@ class NormRad(DistRad):
         else:
             xiRpR = xiR*self.pR
 
-        return self.sigma*( (xiL*self.pL - xiRpR) + (1.0/2.0/np.sqrt(2*math.pi))*(erfR-erfL) )/self.dp 
+        return self.sigma*( (xiL*self.pL - xiRpR) + (1.0/2.0/np.sqrt(2*pi))*(erfR-erfL) )/self.dp 
 
     def rms(self):
 
@@ -1301,7 +1299,7 @@ class TukeyRad(DistRad):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
         
-        cdfs,rbins = radcumint(pdfs,rpts,initial=0)
+        cdfs,rbins = radcumint(pdfs,rpts)
         cdfs = cdfs/cdfs[-1]
         cdfs = interp(r,rbins,cdfs)
         cdfs = cdfs/cdfs[-1]
@@ -1385,7 +1383,7 @@ class SuperGaussianRad(DistRad):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
         
-        cdfs,rbins = radcumint(pdfs,rpts,initial=0)
+        cdfs,rbins = radcumint(pdfs,rpts)
         cdfs = cdfs/cdfs[-1]
         cdfs = interp(r,rbins,cdfs)
         cdfs = cdfs/cdfs[-1]
@@ -1509,13 +1507,7 @@ class Dist2d(Dist):
         return (x,y)
 
     def test_sampling(self):
-        x,y = self.sample(100000,sequence="hammersley")
-        #plt.plot(x,y,'*')
-        #plt.figure()
-        #xhist,xedges=np.histogram(x,bins=100)
-        #xhistx = (xedges[1:]+xedges[:-1])/2.0
-        #plt.plot(xhistx,xhist)
- 
+        x,y = self.sample(100000,sequence="hammersley") 
         plt.figure()
         plt.plot(x,y,'*')
 
@@ -1530,50 +1522,6 @@ class File2d(Dist2d):
         
         xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
         super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
-
-#def test():
-
-    #tukey = Tukey1D('x')#,'sigma_x'=1*unit_registry('mm'),'tukey_window_ratio'=0*unit_registry('dimensionless'))
-    #tukwy.test_sampling()
-
-    #udist = uniform(-2*unit_registry("m"),1*unit_registry("m"))
-    #udist.test_sampling()
-
-    #ndist = norm(-2*unit_registry("mm"),3*unit_registry("mm"))
-    #ndist.test_sampling()
-
-    #urad = uniformrad(1*unit_registry("mm"),2*unit_registry("mm"))
-    #urad.test_sampling()
-
-    #nrad = normrad(3*unit_registry("mm"))
-    #nrad.test_sampling()
-
-    #tnrad = normrad_trunc(1*unit_registry("mm"),0.5*unit_registry("dimensionless"))
-    #tnrad.test_sampling()
-
-    #lengths = 1.887*np.array([8,4,2,1])*unit_registry("mm")
-    #angles = [0.6,1.8,-0.9,-0.5]*unit_registry("deg")
-
-    #cdist = temporal_laser_pulse_stacking(lengths,angles,verbose=1)
-    #cdist.test_sampling()
-
-    #fdist = file1d("cutgauss.1d.txt",xstr="x")
-    #fdist.test_sampling()
-   
-    #rfile = radfile("cutgauss.rad.txt",units="mm")
-    #rfile.test_sampling()
-
-    #f2d = file2d('checker.test.dist.txt')
-    #f2d = file2d('laser.prof.example.txt')
-    #f2d.plot_cdfys()
-    #f2d.plot_pdfx()
-    #f2d.plot_cdfx()
-    #f2d.test_sampling()
-    #f2d.plot_pdf()
-    #x,y=f2d.sample(100000,sequence="hammersley")
-    #plt.plot(x,y,'*')
-
-    #plt.show()
 
     
 # ---------------------------------------------------------------------------- 

@@ -1,10 +1,11 @@
+from pint import Quantity
 from .physical_constants import unit_registry 
+
 import time
 import numpy as np
-from scipy.integrate import cumtrapz as scipy_cumtrapz 
-from scipy.special import erf as sci_erf
-from scipy.special import erfinv as sci_erfinv
-from scipy.special import gamma as sci_gamma
+import scipy.integrate 
+import scipy.special
+
 import json
 from hashlib import blake2b
 import datetime
@@ -53,6 +54,7 @@ def is_floatable(value):
 
 def is_unit_str(ustr):
 
+   """Check if a string defines a unit"""
    ustr = ustr.strip()
    if(len(ustr)>=2 and ustr[0]=="[" and ustr[-1]=="]"):
        return True
@@ -61,6 +63,7 @@ def is_unit_str(ustr):
 
 def get_unit_str(ustr):
 
+    """Parse a string that defines a unit"""
     if(is_unit_str(ustr)):
         return ustr[1:-1]
     else:
@@ -68,6 +71,9 @@ def get_unit_str(ustr):
 
 class StopWatch():
 
+    """
+    Defines an object that can be used to time sections of code
+    """
     ureg = unit_registry
 
     def __init__(self):
@@ -76,54 +82,62 @@ class StopWatch():
        self.tstop = time.time() * self.ureg.second
 
     def start(self):
+        """ Starts the stop watch """
         self.tstart = time.time() * self.ureg.second
 
     def stop(self):
+        """ Stops the stop watch """
         self.tstop = time.time() * self.ureg.second
 
     def print(self):
+        """ Output time ellapsed on stop watch """
         dt = self.tstop - self.tstart
-        return "{0:.2f}".format(dt.to_compact())
+        return f'{dt.to_compact():G~P}'
 
-# statistical operations:
-def mean(x,weights=None):
 
+#--------------------------------------------------------------
+# Statistical operations:
+#--------------------------------------------------------------
+def mean(x, weights=None):
+    """ Wraps numpy.mean"""
     if(weights is None):
         return np.mean(x)
     else:
         return np.sum(x*weights)
 
-def std(x,weights=None):
-
+def std(x, weights=None):
+    """Wraps numpy.std"""
     if(weights is None):
         return np.std(x)
     else:
         return np.sqrt(np.sum( weights*(x-mean(x,weights))**2 ) )
-    
+   
+ 
+#--------------------------------------------------------------
 # Numerical integration routines
-def trapz(f,q):
-
-    """ Wraps the numpy trapz function for arrays carrying units. Numerically integrates f=f(q) using trapezoid method.
-    Inputs: quantity arrays q, f(q).
-    Returns: integral( f(q) dq) as a float with units [result] = [f][q]
+#--------------------------------------------------------------
+@unit_registry.wraps('=A*B', ('=A', '=B'))
+def trapz(f, x):
+    """ 
+    Numerically integrates f(x) using trapezoid method.
     """
-    uqstr = str(q.units)
-    ufstr = str(f.units)
-    return np.trapz(f.magnitude,q.magnitude)*unit_registry.parse_expression(uqstr+"*"+ufstr)
+    return np.trapz(f, x)
 
-def cumtrapz(f,q,initial=None):
-    
-    """ Wraps the scipy cumtrapz function for arrays carrying units. Numerically integrates f=f(q) using trapezoid method.
-    Inputs: quantity arrays q, f(q), initial value for cumulative array
-    Returns: cumulative integral( f(q) dq) as an array with units [result] = [f][q]
+
+@unit_registry.wraps('=A*B', ('=B', '=A'))
+def cumtrapz(f, x):
     """
-    uqstr = str(q.units)
-    ufstr = str(f.units)
+    Numerically integrates f(x) using trapezoid method cummulatively
+    """
+    return scipy.integrate.cumtrapz(f, x, initial=0)
 
-    return scipy_cumtrapz(f.magnitude,q.magnitude,initial=initial)*unit_registry.parse_expression(uqstr+"*"+ufstr)
 
+@unit_registry.wraps('=A*A*B', ('=B', '=A'))
 def rectint(f,x):
  
+    """
+    Computes integral[ f(x) dx ] ~ sum[ (x(i+1) - x(i))*f(i) ]
+    """
     uxstr = str(x.units)
     ufstr = str(f.units)    
 
@@ -139,94 +153,122 @@ def rectint(f,x):
     xb = xb*unit_registry(str(uxstr))
     return np.sum( (xb[1:]-xb[:-1])*f )
 
-def cumrectint(f,x,initial):
 
-    uxstr = str(x.units)
-    ufstr = str(f.units)    
-
+@unit_registry.wraps('=A*A*B', ('=B', '=A'))
+def cumrectint(f,x):  
+    """
+    Computes cummulative integral[ f(x) dx ] ~ sum[ (x(i+1) - x(i))*f(i) ]
+    """
     xb = np.zeros(len(x)+1)
-    xb[1:-1] = (x[1:]+x[:-1])/2.0
+    xb[1:-1] = centers(x)
 
-    dxL = xb[1]-x[0]
-    dxR = xb[-2]-x[-1]
-
-    xb[0] = x[0]-dxL
-    xb[-1]= x[-1]+dxR
+    dxL = xb[1]-x[0];    dxR = xb[-2]-x[-1]
+    xb[0] = x[0]-dxL;    xb[-1]= x[-1]+dxR
 
     crint = np.zeros(len(xb))
     crint[1:] = np.cumsum((xb[1:]-xb[:-1])*f)
     return crint
 
-def interp(x,xs,fs):
-    """
-    Wraps the numpy interp function for arrays carrying units. 
-    Inputs: quantity arrays xs, f(xs) and points to interpolate f at.
-    Returns: f(x), based on interpolation of xs,fs
-    """
-    x.ito(xs.units)
-    return np.interp(x.magnitude,xs.magnitude,fs.magnitude)*unit_registry(str(fs.units))
 
-def linspace(x1,x2,N):
-    return np.linspace(x1.to(x2.units).magnitude, x2.magnitude, N)*unit_registry(str(x2.units))
-
+@unit_registry.wraps('=A*A*B', ('=B', '=A'))
 def radint(f, r):
-
     """
-    Computes the integral[r*f(r) dr]
+    Computes the integral[r*f(r) dr] ~ sum[ 0.5( r(i+1)^2 - r(i)^2 )*f(r(i)) ]
     """
-
     r_bins = centers(r)
-    rs = np.zeros( (len(r_bins)+2,) )*r.units
+    rs = np.zeros( (len(r_bins)+2,) )
     rs[1:-1] = r_bins
     rs[0] = r[0]; rs[-1] = r[-1]
 
     return np.sum( 0.5*(rs[1:]**2 - rs[:-1]**2)*f )
 
-def radcumintOLD(f, r, initial=None):
+
+@unit_registry.wraps(('=A*A*B','=A'), ('=B','=A'))
+def radcumint(f, r):
     """
     Defines cumulative radial integration with the rdr jacobian
     Inputs: r, f(r) with units, returns int( f(r) * r dr)_0^r
     """
-    urstr = str(r.units)
-    ufstr = str(f.units)
-    rbins = ((r.magnitude)[:-1]+(r.magnitude)[1:])/2.0  
-    rbins = np.insert(rbins,0,(r.magnitude)[0])
-    rbins = np.append(rbins,(r.magnitude)[-1])    
-
-    rcint = np.zeros(len(rbins))
-    rcint[1:] = np.cumsum(0.5*(rbins[1:]**2-rbins[:-1]**2)*f.magnitude)
-
-    return (rcint*unit_registry(urstr+"*"+urstr+"*"+ufstr),rbins*unit_registry(urstr))
-
-def radcumint(f, r, initial=None):
-    """
-    Defines cumulative radial integration with the rdr jacobian
-    Inputs: r, f(r) with units, returns int( f(r) * r dr)_0^r
-    """
-    
     r_bins = centers(r)
-    rs = np.zeros( (len(r_bins)+2,) )*r.units
+    rs = np.zeros( (len(r_bins)+2,) )
     rs[1:-1] = r_bins
     rs[0]  = r[0]
     rs[-1] = r[-1] 
 
-    rcint = np.zeros(len(rs))*r.units*r.units*f.units
+    rcint = np.zeros(len(rs))
     rcint[1:] = np.cumsum(0.5*(rs[1:]**2-rs[:-1]**2)*f)
 
     return (rcint,rs)
 
 
-def histogram(x, range=None, w = None, bins=100):
-    if(range):
-        range = [range[0].magnitude, range[1].magnitude]
-    hist,edges = np.histogram(x.magnitude, range=range, bins=bins, weights=w)
-    return (hist,edges)
+#--------------------------------------------------------------
+# Interpolation routines
+#--------------------------------------------------------------
+@unit_registry.wraps('=B', ('=A','=A','=B'))
+def interp(x, xp, fp):
+    """
+    1d interpolation of [xp,f(xp)] @ x
+    """
+    return np.interp(x, xp, fp)
 
-def radial_histogram(r, weights=None, nbins=100):
 
+@unit_registry.wraps('=A', ('=A', '=A', None))
+def linspace(x1, x2, N):
+    """
+    Returns array of N values on interval [x1, x2]
+    """
+    return np.linspace(x1, x2, N)
+
+
+def centers(x):
+    """
+    Compute the center points in array x
+    """
+    return (x[1:] + x[:-1]) / 2
+
+
+def nearest_neighbor(array, values):
+    """
+    find the nearest neighbor index in array for each value in values
+    """
+    array = array.magnitude
+    values = values.magnitude
+    return np.abs(np.subtract.outer(array, values)).argmin(0)
+
+
+#--------------------------------------------------------------
+# Histogramming routines
+#--------------------------------------------------------------
+def weights(func):
+
+    """
+    Wrapper function to default the weight variable to histogram functions
+    """
+    def wrapper(*args, **kwargs):
+        
+        if('weights' not in kwargs or kwargs['weights'] is None):
+            kwargs['weights'] = np.full(args[0].shape, 1/len(args[0]) )
+
+        return func(*args, **kwargs)
+
+    return wrapper 
+
+
+@weights
+@unit_registry.wraps( ('', '=A'), ('=A', '=B', None))
+def histogram(x, weights=None, nbins=100):
+    """"Wraps the numpy histogram function to include units"""
+    return np.histogram(x, weights=weights, bins=nbins)
+
+
+@weights
+@unit_registry.wraps( ('', '=A'), ('=A', '=B', None))
+def radial_histogram(r, weights=None, nbins=1000):
+
+    """ Performs histogramming of the varibale r using non-equally space bins """
     r2 = r*r
-    dr2 = max(r2)/(nbins-2);
-    r2_edges = np.linspace(0, max(r2) + 0.5*dr2, nbins);
+    dr2 = (max(r2)-min(r2))/(nbins-2);
+    r2_edges = np.linspace(min(r2), max(r2) + 0.5*dr2, nbins);
     dr2 = r2_edges[1]-r2_edges[0]
     edges = np.sqrt(r2_edges)
     
@@ -234,32 +276,38 @@ def radial_histogram(r, weights=None, nbins=100):
     minlength = r2_edges.size-1
     hist = np.bincount(which_bins, weights=weights, minlength=minlength)/(np.pi*dr2)
 
-    return (hist,edges)
+    return (hist, edges)
 
-def centers(x):
-    return (x[1:] + x[:-1]) / 2
 
+#--------------------------------------------------------------
+# Special Scipy functions
+#--------------------------------------------------------------
+@unit_registry.check('[]')
 def erf(x):
-    return sci_erf(x.magnitude)*unit_registry('dimensionless')
+    return scipy.special.erf(x.magnitude)*unit_registry('dimensionless')
 
+@unit_registry.check('[]')
 def erfinv(x):
-    return sci_erfinv(x.magnitude)*unit_registry('dimensionless')
+    return scipy.special.erfinv(x.magnitude)*unit_registry('dimensionless')
 
+@unit_registry.check('[]')
 def gamma(x):
-    return sci_gamma(x.magnitude)*unit_registry('dimensionless')
-
-def cos(theta):
-    return np.cos( (theta.to('rad')).magnitude )*unit_registry('dimensionless')
-
-def sin(theta):
-    theta = theta.to('rad')
-    print(theta)
-    return np.sin( (theta.to('rad')).magnitude )*unit_registry('dimensionless')
+    return scipy.special.gamma(x.magnitude)*unit_registry('dimensionless')
 
 
+# Misc
+def zeros(shape, units):
+    """ Wraps numpy.zeros for use with units """
+    return np.zeros(shape)*units
+
+
+
+#--------------------------------------------------------------
 # File reading
-
+#--------------------------------------------------------------
 def read_2d_file(filename):
+
+    """ Reads in a 2D image file """
 
     xs=0
     ys=0
@@ -287,17 +335,10 @@ def read_2d_file(filename):
 
     return (xs,ys,Pxy,xstr,ystr)
 
-def nearest_neighbor(array,values):
-    """
-    find the nearest neighbor index in array for each value in values
-    """
-    array = array.magnitude
-    values = values.magnitude
-    return np.abs(np.subtract.outer(array, values)).argmin(0)
 
-
-
-
+#--------------------------------------------------------------
+# Nested Dict Functions
+#--------------------------------------------------------------
 def flatten_dict(dd, sep=':', prefix=''):
     """
     Flattens a nested dict into a single dict, with keys concatenated with sep.
@@ -352,13 +393,6 @@ def update_nested_dict(d, settings, verbose=False):
     new_dict = unflatten_dict(flat_params)
     
     return new_dict
-
-
-
-
-
-
-
 
 
 def set_nested_dict(dd, flatkey, val, sep=':', prefix=''):
@@ -417,19 +451,19 @@ def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
 #            convert_params(v)
 
 def is_quantity(d):
-
+    """ Checks if a dict can be converted to a quantity with units """
     if(isinstance(d,dict) and len(d.keys())==2 and "value" in d and "units" in d):
         return True
     else:
         return False
 
 def dict_to_quantity(qd):
-
+    """ Converts a dict to quantity with units """
     assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
     return float(qd['value'])*unit_registry(qd['units'])
         
 def convert_list_params(d):
-
+    """ Converts elements in a list to quantities with units where appropriate """
     for ii,v in enumerate(d):
         if(is_quantity(v)):
             d[ii]=dict_to_quantity(v)
@@ -437,7 +471,7 @@ def convert_list_params(d):
             convert_params(v)
 
 def convert_params(d): 
-
+    """ Converts a nested dictionary to quantities with units where appropriate """
     for k, v in d.items():
         if(is_quantity(v)):
             d[k]=dict_to_quantity(v)

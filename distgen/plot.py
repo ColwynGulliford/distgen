@@ -11,146 +11,115 @@ from .tools import radint
 from .tools import linspace
 from .tools import mean
 from .tools import centers
+from .tools import zeros
 
 LABELS = {'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}','thetax':'\\theta_x'}
 
-def plot_beam(beam,units={"x":"mm","y":"mm","z":"mm","px":"eV/c","py":"eV/c","pz":"eV/c","t":"ps","q":"pC"}):
+def get_scale(beam, scale):
 
-    # X-Y
-    plt.figure(1)
-    nbins = np.sqrt(len(beam["x"]))/3
-    scat = scatter_hist2d(beam["x"].to(units["x"]).magnitude, beam["y"].to(units["y"]).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
+    """
+    Maps a scale factor name to the underlying beam quantity
+    """
+    if(scale=='charge'):
+        return beam.q
 
-    stdx = beam["x"].std().to(units["x"])
-    stdy = beam["y"].std().to(units["y"])
+    elif(scale=='number'):
+        return beam['n']
 
-    stdx_str = "{:0.3f~P}".format(stdx)
-    stdy_str = "{:0.3f~P}".format(stdy)
-
-    if(stdx==0):
-        plt.xlim([-1,1])
-    if(stdy==0):
-        plt.ylim([-1,1])
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("$x$ ("+units["x"]+")");
-    plt.ylabel("$y$ ("+units["x"]+")");
-    plt.title('Laser Spot: $\sigma_x$ = '+stdx_str+", $\sigma_y$ = "+stdy_str)
-
-    # X-PX
-    plt.figure(2)
-    scat = scatter_hist2d(beam["x"].to(units["x"]).magnitude, beam["px"].to(units["px"]).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
-
-    stdx = beam["x"].std().to(units["x"])
-    stdpx = beam["px"].std().to(units["px"])
-
-    stdx_str = "{:0.3f~P}".format(stdx)
-    stdy_str = "{:0.3f~P}".format(stdpx)
-
-    if(stdx==0):
-        plt.xlim([-1,1])
-    if(stdy==0):
-        plt.ylim([-1,1])
-    #plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("$x$ ("+units["x"]+")");
-    plt.ylabel("$p_x$ ("+units["px"]+")");
-    plt.title('$\sigma_x$ = '+stdx_str+", $\sigma_{p_x}$ = "+stdy_str)
-
-    plot_2d(beam, 10, "x", units["x"], "y", units["y"], ptype="kde") 
-
-    # Y-PY
-    plt.figure(3)
-    scat = scatter_hist2d(beam["y"].to(units["y"]).magnitude, beam["py"].to(units["py"]).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'))
-
-    stdx = beam["y"].std().to(units["y"])
-    stdpx = beam["py"].std().to(units["py"])
-
-    stdx_str = "{:0.3f~P}".format(stdx)
-    stdy_str = "{:0.3f~P}".format(stdpx)
-
-    if(stdx==0):
-        plt.xlim([-1,1])
-    if(stdy==0):
-        plt.ylim([-1,1])
-    #plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("$y$ ("+units["y"]+")");
-    plt.ylabel("$p_y$ ("+units["py"]+")");
-    plt.title('$\sigma_y$ = '+stdx_str+", $\sigma_{p_y}$ = "+stdy_str)
-
-    # T
-    thist,tedges = np.histogram(beam["t"].to(units["t"]),bins=100)
-    qb = beam.q.to(units["q"])
-    ts = (tedges[1:] + tedges[:-1]) / 2
-    I0 = qb/(1*unit_registry(units["t"]))
-    I0 = I0.to_compact()
-    rhot = I0*thist/np.trapz(thist,ts)
-
-    stdt = beam["t"].std().to(units["t"])
-    stdt_str = "{:0.3f~P}".format(stdt)
-    plt.figure(4)
-    plt.xlabel("t ("+units["t"]+")")
-    plt.ylabel("t ("+units["t"]+")")
-    plt.plot(ts,rhot)
-    plt.ylabel("I(t) ("+str(rhot.units)+")")
-    plt.title('Laser Temporal Profile: $\sigma_t$ = '+stdt_str)
-    plt.show()
-
-
-def plot_hist_1d_data(x_edges, y, ax=None):
-
-    y_plt = np.empty((y.size*2,), dtype=y.dtype)
-    x_edges_plt = np.empty((y.size*2,), dtype=y.dtype)
-    y_plt[0::2] = y
-    y_plt[1::2] = y
-    x_edges_plt[0::2] = x_edges[:-1]
-    x_edges_plt[1::2] = x_edges[1:]
-
-    if(ax is None):
-       ax = plt.gca()
-    
-    ax.plot(x_edges_plt,y_plt)
-
-    return ax
-
-
-def plot_1d(beam, var, units, ax=None, **params):
-    
-    if('nbins' in params):
-        bins = params['nbins']
     else:
-        bins = 10
-  
-    v = beam[var].to(units)
+        raise ValueError('Could not get scale factor for plot.')
+   
 
-    thist, tedges = np.histogram( v.magnitude, bins=bins)
-    ts = centers(tedges)
-    rhot = thist/np.trapz(thist,ts)
+def hist_to_pdf(hist, edges, scale=1.0, is_radial=False):
+
+    """
+    Function that prepares 1d or radial histogram data for plotting as a pdf or radial distribution
+    inputs: hist: histogram values [array], 
+            edges: histogram bin edges [array]
+            sytle: flag for plotting style [string] in {'hist', 'smooth'}
+    """
+    xc = centers(edges)
+
+    if(is_radial):  # normalize the distribution
+        norm = radint(hist,xc)
+    else:
+        norm = trapz(hist, xc)      
+
+    hist = scale*hist/norm
+
+    if(is_radial):  # integrate the distribution to get back scale 
+        final_scale = radint(hist,xc)
+    else:
+        final_scale = trapz(hist, xc)
+
+    rho = zeros((hist.size*2,), hist.units)
+    x = zeros((hist.size*2,), edges.units)
+        
+    rho[0::2] = hist
+    rho[1::2] = hist
+    x[0::2] = edges[:-1]
+    x[1::2] = edges[1:]
+
+    if(not is_radial):
+        rho = np.insert(rho, 0, 0*hist.units)
+        x = np.insert(x, 0, edges[0])
+
+    rho = np.append(rho, 0*hist.units)
+    x = np.append(x, edges[-1])
+
+    return (rho, x, final_scale)
+
+
+def plot_dist1d(beam, var, units, scale='charge', dist_units=None, ax=None, **params):
+
+    """
+    Plot a 1d distrbution by histogramming beam particle coordinates 'var'
+    """
+    if('nbins' in params):
+        nbins = params['nbins']
+    else:
+        nbins = int(np.sqrt(len(beam[var])))
+
+    scale_factor = get_scale(beam, scale)
+
+    if('title_on' in params):
+        title_on = params['title_on']
+    else:
+        title_on = False
+ 
+    hist_x, x_edges = histogram(beam[var].to(units), weights=beam['w'], nbins=nbins)
+    (rho_x, x, total_scale) = hist_to_pdf(hist_x, x_edges, scale=scale_factor)
     
-    tst = np.zeros(len(ts)+2)
-    tst[1:-1]=ts
-    tst[0]=ts[0]; tst[-1]=ts[-1]
+    if(dist_units):
+        rho_x.ito(dist_units)
+
+    avgt = beam.avg(var, units)
+    stdt = beam.std(var, units)
     
-    rhott = np.zeros(len(ts)+2)
-    rhott[1:-1]=rhot
-    rhott[0]=0; rhott[-1]=0
-    
-    avgt = np.mean( v )
-    stdt = np.std(  v )
-    
-    avgt_str = f'{avgt:~P}'
-    stdt_str = f'{stdt:~P}'
+    label = LABELS[var]
 
     if(ax is None):
         ax = plt.gca()
 
-    p = 0*unit_registry(f'1/{avgt.units:~P}')
-
-    ax.set_title(f'$<{var}>$ = {avgt:G~P}, '+'$\sigma_{'+var+'}$ = '+f'{stdt:G~P}, q_b = {beam.q:G~P}')
+    ax.plot(x, rho_x)
     ax.set_xlabel(f'{var} ({units})')
-    ax.set_ylabel(f'Charge density (1/{avgt.units:~P})')
-    ax.plot(tst,rhott)
-    
-def plot_radial_1d(beam, r_units, ax=None, **params):
-        
+    ax.set_ylabel(f'{scale} density ({rho_x.units:~P})')
+
+    if(title_on):
+        ax.set_title('$<'+label+'>$ = '+f'{avgt:G~P}, '+'$\sigma_{'+label+'}$ = '+f'{stdt:G~P}, total {scale} = {total_scale:G~P}')
+
+
+def plot_current_profile(beam, t_units, current_units, ax=None, **params):
+    """
+    Plots the 1D histogram of the time coordinate
+    """
+    return plot_dist1d(beam, 't', t_units, scale='charge', dist_units=current_units, ax=ax, **params)
+
+
+def plot_radial_dist(beam, r_units, scale='charge', dist_units=None, ax=None, **params):
+    """
+    Plots the 1D histogram of the radial coordinate r
+    """
     if(ax is None):
         ax = plt.gca()
 
@@ -158,74 +127,41 @@ def plot_radial_1d(beam, r_units, ax=None, **params):
         nbins = params['nbins']
     else:
         nbins = 50
- 
-    if('q_units' in params):
-        q  = beam.q.to(params['q_units'])
-    else:
-        q = beam.q
-        
-    w = q*beam['w']
+    
+    scale_factor = get_scale(beam, scale)
 
-    r = beam['r'].to(r_units)
+    r_hist, r_edges = radial_histogram(beam['r'].to(r_units), weights=beam['w'], nbins=nbins)
+    (rho, r, scale_factor) = hist_to_pdf(r_hist, r_edges, scale=scale_factor, is_radial=True)
 
-    r_hist, r_edges = radial_histogram(r.magnitude, weights=w.magnitude, nbins=nbins)
-    r_bins =  centers(r_edges)*r.units
-    r_hist = r_hist*unit_registry(f'1/{r_units}^2')
-    r_hist = q*r_hist/radint(r_hist, r_bins)
-
-    qb = radint(r_hist, r_bins)
-
-    if('style' in params):
-        style = params['style']
-    else:
-        style = 'dist'
-
-
-    if(style=='hist'):
-        ax = plot_hist_1d_data(r_edges, r_hist, ax)
-
-    elif(style=='dist'):
-
-        rs = np.zeros((len(r_bins)+2,))*r_bins.units
-        Pr = np.zeros((len(r_bins)+2,))*r_hist.units
-
-        rs[1:-1] = r_bins   
-        rs[0] = r_edges[0]*r_bins.units  
-        rs[-1] = r_edges[-1]*r_bins.units
-
-        Pr[1:-1] = r_hist; 
-        Pr[0] = interp(0*r_bins.units, r_bins, r_hist); 
-        Pr[-1] = 0*Pr.units
-
-        ax.plot(rs,Pr)
-
+    ax.plot(r, rho)
     ax.set_xlabel(f'${LABELS["r"]}$ ({r.units:G~P})')
-    ax.set_ylabel(f'Charge Density ({r_hist.units:G~P})')
+    ax.set_ylabel(f'{scale} density ({rho.units:G~P})')
 
     ax.set_xlim([0, ax.get_xlim()[1]])
     ax.set_ylim([0, ax.get_ylim()[1]])
     
     if('title_on' in params and params['title_on']):
-        avgr = mean(r, beam['w'])
-        rmsr = np.sqrt( mean(r*r, beam['w']) )
-        ax.set_title(f'$<{LABELS["r"]}>$ = {avgr:G~P}, '+'$r_{rms}$'+f' = {rmsr:G~P}, $q_b$ = {qb:G~P}')
+        avgr = mean(beam['r'], beam['w'])
+        rmsr = np.sqrt( mean(beam['r']*beam['r'], beam['w']) )
+        ax.set_title(f'$<{LABELS["r"]}>$ = {avgr:G~P}, '+'$r_{rms}$'+f' = {rmsr:G~P}, total {scale} = {scale_factor:G~P}')
 
     return ax
+
+
+def plot_dist2d(beam, var1, units1, var2, units2, style='scatter_hist2d', ax=None, Nfig=None,  **params):
     
-
-def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
-
-    labels = LABELS
-
-    #plt.figure(Nfig)
-    
-    if(ptype=="scatter"):
+    """
+    Plot a 2d distribution by histogramming particle coordinates var1 and var2
+    """
+    if(style=="scatter"):
         fig,ax =plt.plot(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude,'*')
-    if(ptype=="scatter_hist2d"):
+
+    if(style=="scatter_hist2d"):
         if("nbins" in params):
             nbins=params["nbins"]
         else:
-            nbins=10
+            nbins=int(np.sqrt(len(beam[var1]))/3)
+
         scatter_hist2d(beam[var1].to(units1).magnitude,beam[var2].to(units2).magnitude, bins=[nbins,nbins], s=5, cmap=plt.get_cmap('jet'),ax=ax)
         
     if(ax is None):
@@ -236,62 +172,24 @@ def plot_2d(beam, Nfig, var1, units1, var2, units2, ptype, ax=None, **params):
     
     avgx = beam[var1].mean().to(units1)
     avgy = beam[var2].mean().to(units2)
-    avgx_str = "{:0.3f~P}".format(avgx)
-    avgy_str = "{:0.3f~P}".format(avgy)
 
     stdx = beam[var1].std().to(units1)
     stdy = beam[var2].std().to(units2)
 
-    stdx_str = f'{stdx:G~P}'
-    stdy_str = f'{stdy:G~P}'
-
-    ax.set_xlabel(f'${labels[var1]}$ ({stdx_str.split()[1]})')
-    ax.set_ylabel(f'${labels[var2]}$ ({stdy_str.split()[1]})')
+    ax.set_xlabel(f'${LABELS[var1]}$ ({stdx.units:~P})')
+    ax.set_ylabel(f'${LABELS[var2]}$ ({stdy.units:~P})')
 
     if(stdx==0):
         plt.xlim([-1,1])
     if(stdy==0):
         plt.ylim([-1,1])
-
+  
     if('title_on' in params and params['title_on']):
-        ax.set_title(f'$<{labels[var1]}>$ = {avgx:G~P}, $<{labels[var2]}>$ = {avgy:G~P}\n$\sigma_{labels[var1]}$ = '+stdx_str+', $\sigma_{'+labels[var2]+'}$ = '+stdy_str)
-    #plt.title('$\sigma_{'+var1+'}$ = '+stdx_str+', $\sigma_{'+var2+'}$ = '+stdy_str)
-    
+        line1 = f'$<{LABELS[var1]}>$ = {avgx:G~P}, '+'$\sigma_{'+LABELS[var1]+'}$ = '+f'{stdx:G~P}'
+        line2 = f'$<{LABELS[var2]}>$ = {avgy:G~P}, '+'$\sigma_{'+LABELS[var2]+'}$ = '+f'{stdy:G~P}'
+        ax.set_title(line1+'\n'+line2)
     return ax
-        
-def plot_current_profile(beam, Nfig, units={'t':'ps', 'q':'pC', 'I':'A'}, nbins=100, ax=None, title_on=False):
-    
-    if(ax is None):
-        plt.figure(Nfig)
-        ax = plt.gca()
 
-    thist, tedges = histogram(beam["t"].to(units["t"]),bins=nbins)
-    qb = beam.q.to(units["q"])
-    ts = (tedges[1:] + tedges[:-1]) / 2
-    I0 = qb/(1*unit_registry(units["t"]))
-    I0 = I0.to(units['I'])
-    rhot = I0*thist/np.trapz(thist,ts)
-
-    tst = np.zeros(len(ts)+2)
-    tst[1:-1]=ts
-    tst[0]=ts[0]; tst[-1]=ts[-1]
-    
-    rhott = np.zeros(len(ts)+2)
-    rhott[1:-1]=rhot.magnitude
-    rhott[0]=0; rhott[-1]=0
-    
-    avgt = beam.avg('t').to(units['t'])
-    stdt = beam.std('t').to(units['t'])
-    
-    q = trapz(rhot,ts*unit_registry(units['t'])).to(units['q'])
-
-    ax.set_xlabel(f't ({avgt.units:G~P})')
-    ax.set_ylabel(f'I(t) ({units["I"]})')
-    ax.plot(tst, rhott)
-    ax.set_ylim([0, ax.get_ylim()[1]])
-
-    if(title_on):
-        ax.set_title(f'<t> = {avgt:G~P}, $\sigma_t$ = {stdt:G~P}, $q_b$ = {q:G~P}')
 
 def map_hist(x, y, h, bins):
     xi = np.digitize(x, bins[0]) - 1
