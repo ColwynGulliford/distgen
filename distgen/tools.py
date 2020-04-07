@@ -412,6 +412,9 @@ def update_nested_dict(d, settings, verbose=False, create_new=True):
 
         elif(verbose and create_new):
             print(f'New param {key} with value {value}')
+
+        elif(verbose): 
+            print(f'Skipping param {key}')
         
     new_dict = unflatten_dict(flat_params)
     
