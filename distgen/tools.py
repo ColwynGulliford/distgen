@@ -410,7 +410,7 @@ def update_nested_dict(d, settings, verbose=False, create_new=True):
             elif(create_new):
                 print(f'New param {key} with value {value}')
 
-        if(create_new) 
+        if(create_new): 
             flat_params[key] = value
         
     new_dict = unflatten_dict(flat_params)
