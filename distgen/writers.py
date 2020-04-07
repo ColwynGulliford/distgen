@@ -23,16 +23,16 @@ def writer(output_format,beam,outfile,verbose=0,params=None):
     file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
     file_writer[output_format](beam,outfile,verbose,params)
 
-def asci2gdf(gdf_file, txt_file, asci2gdf_bin,remove_txt_file=True):
+def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
 
     """Convert an ASCII GPT file to GDF format"""
 
     if(gdf_file == txt_file):
-        os.rename(txt_file, f'txt_file.{tmp}')
-        txt_file = f'txt_file.{tmp}'
+        os.rename(txt_file, f'txt_file.tmp')
+        txt_file = f'txt_file.tmp'
 
-    result = os.system(f'asci2gdf_bin -o {gdf_file} {txt_file}')
-
+    result = os.system(f'{asci2gdf_bin} -o {gdf_file} {txt_file}')
+  
     if(remove_txt_file):
         os.system(f'rm {txt_file}')
 
@@ -87,9 +87,8 @@ def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):
         else:
                 gdffile = outfile+".gdf"
 
-
-        np.savetxt(outfile,data,header=header,comments='')
-
+        np.savetxt(outfile ,data, header=header ,comments='')
+   
         if(asci2gdf_bin):
             gdfwatch = StopWatch()
             gdfwatch.start()
