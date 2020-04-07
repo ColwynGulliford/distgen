@@ -403,15 +403,15 @@ def update_nested_dict(d, settings, verbose=False, create_new=True):
     flat_params = flatten_dict(d)
 
     for key, value in settings.items():
-        if verbose:
-            if key in flat_params:
-                print(f'Replacing param {key} with value {value}')
-  
-            elif(create_new):
-                print(f'New param {key} with value {value}')
-
-        if(create_new): 
+    
+        if(key in flat_params or create_new):
             flat_params[key] = value
+
+        if(verbose and key in flat_params):
+            print(f'Replacing param {key} with value {value}')
+
+        elif(verbose and create_new):
+            print(f'New param {key} with value {value}')
         
     new_dict = unflatten_dict(flat_params)
     
