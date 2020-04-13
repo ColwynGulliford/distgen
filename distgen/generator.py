@@ -155,15 +155,6 @@ class Generator:
         vprint(f"Beam starting from: {self.input['start']['type']}",verbose>0,1,True)
         vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
         vprint(f'Number of macroparticles: {N}.',verbose>0,1,True)
-        
-        #bdist.params["x"] = np.full((N,), 0.0)*unit_registry("meter")
-        #bdist.params["y"] = np.full((N,), 0.0)*unit_registry("meter")
-        #bdist.params["z"] = np.full((N,), 0.0)*unit_registry("meter")
-        #bdist.params["px"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        #bdist.params["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        #bdist.params["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        #bdist.params["t"] = np.full((N,), 0.0)*unit_registry("s")
-        #bdist.params["w"] = np.full((N,), 1/N)*unit_registry("dimensionless")
 
         bdist["x"] = np.full((N,), 0.0)*unit_registry("meter")
         bdist["y"] = np.full((N,), 0.0)*unit_registry("meter")

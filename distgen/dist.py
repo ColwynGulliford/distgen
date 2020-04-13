@@ -38,7 +38,7 @@ def random_generator(shape,sequence=None,params=None):
         return np.random.random(shape)
 
     elif(sequence=="hammersley"):
-        
+
         dim = shape[0]
         N = shape[1] 
 
