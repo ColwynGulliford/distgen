@@ -34,7 +34,7 @@ from matplotlib import pyplot as plt
 
 def random_generator(shape,sequence=None,params=None):
 
-    if(sequence is None):
+    if(sequence is None or sequence=='pseudo'):
         return np.random.random(shape)
 
     elif(sequence=="hammersley"):
