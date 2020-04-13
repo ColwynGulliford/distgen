@@ -185,17 +185,19 @@ class Generator:
         
         # Get number of populations:
         npop = 0
+        dist_vars = []
         for param in self.params:
 
             if("_dist" in param):
                 vstr = param[:-5]
+                dist_vars.append(vstr)
                 if(vstr in ["r","x","y","z","px","py","pz","t","theta"]):
-                    npop = npop + 1
+                    npop = npop + 1 
                 elif(vstr in ["xy"]):
                     npop = npop + 2
 
         if(npop>0):
-            shape = ( npop, N)
+            shape = ( npop+1, N ) # <- the last coordinate is reserved for theta
             rns = random_generator(shape,sequence=self.params['random_type'])
             count = 0
 
@@ -218,7 +220,9 @@ class Generator:
                 # Sample to get beam coordinates
                 params = {"min_theta":0*unit_registry("rad"),"max_theta":2*pi}
                 ths=(Uniform("theta",**params)).cdfinv(rns[-1,:]*unit_registry("dimensionless"))        
-   
+                #ths = linspace(0, 2*pi, N)   
+
+
                 avgr=0*unit_registry("m")
 
                 #if("sigma_xy" in dist_params[r]):
@@ -262,7 +266,9 @@ class Generator:
             vprint("xy distribution: ",verbose>0,1,False) 
             dist = get_dist("xy",dist_params["xy"],verbose=0)
             bdist["x"],bdist["y"] = dist.cdfinv(rns[count:count+2,:]*unit_registry("dimensionless"))
+
             count = count + 2
+
             dist_params.pop("xy")
 
             stds["x"]=bdist.std("x")
@@ -270,7 +276,7 @@ class Generator:
         
         # Do all other specified single coordinate dists   
         for x in dist_params.keys():
-            
+
             vprint(x+" distribution: ",verbose>0,1,False)   
             dist = get_dist(x, dist_params[x], verbose=verbose)                             # Get distribution
             bdist[x]=dist.cdfinv(rns[count,:]*unit_registry("dimensionless"))               # Sample to get beam coordinates
@@ -286,7 +292,7 @@ class Generator:
             else:
                 stds[x] = dist.std()
                
-            count=count+1
+            #count=count+1
 
         # Allow user to overite the distribution moments if desired
         for x in ["x","y","t"]:
