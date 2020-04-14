@@ -84,6 +84,8 @@ def get_dist(var,params,verbose=0):
         dist = File2d("x","y",verbose=verbose,**params)
     elif(dtype=="crystals"):
         dist = TemporalLaserPulseStacking(verbose=verbose,**params)
+    elif(dtype=='uniform_theta' or dtype=='ut'):
+        dist =  UniformTheta(verbose=verbose, **params)
     else:
         raise ValueError(f'Distribution type "{dtype}" is not supported.')
             
@@ -852,39 +854,58 @@ class DistTheta(Dist):
         
         p=self.pdf(theta)
 
-        print(p[0])
         plt.figure()
         plt.plot(theta,p)
         plt.xlabel(f'$theta$ ({str(theta.unit)}))')
         plt.ylabel(f'PDF(${self.theta_str}$) ({str(p.unit)})')
 
-#class Cos2Theta(DistTheta):
 
- #   """
- #   Defines a separatable theta distribution function cos(nu * theta + phase)
- #   """
- #   def __init__(self, verbose=0, **kwargs):
- #
- #       self.required_params=['tune']
- #       self.optional_params=['phase']
- #       self.check_inputs(kwargs)
- #       
- #       self.nu = kwargs['tune']
-#
-#        if('phase' in kwargs):
-#            self.phi = kwargs['phase']
-#        else:
-#            self.phi = 0.0*pi
-#
-#        self.S2pi = np.sin( (2*pi*self.nu) + self.phi )
-#        self.S0 = np.sin(self.phi)
-#
-    #def pdf(self, theta):
-    #    theta = theta.to('rad').magnitude
-    #    return  np.cos(self.nu*theta + self.phi) / (self.S2pi - self.S0)*unit_registry('1/rad')
+class UniformTheta(DistTheta):
+    """
+    Defines a uniformly distributed theta over t0 <= min_theta < max_theta <= 2 pi
+    """
+    def __init__(self, verbose=0, **kwargs):
 
-    #def cdf(self, theta):
-    #    return ( np.sin(self.nu*theta + self.phase) - self.S0 ) / (self.S2pi - self.S0)
+        self.required_params=['min_theta', 'max_theta']
+        self.optional_params=[]
+        self.check_inputs(kwargs)
+   
+        min_theta = kwargs['min_theta']
+        max_theta = kwargs['max_theta']
+
+        assert min_theta >= 0.0,  'Min theta value must be >= 0 rad'
+        assert max_theta <= 2*pi, 'Max theta value must be <= 2 pi rad'
+
+        self.a = min_theta
+        self.b = max_theta
+ 
+        self.range = max_theta-min_theta
+
+        vprint(f'min_theta = {self.a:G~P}, max_theta = {self.b:G~P}', verbose>0, 2, True)
+        
+    def avgCos(self):
+        return (np.sin(b)-np.sin(a))/self.range
+
+    def avgSin(self):
+        return (np.cos(b)-np.cos(b))/self.range
+
+    def avgCos2(self):
+        return 0.5*(1 + np.sin(self.range)/self.range)
+
+    def avgSin2(self):
+        return 0.5*(1 + (np.cos(self.a)*np.sin(self.a)-np.cos(self.b)*np.sin(self.b))/np.range)
+
+    def mod2pi(self,thetas):
+        return tnp.mod(thetas, 2*pi)
+
+    def pdf(self, thetas):
+        return np.full( (len(thetas),), 1/self.range) 
+
+    def cdf(self, thetas):
+        return self.mod2pi(thetas)/self.range;
+        
+    def cdfinv(self, rns):
+        return rns*self.range
 
 
 class DistRad(Dist):
@@ -1490,19 +1511,19 @@ class Dist2d(Dist):
 
     def sample(self,N,sequence=None,params=None):
         rns = self.rgen.rand((N,2),sequence,params)*unit_registry("dimensionless")
-        x,y = self.cdfinv(rns)       
+        x,y = self.cdfinv(rns[0,:], rns[1,:])       
         return (x,y)
 
-    def cdfinv(self,rns):
+    def cdfinv(self,rnxs, rnys):
 
-        x = self.cdfxinv(rns[0,:])
+        x = self.cdfxinv(rnxs)
         indx = np.searchsorted(self.xb,x)-1
         
         y = np.zeros(x.shape)*unit_registry(str(x.units))
         for ii in range(self.Cys.shape[1]):
             in_column = (ii==indx)
             if(np.count_nonzero(in_column)>0):
-                y[in_column] = interp(rns[1,in_column],self.Cys[:,ii],self.yb)
+                y[in_column] = interp(rnys[in_column],self.Cys[:,ii],self.yb)
 
         return (x,y)
 

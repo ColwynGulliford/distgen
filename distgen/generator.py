@@ -29,6 +29,9 @@ class Generator:
         self.verbose = verbose 
     
         self.input = input
+        
+        # This will be set with .beam()
+        self.rands = None
 
         # This will be set with .run()
         self.particles = None
@@ -114,7 +117,47 @@ class Generator:
 
     def __setitem__(self, varstr, val):
         return set_nested_dict(self.input, varstr, val, sep=':', prefix='distgen')
-   
+        
+
+    def get_dist_params(self):
+        
+        dist_vars = [p.replace('_dist','') for p in self.params if(p.endswith('_dist')) ]
+        dist_params = {p.replace('_dist',''):self.params[p] for p in self.params if(p.endswith('_dist'))}
+
+        if('r' in dist_vars and 'theta' not in dist_vars):
+            vprint("Assuming cylindrical symmetry...",self.verbose>0,1,True)
+            dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+
+        return dist_params
+
+    def get_rands(self, variables):
+ 
+        specials = ['xy']
+        self.rands = {var:None for var in variables if var not in specials}
+
+        if('xy' in variables):
+            self.rands['x']=None
+            self.rands['y']=None
+
+        elif('r' in variables and 'theta' not in variables):
+            self.rands['theta']=None
+
+        n_coordinate = len(self.rands.keys())
+        n_particle = int(self.params['n_particle'])
+        shape = ( n_coordinate, n_particle )
+        
+        if(n_coordinate>0):
+            rns = random_generator(shape, sequence=self.params['random_type'])
+
+        for ii, key in enumerate(self.rands.keys()):
+            self.rands[key] = rns[ii,:]*unit_registry("dimensionless")
+
+        var_list = list(self.rands.keys())
+        for ii, var in enumerate(var_list[:-1]):
+             var2 = var_list[ii+1]
+             assert not np.array_equal(self.rands[var].magnitude, self.rands[var2].magnitude), f'Error: coordinate probalitiies for {v1} and {v2} are the same!'
+
+
     def beam(self):
 
         watch = StopWatch()
@@ -132,13 +175,9 @@ class Generator:
         else:
             transforms = None
 
-        dist_params = {}
-        for p in self.params:
-           
-            if("_dist" in p):
-                var = p[:-5]
-                dist_params[var]=self.params[p]
-        
+        #dist_params = {p.replace('_dist',''):self.params[p] for p in self.params if(p.endswith('_dist')) }        
+        #self.get_rands()
+
         vprint(f'Distribution format: {self.params["output"]["type"]}', self.verbose>0, 0, True)
 
         N = int(self.params['n_particle'])
@@ -156,98 +195,45 @@ class Generator:
         vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
         vprint(f'Number of macroparticles: {N}.',verbose>0,1,True)
 
-        bdist["x"] = np.full((N,), 0.0)*unit_registry("meter")
-        bdist["y"] = np.full((N,), 0.0)*unit_registry("meter")
-        bdist["z"] = np.full((N,), 0.0)*unit_registry("meter")
-        bdist["px"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        bdist["py"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        bdist["pz"]= np.full((N,), 0.0)*unit_registry("eV/c")
-        bdist["t"] = np.full((N,), 0.0)*unit_registry("s")
+        units = {'x':'m', 'y':'m', 'z':'m', 'px':'eV/c', 'py':'eV/c', 'pz':'eV/c', 't':'s'}
+
+        # Initialize coordinates to zero       
+        for var, unit in units.items():
+            bdist[var] = np.full(N, 0.0)*unit_registry(units[var])
+
         bdist["w"] = np.full((N,), 1/N)*unit_registry("dimensionless")
 
-        avgs = odic()
-        avgs["x"] = 0*unit_registry("meter")
-        avgs["y"] = 0*unit_registry("meter")
-        avgs["z"] = 0*unit_registry("meter")
-        avgs["px"]= 0*unit_registry("eV/c")
-        avgs["py"]= 0*unit_registry("eV/c")
-        avgs["pz"]= 0*unit_registry("eV/c")
-        avgs["t"] = 0*unit_registry("s")
+        avgs = {var:0*unit_registry(units[var]) for var in units}
+        stds = {var:0*unit_registry(units[var]) for var in units}
 
-        stds = odic()
-        stds["x"] = 0*unit_registry("meter")
-        stds["y"] = 0*unit_registry("meter")
-        stds["z"] = 0*unit_registry("meter")
-        stds["px"]= 0*unit_registry("eV/c")
-        stds["py"]= 0*unit_registry("eV/c")
-        stds["pz"]= 0*unit_registry("eV/c")
-        stds["t"] = 0*unit_registry("s")
+        dist_params = self.get_dist_params()   # Get the relevant dist params, setting defaults as needed, and samples random number generator
+        self.get_rands(list(dist_params.keys()))
         
-        # Get number of populations:
-        npop = 0
-        dist_vars = []
-        for param in self.params:
-
-            if("_dist" in param):
-                vstr = param[:-5]
-                dist_vars.append(vstr)
-                if(vstr in ["r","x","y","z","px","py","pz","t","theta"]):
-                    npop = npop + 1 
-                elif(vstr in ["xy"]):
-                    npop = npop + 2
-
-        if(npop>0):
-            shape = ( npop+1, N ) # <- the last coordinate is reserved for theta
-            rns = random_generator(shape,sequence=self.params['random_type'])
-            count = 0
 
         # Do radial dist first if requested
-        if("r" in dist_params):
+        if('r' in dist_params and 'theta' in dist_params):
+
+            vprint('r distribution: ',verbose>0, 1, False)  
                 
-            r="r"
-            vprint("r distribution: ",verbose>0,1,False)  
-                
-            # Get distribution
-            dist = get_dist(r, dist_params[r], verbose=verbose)      
-            rs = dist.cdfinv(rns[count,:]*unit_registry("dimensionless") )       # Sample to get beam coordinates
-
-            count = count + 1
-
-            if("theta" not in dist_params):
-
-                vprint("Assuming cylindrical symmetry...",verbose>0,2,True)
+            # Get r distribution
+            rdist = get_dist('r', dist_params['r'], verbose=verbose)      
+            r = rdist.cdfinv(self.rands['r'])       # Sample to get beam coordinates
                     
-                # Sample to get beam coordinates
-                params = {"min_theta":0*unit_registry("rad"),"max_theta":2*pi}
-                ths=(Uniform("theta",**params)).cdfinv(rns[-1,:]*unit_registry("dimensionless"))        
-                #ths = linspace(0, 2*pi, N)   
+            # Sample to get beam coordinates
+            vprint('theta distribution: ', verbose>0, 1, False)
+            theta_dist = get_dist('theta', dist_params['theta'], verbose=verbose)  
+            theta = theta_dist.cdfinv(self.rands['theta'])
 
+            rrms = rdist.rms()
+            avgr = rdist.avg()
 
-                avgr=0*unit_registry("m")
-
-                #if("sigma_xy" in dist_params[r]):
-                rrms = dist.rms()
-                    #rrms= math.sqrt(2)*dist_params[r]["sigma_xy"]
-                #elif("sigma_xy" in beam_params):
-                #    rrms= math.sqrt(2)*beam_params["sigma_xy"]
-                #else:
-                #    rrms = dist.rms()
-
-                avgCos = 0
-                avgSin = 0
-                avgCos2 = 0.5
-                avgSin2 = 0.5
-                   
-            else:
-
-                count = count+1
-                dist_params.pop("theta")
-  
-            bdist["x"]=rs*np.cos(ths)
-            bdist["y"]=rs*np.sin(ths)
-
-            #bdist.params["x"]=rs*np.cos(ths)
-            #bdist.params["y"]=rs*np.sin(ths)
+            avgCos = 0
+            avgSin = 0
+            avgCos2 = 0.5
+            avgSin2 = 0.5
+            
+            bdist["x"]=r*np.cos(theta)
+            bdist["y"]=r*np.sin(theta)
 
             avgs["x"] = avgr*avgCos
             avgs["y"] = avgr*avgSin
@@ -255,19 +241,16 @@ class Generator:
             stds["x"] = rrms*np.sqrt(avgCos2)
             stds["y"] = rrms*np.sqrt(avgSin2)   
 
-            # remove r from list of distributions to sample
-            dist_params.pop("r")
-            #self.dist_params.pop("x",None)
-            #self.dist_params.pop("y",None)
+            # remove r, theta from list of distributions to sample
+            del dist_params['r']
+            del dist_params['theta']
 
         # Do 2D distributions
         if("xy" in dist_params):
 
             vprint("xy distribution: ",verbose>0,1,False) 
             dist = get_dist("xy",dist_params["xy"],verbose=0)
-            bdist["x"],bdist["y"] = dist.cdfinv(rns[count:count+2,:]*unit_registry("dimensionless"))
-
-            count = count + 2
+            bdist["x"],bdist["y"] = dist.cdfinv(self.rands['x'],self.rands['y'])
 
             dist_params.pop("xy")
 
@@ -278,8 +261,8 @@ class Generator:
         for x in dist_params.keys():
 
             vprint(x+" distribution: ",verbose>0,1,False)   
-            dist = get_dist(x, dist_params[x], verbose=verbose)                             # Get distribution
-            bdist[x]=dist.cdfinv(rns[count,:]*unit_registry("dimensionless"))               # Sample to get beam coordinates
+            dist = get_dist(x, dist_params[x], verbose=verbose)      # Get distribution
+            bdist[x]=dist.cdfinv(self.rands[x])                      # Sample to get beam coordinates
 
             # Fix up the avg and std so they are exactly what user asked for
             if("avg_"+x in dist_params[x]):
@@ -291,21 +274,6 @@ class Generator:
                 stds[x] = dist_params[x]["sigma_"+x]
             else:
                 stds[x] = dist.std()
-               
-            #count=count+1
-
-        # Allow user to overite the distribution moments if desired
-        for x in ["x","y","t"]:
-            if("avg_"+x in beam_params):
-                avgx = beam_params["avg_"+x] 
-                if(x in avgs and avgx!=avgs[x]):
-                    vprint("Overwriting distribution avg "+x+" with user defined value",verbose>0,1,True)
-                    avgs[x] = avgx
-            if("sigma_"+x in beam_params):
-                stdx = beam_params["sigma_"+x]
-                if(x in stds and stdx!=stds[x]):
-                    vprint("Overwriting distribution sigma "+x+" with user defined value",verbose>0,1,True)
-                stds[x] = stdx                 
 
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
@@ -314,13 +282,6 @@ class Generator:
             vprint(f'Shifting avg_{x} -> {avgs[x]:G~P}', verbose>0 and bdist[x].mean()!=avgs[x],1,True)
             
             bdist = set_avg_and_std(bdist,**{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':verbose>0})
-
-        # Apply any user desired coordinate transformations
-        if(transforms):
-            for t,T in transforms.items():
-                T['verbose']=verbose>0
-                vprint('Applying user defined transform "'+t+'"...',verbose>0,1,True)
-                bdist = transform(bdist, T['type'], T['variables'], **T)
         
         # Handle any start type specific settings
         if(self.params['start']['type']=="cathode"):
@@ -338,13 +299,19 @@ class Generator:
                 vprint("Time start: no start time specified, defaulting to 0 sec.",verbose>0,1,True)
                 tstart = 0*unit_registry('sec')
 
-            
             vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True);
             bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec'), 'verbose':verbose>0})
 
         else:
             raise ValueError(f'Beam start type "{self.params["start"]["type"]}" is not supported!')
         
+        # Apply any user desired coordinate transformations
+        if(transforms):
+            for t in transforms:
+                t['verbose']=verbose>0
+                vprint(f'Applying user supplied transform: {t["type"]}...',verbose>0,1,True)
+                bdist = transform(bdist, t)
+
         watch.stop()
         vprint(f'...done. Time Ellapsed: {watch.print()}.\n',verbose>0,0,True)
         return bdist
@@ -450,4 +417,10 @@ class Generator:
         # Make sure all required parameters are specified
         for req in self.required_params:
             assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
+
+
+
+
+
+
 

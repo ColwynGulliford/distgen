@@ -257,11 +257,11 @@ def magnetize(beam, **params):
 
 def set_twiss(beam, **params): #plane, beta, alpha, eps):
 
-    check_inputs(params, ['beta','alpha','eps'], [], 1, 'set_twiss(beam, **kwargs)') 
+    check_inputs(params, ['beta','alpha','emittance'], [], 1, 'set_twiss(beam, **kwargs)') 
     plane = params['variables']
     beta = params['beta']
     alpha = params['alpha']
-    eps = params['eps']
+    eps = params['emittance']
 
     if(plane not in ['x','y']):
         raise ValueError('set_twiss -> unsupported twiss plane: '+plane)
@@ -278,7 +278,11 @@ def set_twiss(beam, **params): #plane, beta, alpha, eps):
     avg_p0 = p0.mean()
     beam[pstr]=beam[pstr]-avg_p0
 
-    beta0,alpha0,eps0 = beam.twiss(xstr)
+    beta0, alpha0, eps0 = beam.twiss(xstr)
+
+    assert beta0>0, f'Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform.'
+    assert eps0>0, f'Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform.'
+    assert beta>0, f'Error in set_twiss: final beta = {beta} was <=0, the final distribution must have finite size to use this transform.'
 
     m11 = (np.sqrt(beta*eps/beta0/eps0)).to_base_units()
     m12 = (0*unit_registry(str(beam[xstr].units)+'/'+str(beam[pstr].units))).to_base_units()
@@ -291,9 +295,17 @@ def set_twiss(beam, **params): #plane, beta, alpha, eps):
 
     return beam
 
-def transform(beam, desc, varstr, **kwargs):
-    variables = get_variables(varstr)
-    transform_fun = globals()[desc]
-    return transform_fun(beam, **kwargs)
+def transform(beam, T):
+
+    desc = T['type']
+    tokens = desc.split(' ')
+    transfunc = tokens[0]
+    variables = tokens[1]
+    
+    T['variables']=variables
+
+    variables = get_variables(variables)
+    transform_fun = globals()[transfunc]
+    return transform_fun(beam, **T)
 
 
