@@ -1,4 +1,4 @@
-n_particle: 1000000
+n_particle: 200000
 output:
   file: rad.uniform.out.txt
   type: gpt

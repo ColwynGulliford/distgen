@@ -150,7 +150,7 @@ class Generator:
             rns = random_generator(shape, sequence=self.params['random_type'])
 
         for ii, key in enumerate(self.rands.keys()):
-            self.rands[key] = rns[ii,:]*unit_registry("dimensionless")
+            self.rands[key] = rns[ii,:]*unit_registry('dimensionless')
 
         var_list = list(self.rands.keys())
         for ii, var in enumerate(var_list[:-1]):
@@ -232,14 +232,14 @@ class Generator:
             avgCos2 = 0.5
             avgSin2 = 0.5
             
-            bdist["x"]=r*np.cos(theta)
-            bdist["y"]=r*np.sin(theta)
+            bdist['x']=r*np.cos(theta)
+            bdist['y']=r*np.sin(theta)
 
-            avgs["x"] = avgr*avgCos
-            avgs["y"] = avgr*avgSin
+            avgs['x'] = avgr*avgCos
+            avgs['y'] = avgr*avgSin
 
-            stds["x"] = rrms*np.sqrt(avgCos2)
-            stds["y"] = rrms*np.sqrt(avgSin2)   
+            stds['x'] = rrms*np.sqrt(avgCos2)
+            stds['y'] = rrms*np.sqrt(avgSin2)   
 
             # remove r, theta from list of distributions to sample
             del dist_params['r']
@@ -248,14 +248,14 @@ class Generator:
         # Do 2D distributions
         if("xy" in dist_params):
 
-            vprint("xy distribution: ",verbose>0,1,False) 
-            dist = get_dist("xy",dist_params["xy"],verbose=0)
-            bdist["x"],bdist["y"] = dist.cdfinv(self.rands['x'],self.rands['y'])
+            vprint('xy distribution: ',verbose>0,1,False) 
+            dist = get_dist('xy', dist_params['xy'],verbose=0)
+            bdist['x'], bdist['y'] = dist.cdfinv(self.rands['x'],self.rands['y'])
 
-            dist_params.pop("xy")
+            dist_params.pop('xy')
 
-            stds["x"]=bdist.std("x")
-            stds["y"]=bdist.std("y")
+            stds['x']=bdist.std('x')
+            stds['y']=bdist.std('y')
         
         # Do all other specified single coordinate dists   
         for x in dist_params.keys():

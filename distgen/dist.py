@@ -17,7 +17,6 @@ from .tools import cumtrapz
 from .tools import radint
 from .tools import radcumint
 
-
 from .tools import histogram
 from .tools import radial_histogram
 
@@ -25,7 +24,10 @@ from .tools import erf
 from .tools import erfinv
 from .tools import gamma
 
+from .tools import get_vars
 from .tools import read_2d_file
+
+from pint import Quantity
 
 import numpy as np
 import numpy.matlib as mlib
@@ -61,35 +63,37 @@ def get_dist(var,params,verbose=0):
     dtype = params['type']
 
     if(dtype=="uniform" or dtype=="u"):
-        dist = Uniform(var,verbose=verbose,**params)
+        dist = Uniform(var,verbose=verbose, **params)
     elif(dtype=="gaussian" or dtype=="g"):
-        dist = Norm(var,verbose=verbose,**params)
+        dist = Norm(var,verbose=verbose, **params)
     elif(dtype=="file1d"):
-        dist = File1d(var,verbose=verbose,**params)
+        dist = File1d(var,verbose=verbose, **params)
     elif(dtype=='tukey'):
-        dist = Tukey(var,verbose=verbose,**params)
+        dist = Tukey(var,verbose=verbose, **params)
     elif(dtype=='super_gaussian' or dtype=='sg'):
-        dist = SuperGaussian(var,verbose=verbose,**params)
+        dist = SuperGaussian(var,verbose=verbose, **params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
-        dist = UniformRad(verbose=verbose,**params)
+        dist = UniformRad(verbose=verbose, **params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
-        dist = NormRad(verbose=verbose,**params)
+        dist = NormRad(verbose=verbose ,**params)
     elif((dtype=="radial_super_gaussian" or dtype=="rsg") and var=="r"):
-        dist = SuperGaussianRad(verbose=verbose,**params)
+        dist = SuperGaussianRad(verbose=verbose, **params)
     elif(dtype=="radfile" and var=="r"):
-        dist = RadFile(verbose=verbose,**params)
+        dist = RadFile(verbose=verbose, **params)
     elif(dtype=="radial_tukey"):
-        dist = TukeyRad(verbose=verbose,**params)
+        dist = TukeyRad(verbose=verbose, **params)
     elif(dtype=="file2d"):
-        dist = File2d("x","y",verbose=verbose,**params)
+        dist = File2d("x","y",verbose=verbose, **params)
     elif(dtype=="crystals"):
-        dist = TemporalLaserPulseStacking(verbose=verbose,**params)
+        dist = TemporalLaserPulseStacking(verbose=verbose, **params)
     elif(dtype=='uniform_theta' or dtype=='ut'):
         dist =  UniformTheta(verbose=verbose, **params)
+    elif(dtype=='image2d'):
+        dist = Image2d(var, verbose=verbose, **params)
     else:
         raise ValueError(f'Distribution type "{dtype}" is not supported.')
             
-    return dist
+    return dist    
 
 
 class Dist():
@@ -1437,7 +1441,16 @@ class SuperGaussianRad(DistRad):
 class Dist2d(Dist):
 
 
-    def __init__(self,xs,ys,Pxy,xstr="x",ystr="y"):
+    def __init__(self, xs=None, ys=None, Pxy=None, xstr='x', ystr='y', x_unit='', y_unit='', verbose=False):
+
+        if(not isinstance(xs, Quantity)):
+            xs = xs*unit_registry(x_unit)
+
+        if(not isinstance(ys, Quantity)):
+            ys = ys*unit_registry(y_unit)
+
+        if(not isinstance(Pxy, Quantity)):
+            Pxy = Pxy*unit_registry(f'1/{x_unit}/{y_unit}')
 
         self.xs=xs
         self.ys=ys
@@ -1538,6 +1551,54 @@ class Dist2d(Dist):
         plt.figure()
         plt.plot(x,y,'*')
 
+
+class Image2d(Dist2d):
+
+    def __init__(self, variables, verbose, **params):
+        
+        vstrs = get_vars(variables)
+
+        assert len(vstrs)==2, f'Wrong number of variables given to Image2d: {len(vstrs)}'
+        
+        v1 = vstrs[0]
+        v2 = vstrs[1]
+
+        self.required_params=['P']
+        self.optional_params=[f'min_{v1}',  f'max_{v1}', f'min_{v2}',  f'max_{v2}', v1, v2]
+    
+        self.check_inputs(params)
+
+        Pxy = params['P']
+        assert np.min(np.min(Pxy)) >= 0, 'Error in Image2d: the 2d probability function must be >= 0'   
+
+        if(v1 not in params):
+
+            xmin = params[f'min_{v1}']
+            xmax = params[f'max_{v1}'].to(xmin.units)
+
+            assert xmin<xmax, f'Error in Image2d: min {v1} must < max {v1}.'
+
+            xs = linspace(xmin, xmax, Pxy.shape[1])
+
+        else:
+            xs = params[v1]
+
+        if(v2 not in params):
+
+            ymin = params[f'min_{v2}'].to(xmin.units)
+            ymax = params[f'max_{v2}'].to(xmin.units)
+
+            assert ymin<ymax, f'Error in Image2d: min {v2} must < max {v2}.'
+
+            ys = linspace(ymin, ymax, Pxy.shape[0])
+
+        else:
+            ys = params[v2]
+
+        Pxy = Pxy*unit_registry(f'1/{xs.units}/{ys.units}')
+
+        super().__init__(xs, ys, Pxy, xstr=v1, ystr=v2)
+        
 class File2d(Dist2d):
 
     def __init__(self, var1, var2, **params):
@@ -1545,10 +1606,12 @@ class File2d(Dist2d):
         self.required_params=['file']
         self.optional_params=[]
 
+        self.check_inputs(params)
+
         filename = params['file']
         
-        xs,ys,Pxy,xstr,ystr = read_2d_file(filename)
-        super().__init__(xs,ys,Pxy,xstr=xstr,ystr=ystr)
+        xs, ys, Pxy, xstr, ystr = read_2d_file(filename)
+        super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
 
     
 # ---------------------------------------------------------------------------- 

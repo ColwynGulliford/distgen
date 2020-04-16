@@ -301,6 +301,15 @@ def zeros(shape, units):
     return np.zeros(shape)*units
 
 
+def get_vars(varstr):
+    """Gets 2d variable labels from a single string"""
+    variables = ['x', 'y', 'z', 'px', 'py', 'pz', 't']
+
+    all_2d_vars = {}
+    for var1 in variables:
+        for var2 in variables:
+            if(varstr == f'{var1}{var2}'):
+                return [var1,var2]
 
 #--------------------------------------------------------------
 # File reading
@@ -471,7 +480,11 @@ def is_quantity(d):
 def dict_to_quantity(qd):
     """ Converts a dict to quantity with units """
     assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
-    return float(qd['value'])*unit_registry(qd['units'])
+
+    if(isinstance(qd['value'], float)):
+        return float(qd['value'])*unit_registry(qd['units'])
+    else:
+        return np.array(qd['value'])*unit_registry(qd['units'])
         
 def convert_list_params(d):
     """ Converts elements in a list to quantities with units where appropriate """
@@ -486,9 +499,9 @@ def convert_params(d):
     for k, v in d.items():
         if(is_quantity(v)):
             d[k]=dict_to_quantity(v)
-        elif isinstance(v,list):
+        elif isinstance(v, list):
             convert_list_params(v)
-        elif isinstance(v, dict) or isinstance(v,list):
+        elif isinstance(v, dict) or isinstance(v, list):
             convert_params(v)           
 
 class NpEncoder(json.JSONEncoder):
