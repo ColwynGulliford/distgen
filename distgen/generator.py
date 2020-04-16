@@ -157,7 +157,7 @@ class Generator:
              var2 = var_list[ii+1]
              assert not np.array_equal(self.rands[var].magnitude, self.rands[var2].magnitude), f'Error: coordinate probalitiies for {v1} and {v2} are the same!'
 
-
+   
     def beam(self):
 
         watch = StopWatch()
@@ -307,10 +307,22 @@ class Generator:
         
         # Apply any user desired coordinate transformations
         if(transforms):
-            for t in transforms:
-                t['verbose']=verbose>0
-                vprint(f'Applying user supplied transform: {t["type"]}...',verbose>0,1,True)
-                bdist = transform(bdist, t)
+
+            # Check if the user supplied the transform order, otherwise just go through the dictionary
+            if('order' in transforms):
+                order = transforms['order']
+                if(not isinstance(order,list)):
+                    raise ValueError('Transform "order" key must be associated a list of transform IDs')
+                del transforms['order']
+            else:
+                order = transforms.keys()
+
+            for name in order:
+
+                T = transforms[name]
+                T['verbose']=verbose>0
+                vprint(f'Applying user supplied transform: "{name}" = {T["type"]}...',verbose>0,1,True)
+                bdist = transform(bdist, T)
 
         watch.stop()
         vprint(f'...done. Time Ellapsed: {watch.print()}.\n',verbose>0,0,True)

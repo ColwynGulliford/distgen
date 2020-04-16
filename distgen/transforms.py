@@ -53,7 +53,7 @@ def translate(beam, **params):
     check_inputs(params, ['delta'], [], 1, 'translate(beam, **kwargs)')  
     var = params['variables']
     delta = params['delta'] 
-    vprint(f'Translating {var} by {delta:g~P}', params['verbose'], 2, True)
+    vprint(f'Translating {var} by {delta:g~P}.', params['verbose'], 2, True)
     beam[var] = delta + beam[var]
     
     return beam
@@ -65,7 +65,7 @@ def set_avg(beam, **params):
     check_inputs(params, ['avg_'+var], [], 1, 'set_avg(beam, **kwargs)')  
     new_avg = params['avg_'+var] 
     beam[var] = new_avg + (beam[var]-beam[var].mean())
-    vprint(f'Setting avg {var} -> {"{:g~P}".format(new_avg)}', params['verbose'], 2, True)
+    vprint(f'Setting avg_{var} -> {new_avg:G~P}.', params['verbose'], 2, True)
 
     return beam
 
@@ -79,11 +79,13 @@ def scale(beam, **params):
     if(isinstance(scale,float) or isinstance(scale,int)):
         scale = float(scale)*unit_registry('dimensionless')
 
-    avg = beam[var].mean()
     if(fix_average):
+        avg = beam[var].mean()
         beam[var] = avg + scale*(beam[var]-avg)
+        vprint(f'Scaling {var} by {scale:G~P} holding avg_{var} = {avg:G~P} constant.', params['verbose'], 2, True)
     else:
         beam[var] = scale*beam[var]
+        vprint(f'Scaling {var} by {scale:G~P}.', params['verbose'], 2, True)
 
     return beam
 
@@ -92,7 +94,7 @@ def set_std(beam, **params):
     var = params['variables'] 
     check_inputs(params, ['sigma_'+var], [], 1, 'set_std(beam, **kwargs)')  
     new_std = params['sigma_'+var]
-    vprint(f'Setting avg {var} -> {"{:g~P}".format(new_std)}', params['verbose'], 2, True)
+    vprint(f'Setting sigma_{var} -> {new_std:G~P}', params['verbose'], 2, True)
     old_std = beam[var].std()
     if(old_std.magnitude>0):
         beam = scale(beam, **{'variables':var,'scale':new_std/old_std, 'fix_average':True})
@@ -105,6 +107,7 @@ def set_avg_and_std(beam, **params):
     check_inputs(params, ['sigma_'+var, 'avg_'+var], [], 1, 'set_avg_and_std(beam, **kwargs)') 
     beam = set_std(beam,**{'variables':var, 'sigma_'+var:params['sigma_'+var]})
     beam = set_avg(beam,**{'variables':var, 'avg_'+var:params['avg_'+var]})
+    vprint(f'Setting avg_{var} -> {beam.avg(var):G~P} and sigma_{var} -> {beam.std(var):G~P}', params['verbose'], 2, True)
     return beam
 
 
@@ -129,14 +132,17 @@ def rotate2d(beam, **params): #variables, angle, origin=None):
     if(origin=='centroid'):
         o1 = v1.mean()
         o2 = v2.mean()
- 
+        vprint(f'Rotating {var1}-{var2} by {angle.to("deg"):G~P} around {var1} and {var2} centroid.', params['verbose'], 2, True) 
+
     elif(origin is None):
         o1 = 0*unit_registry(str(v1.units))
         o2 = 0*unit_registry(str(v1.units))
+        vprint(f'Rotating {var1}-{var2} by {angle.to("deg"):G~P}.', params['verbose'], 2, True) 
 
     else:
         o1 = origin[0]
         o2 = origin[1]
+        vprint(f'Rotating {var1}-{var2} by {angle.to("deg"):G~P} around {var1} = {o1:G~P} and {var2} = {o2:G~P}.', params['verbose'], 2, True) 
 
     beam[var1] =  o1 + C*(v1-o1) - S*(v2-o2)
     beam[var2] =  o2 + S*(v1-o1) + C*(v2-o2)
@@ -156,11 +162,14 @@ def shear(beam, **params):
 
     if(origin=='centroid'):
         o1 = beam.avg(var1)
-        #o2 = v2.mean()
+        vprint(f'Shearing {var1} into {var2} around {var1} = {o1:G~P} with shear coefficient {shear_coefficient:G~P}.', params['verbose'], 2, True) 
+
  
     elif(origin is None):
         o1 = 0*beam[var1].units
         #o2 = 0*unit_registry(str(v1.units))
+        vprint(f'Shearing {var1} into {var2} with shear coefficient {shear_coefficient:G~P}.', params['verbose'], 2, True) 
+
 
     else:
         o1 = origin[0]
@@ -186,16 +195,17 @@ def polynomial(beam, **params):#variables, polynomial_coefficients, origin=None,
 
     v1 = beam[variables[0]]
 
-    units = beam[variables[1]].units
-
     if(zero_dependent_var):
-        v2 = np.zeros(beam[variables[1]].shape)*unit_registry( str(units)  )
+        v2 = np.zeros(beam[variables[1]].shape)*unit_registry(beam[variables[1]].units)
     else:
         v2 = beam[variables[1]]
    
-    origin = get_origin(beam,variables[0],origin)
+    origin = get_origin(beam, variables[0], origin)
+
+    vprint(f'Applying polynomial p({variables[0]} -> {variables[1]}) around {variables[0]} = {origin:G~P}, with coefficients:', params['verbose'], 2, True) 
 
     for n, coefficient in enumerate(coefficients):
+        vprint(f'c{n} = {coefficient.to_reduced_units():G~P},', params['verbose'], 3, True)
         v2 = v2 + coefficient*np.power(v1-origin,n)
 
     beam[variables[1]] = v2
@@ -209,6 +219,9 @@ def cosine(beam, **params):#variables, amplitude, phase, omega, zero_dependent_v
     phase = params['phase']
     omega = params['omega']
     zero_dependent_var = params['zero_dependent_var']
+
+    vprint(f'Applying cosine function: {variables[1]}) -> {variables[1]} + A*cos(w*{variables[0]} + phi), with:', params['verbose'], 2, True) 
+    vprint(f'amplitude = {amplitude:G~P}, omega = {omega:G~P}, and phase = {phase:G~P}.', params['verbose'], 3, True) 
 
     variables = get_variables(variables)
 
@@ -248,7 +261,7 @@ def magnetize(beam, **params):
         sigy = beam.std('y')
     
         magnetization = params['magnetization']
-        sparams = {'type':'shear','variables':'r:ptheta','shear_coefficient': -magnetization/sigx/sigx }        
+        sparams = {'type':'shear','variables':'r:ptheta','shear_coefficient': -magnetization/sigx/sigx, 'verbose':params['verbose'] }        
 
         return shear(beam, **sparams) 
 
@@ -262,6 +275,8 @@ def set_twiss(beam, **params): #plane, beta, alpha, eps):
     beta = params['beta']
     alpha = params['alpha']
     eps = params['emittance']
+
+    vprint(f'Setting beta_{plane} -> {beta:G~P}, alpha_{plane} -> {alpha:G~P}, and emittance_{plane} -> {eps:G~P}.', params['verbose'], 2, True) 
 
     if(plane not in ['x','y']):
         raise ValueError('set_twiss -> unsupported twiss plane: '+plane)

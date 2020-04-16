@@ -881,19 +881,25 @@ class UniformTheta(DistTheta):
  
         self.range = max_theta-min_theta
 
+        self.Ca = np.cos(self.a)
+        self.Sa = np.sin(self.a)
+
+        self.Cb = np.cos(self.b)
+        self.Sb = np.sin(self.b)
+
         vprint(f'min_theta = {self.a:G~P}, max_theta = {self.b:G~P}', verbose>0, 2, True)
         
     def avgCos(self):
         return (np.sin(b)-np.sin(a))/self.range
 
     def avgSin(self):
-        return (np.cos(b)-np.cos(b))/self.range
+        return (np.cos(a)-np.cos(b))/self.range
 
     def avgCos2(self):
-        return 0.5*(1 + np.sin(self.range)/self.range)
+        return 0.5*(1 + (self.Cb*self.Sb - self.Ca*self.Sa)/self.range)
 
     def avgSin2(self):
-        return 0.5*(1 + (np.cos(self.a)*np.sin(self.a)-np.cos(self.b)*np.sin(self.b))/np.range)
+        return 0.5*(1 - (self.Cb*self.Sb - self.Ca*self.Sa)/self.range)
 
     def mod2pi(self,thetas):
         return tnp.mod(thetas, 2*pi)
