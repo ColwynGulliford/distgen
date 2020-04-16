@@ -1492,6 +1492,7 @@ class Dist2d(Dist):
         self.Cys=np.zeros((len(self.yb),len(self.xs)))
 
         norms = np.sum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))), axis=0)
+        norms[norms==0] = 1
 
         self.Cys[1:,:] = np.cumsum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))),axis=0)/norms
         self.Cys=self.Cys*unit_registry("dimensionless")
