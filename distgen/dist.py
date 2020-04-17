@@ -35,7 +35,7 @@ import numpy.matlib as mlib
 from matplotlib import pyplot as plt
 
 def random_generator(shape,sequence=None,params=None):
-
+    """ Returns a set of 'random' (either numpy.random.random or from a Hammersley sequence) numbers """
     if(sequence is None or sequence=='pseudo'):
         return np.random.random(shape)
 

@@ -103,7 +103,7 @@ class Generator:
         elif(params['start']=='time'):
 
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
-            params.pop('t_dist')
+            self.params.pop('t_dist')
 
         if('output' in self.params):
             out_params = self.params["output"]
@@ -127,6 +127,9 @@ class Generator:
         if('r' in dist_vars and 'theta' not in dist_vars):
             vprint("Assuming cylindrical symmetry...",self.verbose>0,1,True)
             dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+
+        if(self.params['start']['type']='time' and 't_dist' in self.params):
+            raise ValueError('Error: t_dist should not be set for time start')
 
         return dist_params
 
@@ -301,6 +304,7 @@ class Generator:
 
             vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True);
             bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec'), 'verbose':verbose>0})
+            #bdist = set_std(bdust,**{'variables':'t','sigma_t':0.0*unit_ret
 
         else:
             raise ValueError(f'Beam start type "{self.params["start"]["type"]}" is not supported!')
