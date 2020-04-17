@@ -106,7 +106,7 @@ class Generator:
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
             if('t_dist' in params):
                 warnings.warn('Ignoring user specified t distribution for time start.')
-            self.params.pop('t_dist')
+                self.params.pop('t_dist')
 
         if('output' in self.params):
             out_params = self.params["output"]
@@ -293,7 +293,7 @@ class Generator:
         # Handle any start type specific settings
         if(self.params['start']['type']=="cathode"):
 
-            bdist["pz"]=np.abs(bdist["pz"])   # Only take forward hemisphere 
+            bdist['pz']=np.abs(bdist['pz'])   # Only take forward hemisphere 
             vprint('Cathode start: fixing pz momenta to forward hemisphere',verbose>0,1,True)
             vprint(f'avg_pz -> {bdist.avg("pz"):G~P}, sigma_pz -> {bdist.std("pz"):G~P}',verbose>0,2,True)
 
