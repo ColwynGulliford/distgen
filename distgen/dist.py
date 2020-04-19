@@ -1093,23 +1093,23 @@ class UniformRad(DistRad):
 
     def pdf(self,r):
         nonzero = (r >= self.rL) & (r <= self.rR)
-        res = np.zeros(len(r))
+        res = np.zeros(len(r))*unit_registry('1/'+str(r.units))
         res[nonzero]=r[nonzero]*2.0/(self.rR**2-self.rL**2)
-        res = res*unit_registry('1/'+str(r.units))
+        #res = res*unit_registry('1/'+str(r.units))
         return res
 
     def rho(self,r):
         nonzero = (r >= self.rL) & (r <= self.rR)
-        res = np.zeros(len(r))
+        res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         res[nonzero]=2/(self.rR**2-self.rL**2)
-        res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+        #res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         return res
 
     def cdf(self,r):
         nonzero = (r >= self.rL) & (r <= self.rR)
-        res = np.zeros(len(r))
+        res = np.zeros(len(r))*unit_registry('dimensionless')
         res[nonzero]=(r[nonzero]*r[nonzero] - self.rL**2)/(self.rR**2-self.rL**2)
-        res = res*unit_registry('dimensionless')
+        #res = res*unit_registry('dimensionless')
         return res
 
     def cdfinv(self,rns):
@@ -1203,14 +1203,14 @@ class NormRad(DistRad):
     def pdf(self,r):
    
         xi = (r/self.sigma)
-        res = np.zeros(len(r))
+        res = np.zeros(len(r))*unit_registry('1/'+str(r.units))
         nonzero =  (r>=self.rL) & (r<=self.rR)
         res[nonzero] = r[nonzero]*self.canonical_rho(xi[nonzero])/self.dp/self.sigma**2
-        return res*unit_registry('1/'+str(r.units))
+        return res
 
     def cdf(self,r):
 
-        res = np.zeros(len(r))
+        res = np.zeros(len(r))*unit_registry('dimensionless')
         nonzero =  (r>=self.rL) & (r<=self.rR)
         xi = (r/self.sigma)
         res[nonzero]=(self.pL - self.canonical_rho(xi[nonzero]))/self.dp
