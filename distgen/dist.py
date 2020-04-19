@@ -480,7 +480,6 @@ class SuperGaussian(Dist1d):
         assert not (sigma_str in kwargs and lambda_str in kwargs), 'SuperGaussian length scale must either be set using "lambda" or "{sigma_str}", not both.' 
         assert (alpha_str in kwargs or power_str in kwargs), 'SuperGaussian length scale must be set using "lambda" or "{sigma_str}", Neither provided.' 
 
-
         if(power_str in kwargs):
             self.p = kwargs[power_str]
         else:
@@ -491,6 +490,8 @@ class SuperGaussian(Dist1d):
             else:
                 self.p = 1/alpha 
 
+        assert self.p > 0, 'SuperGaussian power "p" must be > 0, not p = {self.p}'
+ 
         if('lambda' in kwargs):
             self.Lambda = kwargs[lambda_str]
         else: 
@@ -511,11 +512,11 @@ class SuperGaussian(Dist1d):
             x=self.get_x_pts(10000)
       
         xi = (x-self.mu)/self.Lambda
-        nu1 = 0.5*xi**2
+        nu1 = 0.5*(xi**2)
 
         N = 1./2/np.sqrt(2)/self.Lambda/gamma(1+1.0/2.0/self.p)
 
-        rho = N*np.exp(-np.float_power(nu1.magnitude,self.p.magnitude))#*unit_registry('1/'+str(self.Lambda.units))
+        rho = N*np.exp(-np.float_power(nu1.magnitude,self.p.magnitude))
         
         return rho
         
@@ -1404,7 +1405,7 @@ class SuperGaussianRad(DistRad):
     def rho(self,r):
 
         csi = r/self.Lambda
-        nur = 0.5*csi**2
+        nur = 0.5*(csi**2)
         N = (1.0/gamma(1+1.0/self.p)/self.Lambda**2)
         rho = N*np.exp(-np.float_power(nur.magnitude,self.p.magnitude))
         return rho
