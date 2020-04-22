@@ -245,11 +245,11 @@ class Dist1d(Dist):
         plt.title(stat_line+'\n'+dist_line)
         plt.legend(["PDF","Sampling"])    
 
+
 class Uniform(Dist1d):
 
     """
     Implements a the uniform 1d distribution over a range a <= x <= b.
-
 
     """
 
