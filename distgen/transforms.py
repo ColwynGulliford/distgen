@@ -101,12 +101,22 @@ def set_std(beam, **params):
 
     return beam
 
+def set_stdxy(beam, **params):
+
+    var = params['variables'] 
+    check_inputs(params, ['sigma_xy'], [], 2, 'set_stdxy(beam, **kwargs)') 
+   
+    beam = set_std(beam, **{'variables':'x', 'sigma_x':params['sigma_xy']})
+    beam = set_std(beam, **{'variables':'y', 'sigma_y':params['sigma_xy']})
+
+    return beam
+
 def set_avg_and_std(beam, **params):
 
     var = params['variables'] 
     check_inputs(params, ['sigma_'+var, 'avg_'+var], [], 1, 'set_avg_and_std(beam, **kwargs)') 
-    beam = set_std(beam,**{'variables':var, 'sigma_'+var:params['sigma_'+var]})
-    beam = set_avg(beam,**{'variables':var, 'avg_'+var:params['avg_'+var]})
+    beam = set_std(beam, **{'variables':var, 'sigma_'+var:params['sigma_'+var]})
+    beam = set_avg(beam, **{'variables':var, 'avg_'+var:params['avg_'+var]})
     vprint(f'Setting avg_{var} -> {beam.avg(var):G~P} and sigma_{var} -> {beam.std(var):G~P}', params['verbose'], 2, True)
     return beam
 
