@@ -21,7 +21,7 @@ def writer(output_format,beam,outfile,verbose=0,params=None):
     """ Returns a simulaiton code specific writer function """
 
     file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
-    file_writer[output_format](beam,outfile,verbose,params)
+    file_writer[output_format](beam, outfile, verbose, params)
 
 def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
 

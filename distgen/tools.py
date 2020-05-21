@@ -485,6 +485,10 @@ def dict_to_quantity(qd):
         return float(qd['value'])*unit_registry(qd['units'])
     else:
         return np.array(qd['value'])*unit_registry(qd['units'])
+
+def list_to_dict(ll):
+    assert isinstance(ll, list), 'input to list_to_dict must be a list'
+    return {index:ll[index] for index in range(len(ll))}
         
 def convert_list_params(d):
     """ Converts elements in a list to quantities with units where appropriate """

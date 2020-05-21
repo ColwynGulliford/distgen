@@ -1249,7 +1249,7 @@ class NormRad(DistRad):
             pRrR2 = self.pR*self.rR**2
 
         pRrL2 = self.pR*self.rL**2
-        return np.sqrt( 2*self.sigma**2 - self.rL**2 + (pRrL2 - pRrR2)/self.dp )
+        return np.sqrt( 2*self.sigma**2 + self.rL**2 + (pRrL2 - pRrR2)/self.dp )
 
 class RadFile(DistRad):
 
