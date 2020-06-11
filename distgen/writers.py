@@ -59,7 +59,7 @@ def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):
         assert beam.species == 'electron' # TODO: add more species
 
         nspecies = np.abs(qbunch.magnitude/qspecies.magnitude)
-        nmacro = nspecies*beam["w"]    #np.full((beam.n,),1)*np.abs( (beam.q.to("coulomb")).magnitude/beam.n/qspecies.magnitude)
+        nmacro = nspecies*np.asb(beam["w"])    #np.full((beam.n,),1)*np.abs( (beam.q.to("coulomb")).magnitude/beam.n/qspecies.magnitude)
 
         vprint(f'Printing {(beam["n_particle"])} particles to "{outfile}": ',verbose>0, 0, False)
         

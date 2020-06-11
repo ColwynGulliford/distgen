@@ -57,6 +57,8 @@ class Generator:
             else:
                 #Try raw string
                 input = yaml.safe_load(input)
+                assert isinstance(input, dict), f'ERROR: parsing unsuccessful, could not read {input}'
+
         self.input = input
 
     def configure(self):
@@ -215,7 +217,6 @@ class Generator:
 
         dist_params = self.get_dist_params()   # Get the relevant dist params, setting defaults as needed, and samples random number generator
         self.get_rands(list(dist_params.keys()))
-        
 
         # Do radial dist first if requested
         if('r' in dist_params and 'theta' in dist_params):
@@ -224,7 +225,9 @@ class Generator:
                 
             # Get r distribution
             rdist = get_dist('r', dist_params['r'], verbose=verbose)      
-            r = rdist.cdfinv(self.rands['r'])       # Sample to get beam coordinates
+
+            if(rdist.rms()>0):
+                r = rdist.cdfinv(self.rands['r'])       # Sample to get beam coordinates
                     
             # Sample to get beam coordinates
             vprint('theta distribution: ', verbose>0, 1, False)
@@ -269,18 +272,25 @@ class Generator:
 
             vprint(x+" distribution: ",verbose>0,1,False)   
             dist = get_dist(x, dist_params[x], verbose=verbose)      # Get distribution
-            bdist[x]=dist.cdfinv(self.rands[x])                      # Sample to get beam coordinates
 
-            # Fix up the avg and std so they are exactly what user asked for
-            if("avg_"+x in dist_params[x]):
-                avgs[x]=dist_params[x]["avg_"+x]
-            else:
-                avgs[x] = dist.avg()
+            if(dist.std()<=0):
+                continue
 
-            if("sigma_"+x in dist_params[x]):
-                stds[x] = dist_params[x]["sigma_"+x]
             else:
-                stds[x] = dist.std()
+
+                # Only reach here if the distribution has > 0 size
+                bdist[x]=dist.cdfinv(self.rands[x])                      # Sample to get beam coordinates
+
+                # Fix up the avg and std so they are exactly what user asked for
+                if("avg_"+x in dist_params[x]):
+                    avgs[x]=dist_params[x]["avg_"+x]
+                else:
+                    avgs[x] = dist.avg()
+
+                if("sigma_"+x in dist_params[x]):
+                    stds[x] = dist_params[x]["sigma_"+x]
+                else:
+                    stds[x] = dist.std()
 
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
@@ -324,6 +334,7 @@ class Generator:
             else:
                 order = transforms.keys()
 
+            
             for name in order:
 
                 T = transforms[name]

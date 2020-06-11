@@ -230,6 +230,8 @@ class Beam():
 
         elif(units == 'geometric'): 
             p = getattr(self, f'{var}p').magnitude
+        else:
+            raise ValueError(f'unknown emittance type: {units}')
 
         x0 = mean(x, getattr(self, 'w'))
         p0 = mean(p, getattr(self, 'w'))
@@ -589,7 +591,7 @@ def beam_data(beam):
     species = beam.species
     
     # weight
-    weight = (beam['w'].magnitude) * total_charge # Weight should be macrocharge in C
+    weight = np.abs((beam['w'].magnitude) * total_charge) # Weight should be macrocharge in C
     
     # Status
     status = np.full(n_particle, 1) # Status == 1 means live

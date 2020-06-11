@@ -14,4 +14,12 @@ def main():
 
 
 if __name__==main():
-    main()
+    #main()
+    filename='tukey.beer.can.in.json'
+    with open(filename) as fid:
+        data = yaml.safe_load(fid)
+
+    newfile='tukey.beer.can.in.yaml'
+    with open(newfile,'w') as yid:
+        yaml.dump(data, yid, default_flow_style=False)
+

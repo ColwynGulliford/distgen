@@ -163,7 +163,7 @@ class Dist1d(Dist):
         """
         Evaluates the inverse of the cdf at probabilities rns
         """
-        return interp(rns,self.Cx,self.xs)
+        return interp(rns, self.Cx, self.xs)
 
     def sample(self, N, sequence=None, params=None):
         """
@@ -353,6 +353,8 @@ class Norm(Dist1d):
         self.check_inputs(kwargs)
 
         self.sigma = kwargs[sigmastr]
+
+        assert self.sigma.magnitude>=0, 'Error: sigma for Norm(1d) must be >= 0'
             
         if(avgstr in kwargs.keys()):
             self.mu = kwargs[avgstr]
@@ -388,23 +390,42 @@ class Norm(Dist1d):
         if(not right_cut_set):
             self.b = +float('Inf')*unit_registry(str(self.sigma.units))
 
-        assert self.a < self.b, 'Right side cut off a = {a:G~P} must be < left side cut off b = {b:G~P}'
+        if(self.sigma.magnitude>0):
 
-        self.A = (self.a - self.mu)/self.sigma
-        self.B = (self.b - self.mu)/self.sigma
+            assert self.a < self.b, 'Right side cut off a = {a:G~P} must be < left side cut off b = {b:G~P}'
+
+            self.A = (self.a - self.mu)/self.sigma
+            self.B = (self.b - self.mu)/self.sigma
         
-        self.pA = self.canonical_pdf(self.A)
-        self.pB = self.canonical_pdf(self.B)
+            self.pA = self.canonical_pdf(self.A)
+            self.pB = self.canonical_pdf(self.B)
 
-        self.PA = self.canonical_cdf(self.A)
-        self.PB = self.canonical_cdf(self.B)
+            self.PA = self.canonical_cdf(self.A)
+            self.PB = self.canonical_cdf(self.B)
 
-        self.Z = self.PB - self.PA
+            self.Z = self.PB - self.PA
+
+        else:
+
+            self.A = 0*unit_registry('dimensionless')
+            self.B = 0*unit_registry('dimensionless')
+        
+            self.pA = 0
+            self.pB = 0
+
+            self.PA = 0
+            self.PB = 0
+
+            self.Z = 1.0
 
         vprint('Gaussian',verbose>0,0,True)
         vprint(f'avg_{var} = {self.mu:G~P}, sigma_{var} = {self.sigma:0.3f~P}',verbose>0,2,True)
-        vprint(f'Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
-            
+
+        if(self.sigma>0):
+            vprint(f'Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
+        else:
+            vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
+
     def get_x_pts(self,n):
         return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
 
@@ -436,7 +457,10 @@ class Norm(Dist1d):
         return self.mu + self.sigma*self.canonical_cdfinv(scaled_rns)
 
     def avg(self):
-        return self.mu + self.sigma*(self.pA - self.pB)/self.Z 
+        if(self.sigma.magnitude>0):
+            return self.mu + self.sigma*(self.pA - self.pB)/self.Z 
+        else:
+            return self.mu
     
     def std(self):
 
