@@ -266,18 +266,36 @@ class Uniform(Dist1d):
         """
 
         self.xstr = var
-        minstr = f'min_{var}'
-        maxstr = f'max_{var}'
-        
-        self.required_params = [minstr, maxstr]
-        self.optional_params = []
+        self.required_params = []
+        self.optional_params = [f'max_{var}', f'min_{var}', f'avg_{var}', f'sigma_{var}']
 
         self.check_inputs(kwargs)
+
+        use_min_max = f'max_{var}' in kwargs and f'min_{var}' in kwargs
+        use_avg_sigma = f'avg_{var}' in kwargs and f'sigma_{var}' in kwargs
+
+        assert use_min_max ^ use_avg_sigma, f'User must specify either min_{var} and max_{var}] or [avg_{var} and sigma_{var}]'
+
+        if(f'min_{var}' in kwargs):
+            self.xL = kwargs[f'min_{var}']           
+            self.xR = kwargs[f'max_{var}']
+        else:
+            length = np.sqrt(12)*kwargs[f'sigma_{var}']
+            avgv = kwargs[f'avg_{var}']
+            self.xL = avgv-length/2
+            self.xR = avgv+length/2
+
+
+
+        #assert (f'max_{var}' in kwargs and f'min_{var}' in kwargs) or (f'avg_{var}' in kwargs and f'sigma_{var}' in kwargs), f'User must specify either min_{var} and max_{var}] or [avg_{var} and sigma_{var}], not both.'
+
+
+        
        
-        self.xL = kwargs[minstr]           
-        self.xR = kwargs[maxstr]
+        #self.xL = kwargs[minstr]           
+        #self.xR = kwargs[maxstr]
         vprint('uniform',verbose>0,0,True)
-        vprint(f'{minstr} = {self.xL:G~P}, {maxstr} = {self.xR:G~P}', verbose>0, 2, True)
+        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
   
     def get_x_pts(self,n):
         """
