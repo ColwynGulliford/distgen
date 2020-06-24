@@ -79,7 +79,8 @@ class Generator:
         # Check that only allowed params present at top level
         allowed_params = required_params + ['output','transforms']
         for p in params:
-            assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
+            #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
+            assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p[-5:]
         
         # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
@@ -350,7 +351,7 @@ class Generator:
     def run(self):
         beam = self.beam()
         self.particles = ParticleGroup(data=beam.data())
-        vprint(f'Created particles in .particles: {self.particles}',self.verbose>0,1,False) 
+        vprint(f'Created particles in .particles: {self.particles}', self.verbose>0,1,False) 
     
     
     def fingerprint(self):
