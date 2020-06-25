@@ -80,7 +80,7 @@ class Generator:
         allowed_params = required_params + ['output','transforms']
         for p in params:
             #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
-            assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p[-5:]
+            assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p
         
         # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
