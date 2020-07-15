@@ -8,12 +8,13 @@ ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta','x
 
 def get_variables(varstr):
 
-   varstr=varstr.strip()
-   variables = varstr.split(':')
-   for variable in variables:
-       assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
-   return variables
-   
+   if(varstr):
+       varstr=varstr.strip()
+       variables = varstr.split(':')
+       for variable in variables:
+           assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
+       return variables
+    
 def get_origin(beam,varstr,origin):
 
     if(origin=='centroid'):
@@ -71,8 +72,8 @@ def set_avg(beam, **params):
 
 def scale(beam, **params):
 
-    check_inputs(params, ['scale'], ['fix_average'], 1, 'scale(beam, **kwargs)')  
     var = params['variables']
+    check_inputs(params, ['scale'], ['fix_average'], 1, 'scale(beam, **kwargs)')  
     scale = params['scale']
     fix_average = params['fix_average']
 
@@ -91,7 +92,7 @@ def scale(beam, **params):
 
 def set_std(beam, **params):
 
-    var = params['variables'] 
+    var = params['variables']
     check_inputs(params, ['sigma_'+var], [], 1, 'set_std(beam, **kwargs)')  
     new_std = params['sigma_'+var]
     vprint(f'Setting sigma_{var} -> {new_std:G~P}', params['verbose'], 2, True)
@@ -103,9 +104,9 @@ def set_std(beam, **params):
 
 def set_stdxy(beam, **params):
 
-    var = params['variables'] 
+    var = params['variables']
+    params['variables']='x:y'
     check_inputs(params, ['sigma_xy'], [], 2, 'set_stdxy(beam, **kwargs)') 
-   
     beam = set_std(beam, **{'variables':'x', 'sigma_x':params['sigma_xy']})
     beam = set_std(beam, **{'variables':'y', 'sigma_y':params['sigma_xy']})
 
@@ -113,11 +114,12 @@ def set_stdxy(beam, **params):
 
 def set_avg_and_std(beam, **params):
 
-    var = params['variables'] 
+    var = params['variables']
     check_inputs(params, ['sigma_'+var, 'avg_'+var], [], 1, 'set_avg_and_std(beam, **kwargs)') 
     beam = set_std(beam, **{'variables':var, 'sigma_'+var:params['sigma_'+var]})
     beam = set_avg(beam, **{'variables':var, 'avg_'+var:params['avg_'+var]})
     vprint(f'Setting avg_{var} -> {beam.avg(var):G~P} and sigma_{var} -> {beam.std(var):G~P}', params['verbose'], 2, True)
+
     return beam
 
 
@@ -262,6 +264,7 @@ def matrix2d(beam, variables, m11, m12, m21, m22):
 
 def magnetize(beam, **params):
 
+    params['variables'] = 'r:ptheta'
     check_inputs(params, ['magnetization'], [], 2, 'magnetize(beam, **kwargs)') 
     variables=params['variables'] 
 
@@ -280,11 +283,27 @@ def magnetize(beam, **params):
 
 def set_twiss(beam, **params): #plane, beta, alpha, eps):
 
-    check_inputs(params, ['beta','alpha','emittance'], [], 1, 'set_twiss(beam, **kwargs)') 
+    check_inputs(params, [], ['beta','alpha','emittance'], 1, 'set_twiss(beam, **kwargs)') 
+
+    xstr = params['variables']
+    beta0, alpha0, eps0 = beam.twiss(xstr)
+
     plane = params['variables']
-    beta = params['beta']
-    alpha = params['alpha']
-    eps = params['emittance']
+
+    if('beta' in params):
+        beta = params['beta']
+    else:
+        beta = beta0
+
+    if('alpha' in params):
+        alpha = params['alpha']
+    else:
+        alpha = alpha0
+
+    if('emittance' in params):
+        eps = params['emittance']
+    else:
+        eps = eps0
 
     vprint(f'Setting beta_{plane} -> {beta:G~P}, alpha_{plane} -> {alpha:G~P}, and emittance_{plane} -> {eps:G~P}.', params['verbose'], 2, True) 
 
@@ -302,8 +321,6 @@ def set_twiss(beam, **params): #plane, beta, alpha, eps):
 
     avg_p0 = p0.mean()
     beam[pstr]=beam[pstr]-avg_p0
-
-    beta0, alpha0, eps0 = beam.twiss(xstr)
 
     assert beta0>0, f'Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform.'
     assert eps0>0, f'Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform.'
@@ -325,11 +342,15 @@ def transform(beam, T):
     desc = T['type']
     tokens = desc.split(' ')
     transfunc = tokens[0]
-    variables = tokens[1]
-    
-    T['variables']=variables
 
-    variables = get_variables(variables)
+    if(len(tokens)>1):
+        varstr = tokens[1]
+    else:
+        varstr=None
+
+    #print(variables)
+    T['variables']=varstr
+
     transform_fun = globals()[transfunc]
     return transform_fun(beam, **T)
 

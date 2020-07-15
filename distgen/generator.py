@@ -259,9 +259,9 @@ class Generator:
         # Do 2D distributions
         if("xy" in dist_params):
 
-            vprint('xy distribution: ',verbose>0,1,False) 
-            dist = get_dist('xy', dist_params['xy'],verbose=0)
-            bdist['x'], bdist['y'] = dist.cdfinv(self.rands['x'],self.rands['y'])
+            vprint('xy distribution: ', verbose>0, 1, False) 
+            dist = get_dist('xy', dist_params['xy'], verbose=0)
+            bdist['x'], bdist['y'] = dist.cdfinv(self.rands['x'], self.rands['y'])
 
             dist_params.pop('xy')
 
@@ -274,10 +274,7 @@ class Generator:
             vprint(x+" distribution: ",verbose>0,1,False)   
             dist = get_dist(x, dist_params[x], verbose=verbose)      # Get distribution
 
-            if(dist.std()<=0):
-                continue
-
-            else:
+            if(dist.std()>0):
 
                 # Only reach here if the distribution has > 0 size
                 bdist[x]=dist.cdfinv(self.rands[x])                      # Sample to get beam coordinates
@@ -298,8 +295,9 @@ class Generator:
 
             vprint(f'Shifting avg_{x} = {bdist.avg(x):G~P} -> {avgs[x]:G~P}', verbose>0 and bdist[x].mean()!=avgs[x],1,True)
             vprint(f'Scaling sigma_{x} = {bdist.std(x):G~P} -> {stds[x]:G~P}',verbose>0 and bdist[x].std() !=stds[x],1,True)
-            
-            bdist = set_avg_and_std(bdist,**{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':0})
+
+            #bdist = transform(bdist, {'type':f'set_avg_and_std {x}', 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':0}) 
+            bdist = set_avg_and_std(bdist, **{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':0})
         
         # Handle any start type specific settings
         if(self.params['start']['type']=="cathode"):
@@ -329,7 +327,7 @@ class Generator:
             # Check if the user supplied the transform order, otherwise just go through the dictionary
             if('order' in transforms):
                 order = transforms['order']
-                if(not isinstance(order,list)):
+                if(not isinstance(order, list)):
                     raise ValueError('Transform "order" key must be associated a list of transform IDs')
                 del transforms['order']
             else:
@@ -340,7 +338,7 @@ class Generator:
 
                 T = transforms[name]
                 T['verbose']=verbose>0
-                vprint(f'Applying user supplied transform: "{name}" = {T["type"]}...',verbose>0,1,True)
+                vprint(f'Applying user supplied transform: "{name}" = {T["type"]}...', verbose>0, 1, True)
                 bdist = transform(bdist, T)
 
         watch.stop()

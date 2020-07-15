@@ -169,6 +169,7 @@ class Dist1d(Dist):
         """
         Generate coordinates by sampling the underlying pdf
         """
+        print('Weiner', self.rms())
         return self.cdfinv( random_generator((1,N),sequence,params)*unit_registry("dimensionless") )
 
     def plot_pdf(self, n=1000):
@@ -934,6 +935,7 @@ class UniformTheta(DistTheta):
         self.Cb = np.cos(self.b)
         self.Sb = np.sin(self.b)
 
+        vprint('uniform theta', verbose>0, 0, True)
         vprint(f'min_theta = {self.a:G~P}, max_theta = {self.b:G~P}', verbose>0, 2, True)
         
     def avgCos(self):
