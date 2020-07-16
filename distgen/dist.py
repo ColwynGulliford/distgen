@@ -250,7 +250,7 @@ class Dist1d(Dist):
         plt.legend(["PDF","Sampling"])    
 
 
-class SuperPosition(Dist1d):
+class Superposition(Dist1d):
 
     def __init__(self, var, verbose, **kwargs):
 
@@ -265,7 +265,6 @@ class SuperPosition(Dist1d):
 
         for ii, name in enumerate(dist_defs.keys()):
 
-            
             vprint(f'\ndistribution name: {name}', verbose>0, 0, True)
             dists[name] = get_dist(var, dist_defs[name], verbose=verbose)
             
@@ -281,7 +280,8 @@ class SuperPosition(Dist1d):
             if(ii==0):
                 ps = dists[name].pdf(xs)
             else:
-                ps = ps + dists[name].pdf(xs)
+                pi = dists[name].pdf(xs)
+                ps = ps + pi/np.max(pi)
 
         super().__init__(xs, ps, var)
  
