@@ -75,7 +75,7 @@ def get_dist(var,params,verbose=0):
     elif(dtype=='super_gaussian' or dtype=='sg'):
         dist = SuperGaussian(var,verbose=verbose, **params)
     elif(dtype=="superposition" or dtype=='sup'):
-        dist = SuperPosition(var, verbose=verbose, **params)
+        dist = Superposition(var, verbose=verbose, **params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose, **params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
@@ -263,7 +263,16 @@ class Superposition(Dist1d):
         min_var=0
         max_var=0
 
+        if('weights' not in kwargs):
+            weights={name:1 for name in dist_defs}
+        else:
+            weights = kwargs['weights']
+
+
         for ii, name in enumerate(dist_defs.keys()):
+
+            if(name not in weights):
+                weights[name]=1
 
             vprint(f'\ndistribution name: {name}', verbose>0, 0, True)
             dists[name] = get_dist(var, dist_defs[name], verbose=verbose)
@@ -277,11 +286,12 @@ class Superposition(Dist1d):
 
         for ii, name in enumerate(dists.keys()):
 
+            pi = dists[name].pdf(xs)
+
             if(ii==0):
-                ps = dists[name].pdf(xs)
+                ps = weights[name]*pi/np.max(pi.magnitude)
             else:
-                pi = dists[name].pdf(xs)
-                ps = ps + pi/np.max(pi)
+                ps = ps + weights[name]*pi/np.max(pi.magnitude)
 
         super().__init__(xs, ps, var)
  

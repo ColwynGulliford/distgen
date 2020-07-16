@@ -11,7 +11,7 @@ with open(path.join(cur_dir, 'requirements.txt'), 'r') as f:
 
 setup(
     name='distgen',
-    version = '0.4.1b',
+    version = '0.4.2b',
     packages=find_packages(), 
     package_dir={'distgen':'distgen'},
     url='https://github.com/ColwynGulliford/distgen',

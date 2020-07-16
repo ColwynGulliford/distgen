@@ -32,6 +32,9 @@ total_charge:
   units: pC
   value: 10
 z_dist:
+  weights:
+    d1: 1
+    d2: 1
   dists:
     d1: 
       avg_z:
