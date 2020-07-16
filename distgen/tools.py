@@ -133,7 +133,7 @@ def cumtrapz(f, x):
 
 
 @unit_registry.wraps('=A*A*B', ('=B', '=A'))
-def rectint(f,x):
+def rectint(f, x):
  
     """
     Computes integral[ f(x) dx ] ~ sum[ (x(i+1) - x(i))*f(i) ]
@@ -198,7 +198,7 @@ def radcumint(f, r):
     rcint = np.zeros(len(rs))
     rcint[1:] = np.cumsum(0.5*(rs[1:]**2-rs[:-1]**2)*f)
 
-    return (rcint,rs)
+    return (rcint, rs)
 
 
 #--------------------------------------------------------------
@@ -234,6 +234,15 @@ def nearest_neighbor(array, values):
     array = array.magnitude
     values = values.magnitude
     return np.abs(np.subtract.outer(array, values)).argmin(0)
+
+
+#--------------------------------------------------------------
+# Misc Numpy
+#--------------------------------------------------------------
+@unit_registry.wraps('=A', ('=A','=A'))
+def concatenate(x1, x2):
+    return np.concatenate((x1,x2))
+
 
 
 #--------------------------------------------------------------

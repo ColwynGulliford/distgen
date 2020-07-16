@@ -20,6 +20,8 @@ from .tools import radcumint
 from .tools import histogram
 from .tools import radial_histogram
 
+from .tools import  concatenate
+
 from .tools import erf
 from .tools import erfinv
 from .tools import gamma
@@ -72,6 +74,8 @@ def get_dist(var,params,verbose=0):
         dist = Tukey(var,verbose=verbose, **params)
     elif(dtype=='super_gaussian' or dtype=='sg'):
         dist = SuperGaussian(var,verbose=verbose, **params)
+    elif(dtype=="superposition" or dtype=='sup'):
+        dist = SuperPosition(var, verbose=verbose, **params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose, **params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
@@ -169,7 +173,6 @@ class Dist1d(Dist):
         """
         Generate coordinates by sampling the underlying pdf
         """
-        print('Weiner', self.rms())
         return self.cdfinv( random_generator((1,N),sequence,params)*unit_registry("dimensionless") )
 
     def plot_pdf(self, n=1000):
@@ -245,6 +248,44 @@ class Dist1d(Dist):
  
         plt.title(stat_line+'\n'+dist_line)
         plt.legend(["PDF","Sampling"])    
+
+
+class SuperPosition(Dist1d):
+
+    def __init__(self, var, verbose, **kwargs):
+
+        self.xstr = var
+        assert 'dists' in kwargs, 'SuperPositionDist1d must be supplied the key word argument "dists"'
+        dist_defs = kwargs['dists']
+
+        dists={}
+
+        min_var=0
+        max_var=0
+
+        for ii, name in enumerate(dist_defs.keys()):
+
+            
+            vprint(f'\ndistribution name: {name}', verbose>0, 0, True)
+            dists[name] = get_dist(var, dist_defs[name], verbose=verbose)
+            
+            xi = dists[name].get_x_pts(10)
+
+            if(xi[0] <min_var): min_var = xi[0]
+            if(xi[-1]>max_var): max_var = xi[-1]
+
+        xs = linspace(min_var, max_var, 10000)
+
+        for ii, name in enumerate(dists.keys()):
+
+            if(ii==0):
+                ps = dists[name].pdf(xs)
+            else:
+                ps = ps + dists[name].pdf(xs)
+
+        super().__init__(xs, ps, var)
+ 
+        #print(f'Total required {var} range: min = {min_var:G~P} : max = {max_var:G~P}')
 
 
 class Uniform(Dist1d):
@@ -354,7 +395,7 @@ class Uniform(Dist1d):
     
 class Norm(Dist1d):
 
-    def __init__(self,var,verbose=0,**kwargs):
+    def __init__(self, var, verbose=0, **kwargs):
         
 
         self.type='Norm'
