@@ -76,6 +76,8 @@ def get_dist(var,params,verbose=0):
         dist = SuperGaussian(var,verbose=verbose, **params)
     elif(dtype=="superposition" or dtype=='sup'):
         dist = Superposition(var, verbose=verbose, **params)
+    elif(dtype =='product' or dtype=='pro'):
+        dist = Product(var, verbose=verbose, **params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose, **params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
@@ -288,14 +290,51 @@ class Superposition(Dist1d):
 
             pi = dists[name].pdf(xs)
 
+            assert weights[name]>=0, 'Weights for superpostiion dist must be >= 0.'
+
             if(ii==0):
                 ps = weights[name]*pi/np.max(pi.magnitude)
             else:
                 ps = ps + weights[name]*pi/np.max(pi.magnitude)
 
         super().__init__(xs, ps, var)
- 
-        #print(f'Total required {var} range: min = {min_var:G~P} : max = {max_var:G~P}')
+
+
+class Product(Dist1d):
+
+    def __init__(self, var, verbose, **kwargs):
+
+        self.xstr = var
+        assert 'dists' in kwargs, 'ProductDist 1d must be supplied the key word argument "dists"'
+        dist_defs = kwargs['dists']
+
+        dists={}
+
+        min_var=0
+        max_var=0
+
+        for ii, name in enumerate(dist_defs.keys()):
+
+            vprint(f'\ndistribution name: {name}', verbose>0, 0, True)
+            dists[name] = get_dist(var, dist_defs[name], verbose=verbose)
+            
+            xi = dists[name].get_x_pts(10)
+
+            if(xi[0] <min_var): min_var = xi[0]
+            if(xi[-1]>max_var): max_var = xi[-1]
+
+        xs = linspace(min_var, max_var, 10000)
+
+        for ii, name in enumerate(dists.keys()):
+
+            pi = dists[name].pdf(xs)
+
+            if(ii==0):
+                ps = pi/np.max(pi.magnitude)
+            else:
+                ps = ps*pi/np.max(pi.magnitude)
+
+        super().__init__(xs, ps, var)
 
 
 class Uniform(Dist1d):
