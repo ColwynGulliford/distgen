@@ -285,10 +285,12 @@ class Generator:
                 else:
                     avgs[x] = dist.avg()
 
-                if("sigma_"+x in dist_params[x]):
-                    stds[x] = dist_params[x]["sigma_"+x]
-                else:
-                    stds[x] = dist.std()
+                stds[x] = dist.std()
+                #if("sigma_"+x in dist_params[x]):
+                #    stds[x] = dist_params[x]["sigma_"+x]
+                #else:
+                    #stds[x] = dist.std()
+                    #print(x, stds[x])
 
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
