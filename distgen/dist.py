@@ -480,8 +480,6 @@ class Norm(Dist1d):
             self.a = -kwargs[sigma_cutoff_str]*self.sigma + self.mu
             self.b = +kwargs[sigma_cutoff_str]*self.sigma + self.mu
 
-            print(self.a, self.b)
-
             left_cut_set = True
             right_cut_set = True
 
