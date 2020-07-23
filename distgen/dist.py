@@ -535,8 +535,20 @@ class Norm(Dist1d):
         else:
             vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
 
-    def get_x_pts(self,n):
-        return self.mu + linspace(-5*self.sigma,+5*self.sigma,1000)
+    def get_x_pts(self, n=1000):
+
+        f = 0.1
+        if(-float('Inf') < self.a.magnitude):
+            lhs=self.a*(1-f*np.sign(self.a.magnitude))
+        else:
+            lhs=-5*self.sigma
+
+        if(self.b.magnitude < float('Inf')):
+            rhs = self.b*(1+f*np.sign(self.b.magnitude))
+        else:
+            rhs=+5*self.sigma
+
+        return self.mu + linspace(lhs, rhs, n)
 
     def canonical_pdf(self,csi):
         return (1/np.sqrt(2*pi))*np.exp( -csi**2/2.0 ) 
