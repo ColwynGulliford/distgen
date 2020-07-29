@@ -82,6 +82,8 @@ class Generator:
             #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
             assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p
         
+        assert params['n_particle']>0, 'User must speficy n_particle must > 0.'
+
         # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
             assert ("r_dist" in params)^("x_dist" in params)^("xy_dist" in params),"User must specify only one transverse distribution."
@@ -166,9 +168,9 @@ class Generator:
                 self.rands[key] = rns[:]*unit_registry('dimensionless')
 
         var_list = list(self.rands.keys())
-        for ii, var in enumerate(var_list[:-1]):
-             var2 = var_list[ii+1]
-             assert not np.array_equal(self.rands[var].magnitude, self.rands[var2].magnitude), f'Error: coordinate probalitiies for {v1} and {v2} are the same!'
+        for ii, vii in enumerate(var_list[:-1]):
+             viip1 = var_list[ii+1]
+             assert (not np.array_equal(self.rands[vii].magnitude, self.rands[viip1].magnitude)) or n_particle==1, f'Error: coordinate probalitiies for {vii} and {viip1} are the same!'
 
    
     def beam(self):
