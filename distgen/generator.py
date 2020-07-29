@@ -158,9 +158,12 @@ class Generator:
         
         if(n_coordinate>0):
             rns = random_generator(shape, sequence=self.params['random_type'])
-
+        
         for ii, key in enumerate(self.rands.keys()):
-            self.rands[key] = rns[ii,:]*unit_registry('dimensionless')
+            if(len(rns.shape)>1):
+                self.rands[key] = rns[ii,:]*unit_registry('dimensionless')
+            else:
+                self.rands[key] = rns[:]*unit_registry('dimensionless')
 
         var_list = list(self.rands.keys())
         for ii, var in enumerate(var_list[:-1]):
