@@ -107,7 +107,7 @@ class Dist():
     Defines a base class for all distributions, and includes functionality for strict input checking
     """
     def __init__(self):
-        pass
+        self._n_indent=2
 
     def check_inputs(self,params):
         """
@@ -115,7 +115,7 @@ class Dist():
         """
 
         # Make sure user isn't passing the wrong parameters:
-        allowed_params = self.optional_params + self.required_params + ['verbose','type']
+        allowed_params = self.optional_params + self.required_params + ['verbose','type','indent']
         for param in params:
             assert param in allowed_params, f'Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {param}\nAllowed params: {allowed_params}'
 
@@ -123,7 +123,10 @@ class Dist():
         for req in self.required_params:
             assert req in params, f'Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found.'
 
-    
+        if('indent' in params):
+            self._n_indent = params['indent']
+
+
 class Dist1d(Dist):
 
     """
@@ -134,18 +137,21 @@ class Dist1d(Dist):
     the distribution allows analytic treatment.
     """
     
-    def __init__(self, xs, Px, xstr="x"):
+    def __init__(self, xs=None, Px=None, xstr="x"):
+
+        super().__init__()
 
         self.xs = xs
         self.Px = Px
         self.xstr = xstr
           
-        norm = np.trapz(self.Px, self.xs)
-        if(norm<=0):
-            raise ValueError('Normalization of PDF was <= 0')
+        if(Px is not None):
+            norm = np.trapz(self.Px, self.xs)
+            if(norm<=0):
+                raise ValueError('Normalization of PDF was <= 0')
 
-        self.Px = self.Px/norm
-        self.Cx = cumtrapz(self.Px, self.xs)
+            self.Px = self.Px/norm
+            self.Cx = cumtrapz(self.Px, self.xs)
     
     def get_x_pts(self, n):
         """
@@ -254,10 +260,13 @@ class Dist1d(Dist):
 
 class Superposition(Dist1d):
 
+    """Dist object that allows user to superimpose multiple 1d distributions together to form a new PDF for sampling"""
+
     def __init__(self, var, verbose, **kwargs):
 
         self.xstr = var
         assert 'dists' in kwargs, 'SuperPositionDist1d must be supplied the key word argument "dists"'
+
         dist_defs = kwargs['dists']
 
         dists={}
@@ -270,14 +279,17 @@ class Superposition(Dist1d):
         else:
             weights = kwargs['weights']
 
+        vprint('superpostion',verbose>0,0,True)
 
         for ii, name in enumerate(dist_defs.keys()):
 
             if(name not in weights):
                 weights[name]=1
 
-            vprint(f'\ndistribution name: {name}', verbose>0, 0, True)
-            dists[name] = get_dist(var, dist_defs[name], verbose=verbose)
+            dist_defs[name]['indent']=3
+
+            vprint(f'{ii+1}. distribution name: {name}, type: ', verbose>0, 2, False)
+            dists[name] = get_dist(var, dist_defs[name],  verbose=verbose)
             
             xi = dists[name].get_x_pts(10)
 
@@ -299,8 +311,12 @@ class Superposition(Dist1d):
 
         super().__init__(xs, ps, var)
 
+        
+        #vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
 
 class Product(Dist1d):
+    
+    """Dist object that allows user to multiply multiple 1d distributions together to form a new PDF for sampling"""
 
     def __init__(self, var, verbose, **kwargs):
 
@@ -444,8 +460,11 @@ class Uniform(Dist1d):
     
 class Norm(Dist1d):
 
+    """ Defines the PDF and CDF for a normal distribution with truncation on either side """
+
     def __init__(self, var, verbose=0, **kwargs):
-        
+
+        self._n_indent = 2
 
         self.type='Norm'
         self.xstr = var
@@ -528,7 +547,7 @@ class Norm(Dist1d):
             self.Z = 1.0
 
         vprint('Gaussian',verbose>0,0,True)
-        vprint(f'avg_{var} = {self.mu:G~P}, sigma_{var} = {self.sigma:0.3f~P}',verbose>0,2,True)
+        vprint(f'avg_{var} = {self.mu:G~P}, sigma_{var} = {self.sigma:0.3f~P}',verbose>0,self._n_indent,True)
 
         if(self.sigma>0):
             vprint(f'Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
@@ -536,6 +555,8 @@ class Norm(Dist1d):
             vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
 
     def get_x_pts(self, n=1000):
+
+        """ Returns xpts from [a,b] or +/- 5 sigma, depending on the defintion of PDF """
 
         f = 0.1
         if(-float('Inf') < self.a.magnitude):
@@ -551,9 +572,12 @@ class Norm(Dist1d):
         return self.mu + linspace(lhs, rhs, n)
 
     def canonical_pdf(self,csi):
+        """ Definies the canonical normal distribution """
         return (1/np.sqrt(2*pi))*np.exp( -csi**2/2.0 ) 
 
-    def pdf(self,x):        
+    def pdf(self,x):     
+
+        """ Define the PDF for non-canonical normal dist including truncations on either side"""   
         csi = (x-self.mu)/self.sigma
         res = self.canonical_pdf(csi)/self.Z/self.sigma
         x_out_of_range = (x<self.a) | (x>self.b)
@@ -561,9 +585,11 @@ class Norm(Dist1d):
         return res
 
     def canonical_cdf(self,csi):
+        """ Defines the canonical cdf function """
         return 0.5*(1+erf(csi/np.sqrt(2) ) )
 
     def cdf(self,x):
+        """ Define the CDF for non-canonical normal dist including truncations on either side"""
         csi = (x-self.mu)/self.sigma
         res = (self.canonical_cdf(csi) - self.PA)/self.Z
         x_out_of_range = (x<self.a) | (x>self.b)
@@ -571,20 +597,23 @@ class Norm(Dist1d):
         return res
 
     def canonical_cdfinv(self,rns):
+        """ Define the inverse of the CDF for canonical normal dist including truncations on either side"""
         return np.sqrt(2)*erfinv((2*rns-1))
 
     def cdfinv(self,rns):
+        """ Define the inverse of the CDF for non-canonical normal dist including truncations on either side"""
         scaled_rns = rns*self.Z + self.PA
         return self.mu + self.sigma*self.canonical_cdfinv(scaled_rns)
 
     def avg(self):
+        """ Computes the <x> value of the distribution: <x> = int( x rho(x) dx) """
         if(self.sigma.magnitude>0):
             return self.mu + self.sigma*(self.pA - self.pB)/self.Z 
         else:
             return self.mu
     
     def std(self):
-
+        """ Computes the sigma of the distribution: sigma_x = sqrt(int( (x-<x>)^2 rho(x) dx)) """
         if(self.A.magnitude == -float('Inf')):
             ApA = 0*unit_registry('dimensionless')
         else:
@@ -598,11 +627,14 @@ class Norm(Dist1d):
         return self.sigma*np.sqrt( 1 + (ApA - BpB)/self.Z - ((self.pA - self.pB)/self.Z)**2 )
 
     def rms(self):
+        """ Computes the rms of the distribution: sigma_x = sqrt(int( x^2 rho(x) dx)) """
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
 
 class SuperGaussian(Dist1d):
+
+    """ Distribution  object that samples a 1d Super Gaussian PDF"""
 
     def __init__(self,var,verbose=0,**kwargs):
 
@@ -653,6 +685,7 @@ class SuperGaussian(Dist1d):
  
     def pdf(self,x=None):  
 
+        """ Defines the PDF for super Gaussian function """
         if(x is None):
             x=self.get_x_pts(10000)
       
@@ -666,11 +699,15 @@ class SuperGaussian(Dist1d):
         return rho
         
     def get_x_pts(self,n=None):
+        """
+        Returns n equally spaced x values from +/- 5*sigma
+        """
         if(n is None):
             n=10000
         return self.mu + linspace(-5*self.std(), +5*self.std(),n)
 
     def cdf(self,x):
+        """ Defines the CDF for the super Gaussian function """
         xpts = self.get_x_pts(10000)
         pdfs = self.pdf(xpts)
         cdfs = cumtrapz(self.pdf(xpts), xpts)
@@ -683,32 +720,37 @@ class SuperGaussian(Dist1d):
         return cdfs
 
     def cdfinv(self,p):
+        """ Definess the inverse of the CDF for the super Gaussian function """
         xpts = self.get_x_pts(10000)
         cdfs = self.cdf(xpts)
         return interp(p,cdfs,xpts)
     
     def avg(self):
+        """ Returns the average value of x for super Gaussian """
         return self.mu
 
     def std(self):
-
+        """ Returns the standard deviation of the super Gausssian dist """
         G1 = gamma(1 + 3.0/2.0/self.p)
         G2 = gamma(1+1/2/self.p)
         return self.Lambda * np.sqrt(2*G1/3/G2)
 
     def get_lambda(self,sigma):
-
+        """ Returns the length scale of the super Gausssian dist """
         G1 = gamma(1 + 3.0/2.0/self.p)
         G2 = gamma(1+1/2/self.p)
         return np.sqrt(3*G2/2.0/G1)*sigma
 
     def rms(self):
+        """ Returns the rms of the super Gausssian dist """
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
 
     
 class File1d(Dist1d):
+
+    """Defines an object for loading a 1d PDF from a file and using for particle sampling"""
     
     def __init__(self,var,verbose=0,**kwargs):
         
@@ -746,6 +788,8 @@ class File1d(Dist1d):
         super().__init__(xs,Px,self.xstr)
         
 class TemporalLaserPulseStacking(Dist1d):
+
+    """ CU style model of birefringent crystal pulse stacking """
 
     xstr="t" 
     ts = []
@@ -802,6 +846,8 @@ class TemporalLaserPulseStacking(Dist1d):
         self.set_cdf()
 
     def set_crystals(self, lengths, angles):
+
+        """ Sets the crytal parameters for propagating sech pulses """
     
         assert len(lengths)==len(angles), 'Number of crystal lengths must be the same as the number of angles.'
 
@@ -823,6 +869,8 @@ class TemporalLaserPulseStacking(Dist1d):
 
     def propagate_pulses(self):
 
+        """ Propagates the sech pulses through each crystal, resulting in two new pulses """
+
         self.total_crystal_length = 0;
         self.pulses=[]
 
@@ -840,7 +888,7 @@ class TemporalLaserPulseStacking(Dist1d):
         vprint(f'Pulses propagated: min t = {self.t_min:G~P}, max t = {self.t_max:G~P}',self.verbose>0,2,True) 
 
     def apply_crystal(self,next_crystal):
-        #FUNCTION TO GENERATE TWO PULSES WHEN PASSING THROUGH CRYSTAL:
+        """ Generates two new pulses from an incoming pulse in a given crystal """
 
         #add to total crystal length
         self.total_crystal_length += next_crystal["length"];
@@ -874,6 +922,8 @@ class TemporalLaserPulseStacking(Dist1d):
 
     def evaluate_sech_fields(self, axis_angle, pulse, t, field):
 
+        """ Evaluates the electric field of the sech pulses """
+
         #Evaluates the real and imaginary parts of one component of the E-field:
         normalization = pulse["intensity"]*np.cos(pulse["polarization_angle"] - axis_angle);
         w = 2*np.arccosh(np.sqrt(2))/self.laser_pulse_FWHM;
@@ -889,6 +939,9 @@ class TemporalLaserPulseStacking(Dist1d):
 
     def set_pdf(self):
 
+        """ Evaluates the sech fields and computes the square of the 
+        fields for intenstity in order to set the distribution """
+
         ex=np.zeros((2,len(self.ts)))*unit_registry("")
         ey=np.zeros((2,len(self.ts)))*unit_registry("")
 
@@ -900,25 +953,32 @@ class TemporalLaserPulseStacking(Dist1d):
         self.Pt = self.Pt/trapz(self.Pt,self.ts)
 
     def set_cdf(self):
+        """ Computes the CDF of the distribution """
         self.Ct = cumtrapz(self.Pt, self.ts)
 
     def pdf(self,t):
+        """ Returns the PDF at the values in t """
         return interp(t, self.ts, self.Pt)
 
     def cdf(self,t):
+        """ Returns the CDF at the values of t """
         return interp(t, self.ts, self.Ct)
 
     def cdfinv(self, rns):
+        """ Computes the inverse of the CDF at probabilities rns """
         return interp(rns*unit_registry(''),self.Ct,self.ts)
 
     def avg(self):
+        """ Computes the expectation value of t of the distribution """
         return trapz(self.ts*self.Pt,self.ts)
 
     def std(self):
+        """ Computes the sigma of the PDF """
         return np.sqrt(trapz(self.ts*self.ts*self.Pt,self.ts))
 
-    def get_params_list(self,var):
-        return (["crystal_length_$N","crystal_angle_$N"],["laser_pulse_FWHM","avg_"+var,"std_"+var])
+    #def get_params_list(self,var):
+     #   """ Returns the crystal parameter list"""
+    #    return (["crystal_length_$N","crystal_angle_$N"],["laser_pulse_FWHM","avg_"+var,"std_"+var])
 
 class Tukey(Dist1d):
 
@@ -1749,7 +1809,7 @@ class Image2d(Dist2d):
         
 class File2d(Dist2d):
 
-    def __init__(self, var1, var2, **params):
+    def __init__(self, var1, var2, verbose, **params):
 
         self.required_params=['file']
         self.optional_params=[]
@@ -1760,6 +1820,11 @@ class File2d(Dist2d):
         
         xs, ys, Pxy, xstr, ystr = read_2d_file(filename)
         super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
+
+        vprint('2D File PDF',verbose>0, 0, True)
+        vprint(f'2D pdf file: {params["file"]}', verbose>0, 2, True)
+        vprint(f'min_{var1} = {min(xs):G~P}, max_{var1} = {max(xs):G~P}', verbose>0, 2, True)
+        vprint(f'min_{var2} = {min(ys):G~P}, max_{var2} = {max(ys):G~P}', verbose>0, 2, True)
 
     
 # ---------------------------------------------------------------------------- 

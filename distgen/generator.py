@@ -14,14 +14,16 @@ import h5py
 import yaml
 import copy
 
-"""
-This class defines the main run engine object for distgen and is responsible for
-1. Parsing the input data dictionary passed from a Reader object
-2. Check the input for internal consistency
-3. Collect the parameters for distributions requested in the params dictionary 
-4. Form a the Beam object and populated the particle phase space coordinates
-"""
+
 class Generator:
+
+    """
+    This class defines the main run engine object for distgen and is responsible for
+    1. Parsing the input data dictionary passed from a Reader object
+    2. Check the input for internal consistency
+    3. Collect the parameters for distributions requested in the params dictionary 
+    4. Form a the Beam object and populated the particle phase space coordinates
+    """
 
     def __init__(self, input=None, verbose=0):
         """
@@ -62,6 +64,12 @@ class Generator:
         self.input = input
 
     def configure(self):
+
+        """ Configures the generator for creating a 6d particle distribution:
+        1. Copies the input dictionary read in from a file or passed directly
+        2. Converts physical quantities to PINT quantities in the params dictionary
+        3. Runs consistency checks on the resulting params dict
+        """
 
         self.params = copy.deepcopy(self.input)         # Copy the input dictionary
         convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
@@ -128,6 +136,8 @@ class Generator:
         
 
     def get_dist_params(self):
+
+        """ Loops through the input params dict and collects all distribution definitions """
         
         dist_vars = [p.replace('_dist','') for p in self.params if(p.endswith('_dist')) ]
         dist_params = {p.replace('_dist',''):self.params[p] for p in self.params if(p.endswith('_dist'))}
@@ -143,6 +153,9 @@ class Generator:
 
 
     def get_rands(self, variables):
+
+        """ Gets random numbers [0,1] for the coordinatess in variables 
+        using either the Hammersley sequence or rand """
  
         specials = ['xy']
         self.rands = {var:None for var in variables if var not in specials}
@@ -174,6 +187,8 @@ class Generator:
 
    
     def beam(self):
+
+        """ Creates a 6d particle distribution and returns it in a distgen.beam class """
 
         watch = StopWatch()
         watch.start()
@@ -265,7 +280,7 @@ class Generator:
         if("xy" in dist_params):
 
             vprint('xy distribution: ', verbose>0, 1, False) 
-            dist = get_dist('xy', dist_params['xy'], verbose=0)
+            dist = get_dist('xy', dist_params['xy'], verbose=verbose)
             bdist['x'], bdist['y'] = dist.cdfinv(self.rands['x'], self.rands['y'])
 
             dist_params.pop('xy')
@@ -354,9 +369,11 @@ class Generator:
     
     
     def run(self):
+        """ Runs the generator.beam function stores the partice in 
+        an openPMD-beamphysics ParticleGroup in self.particles """
         beam = self.beam()
         self.particles = ParticleGroup(data=beam.data())
-        vprint(f'Created particles in .particles: {self.particles}', self.verbose>0,1,False) 
+        vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose>0,1,False) 
     
     
     def fingerprint(self):
@@ -443,7 +460,9 @@ class Generator:
         s = '<disgten.Generator with input: \n'
         return s+yaml.dump(self.input)+'\n>'
 
-    def check_inputs(self,params):
+    def check_inputs(self, params):
+
+        """ Checks the params sent to the generator only contain allowed inputs """
 
         # Make sure user isn't passing the wrong parameters:
         allowed_params = self.optional_params + self.required_params + ['verbose']
