@@ -49,7 +49,7 @@ def is_floatable(value):
     try:
         float(value)
         return True
-    except ValueError:
+    except:
         return False
 
 def is_unit_str(ustr):
@@ -487,10 +487,12 @@ def is_quantity(d):
         return False
 
 def dict_to_quantity(qd):
+    
     """ Converts a dict to quantity with units """
-    assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
 
-    if(isinstance(qd['value'], float)):
+    assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
+ 
+    if(isinstance(qd['value'], float) or is_floatable(qd['value'])):
         return float(qd['value'])*unit_registry(qd['units'])
     else:
         return np.array(qd['value'])*unit_registry(qd['units'])
@@ -508,6 +510,7 @@ def convert_list_params(d):
             convert_params(v)
 
 def convert_params(d): 
+
     """ Converts a nested dictionary to quantities with units where appropriate """
     for k, v in d.items():
         if(is_quantity(v)):

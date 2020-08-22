@@ -982,6 +982,8 @@ class TemporalLaserPulseStacking(Dist1d):
 
 class Tukey(Dist1d):
 
+    """ Defines a 1d Tukey distribution """
+
     def __init__(self,var,verbose=0,**kwargs):
         
         self.xstr = var
@@ -994,12 +996,13 @@ class Tukey(Dist1d):
         self.L = kwargs['length']
 
         vprint('Tukey',verbose>0,0,True)
-        vprint(f'legnth = {self.L:G~P}, ratio = {self.r:G~P}',verbose>0,2,True)
+        vprint(f'length = {self.L:G~P}, ratio = {self.r:G~P}',verbose>0,2,True)
             
     def get_x_pts(self,n):
         return 1.1*linspace(-self.L/2.0,self.L/2.0,n)
 
-    def pdf(self,x):        
+    def pdf(self,x):
+
         res = np.zeros(x.shape)*unit_registry('1/'+str(self.L.units))
 
         if(self.r==0):
