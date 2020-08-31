@@ -648,7 +648,7 @@ class SuperGaussian(Dist1d):
         avg_str = f'avg_{var}'
 
         self.required_params=[]
-        self.optional_params=[avg_str, power_str, alpha_str, 'lambda', sigma_str]
+        self.optional_params=[avg_str, power_str, alpha_str, 'lambda', sigma_str, 'n_sigma_cutoff']
         self.check_inputs(kwargs)
 
         assert not (alpha_str in kwargs and power_str in kwargs), 'SuperGaussian power parameter must be set using "p" or "alpha", not both.' 
@@ -679,9 +679,14 @@ class SuperGaussian(Dist1d):
         else:
             self.mu = 0*unit_registry(str(self.Lambda.units))
 
+        if('n_sigma_cutoff' in kwargs):
+            self.n_sigma_cutoff=kwargs['n_sigma_cutoff']
+        else:
+            self.n_sigma_cutoff=3
+
         vprint('Super Gaussian', verbose>0, 0, True)
         vprint(f'simga_{var} = {self.std():G~P}, power = {self.p:G~P}', verbose, 2, True)
-        #vprint('Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}'
+        vprint(f'n_sigma_cutoff = {self.n_sigma_cutoff}', int(verbose>=1 and self.n_sigma_cutoff!=3), 2, True)
  
     def pdf(self,x=None):  
 
@@ -704,7 +709,7 @@ class SuperGaussian(Dist1d):
         """
         if(n is None):
             n=10000
-        return self.mu + linspace(-5*self.std(), +5*self.std(),n)
+        return self.mu + linspace(-self.n_sigma_cutoff*self.std(), +self.n_sigma_cutoff*self.std(),n)
 
     def cdf(self,x):
         """ Defines the CDF for the super Gaussian function """

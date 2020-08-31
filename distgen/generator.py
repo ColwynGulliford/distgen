@@ -182,10 +182,15 @@ class Generator:
 
         var_list = list(self.rands.keys())
         for ii, vii in enumerate(var_list[:-1]):
-             viip1 = var_list[ii+1]
-             assert (not np.array_equal(self.rands[vii].magnitude, self.rands[viip1].magnitude)) or n_particle==1, f'Error: coordinate probalitiies for {vii} and {viip1} are the same!'
+            viip1 = var_list[ii+1]
+            assert (not np.array_equal(self.rands[vii].magnitude, self.rands[viip1].magnitude)) or n_particle==1, f'Error: coordinate probalitiies for {vii} and {viip1} are the same!'
+            
+            # These lines can be used to check for unwanted correlations
+            #v0 = self.rands[vii].magnitude-self.rands[vii].magnitude.mean()
+            #v1 = self.rands[viip1].magnitude-self.rands[viip1].magnitude.mean()
+            #print( np.mean(v0*v1) )
+             
 
-   
     def beam(self):
 
         """ Creates a 6d particle distribution and returns it in a distgen.beam class """
