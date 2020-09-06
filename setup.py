@@ -7,8 +7,6 @@ cur_dir = path.abspath(path.dirname(__file__))
 with open(path.join(cur_dir, 'requirements.txt'), 'r') as f:
     requirements = f.read().split()
 
-
-
 setup(
     name='distgen',
     version = '0.4.2b',
