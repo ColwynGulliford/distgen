@@ -18,8 +18,6 @@ import scipy.constants
 # Constants come from scipy.constants
 # Check http://docs.scipy.org/doc/scipy/reference/constants.html for a complete constants listing.
 
-import scipy.constants
-
 # physical_constants
 c = scipy.constants.c * unit_registry.parse_expression('m/s')                                    # Speed of light
 e = scipy.constants.e * unit_registry.parse_expression('coulomb')                                # Fundamental Charge Unit

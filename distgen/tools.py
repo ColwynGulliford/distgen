@@ -439,7 +439,7 @@ def update_nested_dict(d, settings, verbose=False, create_new=True):
     return new_dict
 
 
-def set_nested_dict(dd, flatkey, val, sep=':', prefix=''):
+def set_nested_dict(dd, flatkey, val, sep=':', prefix='', verbose=0):
     """
     Set a value inside nested dicts using a key string. 
     Example:
@@ -462,8 +462,11 @@ def set_nested_dict(dd, flatkey, val, sep=':', prefix=''):
     # Set
     if final_key in d:
         d[final_key] = val
+        return True
     else:
-        print(f'Error: flat key {flatkey} key does not exist:', final_key)
+        if(verbose>0):
+            print(f'Error: flat key {flatkey} key does not exist:', final_key)
+        return False
 
 def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
     """
