@@ -224,7 +224,7 @@ class Generator:
             outfile = "None"
             vprint(f'Warning: no output file specified, defaulting to "{outfile}".', verbose>0, 1, True)
         vprint(f'Output file: {outfile}', verbose>0, 0, True)
-        
+
         vprint('\nCreating beam distribution....',verbose>0,0,True)
         vprint(f"Beam starting from: {self.input['start']['type']}",verbose>0,1,True)
         vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
