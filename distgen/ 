@@ -1265,18 +1265,18 @@ class DistRad(Dist):
         return linspace(self.rs[0], self.rs[-1], n)
 
     def rho(self, r):
-        return interp(r,self.rs,self.Pr)
+        return interp(r, self.rs, self.Pr)
 
     def pdf(self, r):
-        return interp(r,self.rs,self.rs*self.Pr)
+        return interp(r, self.rs, self.rs*self.Pr)
 
     def cdf(self, r):
-        return interp(r**2,self.rb**2,self.Cr)
+        return interp(r**2, self.rb**2, self.Cr)
 
     def cdfinv(self, rns):
 
         rns=np.squeeze(rns)
-        indsL = np.searchsorted(self.Cr,rns)-1
+        indsL = np.searchsorted(self.Cr, rns)-1
         indsH = indsL+1
 
         c1 = self.Cr[indsL]
@@ -1349,7 +1349,7 @@ class DistRad(Dist):
         p = self.rho(r)
         P = self.pdf(r)
 
-        r_hist, r_edges = radial_histogram(rs, nbins=500)   
+        r_hist, r_edges = radial_histogram(rs, nbins=500)    
         r_bins = centers(r_edges)  
         r_hist = r_hist/radint(r_hist, r_bins)
 
@@ -1364,7 +1364,7 @@ class DistRad(Dist):
         ax.set_ylabel(f'$\\rho_r(r)$ ({r_hist.units:~P})')
         ax.set_title(f'Sample stats: <r> = {avgr:G~P}, $\sigma_r$ = {stdr:G~P}\nDist. stats: <r> = {davgr:G~P}, $\sigma_r$ = {dstdr:G~P}')
         ax.legend(['$\\rho_r$(r)','Sampling'])
-
+'''
 class UniformRad(DistRad):
 
     """
@@ -1441,94 +1441,73 @@ class UniformRad(DistRad):
 
     def cdfinv(self,rns):
         return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
+'''
+"""
 
+#class LinearRad(DistRad):
 
-class LinearRad(DistRad):
+#    def __init__(self, verbose=0, **kwargs):
 
-    def __init__(self, verbose=0, **kwargs):
+#        self._n_indent = 2
 
-        self._n_indent = 2
-
-        self.type='LinearRad'
+#        self.type='LinearRad'
         #self.xstr = var
 
-        ra_str = f'min_r'
-        rb_str = f'max_r'
+#        ra_str = f'min_r'
+#        rb_str = f'max_r'
 
-        self.required_params = ['slope_fraction', ra_str, rb_str]
-        self.optional_params = []
+#        self.required_params = ['slope_fraction', ra_str, rb_str]
+#        self.optional_params = []
 
-        self.check_inputs(kwargs)
+#        self.check_inputs(kwargs)
 
-        self.a = kwargs[ra_str]
-        self.b = kwargs[rb_str]
-        self.ratio = kwargs['slope_fraction']
-        self.f = 1-np.abs(self.ratio)
+    #    self.a = kwargs[ra_str]
+    #    self.b = kwargs[rb_str]
+    #    self.ratio = kwargs['slope_fraction']
+    #    self.f = 1-np.abs(self.ratio)
 
-        assert self.a < self.b, f'Error: {ra_str} must be < {rb_str}.'
-        assert self.a >= 0, f'Error: {ra_str} must be >= 0.'
-        assert self.ratio>=-1 and self.ratio <= 1, 'Error: slope fraction must be: -1 <= r < 1.'
+    #    assert self.a < self.b, f'Error: {ra_str} must be < {rb_str}.'
+    #    assert self.a >= 0, f'Error: {ra_str} must be >= 0.'
+    #    assert self.ratio>=-1 and self.ratio <= 1, 'Error: slope fraction must be: -1 <= r < 1.'
 
-        self.dr = self.b-self.a
+    #    self.dr = self.b-self.a
 
-        if(self.ratio >= 0):
-            # Do the maths
-            self.pb = 2/(1+self.f)/self.dr
-            self.pa = self.f*self.pb
+    #   if(self.ratio >= 0):
+     #       # Do the maths
+    #        self.pb = 2/(1+self.f)/self.dr
+    #        self.pa = self.f*self.pb
 
-        else:
+    #    else:
             # Relabel the other way
-            self.pa = 2/(1+self.f)/self.dr
-            self.pb = self.f*self.pa
+    #        self.pa = 2/(1+self.f)/self.dr
+    #        self.pb = self.f*self.pa
 
-        self.dp = self.pb-self.pa
-        self.m = self.dp/self.dr
+    #    self.dp = self.pb-self.pa
+    #    self.m = self.dp/self.dr
 
-        vprint('LinearRad',verbose>0,0,True)
+    #    vprint('LinearRad',verbose>0,0,True)
 
-    def get_r_pts(self, n, f=0.2):
-        return np.linspace(self.a*(1-f), self.b*(1+f), n) 
+    #def get_r_pts(self, n):
+    #    f = 0.2
+    #    return np.linspace(self.a*(1-f), self.b*(1+f), n) 
 
-    def norm(self):
+    #def norm(self):
 
-        dr2 = (self.b**2-self.a**2)/2.0
-        dr3 = (self.b**3-self.a**3)/3.0
+    #    dr2 = (self.b**2-self.a**2)/2.0
+    #    dr3 = (self.b**3-self.a**3)/3.0
 
-        return 1.0/(self.m*dr3 - self.m*self.a*dr2 + self.pa*dr2)
+    #    return 1.0/(self.m*dr3 -m*self.a*dr2 + self.pa*dr2)
 
-    def rho(self, r):
-        nonzero = (r >= self.a) & (r <= self.b)
-        res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
-        res[nonzero] = self.norm()*(  self.m*(r[nonzero]-self.a) + self.pa)
-        return res
+    #def rho(self, r):
+        #nonzero = (r >= self.a) & (r <= self.b)
+    #    res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
+        #res[nonzero] = self.norm()*(  self.m*(r[nonzero]-self.a) + self.pa )
+    #    return res
 
-    def pdf(self, r):
-        return r*self.rho(r)
+    #def pdf(self, r):
+    #    return r*self.rho(r)
 
-    def cdf(self, r):
 
-        nonzero = (r >= self.a) & (r <= self.b)
-        dr2 = (r[nonzero]**2-self.a**2)/2.0
-        dr3 = (r[nonzero]**3-self.a**3)/3.0
-        
-        res = np.zeros(len(r))*unit_registry('')
-        res[nonzero] = self.norm()*(  self.m*dr3 - self.m*self.a*dr2 + self.pa*dr2 )
-        return res
-
-    def cdfinv(self, p):
-        rpts = self.get_r_pts(10000, f=0)
-        cdfs = self.cdf(rpts)
-        return interp(p, cdfs, rpts)
-
-    def avg(self):
-        rpts = self.get_r_pts(10000, f=0)
-        pdfs = self.rho(rpts)
-        return radint(pdfs*rpts,rpts)
-
-    def rms(self):
-        rpts = self.get_r_pts(10000, f=0)
-        pdfs = self.rho(rpts)
-        return np.sqrt(radint(pdfs*rpts*rpts,rpts))
 
 
 
@@ -1716,8 +1695,9 @@ class TukeyRad(DistRad):
     def get_r_pts(self,n=1000):
         return np.linspace(0,1.2*self.L.magnitude,n)*unit_registry(str(self.L.units))
 
-    def pdf(self, r):        
-        return r*self.rho(r)
+    def pdf(self,r):        
+        rho = self.rho(r)
+        return r*rho
 
     def rho(self,r):
 
@@ -1739,7 +1719,7 @@ class TukeyRad(DistRad):
             res[flat_region]=1.0*unit_registry(ustr)
         
         res = res
-        res = res/radint(res, r)
+        res = res/radint(res,r)
         return res
    
 
@@ -1747,7 +1727,7 @@ class TukeyRad(DistRad):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
         
-        cdfs,rbins = radcumint(pdfs, rpts)
+        cdfs,rbins = radcumint(pdfs,rpts)
         cdfs = cdfs/cdfs[-1]
         cdfs = interp(r,rbins,cdfs)
         cdfs = cdfs/cdfs[-1]
@@ -1758,17 +1738,17 @@ class TukeyRad(DistRad):
     def cdfinv(self,p):
         rpts = self.get_r_pts(10000)
         cdfs = self.cdf(rpts)
-        return interp(p, cdfs, rpts)
+        return interp(p,cdfs,rpts)
 
     def avg(self):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
-        return radint(pdfs*rpts, rpts)
+        return radint(pdfs*rpts,rpts)
 
     def rms(self):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
-        return np.sqrt(radint(pdfs*rpts*rpts, rpts))
+        return np.sqrt(radint(pdfs*rpts*rpts,rpts))
 
 
 class SuperGaussianRad(DistRad):
@@ -2017,6 +1997,7 @@ class Image2d(Dist2d):
 
         super().__init__(xs, ys, Pxy, xstr=v1, ystr=v2)
         
+        
 class File2d(Dist2d):
 
     def __init__(self, var1, var2, verbose, **params):
@@ -2036,7 +2017,7 @@ class File2d(Dist2d):
         vprint(f'min_{var1} = {min(xs):G~P}, max_{var1} = {max(xs):G~P}', verbose>0, 2, True)
         vprint(f'min_{var2} = {min(ys):G~P}, max_{var2} = {max(ys):G~P}', verbose>0, 2, True)
 
-    
+    """
 # ---------------------------------------------------------------------------- 
 #   This allows the main function to be at the beginning of the file
 # ---------------------------------------------------------------------------- 
