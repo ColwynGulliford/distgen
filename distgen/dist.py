@@ -404,14 +404,14 @@ class Uniform(Dist1d):
         vprint('uniform',verbose>0,0,True)
         vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
   
-    def get_x_pts(self,n):
+    def get_x_pts(self, n):
         """
         Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
         Inputs: n [int]
         """
         f = 0.2
         dx = f*np.abs(self.avg())
-        return np.linspace(self.xL-dx,self.xR+dx,n)
+        return np.linspace(self.xL-dx, self.xR+dx, n)
 
     def pdf(self,x):
         """
@@ -457,6 +457,119 @@ class Uniform(Dist1d):
         avg=self.avg()
         std=self.std()
         return np.sqrt(std*std + avg*avg)
+
+
+class Linear(Dist1d):
+
+    
+    """ Defines the PDF and CDF for a linear function in 1d """
+
+    def __init__(self, var, verbose=0, **kwargs):
+
+        self._n_indent = 2
+
+        self.type='Linear'
+        self.xstr = var
+
+        xa_str = f'min_{var}'
+        xb_str = f'max_{var}'
+
+        self.required_params = ['slope_fraction', xa_str, xb_str]
+        self.optional_params = []
+
+        self.check_inputs(kwargs)
+
+        self.a = kwargs[xa_str]
+        self.b = kwargs[xb_str]
+        self.r = kwargs['slope_fraction']
+        self.f = 1-np.abs(self.r)
+
+        assert self.a < self.b, f'Error: {xa_str} must be < {xb_str}.'
+        assert self.r>=-1 and self.r <= 1, 'Error: slope fraction must be: -1 <= r < 1.'
+
+        self.dx = self.b-self.a
+
+        if(self.r >= 0):
+            # Do the maths
+            self.pb = 2/(1+self.f)/self.dx
+            self.pa = self.f*self.pb
+
+        else:
+            # Relabel the other way
+            self.pa = 2/(1+self.f)/self.dx
+            self.pb = self.f*self.pa
+
+        self.dp = self.pb-self.pa
+        self.m = self.dp/self.dx
+
+        vprint('Linear',verbose>0,0,True)
+        #vprint(f'avg_{var} = {self.mu:G~P}, sigma_{var} = {self.sigma:0.3f~P}',verbose>0,self._n_indent,True)
+        #if(self.sigma>0):
+        #    vprint(f'Left n_sigma_cutoff = {self.b/self.sigma:G~P}, Right n_sigma_cutoff = {self.a/self.sigma:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
+        #else:
+        #    vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
+
+    def get_x_pts(self, n):
+        """
+        Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
+        Inputs: n [int]
+        """
+        f = 0.2
+        dx = f*np.abs(self.avg())
+        return np.linspace(self.a-dx, self.b+dx, n)
+
+    def pdf(self, x):
+        """
+        Returns the PDF at the values in x [array w/units].  PDF has units of 1/[x]
+        """
+        nonzero = (x >= self.a) & (x <= self.b)
+        res = np.zeros(len(x))*unit_registry('1/'+str(self.a.units))
+        res[nonzero]=self.m*(x[nonzero]-self.a) + self.pa
+        return res
+
+    def cdf(self,x):
+        """
+        Returns the CDF at the values of x [array w/units].  CDF is dimensionless
+        """
+        nonzero = (x >= self.a) & (x <= self.b)
+        res = np.zeros(len(x))*unit_registry('dimensionless')
+        delta = x[nonzero]-self.a
+        res[nonzero]=0.5*self.m*delta**2 + self.pa*delta
+       
+        return res
+
+    def cdfinv(self, p):
+        return self.a + (np.sqrt( self.pa**2 + 2*self.m*p ) - self.pa)/self.m
+
+
+    def avg(self):
+        """
+        Returns the first moment of the PDF: 
+        """
+        d2 = self.b**2-self.a**2
+        d3 = self.b**3-self.a**3
+
+        return self.pa*d2/2.0 + self.m*( d3/3.0 - self.a*d2/2.0)
+
+    def std(self):
+        """
+        Returns the square root of the variance of the PDF: 
+        """
+        return np.sqrt( self.rms()**2 - self.avg()**2 )
+  
+    def rms(self):
+        """
+        Returns the rms of the distribution computed from the avg and std.
+        """
+
+        d3 = self.b**3-self.a**3
+        d4 = self.b**4-self.a**4
+
+        ta = self.pa*d3/3.0
+        tm = self.m*(d4/4.0 -self.a*d3/3.0)
+
+        return np.sqrt(ta+tm)
+        
     
 class Norm(Dist1d):
 
@@ -584,7 +697,7 @@ class Norm(Dist1d):
         res[x_out_of_range] = 0*unit_registry('1/'+str(self.sigma.units))
         return res
 
-    def canonical_cdf(self,csi):
+    def canonical_cdf(self, csi):
         """ Defines the canonical cdf function """
         return 0.5*(1+erf(csi/np.sqrt(2) ) )
 
@@ -600,7 +713,7 @@ class Norm(Dist1d):
         """ Define the inverse of the CDF for canonical normal dist including truncations on either side"""
         return np.sqrt(2)*erfinv((2*rns-1))
 
-    def cdfinv(self,rns):
+    def cdfinv(self, rns):
         """ Define the inverse of the CDF for non-canonical normal dist including truncations on either side"""
         scaled_rns = rns*self.Z + self.PA
         return self.mu + self.sigma*self.canonical_cdfinv(scaled_rns)
