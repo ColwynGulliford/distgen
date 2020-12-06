@@ -395,21 +395,16 @@ class Uniform(Dist1d):
 
 
         #assert (f'max_{var}' in kwargs and f'min_{var}' in kwargs) or (f'avg_{var}' in kwargs and f'sigma_{var}' in kwargs), f'User must specify either min_{var} and max_{var}] or [avg_{var} and sigma_{var}], not both.'
-
-
-        
-       
         #self.xL = kwargs[minstr]           
         #self.xR = kwargs[maxstr]
         vprint('uniform',verbose>0,0,True)
         vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
   
-    def get_x_pts(self, n):
+    def get_x_pts(self, n, f=0.2):
         """
         Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
         Inputs: n [int]
         """
-        f = 0.2
         dx = f*np.abs(self.avg())
         return np.linspace(self.xL-dx, self.xR+dx, n)
 
@@ -509,12 +504,11 @@ class Linear(Dist1d):
         #else:
         #    vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
 
-    def get_x_pts(self, n):
+    def get_x_pts(self, n, f=0.2):
         """
         Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
         Inputs: n [int]
         """
-        f = 0.2
         dx = f*np.abs(self.avg())
         return np.linspace(self.a-dx, self.b+dx, n)
 
@@ -667,11 +661,10 @@ class Norm(Dist1d):
         else:
             vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
 
-    def get_x_pts(self, n=1000):
+    def get_x_pts(self, n=1000, f=0.1):
 
         """ Returns xpts from [a,b] or +/- 5 sigma, depending on the defintion of PDF """
 
-        f = 0.1
         if(-float('Inf') < self.a.magnitude):
             lhs=self.a*(1-f*np.sign(self.a.magnitude))
         else:
@@ -816,9 +809,9 @@ class SuperGaussian(Dist1d):
         
         return rho
         
-    def get_x_pts(self,n=None):
+    def get_x_pts(self, n=None):
         """
-        Returns n equally spaced x values from +/- 5*sigma
+        Returns n equally spaced x values from +/- n_sigma_cutoff*sigma
         """
         if(n is None):
             n=10000
@@ -1049,10 +1042,10 @@ class TemporalLaserPulseStacking(Dist1d):
         field[0] = field[0] + normalization*np.cos(self.w0*(t-pulse["relative_delay"])) / np.cosh(w*(t-pulse["relative_delay"]))
         field[1] = field[1] + normalization*np.sin(self.w0*(t-pulse["relative_delay"])) / np.cosh(w*(t-pulse["relative_delay"]))
 
-    def get_t_pts(self,n):
+    def get_t_pts(self, n):
         return linspace(self.t_min,self.t_max.to(self.t_min),n)
   
-    def get_x_pts(self,n):
+    def get_x_pts(self, n):
         return self.get_t_pts(n)
 
     def set_pdf(self):
@@ -1074,11 +1067,11 @@ class TemporalLaserPulseStacking(Dist1d):
         """ Computes the CDF of the distribution """
         self.Ct = cumtrapz(self.Pt, self.ts)
 
-    def pdf(self,t):
+    def pdf(self, t):
         """ Returns the PDF at the values in t """
         return interp(t, self.ts, self.Pt)
 
-    def cdf(self,t):
+    def cdf(self, t):
         """ Returns the CDF at the values of t """
         return interp(t, self.ts, self.Ct)
 
@@ -1102,7 +1095,7 @@ class Tukey(Dist1d):
 
     """ Defines a 1d Tukey distribution """
 
-    def __init__(self,var,verbose=0,**kwargs):
+    def __init__(self, var, verbose=0, **kwargs):
         
         self.xstr = var
          
@@ -1119,7 +1112,7 @@ class Tukey(Dist1d):
     def get_x_pts(self,n):
         return 1.1*linspace(-self.L/2.0,self.L/2.0,n)
 
-    def pdf(self,x):
+    def pdf(self, x):
 
         res = np.zeros(x.shape)*unit_registry('1/'+str(self.L.units))
 
@@ -1142,7 +1135,7 @@ class Tukey(Dist1d):
         
         return res/trapz(res,x)
 
-    def cdf(self,x):
+    def cdf(self, x):
         xpts = self.get_x_pts(10000)
         pdfs = self.pdf(xpts)
         cdfs = cumtrapz(self.pdf(xpts), xpts)
@@ -1151,7 +1144,7 @@ class Tukey(Dist1d):
         cdfs = cdfs/cdfs[-1]
         return cdfs
 
-    def cdfinv(self,p):
+    def cdfinv(self, p):
         xpts = self.get_x_pts(10000)
         cdfs = self.cdf(xpts)
         return interp(p,cdfs,xpts)
@@ -1170,16 +1163,60 @@ class Tukey(Dist1d):
         std=self.std()
         return np.sqrt(std*std + avg*avg)
 
+
+class Deformable(Dist1d):
+
+    def __init__(self, var, verbose=0, **kwargs):
+
+        self.xstr = var
+
+        sigstr = f'sigma_{var}'
+         
+        self.required_params = ['slope_fraction', 'alpha', sigstr, ]
+        self.optional_params = ['n_sigma_cutoff']
+
+        self.check_inputs(kwargs)
+
+        self.sigma = kwargs[f'sigma_{var}']
+
+        if('n_sigma_cutoff' in kwargs):
+            n_sigma_cutoff=kwars['n_sigma_cutoff']
+        else:
+            n_sigma_cutoff=3
+
+        sg_params = {'alpha':kwargs['alpha'],  
+                    sigstr:self.sigma, 
+                    'n_sigma_cutoff':n_sigma_cutoff}
+
+        self.dist={}
+        self.dist['super_gaussian'] = SuperGaussian(var, verbose=verbose, **sg_params)
+
+        # SG
+        xs = self.dist['super_gaussian'].get_x_pts(10000)
+        Px = self.dist['super_gaussian'].pdf(xs)
+
+        # Linear
+
+        lin_params={'slope_fraction':kwargs['slope_fraction'], f'min_{var}':xs[0], f'max_{var}':xs[-1]}
+        self.dist['linear'] = Linear(var, verbose=verbose, **lin_params)
+
+        Px = Px*self.dist['linear'].pdf(xs)
+
+
+        super().__init__(xs=xs, Px=Px, xstr=var)
+
+
+
 class DistTheta(Dist):    
 
     def __init__(self):
         pass
 
-    def get_theta_pts(self,n):
+    def get_theta_pts(self, n):
         return linspace(0*unit_registry('rad'), 2*pi, n)
 
 
-    def plot_pdf(self,n=1000):
+    def plot_pdf(self, n=1000):
 
         theta =self.get_theta_pts(n)
         
@@ -1233,7 +1270,7 @@ class UniformTheta(DistTheta):
     def avgSin2(self):
         return 0.5*(1 - (self.Cb*self.Sb - self.Ca*self.Sa)/self.range)
 
-    def mod2pi(self,thetas):
+    def mod2pi(self, thetas):
         return tnp.mod(thetas, 2*pi)
 
     def pdf(self, thetas):
@@ -1383,7 +1420,7 @@ class UniformRad(DistRad):
             units: ps
     """
 
-    def __init__(self,verbose=0,**kwargs):
+    def __init__(self, verbose=0, **kwargs):
             
         maxstr = "max_r"
         minstr = "min_r"
@@ -1407,8 +1444,7 @@ class UniformRad(DistRad):
         vprint("radial uniform",verbose>0,0,True)
         vprint(f'{minstr} = {self.rL:G~P}, {maxstr} = {self.rR:G~P}',verbose>0,2,True)
 
-    def get_r_pts(self,n):
-        f = 0.2
+    def get_r_pts(self, n, f=0.2):
         dr = f*np.abs(self.avg())
         return np.linspace(self.rL-dr,self.rR+dr,n)
 
@@ -1418,28 +1454,28 @@ class UniformRad(DistRad):
     def rms(self):
         return np.sqrt( (self.rR**2 + self.rL**2)/2.0 )
 
-    def pdf(self,r):
+    def pdf(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units))
         res[nonzero]=r[nonzero]*2.0/(self.rR**2-self.rL**2)
         #res = res*unit_registry('1/'+str(r.units))
         return res
 
-    def rho(self,r):
+    def rho(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         res[nonzero]=2/(self.rR**2-self.rL**2)
         #res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         return res
 
-    def cdf(self,r):
+    def cdf(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
         res = np.zeros(len(r))*unit_registry('dimensionless')
         res[nonzero]=(r[nonzero]*r[nonzero] - self.rL**2)/(self.rR**2-self.rL**2)
         #res = res*unit_registry('dimensionless')
         return res
 
-    def cdfinv(self,rns):
+    def cdfinv(self, rns):
         return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
 
 
@@ -1609,7 +1645,7 @@ class NormRad(DistRad):
     def canonical_rho(self,xi):
         return (1.0/2.0/pi)*np.exp(-xi**2/2)
 
-    def rho(self,r):
+    def rho(self, r):
 
         xi = (r/self.sigma)
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
@@ -1617,7 +1653,7 @@ class NormRad(DistRad):
         res[nonzero]= self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
         return res
 
-    def pdf(self,r):
+    def pdf(self, r):
    
         xi = (r/self.sigma)
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units))
@@ -1625,7 +1661,7 @@ class NormRad(DistRad):
         res[nonzero] = r[nonzero]*self.canonical_rho(xi[nonzero])/self.dp/self.sigma**2
         return res
 
-    def cdf(self,r):
+    def cdf(self, r):
 
         res = np.zeros(len(r))*unit_registry('dimensionless')
         nonzero =  (r>=self.rL) & (r<=self.rR)
@@ -1636,7 +1672,7 @@ class NormRad(DistRad):
     def cdfinv(self,rns):
         return np.sqrt( 2*self.sigma**2 * np.log(1/2/pi/( self.pL - self.dp*rns )) ) 
 
-    def get_r_pts(self,n=1000):
+    def get_r_pts(self, n=1000):
         if(self.rR.magnitude==float('Inf')):
             endr = 5*self.sigma
         else:
@@ -1701,7 +1737,7 @@ class RadFile(DistRad):
 
 class TukeyRad(DistRad):
 
-    def __init__(self,verbose=0,**kwargs):
+    def __init__(self, verbose=0, **kwargs):
 
         self.required_params=['ratio','length']
         self.optional_params=[]
@@ -1713,13 +1749,13 @@ class TukeyRad(DistRad):
         vprint("TukeyRad",verbose>0,0,True)
         vprint("legnth = {:0.3f~P}".format(self.L)+", ratio = {:0.3f~P}".format(self.r),verbose>0,2,True)
 
-    def get_r_pts(self,n=1000):
-        return np.linspace(0,1.2*self.L.magnitude,n)*unit_registry(str(self.L.units))
+    def get_r_pts(self, n=1000, f=0.2):
+        return np.linspace(0, (1+f)*self.L.magnitude, n)*unit_registry(str(self.L.units))
 
     def pdf(self, r):        
         return r*self.rho(r)
 
-    def rho(self,r):
+    def rho(self, r):
 
         ustr = '1/'+str(self.L.units)+"/"+str(self.L.units)
 
@@ -1743,7 +1779,7 @@ class TukeyRad(DistRad):
         return res
    
 
-    def cdf(self,r):
+    def cdf(self, r):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
         
@@ -1755,7 +1791,7 @@ class TukeyRad(DistRad):
 
         return cdfs
 
-    def cdfinv(self,p):
+    def cdfinv(self, p):
         rpts = self.get_r_pts(10000)
         cdfs = self.cdf(rpts)
         return interp(p, cdfs, rpts)
@@ -1773,7 +1809,7 @@ class TukeyRad(DistRad):
 
 class SuperGaussianRad(DistRad):
 
-    def __init__(self,verbose=0,**kwargs):
+    def __init__(self, verbose=0, **kwargs):
 
         self.required_params=[]
         self.optional_params=['p', 'alpha', 'lambda', 'sigma_xy']
@@ -1805,7 +1841,7 @@ class SuperGaussianRad(DistRad):
         vprint('SuperGaussianRad',verbose>0,0,True)
         vprint(f'lambda = {self.Lambda:G~P}, power = {self.p:G~P}',verbose>0,2,True)
 
-    def get_r_pts(self,n=1000):
+    def get_r_pts(self, n=1000):
         
         if(self.p < float('Inf')):
             f = self.p.magnitude
@@ -1814,11 +1850,11 @@ class SuperGaussianRad(DistRad):
 
         return np.linspace(0, 5*self.Lambda.magnitude, n)*unit_registry(str(self.Lambda.units))
 
-    def pdf(self,r):        
+    def pdf(self, r):        
         rho = self.rho(r)
         return r*rho
 
-    def rho(self,r):
+    def rho(self, r):
 
         csi = r/self.Lambda
         nur = 0.5*(csi**2)
@@ -1827,7 +1863,7 @@ class SuperGaussianRad(DistRad):
         return rho
    
 
-    def cdf(self,r):
+    def cdf(self, r):
         rpts = self.get_r_pts(10000)
         pdfs = self.rho(rpts)
         
@@ -1839,7 +1875,7 @@ class SuperGaussianRad(DistRad):
 
         return cdfs
 
-    def cdfinv(self,p):
+    def cdfinv(self, p):
         rpts = self.get_r_pts(10000)
         cdfs = self.cdf(rpts)
         return interp(p,cdfs,rpts)
@@ -1850,7 +1886,7 @@ class SuperGaussianRad(DistRad):
     def rms(self):
         return np.sqrt( gamma(1+2.0/self.p)/gamma(1+1.0/self.p) )*self.Lambda
 
-    def get_lambda(self,sigma_xy):
+    def get_lambda(self, sigma_xy):
         rrms = sigma_xy/np.sqrt(0.5)
         return np.sqrt(gamma(1+1.0/self.p)/gamma(1+2.0/self.p))*rrms
 
@@ -1914,7 +1950,7 @@ class Dist2d(Dist):
         self.Cys[1:,:] = np.cumsum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))),axis=0)/norms
         self.Cys=self.Cys*unit_registry("dimensionless")
 
-    def pdf(self,x,y):
+    def pdf(self, x, sy):
         pass
    
     def plot_pdf(self):
@@ -1924,21 +1960,21 @@ class Dist2d(Dist):
         plt.xlabel(self.xstr+" ("+str(self.xs.units)+")")
         plt.ylabel(self.ystr+" ("+str(self.ys.units)+")")
       
-    def pdfx(self,x):
+    def pdfx(self, x):
         return interp(x,self.xs,self.Px)
 
     def plot_pdfx(self):
         plt.figure()
         plt.plot(self.xs,self.Px)
 
-    def cdfx(self,x):
+    def cdfx(self, x):
         return interp(x,self.xb,self.Cx)
 
     def plot_cdfx(self):
         plt.figure()
         plt.plot(self.xb,self.Cx)    
 
-    def cdfxinv(self,ps):
+    def cdfxinv(self, ps):
         return interp(ps,self.Cx,self.xb)
 
     def plot_cdfys(self):
@@ -1946,12 +1982,12 @@ class Dist2d(Dist):
         for ii in range(len(self.xs)):
             plt.plot(self.yb,self.Cys[:,ii])    
 
-    def sample(self,N,sequence=None,params=None):
+    def sample(self, N, sequence=None, params=None):
         rns = self.rgen.rand((N,2),sequence,params)*unit_registry("dimensionless")
         x,y = self.cdfinv(rns[0,:], rns[1,:])       
         return (x,y)
 
-    def cdfinv(self,rnxs, rnys):
+    def cdfinv(self, rnxs, rnys):
 
         x = self.cdfxinv(rnxs)
         indx = np.searchsorted(self.xb,x)-1
