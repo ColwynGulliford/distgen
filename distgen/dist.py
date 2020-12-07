@@ -78,6 +78,8 @@ def get_dist(var,params,verbose=0):
         dist = Superposition(var, verbose=verbose, **params)
     elif(dtype =='product' or dtype=='pro'):
         dist = Product(var, verbose=verbose, **params)
+    elif(dtype=='deformable'):
+        dist = Deformable(var, verbose=verbose, **params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
         dist = UniformRad(verbose=verbose, **params)
     elif((dtype=="radial_gaussian" or dtype=="rg") and var=="r"):
@@ -1212,7 +1214,7 @@ class Deformable(Dist1d):
         avgx = np.trapz(xs*Px, xs)
         stdx = np.sqrt(np.trapz( Px*(xs-avgx)**2, xs))
 
-        print(avgx, stdx)
+        #print(avgx, stdx)
 
         xs = self.mean + (self.sigma/stdx)*(xs-avgx)
 
@@ -1325,13 +1327,13 @@ class DistRad(Dist):
         return linspace(self.rs[0], self.rs[-1], n)
 
     def rho(self, r):
-        return interp(r,self.rs,self.Pr)
+        return interp(r, self.rs, self.Pr)
 
     def pdf(self, r):
-        return interp(r,self.rs,self.rs*self.Pr)
+        return interp(r, self.rs, self.rs*self.Pr)
 
     def cdf(self, r):
-        return interp(r**2,self.rb**2,self.Cr)
+        return interp(r**2, self.rb**2, self.Cr)
 
     def cdfinv(self, rns):
 
@@ -1912,6 +1914,66 @@ class SuperGaussianRad(DistRad):
     def get_lambda(self, sigma_xy):
         rrms = sigma_xy/np.sqrt(0.5)
         return np.sqrt(gamma(1+1.0/self.p)/gamma(1+2.0/self.p))*rrms
+
+class DeformableRad(DistRad):
+
+    def __init__(self, verbose=0, **kwargs):
+
+        
+
+        sigstr = f'sigma_xy'
+        #avgstr = f'avg_{var}'
+         
+        self.required_params = ['slope_fraction', 'alpha', sigstr]
+        self.optional_params = ['n_sigma_cutoff']
+
+        self.check_inputs(kwargs)
+
+        self.sigma = kwargs[sigstr]
+        #self.mean = kwargs[avgstr]
+
+        if('n_sigma_cutoff' in kwargs):
+            n_sigma_cutoff=kwars['n_sigma_cutoff']
+        else:
+            n_sigma_cutoff=3
+
+        sg_params = {'alpha':kwargs['alpha'],  
+                    sigstr:self.sigma}
+                    #'n_sigma_cutoff':n_sigma_cutoff}
+
+        self.dist={}
+        self.dist['super_gaussian'] = SuperGaussianRad(verbose=verbose, **sg_params)
+
+        # SG
+        rs = self.dist['super_gaussian'].get_r_pts(10000)
+        Pr = self.dist['super_gaussian'].rho(rs)
+
+        # Linear
+
+        lin_params={'slope_fraction':kwargs['slope_fraction'], f'min_r':rs[0], f'max_r':rs[-1]}
+        self.dist['linear'] = LinearRad(verbose=verbose, **lin_params)
+
+        Pr = Pr*self.dist['linear'].rho(rs)
+
+        norm = radint(Pr, rs)
+        assert norm > 0, 'Error: derformable distribution can not be normalized.'
+        Pr = Pr/norm
+
+        #avgx = np.trapz(xs*Px, xs)
+        stdx = np.sqrt( radint( Pr*rs**2, rs) )/np.sqrt(2)
+        rs = (self.sigma/stdx)*rs
+
+        super().__init__(rs=rs, Pr=Pr)
+
+    def rms(self):
+        return np.sqrt(2)*self.sigma
+
+    #def avg(self):
+    #    return self.mean
+
+    #def rms(self):
+    #    return np.sqrt(self.sigma()**2 + self.avg()**2)
+
 
 
 class Dist2d(Dist):
