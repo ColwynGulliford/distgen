@@ -1171,13 +1171,15 @@ class Deformable(Dist1d):
         self.xstr = var
 
         sigstr = f'sigma_{var}'
+        avgstr = f'avg_{var}'
          
-        self.required_params = ['slope_fraction', 'alpha', sigstr, ]
+        self.required_params = ['slope_fraction', 'alpha', sigstr, avgstr]
         self.optional_params = ['n_sigma_cutoff']
 
         self.check_inputs(kwargs)
 
-        self.sigma = kwargs[f'sigma_{var}']
+        self.sigma = kwargs[sigstr]
+        self.mean = kwargs[avgstr]
 
         if('n_sigma_cutoff' in kwargs):
             n_sigma_cutoff=kwars['n_sigma_cutoff']
@@ -1203,7 +1205,28 @@ class Deformable(Dist1d):
         Px = Px*self.dist['linear'].pdf(xs)
 
 
+        norm = np.trapz(Px, xs)
+        assert norm > 0, 'Error: derformable distribution can not be normalized.'
+        Px = Px/norm
+
+        avgx = np.trapz(xs*Px, xs)
+        stdx = np.sqrt(np.trapz( Px*(xs-avgx)**2, xs))
+
+        print(avgx, stdx)
+
+        xs = self.mean + (self.sigma/stdx)*(xs-avgx)
+
         super().__init__(xs=xs, Px=Px, xstr=var)
+
+    def std(self):
+        return self.sigma
+
+    def avg(self):
+        return self.mean
+
+    def rms(self):
+        return np.sqrt(self.sigma()**2 + self.avg()**2)
+
 
 
 
