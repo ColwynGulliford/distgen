@@ -32,7 +32,7 @@ r_dist:
   slope_fraction:
     units: ''
     value: -1
-  type: deformable
+  type: dr
 total_charge:
   units: pC
   value: 10

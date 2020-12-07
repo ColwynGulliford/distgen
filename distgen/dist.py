@@ -90,6 +90,8 @@ def get_dist(var,params,verbose=0):
         dist = RadFile(verbose=verbose, **params)
     elif(dtype=="radial_tukey"):
         dist = TukeyRad(verbose=verbose, **params)
+    elif(dtype=='raddeformable' or dtype=='dr'):
+        dist = DeformableRad(verbose=verbose, **params)
     elif(dtype=="file2d"):
         dist = File2d("x","y",verbose=verbose, **params)
     elif(dtype=="crystals"):
@@ -111,13 +113,14 @@ class Dist():
     def __init__(self):
         self._n_indent=2
 
-    def check_inputs(self,params):
+    def check_inputs(self, params):
         """
         Checks the input dictionary to derived class.  Derived class supplies lists of required and optional params.
         """
 
         # Make sure user isn't passing the wrong parameters:
         allowed_params = self.optional_params + self.required_params + ['verbose','type','indent']
+        #print(allowed_params)
         for param in params:
             assert param in allowed_params, f'Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {param}\nAllowed params: {allowed_params}'
 
@@ -1925,7 +1928,7 @@ class DeformableRad(DistRad):
         #avgstr = f'avg_{var}'
          
         self.required_params = ['slope_fraction', 'alpha', sigstr]
-        self.optional_params = ['n_sigma_cutoff']
+        self.optional_params = []#['n_sigma_cutoff']
 
         self.check_inputs(kwargs)
 
@@ -1937,8 +1940,7 @@ class DeformableRad(DistRad):
         else:
             n_sigma_cutoff=3
 
-        sg_params = {'alpha':kwargs['alpha'],  
-                    sigstr:self.sigma}
+        sg_params = {'alpha':kwargs['alpha'], sigstr:self.sigma}
                     #'n_sigma_cutoff':n_sigma_cutoff}
 
         self.dist={}
@@ -1949,7 +1951,6 @@ class DeformableRad(DistRad):
         Pr = self.dist['super_gaussian'].rho(rs)
 
         # Linear
-
         lin_params={'slope_fraction':kwargs['slope_fraction'], f'min_r':rs[0], f'max_r':rs[-1]}
         self.dist['linear'] = LinearRad(verbose=verbose, **lin_params)
 
