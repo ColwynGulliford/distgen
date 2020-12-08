@@ -1,0 +1,33 @@
+n_particle: 200000
+output:
+  file: x.uniform.y.file.t.gaussian.out.txt
+  type: gpt
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 120
+  type: cathode
+t_dist:
+  avg_t:
+    units: ps
+    value: -0.5
+  sigma_t:
+    units: ps
+    value: 1
+  type: gaussian
+total_charge:
+  units: pC
+  value: 10
+x_dist:
+  max_x:
+    units: mm
+    value: 2
+  min_x:
+    units: mm
+    value: -1
+  type: uniform
+y_dist:
+  file: data/cutgauss.1d.txt
+  type: file1d
+  units: mm
