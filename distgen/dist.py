@@ -1230,7 +1230,7 @@ class Deformable(Dist1d):
         return self.mean
 
     def rms(self):
-        return np.sqrt(self.sigma()**2 + self.avg()**2)
+        return np.sqrt(self.std()**2 + self.avg()**2)
 
 
 
