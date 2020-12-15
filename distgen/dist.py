@@ -796,7 +796,7 @@ class SuperGaussian(Dist1d):
             self.n_sigma_cutoff=3
 
         vprint('Super Gaussian', verbose>0, 0, True)
-        vprint(f'simga_{var} = {self.std():G~P}, power = {self.p:G~P}', verbose, 2, True)
+        vprint(f'sigma_{var} = {self.std():G~P}, power = {self.p:G~P}', verbose, 2, True)
         vprint(f'n_sigma_cutoff = {self.n_sigma_cutoff}', int(verbose>=1 and self.n_sigma_cutoff!=3), 2, True)
  
     def pdf(self,x=None):  
