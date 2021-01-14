@@ -55,7 +55,8 @@ class Generator:
             if os.path.exists(os.path.expandvars(input)):
                 # Try file
                 input = os.path.expandvars(input)
-                input = yaml.safe_load(open(input))
+                with open(input) as fid:
+                    input = yaml.safe_load(fid)
             else:
                 #Try raw string
                 input = yaml.safe_load(input)

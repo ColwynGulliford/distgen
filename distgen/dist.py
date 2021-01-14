@@ -881,9 +881,8 @@ class File1d(Dist1d):
         self.units = kwargs["units"]
         
         vprint(f'{var}-distribution file: "{self.distfile}"',verbose>0,0,True)
-        f = open(self.distfile,'r')
-        headers = f.readline().split()
-        f.close()
+        with open(self.distfile,'r') as f:
+            headers = f.readline().split()
 
         if(len(headers)!=2):
             raise ValueError("file1D distribution file must have two columns")
@@ -1744,9 +1743,9 @@ class RadFile(DistRad):
         units = params["units"]
         
         self.distfile = distfile
-        f = open(distfile,'r')
-        headers = f.readline().split()
-        f.close()
+        
+        with open(distfile,'r') as f:
+            headers = f.readline().split()
 
         if(len(headers)!=2):
             raise ValueError("radial distribution file must have two columns")

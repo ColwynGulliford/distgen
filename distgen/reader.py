@@ -42,19 +42,18 @@ class Reader():
         vprint("Reading file '"+self.file_name+"'...",self.verbose>0,0,False)    
        
         # Open file
-        file_handle = open(self.file_name,'r')
-        try:
-            # Try loading as a json
-            params = json.load(file_handle) 
-            
-        except:
-            # If not, read the file assuming ascii format
-            for line in file_handle:
-                self.file_lines.append(line)
+        with open(self.file_name,'r') as file_handle:
+            try:
+                # Try loading as a json
+                params = json.load(file_handle) 
+                
+            except:
+                # If not, read the file assuming ascii format
+                for line in file_handle:
+                    self.file_lines.append(line)
 
-            params="File type not supported"  # ASCII parsing isn't supported yet
-            
-        file_handle.close()
+                params="File type not supported"  # ASCII parsing isn't supported yet
+                    
         watch.stop()
         vprint("done. Time Ellapsed: "+watch.print(),self.verbose>0,0,True) 
 

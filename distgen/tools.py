@@ -331,10 +331,9 @@ def read_2d_file(filename):
     ys=0
     Pxy=0
     
-    f = open(filename,'r')
-
-    header1 = f.readline().split()
-    header2 = f.readline().split()
+    with open(filename,'r') as f:
+        header1 = f.readline().split()
+        header2 = f.readline().split()
 
     xstr = header1[0]
     delta_x = float(header1[1])*unit_registry(get_unit_str(header1[3]))
@@ -344,14 +343,12 @@ def read_2d_file(filename):
     delta_y = float(header2[1])*unit_registry(get_unit_str(header2[3]))
     avg_y = float(header2[2])*unit_registry(get_unit_str(header2[3]))
 
-    f.close()
-
     Pxy = np.loadtxt(filename,skiprows=2)*unit_registry("1/"+str(avg_x.units)+"/"+str(avg_y.units))
 
     xs = avg_x + linspace(-delta_x/2.0,+delta_x/2.0,Pxy.shape[1])
     ys = avg_y + linspace(-delta_y/2.0,+delta_y/2.0,Pxy.shape[0])
 
-    return (xs,ys,Pxy,xstr,ystr)
+    return (xs, ys, Pxy, xstr, ystr)
 
 
 #--------------------------------------------------------------
