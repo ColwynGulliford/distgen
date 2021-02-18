@@ -8,12 +8,12 @@ ALLOWED_VARIABLES = ['x','y','z','t','r','theta','px','py','pz','pr','ptheta','x
 
 def get_variables(varstr):
 
-   if(varstr):
-       varstr=varstr.strip()
-       variables = varstr.split(':')
-       for variable in variables:
-           assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
-       return variables
+    if(varstr):
+        varstr=varstr.strip()
+        variables = varstr.split(':')
+        for variable in variables:
+            assert variable in ALLOWED_VARIABLES, 'transforms::get_variables -> variable '+variable+' is not supported.'
+        return variables
     
 def get_origin(beam,varstr,origin):
 
