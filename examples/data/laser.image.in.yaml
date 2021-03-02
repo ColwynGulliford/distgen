@@ -12,5 +12,5 @@ total_charge:
   units: pC
   value: 10
 xy_dist:
-  file: data/laser.image.txt
+  file: laser.image.txt
   type: file2d

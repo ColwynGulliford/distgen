@@ -50,18 +50,25 @@ class Generator:
         The structure is then converted to an easier form for use in populating the Beam object.
         
         YAML or JSON is accepted if params is a filename (str)
+        
+        Relative paths for input 'file' keys will be expanded.
         """
         if isinstance(input, str):
             if os.path.exists(os.path.expandvars(input)):
-                # Try file
-                input = os.path.expandvars(input)
+                # File
+                filename = full_path(input)
                 with open(input) as fid:
                     input = yaml.safe_load(fid)
+                # Fill any 'file' keys
+                expand_input_filepaths(input, root=os.path.split(filename)[0], ignore_keys=['output'])
+                    
+                    
             else:
                 #Try raw string
                 input = yaml.safe_load(input)
                 assert isinstance(input, dict), f'ERROR: parsing unsuccessful, could not read {input}'
-
+                expand_input_filepaths(input)
+                
         self.input = input
 
     def configure(self):
@@ -479,6 +486,41 @@ class Generator:
         for req in self.required_params:
             assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
 
+
+            
+            
+            
+def expand_input_filepaths(input_dict, root=None, ignore_keys=[]):
+    """
+    
+    Searches for 'file' keys with relative path values in the input dict, 
+    and fills the value with an absolute path based on root.
+    If no root is given, os.path.getcwd() is used. 
+    
+    
+    
+    """
+    
+    if not root:
+        root = os.getcwd()
+    else:
+        root = os.path.abspath(root)
+        
+    for k1, v1 in input_dict.items():
+        if k1 in ignore_keys:
+            continue
+        if not isinstance(v1, dict):
+            continue
+        if 'file' in v1:
+            filepath = v1['file']
+            print(filepath)
+            if not os.path.isabs(filepath):
+                fnew = os.path.join(root, filepath)
+                #print(fnew)
+                #assert os.path.exists(fnew), f'{fnew} does not exist'
+            
+                v1['file'] = fnew
+            
 
 
 
