@@ -348,7 +348,7 @@ def read_2d_file(filename):
     xs = avg_x + linspace(-delta_x/2.0,+delta_x/2.0,Pxy.shape[1])
     ys = avg_y + linspace(-delta_y/2.0,+delta_y/2.0,Pxy.shape[0])
 
-    return (xs, ys, Pxy, xstr,openystr)
+    return (xs, ys, Pxy, xstr, ystr)
 
 
 #--------------------------------------------------------------

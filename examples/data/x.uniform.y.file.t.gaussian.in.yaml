@@ -28,6 +28,6 @@ x_dist:
     value: -1
   type: uniform
 y_dist:
-  file: data/cutgauss.1d.txt
+  file: cutgauss.1d.txt
   type: file1d
   units: mm
