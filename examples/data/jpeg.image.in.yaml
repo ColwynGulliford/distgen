@@ -1,4 +1,4 @@
-n_particle: 1000000
+n_particle: 10000
 output:
   file: rad.uniform.out.txt
   type: gpt
@@ -26,5 +26,6 @@ xy_dist:
   max_y:
     value: 1
     units: mm
-  threshold: 0.3
+  threshold: 0.0
+  invert: True
     
