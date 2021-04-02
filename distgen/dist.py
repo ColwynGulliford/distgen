@@ -2194,7 +2194,7 @@ class File2d(Dist2d):
         else:
             raise ValueError(f'Error: unknown file extension: "{ext}" for filename = {filename}')
     
-        if('invert' in params):
+        if('invert' in params and params['invert']):
             Pxy = Pxy.max() - Pxy
 
         if('threshold' in params):
