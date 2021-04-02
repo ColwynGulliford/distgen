@@ -355,9 +355,7 @@ def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
 
     img = mpimg.imread(filename)
 
-    #make alpha=0 -> white
-
-    clear_pixels = np.squeeze(img[:,:,3])==0
+    clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
     greyscale = np.dot(img[...,:3], rgb_weights)
     greyscale = greyscale/greyscale.max()
     greyscale[clear_pixels]=1
