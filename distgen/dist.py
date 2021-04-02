@@ -2145,7 +2145,7 @@ class File2d(Dist2d):
     def __init__(self, var1, var2, verbose, **params):
 
         self.required_params=['file']
-        self.optional_params=[f'min_{var1}',  f'max_{var1}', f'min_{var2}',  f'max_{var2}', var1, var2]
+        self.optional_params=[f'min_{var1}',  f'max_{var1}', f'min_{var2}',  f'max_{var2}', var1, var2, 'threshold']
 
         self.check_inputs(params)
 
@@ -2194,6 +2194,15 @@ class File2d(Dist2d):
         else:
             raise ValueError(f'Error: unknown file extension: "{ext}" for filename = {filename}')
     
+        if('threshold' in params):
+            threshold=params['threshold']
+        else:
+            threshold=0
+        
+        assert threshold>=0 and threshold<1, 'Error: image threshold must be >=0 and < 1.'
+
+        under_threshold = Pxy.magnitude < threshold*Pxy.magnitude.max()
+
         super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
 
         vprint('2D File PDF', verbose>0, 0, True)

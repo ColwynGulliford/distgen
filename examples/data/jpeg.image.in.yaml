@@ -26,3 +26,5 @@ xy_dist:
   max_y:
     value: 1
     units: mm
+  threshold: 0.3
+    
