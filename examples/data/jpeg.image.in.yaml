@@ -12,7 +12,7 @@ total_charge:
   units: pC
   value: 10
 xy_dist:
-  file: seaturtle.jpg
+  file: seaturtle.jpeg
   type: file2d
   min_x: 
     value: -1

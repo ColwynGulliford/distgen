@@ -2187,9 +2187,12 @@ class File2d(Dist2d):
 
             super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
 
-        else:
+        elif(ext=='.txt'):
         
             xs, ys, Pxy, xstr, ystr = read_2d_file(filename)
+
+        else:
+            raise ValueError(f'Error: unknown file extension: "{ext}" for filename = {filename}')
     
         super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
 
