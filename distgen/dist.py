@@ -28,11 +28,13 @@ from .tools import gamma
 
 from .tools import get_vars
 from .tools import read_2d_file
+from .tools import read_image_file
 
 from pint import Quantity
 
 import numpy as np
 import numpy.matlib as mlib
+import os
 
 from matplotlib import pyplot as plt
 
@@ -2083,12 +2085,12 @@ class Dist2d(Dist):
             if(np.count_nonzero(in_column)>0):
                 y[in_column] = interp(rnys[in_column],self.Cys[:,ii],self.yb)
 
-        return (x,y)
+        return (x, y)
 
     def test_sampling(self):
         x,y = self.sample(100000,sequence="hammersley") 
         plt.figure()
-        plt.plot(x,y,'*')
+        plt.plot(x, y, '*')
 
 
 class Image2d(Dist2d):
@@ -2143,16 +2145,55 @@ class File2d(Dist2d):
     def __init__(self, var1, var2, verbose, **params):
 
         self.required_params=['file']
-        self.optional_params=[]
+        self.optional_params=[f'min_{var1}',  f'max_{var1}', f'min_{var2}',  f'max_{var2}', var1, var2]
 
         self.check_inputs(params)
 
         filename = params['file']
+
+        ext = (os.path.splitext(filename)[1]).lower()
+
+        if(ext in ['.png', '.jpg', '.jpeg']):
+
+            Pxy  = read_image_file(filename)
+
+            xstr = var1
+            ystr = var2
+
+            min_var1_str = f'min_{var1}'
+            max_var1_str = f'max_{var1}'
+
+            assert min_var1_str in params, f'Error in File2d: user must specify {min_var1_str}.'
+            assert max_var1_str in params, f'Error in File2d: user must specify {max_var1_str}.'
+
+            min_var1 = params[min_var1_str]
+            max_var1 = params[max_var1_str]
+
+            xs = linspace(min_var1, max_var1, Pxy.shape[1])
+
+            min_var2_str = f'min_{var2}'
+            max_var2_str = f'max_{var2}'
+
+            assert min_var2_str in params, f'Error in File2d: user must specify {min_var2_str}.'
+            assert max_var2_str in params, f'Error in File2d: user must specify {max_var2_str}.'
+
+            min_var2 = params[min_var2_str]
+            max_var2 = params[max_var2_str]
+
+            ys = linspace(min_var2, max_var2, Pxy.shape[0])
+
+            Pxy = np.flipud(Pxy)
+            Pxy = Pxy*unit_registry(f'1/{str(xs.units)}/{str(ys.units)}')
+
+            super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
+
+        else:
         
-        xs, ys, Pxy, xstr, ystr = read_2d_file(filename)
+            xs, ys, Pxy, xstr, ystr = read_2d_file(filename)
+    
         super().__init__(xs, ys, Pxy, xstr=xstr, ystr=ystr)
 
-        vprint('2D File PDF',verbose>0, 0, True)
+        vprint('2D File PDF', verbose>0, 0, True)
         vprint(f'2D pdf file: {params["file"]}', verbose>0, 2, True)
         vprint(f'min_{var1} = {min(xs):G~P}, max_{var1} = {max(xs):G~P}', verbose>0, 2, True)
         vprint(f'min_{var2} = {min(ys):G~P}, max_{var2} = {max(ys):G~P}', verbose>0, 2, True)
@@ -2161,8 +2202,6 @@ class File2d(Dist2d):
 # ---------------------------------------------------------------------------- 
 #   This allows the main function to be at the beginning of the file
 # ---------------------------------------------------------------------------- 
-#if __name__ == '__main__':
-#    test()
-
-
-
+if __name__ == '__main__':
+    
+    read_2d_file('')

@@ -5,6 +5,7 @@ import time
 import numpy as np
 import scipy.integrate 
 import scipy.special
+import matplotlib.image as mpimg
 
 import json
 from hashlib import blake2b
@@ -330,7 +331,7 @@ def read_2d_file(filename):
     xs=0
     ys=0
     Pxy=0
-    
+
     with open(filename,'r') as f:
         header1 = f.readline().split()
         header2 = f.readline().split()
@@ -349,6 +350,12 @@ def read_2d_file(filename):
     ys = avg_y + linspace(-delta_y/2.0,+delta_y/2.0,Pxy.shape[0])
 
     return (xs, ys, Pxy, xstr, ystr)
+
+def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
+
+    img = mpimg.imread(filename)
+    return np.dot(img[...,:3], rgb_weights)
+
 
 
 #--------------------------------------------------------------

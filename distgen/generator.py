@@ -298,6 +298,9 @@ class Generator:
 
             dist_params.pop('xy')
 
+            avgs['x']=bdist.avg('x')
+            avgs['y']=bdist.avg('y')
+
             stds['x']=bdist.std('x')
             stds['y']=bdist.std('y')
         
@@ -513,7 +516,7 @@ def expand_input_filepaths(input_dict, root=None, ignore_keys=[]):
             continue
         if 'file' in v1:
             filepath = v1['file']
-            print(filepath)
+            #print(filepath)
             if not os.path.isabs(filepath):
                 fnew = os.path.join(root, filepath)
                 #print(fnew)
