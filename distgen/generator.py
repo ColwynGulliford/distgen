@@ -57,7 +57,7 @@ class Generator:
             if os.path.exists(os.path.expandvars(input)):
                 # File
                 filename = full_path(input)
-                with open(input) as fid:
+                with open(filename) as fid:
                     input = yaml.safe_load(fid)
                 # Fill any 'file' keys
                 expand_input_filepaths(input, root=os.path.split(filename)[0], ignore_keys=['output'])
