@@ -140,7 +140,7 @@ def rectint(f, x):
     Computes integral[ f(x) dx ] ~ sum[ (x(i+1) - x(i))*f(i) ]
     """
     uxstr = str(x.units)
-    ufstr = str(f.units)    
+    #ufstr = str(f.units)    
 
     xb = np.zeros(len(x)+1)
     xb[1:-1] = (x[1:]+x[:-1])/2.0
@@ -315,7 +315,7 @@ def get_vars(varstr):
     """Gets 2d variable labels from a single string"""
     variables = ['x', 'y', 'z', 'px', 'py', 'pz', 't']
 
-    all_2d_vars = {}
+    #all_2d_vars = {}
     for var1 in variables:
         for var2 in variables:
             if(varstr == f'{var1}{var2}'):
@@ -354,11 +354,17 @@ def read_2d_file(filename):
 def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
 
     img = mpimg.imread(filename)
-
-    clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
-    greyscale = np.dot(img[...,:3], rgb_weights)
-    greyscale = greyscale/greyscale.max()
-    greyscale[clear_pixels]=1
+    
+    if(len(img.shape)>3):
+        clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
+        greyscale = np.dot(img[...,:3], rgb_weights)
+        greyscale = greyscale/greyscale.max()
+        greyscale[clear_pixels]=1
+        
+    elif(len(img.shape)==3):
+        greyscale = np.dot(img[...,:3], rgb_weights)
+        greyscale = greyscale/greyscale.max()
+        
 
     return greyscale
 
