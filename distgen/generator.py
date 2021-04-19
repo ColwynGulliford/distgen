@@ -1,9 +1,8 @@
-from .physical_constants import *
+#from .physical_constants import *
 from .beam import Beam
 from .transforms import set_avg_and_std, transform, set_avg
 from .tools import *
 from .dist import *
-from collections import OrderedDict as odic
 from pmd_beamphysics import ParticleGroup, pmd_init
 from . import archive
 
@@ -13,6 +12,7 @@ import numpy as np
 import h5py
 import yaml
 import copy
+import os
 
 
 class Generator:
@@ -80,6 +80,8 @@ class Generator:
         """
 
         self.params = copy.deepcopy(self.input)         # Copy the input dictionary
+        if('start' not in self.params):
+            self.params['start'] = {'type':'free'}
         convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
         self.check_input_consistency(self.params)       # Check that the result is logically sound 
         
@@ -88,12 +90,12 @@ class Generator:
         ''' Perform consistency checks on the user input data'''
 
         # Make sure all required top level params are present
-        required_params = ['n_particle', 'random_type', 'total_charge','start']
+        required_params = ['n_particle', 'random_type', 'total_charge']
         for rp in required_params:
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output','transforms']
+        allowed_params = required_params + ['output', 'transforms', 'start']
         for p in params:
             #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
             assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p
@@ -112,6 +114,7 @@ class Generator:
             vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
             vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
             vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
+            
             assert "MTE" in params['start'], "User must specify the MTE for cathode start." 
 
             # Handle momentum distribution for cathode
@@ -135,6 +138,7 @@ class Generator:
                 assert op in ['file','type'], f'Unexpected output parameter specified: {op}'
         else:
             self.params['output'] = {"type":None}
+
 
     def __getitem__(self, varstr):
          return get_nested_dict(self.input, varstr, sep=':', prefix='distgen')
@@ -209,7 +213,7 @@ class Generator:
         self.configure()
 
         verbose = self.verbose
-        outputfile = []
+        #outputfile = []
         
         beam_params = {'total_charge':self.params['total_charge'], 'n_particle':self.params['n_particle']}
 
@@ -234,7 +238,7 @@ class Generator:
         vprint(f'Output file: {outfile}', verbose>0, 0, True)
 
         vprint('\nCreating beam distribution....',verbose>0,0,True)
-        vprint(f"Beam starting from: {self.input['start']['type']}",verbose>0,1,True)
+        vprint(f"Beam starting from: {self.params['start']['type']}",verbose>0,1,True)
         vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
         vprint(f'Number of macroparticles: {N}.',verbose>0,1,True)
 
@@ -355,6 +359,9 @@ class Generator:
 
             vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True);
             bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec'), 'verbose':verbose>0})
+            
+        elif(self.params['start']['type']=='free'):
+            pass
 
         else:
             raise ValueError(f'Beam start type "{self.params["start"]["type"]}" is not supported!')
