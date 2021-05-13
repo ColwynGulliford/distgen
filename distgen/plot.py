@@ -1,6 +1,5 @@
 from matplotlib import pyplot as plt
 import numpy as np
-#f#rom .tools import *
 
 from .physical_constants import unit_registry, pi
 from .tools import histogram
