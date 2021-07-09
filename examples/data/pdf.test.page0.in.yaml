@@ -1,0 +1,29 @@
+- n_particle: 1000000
+  output:
+    file: rad.uniform.out.txt
+    type: gpt
+  random_type: hammersley
+  start:
+    MTE:
+      units: meV
+      value: 150
+    type: cathode
+  total_charge:
+    units: pC
+    value: 10
+  xy_dist:
+    file: png.pdf.test.page0.png
+    max_x:
+      units: mm
+      value: 1
+    max_y:
+      units: mm
+      value: 1
+    min_x:
+      units: mm
+      value: -1
+    min_y:
+      units: mm
+      value: -1
+    threshold: 0.0
+    type: file2d
