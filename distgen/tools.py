@@ -6,7 +6,7 @@ import numpy as np
 import scipy.integrate 
 import scipy.special
 import matplotlib.image as mpimg
-from pdf2image.pdf2image import convert_from_path
+from pdf2image import convert_from_path
 import yaml
 
 import json
