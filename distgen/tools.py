@@ -378,7 +378,7 @@ def read_pdf_file(filename):
     pdf = convert_from_path(config_file_path +'/data/'+filename)
 
     # PDF may have multiple pages. With this method, multiple pdf uploads will overwrite the previous pdf
-    # .png conversions and their .yaml files with the interest of conserving disk space. 
+    # .png conversions and their .yaml files in the interest of conserving disk space. 
     # An alternate method could be to change 'test' in the dictionary below to the variable filename.
     for q in range(len(pdf)):
         pdf[q].save('data/png.pdf.test.page' + str(q+1) + '.png','PNG')
