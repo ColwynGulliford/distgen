@@ -375,23 +375,22 @@ def read_pdf_file(filename):
     pdf = convert_from_path(config_file_path +'/data/'+filename)
 
     for q in range(len(pdf)):
-        pdf[q].save('png.pdf.test.page' + str(q) + '.png','PNG')
-        tempDictionary = [{'n_particle': 1000000,
+        pdf[q].save('data/png.pdf.test.page' + str(q+1) + '.png','PNG')
+        tempDictionary = {'n_particle': 1000000,
             'output': {'file': 'rad.uniform.out.txt', 'type': 'gpt'},
             'random_type': 'hammersley', 
             'start': {'MTE': {'units': 'meV', 'value': 150}, 'type': 'cathode'},
             'total_charge': {'units': 'pC', 'value': 10},
-            'xy_dist': {'file': 'png.pdf.test.page' + str(q) + '.png', 
-                'max_x': {'units': 'mm', 'value': 1},
-                'max_y': {'units': 'mm', 'value': 1},
-                'min_x': {'units': 'mm', 'value': -1},
-                'min_y': {'units': 'mm', 'value': -1},
-                'threshold': 0.0,
-                'type': 'file2d'}}]
+            'xy_dist': {'file': 'png.pdf.test.page' + str(q+1) + '.png', 'type': 'file2d',
+                'min_x': {'value': -1, 'units': 'mm'},
+                'max_x': {'value': 1, 'units': 'mm'},
+                'min_y': {'value': -1, 'units': 'mm'},
+                'max_y': {'value': 1, 'units': 'mm'},
+                'threshold': 0.0}}
     
-        with open((config_file_path +'/data/' + 'pdf.test.page' + str(q) + '.in.yaml'),'w') as file:
+        with open((config_file_path +'/data/' + 'pdf.test.page' + str(q+1) + '.in.yaml'),'w') as file:
             documents = yaml.dump(tempDictionary, file)
-
+    return q
 
 #--------------------------------------------------------------
 # Nested Dict Functions
