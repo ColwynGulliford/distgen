@@ -394,9 +394,12 @@ class Generator:
     def run(self):
         """ Runs the generator.beam function stores the partice in 
         an openPMD-beamphysics ParticleGroup in self.particles """
-        beam = self.beam()
-        self.particles = ParticleGroup(data=beam.data())
-        vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose>0,1,False) 
+        if(self.input is not None):
+            beam = self.beam()
+            self.particles = ParticleGroup(data=beam.data())
+            vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose>0,1,False) 
+        else:
+            print('No input data specified.')
     
     
     def fingerprint(self):
