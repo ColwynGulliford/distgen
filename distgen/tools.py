@@ -6,7 +6,7 @@ import numpy as np
 import scipy.integrate 
 import scipy.special
 import matplotlib.image as mpimg
-from pdf2image import convert_from_path
+#from pdf2image import convert_from_path
 import yaml
 
 import json
@@ -369,6 +369,7 @@ def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
 
     return greyscale
 
+"""
 #read_pdf_file requires pdf2image python extension
 def read_pdf_file(filename):
     #To be able to make and reference files outside /distgen/, config_file_path is created to /distgen/examples/
@@ -399,6 +400,7 @@ def read_pdf_file(filename):
             documents = yaml.dump(tempDictionary, file)
     # return total number of pages.
     return q
+"""
 
 #--------------------------------------------------------------
 # Nested Dict Functions

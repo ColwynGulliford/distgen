@@ -78,7 +78,7 @@ class Beam():
 
     @theta.setter
     def theta(self, theta):
-        r = getattr(self,r)
+        r = getattr(self,theta)
         self.x = r * np.cos(theta)
         self.y = r * np.sin(theta) 
 
