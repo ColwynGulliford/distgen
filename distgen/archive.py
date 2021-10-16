@@ -1,7 +1,8 @@
 import numpy as np
 
 from .tools import isotime, flatten_dict, unflatten_dict
-from ._version import __version__
+from . import _version
+__version__ = _version.get_versions()['version']
 
 
 
