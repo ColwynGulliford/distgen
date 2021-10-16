@@ -7,3 +7,4 @@ regression_tests export-ignore
 # exclude CI configurations (useless outside the repo)
 .travis-ci.yml  export-ignore
 .appveyor.yml   export-ignore
+distgen/_version.py export-subst
