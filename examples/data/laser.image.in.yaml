@@ -1,7 +1,4 @@
 n_particle: 1000000
-output:
-  file: rad.uniform.out.txt
-  type: gpt
 random_type: hammersley
 start:
   MTE:

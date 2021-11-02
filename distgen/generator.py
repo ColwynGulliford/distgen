@@ -549,6 +549,7 @@ def expand_input_filepaths(input_dict, root=None, ignore_keys=[]):
         root = os.path.abspath(root)
         
     for k1, v1 in input_dict.items():
+        
         if k1 in ignore_keys:
             continue
         if not isinstance(v1, dict):
@@ -562,6 +563,9 @@ def expand_input_filepaths(input_dict, root=None, ignore_keys=[]):
                 #assert os.path.exists(fnew), f'{fnew} does not exist'
             
                 v1['file'] = fnew
+        
+        # Recursively search
+        expand_input_filepaths(v1, root=root, ignore_keys=ignore_keys)
             
 
 

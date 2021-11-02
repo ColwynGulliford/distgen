@@ -9,6 +9,8 @@ from .physical_constants import pi
 from .tools import vprint
 
 from .tools import interp
+from .tools import interp2d
+from .tools import meshgrid
 from .tools import linspace
 from .tools import centers
 
@@ -20,7 +22,7 @@ from .tools import radcumint
 from .tools import histogram
 from .tools import radial_histogram
 
-from .tools import  concatenate
+#from .tools import  concatenate
 
 from .tools import erf
 from .tools import erfinv
@@ -66,9 +68,9 @@ def get_dist(var,params,verbose=0):
     assert 'type' in params, 'No distribution type for '+var+' specified.'
     dtype = params['type']
 
-    if(dtype=="uniform" or dtype=="u"):
+    if(dtype=="uniform" or dtype=="u"): 
         dist = Uniform(var,verbose=verbose, **params)
-    elif(dtype=="gaussian" or dtype=="g"):
+    elif(dtype=="gaussian" or dtype=="g"): 
         dist = Norm(var,verbose=verbose, **params)
     elif(dtype=="file1d"):
         dist = File1d(var,verbose=verbose, **params)
@@ -78,8 +80,10 @@ def get_dist(var,params,verbose=0):
         dist = SuperGaussian(var,verbose=verbose, **params)
     elif(dtype=="superposition" or dtype=='sup'):
         dist = Superposition(var, verbose=verbose, **params)
-    elif(dtype =='product' or dtype=='pro'):
+    elif( (dtype =='product' or dtype=='pro') and len(var)==1):
         dist = Product(var, verbose=verbose, **params)
+    elif( (dtype =='product' or dtype=='pro') and len(var)==2):
+        dist = Product2d(var, verbose=verbose, **params)
     elif(dtype=='deformable'):
         dist = Deformable(var, verbose=verbose, **params)
     elif((dtype=="radial_uniform" or dtype=="ru") and var=="r"):
@@ -827,7 +831,7 @@ class SuperGaussian(Dist1d):
     def cdf(self,x):
         """ Defines the CDF for the super Gaussian function """
         xpts = self.get_x_pts(10000)
-        pdfs = self.pdf(xpts)
+        #pdfs = self.pdf(xpts)
         cdfs = cumtrapz(self.pdf(xpts), xpts)
 
         cdfs = cdfs/cdfs[-1]
@@ -1143,7 +1147,7 @@ class Tukey(Dist1d):
 
     def cdf(self, x):
         xpts = self.get_x_pts(10000)
-        pdfs = self.pdf(xpts)
+        #pdfs = self.pdf(xpts)
         cdfs = cumtrapz(self.pdf(xpts), xpts)
         cdfs = cdfs/cdfs[-1]
         cdfs = interp(x,xpts,cdfs)
@@ -1188,7 +1192,7 @@ class Deformable(Dist1d):
         self.mean = kwargs[avgstr]
 
         if('n_sigma_cutoff' in kwargs):
-            n_sigma_cutoff=kwars['n_sigma_cutoff']
+            n_sigma_cutoff=kwargs['n_sigma_cutoff']
         else:
             n_sigma_cutoff=3
 
@@ -1288,10 +1292,10 @@ class UniformTheta(DistTheta):
         vprint(f'min_theta = {self.a:G~P}, max_theta = {self.b:G~P}', verbose>0, 2, True)
         
     def avgCos(self):
-        return (np.sin(b)-np.sin(a))/self.range
+        return (np.sin(self.b)-np.sin(self.a))/self.range
 
     def avgSin(self):
-        return (np.cos(a)-np.cos(b))/self.range
+        return (np.cos(self.a)-np.cos(self.b))/self.range
 
     def avgCos2(self):
         return 0.5*(1 + (self.Cb*self.Sb - self.Ca*self.Sa)/self.range)
@@ -1300,7 +1304,7 @@ class UniformTheta(DistTheta):
         return 0.5*(1 - (self.Cb*self.Sb - self.Ca*self.Sa)/self.range)
 
     def mod2pi(self, thetas):
-        return tnp.mod(thetas, 2*pi)
+        return np.mod(thetas, 2*pi)
 
     def pdf(self, thetas):
         return np.full( (len(thetas),), 1/self.range) 
@@ -1327,14 +1331,24 @@ class DistRad(Dist):
         self.Pr = self.Pr/norm
         self.Cr, self.rb = radcumint(self.Pr, self.rs)
         
+        self.var_type='radial'
+        
     def get_r_pts(self, n):
         return linspace(self.rs[0], self.rs[-1], n)
 
     def rho(self, r):
         return interp(r, self.rs, self.Pr)
+    
+    def rho_xy(self, x, y):
+        X,Y = meshgrid(x, y)
+        return interp(np.sqrt(X**2 + Y**2), self.rs, self.Pr)
 
     def pdf(self, r):
         return interp(r, self.rs, self.rs*self.Pr)
+    
+    def pdf_xy(self, x ,y):
+        X,Y = meshgrid(x, y)
+        return interp(np.sqrt(X**2 + Y**2), self.rs, self.rs*self.Pr)
 
     def cdf(self, r):
         return interp(r**2, self.rb**2, self.Cr)
@@ -1413,7 +1427,7 @@ class DistRad(Dist):
         rs=self.sample(100000,sequence="hammersley")    
         r = self.get_r_pts(1000)
         p = self.rho(r)
-        P = self.pdf(r)
+        #P = self.pdf(r)
 
         r_hist, r_edges = radial_histogram(rs, nbins=500)   
         r_bins = centers(r_edges)  
@@ -1430,6 +1444,21 @@ class DistRad(Dist):
         ax.set_ylabel(f'$\\rho_r(r)$ ({r_hist.units:~P})')
         ax.set_title(f'Sample stats: <r> = {avgr:G~P}, $\sigma_r$ = {stdr:G~P}\nDist. stats: <r> = {davgr:G~P}, $\sigma_r$ = {dstdr:G~P}')
         ax.legend(['$\\rho_r$(r)','Sampling'])
+        
+    def get_x_pts(self, m):
+        r = self.get_r_pts(2)
+        return linspace(-r[-1], r[-1], m)
+    
+    def get_y_pts(self, n):
+        r = self.get_r_pts(2)
+        return linspace(-r[-1], r[-1], n)
+    
+    def get_xy_pts(self, m, n=None):
+        
+        if(n is None):
+            n=m
+        
+        return (self.get_x_pts(m), self.get_y_pts(n))
 
 class UniformRad(DistRad):
 
@@ -1489,6 +1518,15 @@ class UniformRad(DistRad):
         res[nonzero]=r[nonzero]*2.0/(self.rR**2-self.rL**2)
         #res = res*unit_registry('1/'+str(r.units))
         return res
+    
+    def pdf_xy(self, x, y):
+        
+        X,Y = meshgrid(x,y)
+        R = np.sqrt(X**2+Y**2)
+        
+        nonzero = (R>= self.rL) & (R <= self.rR)
+        res = np.zeros(R.shape)*unit_registry('1/'+str(x.units))
+        res[nonzero]=R[nonzero]*2.0/(self.rR**2-self.rL**2)
 
     def rho(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
@@ -1496,6 +1534,14 @@ class UniformRad(DistRad):
         res[nonzero]=2/(self.rR**2-self.rL**2)
         #res = res*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         return res
+    
+    def rho_xy(self, x, y):
+        
+        X,Y = meshgrid(x,y)
+        R = np.sqrt(X**2+Y**2)
+        nonzero = (R>= self.rL) & (R <= self.rR)
+        res = np.zeros(R.shape)*unit_registry('1/'+str(x.units))
+        res[nonzero]=2.0/(self.rR**2-self.rL**2)
 
     def cdf(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
@@ -1517,9 +1563,8 @@ class LinearRad(DistRad):
         self.type='LinearRad'
         #self.xstr = var
 
-        ra_str = f'min_r'
-        rb_str = f'max_r'
-
+        ra_str, rb_str = 'min_r', 'max_r'
+        
         self.required_params = ['slope_fraction', ra_str, rb_str]
         self.optional_params = []
 
@@ -1566,6 +1611,17 @@ class LinearRad(DistRad):
         res = np.zeros(len(r))*unit_registry('1/'+str(r.units)+'/'+str(r.units))
         res[nonzero] = self.norm()*(  self.m*(r[nonzero]-self.a) + self.pa)
         return res
+    
+    def rho_xy(self, x, y):
+        
+        X,Y = meshgrid(x,y)
+        R = np.sqrt(X**2 + Y**2)
+        
+        nonzero = (R >= self.a) & (R <= self.b)
+        res = np.zeros(R.shape)*unit_registry('1/'+str(x.units)+'/'+str(y.units))
+        res[nonzero] = self.norm()*(  self.m*(R[nonzero]-self.a) + self.pa)
+        return res
+        
 
     def pdf(self, r):
         return r*self.rho(r)
@@ -1682,6 +1738,20 @@ class NormRad(DistRad):
         res[nonzero]= self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
         return res
 
+    def rho_xy(self, x, y):
+        
+        X,Y=meshgrid(x,y)
+        
+        R = np.sqrt(X**2 + Y**2)
+        
+        xi = (R/self.sigma)
+        res = np.zeros(R.shape)*unit_registry('1/'+str(x.units)+'/'+str(y.units))
+        
+        nonzero =  (R>=self.rL) & (R<=self.rR)
+        res[nonzero]= self.canonical_rho(xi[nonzero])/self.dp/(self.sigma**2)
+        
+        return res
+
     def pdf(self, r):
    
         xi = (r/self.sigma)
@@ -1706,7 +1776,7 @@ class NormRad(DistRad):
             endr = 5*self.sigma
         else:
             endr = 1.2*self.rR
-        return linspace(0.88*self.rL,endr,n)
+        return linspace(0.88*self.rL, endr, n)
 
     def avg(self):
 
@@ -1791,7 +1861,7 @@ class TukeyRad(DistRad):
         res = np.zeros(r.shape)*unit_registry(ustr)
 
         if(self.r==0):
-           flat_region = np.logical_and(r <= self.L, x >= 0.0)
+           flat_region = np.logical_and(r <= self.L)
            res[flat_region]=1.0*unit_registry(ustr)
        
         else:
@@ -1925,7 +1995,7 @@ class DeformableRad(DistRad):
 
         
 
-        sigstr = f'sigma_xy'
+        sigstr = 'sigma_xy'
         #avgstr = f'avg_{var}'
          
         self.required_params = ['slope_fraction', 'alpha', sigstr]
@@ -1937,7 +2007,7 @@ class DeformableRad(DistRad):
         #self.mean = kwargs[avgstr]
 
         if('n_sigma_cutoff' in kwargs):
-            n_sigma_cutoff=kwars['n_sigma_cutoff']
+            n_sigma_cutoff=kwargs['n_sigma_cutoff']
         else:
             n_sigma_cutoff=3
 
@@ -1952,7 +2022,7 @@ class DeformableRad(DistRad):
         Pr = self.dist['super_gaussian'].rho(rs)
 
         # Linear
-        lin_params={'slope_fraction':kwargs['slope_fraction'], f'min_r':rs[0], f'max_r':rs[-1]}
+        lin_params={'slope_fraction':kwargs['slope_fraction'], 'min_r':rs[0], 'max_r':rs[-1]}
         self.dist['linear'] = LinearRad(verbose=verbose, **lin_params)
 
         Pr = Pr*self.dist['linear'].rho(rs)
@@ -1976,7 +2046,25 @@ class DeformableRad(DistRad):
     #def rms(self):
     #    return np.sqrt(self.sigma()**2 + self.avg()**2)
 
-
+def is_radial_dist(dtype):
+    
+    abrevs = ['rg', 'ru', 'rsg', 'dr']
+    
+    if (dtype in abrevs): return True
+    
+    full_names = ["radial_uniform",
+                 "radial_gaussian", 
+                 "radial_super_gaussian",
+                 "radfile",
+                 "radial_tukey",
+                 "raddeformable"]
+    
+    if (dtype in full_names): return True
+    
+    return False
+   
+    
+    
 
 class Dist2d(Dist):
 
@@ -1997,6 +2085,8 @@ class Dist2d(Dist):
         self.Pxy = Pxy
         self.xstr=xstr
         self.ystr=ystr
+        
+        self.var_type = '2d'
 
         assert np.count_nonzero(Pxy.magnitude) > 0, 'Supplied 2d distribution is zero everywhere.'
     
@@ -2037,8 +2127,8 @@ class Dist2d(Dist):
         self.Cys[1:,:] = np.cumsum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))),axis=0)/norms
         self.Cys=self.Cys*unit_registry("dimensionless")
 
-    def pdf(self, x, sy):
-        pass
+    def pdf(self, x, y):
+        return interp2d(x, y, self.xs, self.ys, self.Pxy)
    
     def plot_pdf(self):
         plt.figure()
@@ -2048,14 +2138,14 @@ class Dist2d(Dist):
         plt.ylabel(self.ystr+" ("+str(self.ys.units)+")")
       
     def pdfx(self, x):
-        return interp(x,self.xs,self.Px)
+        return interp(x, self.xs, self.Px)
 
     def plot_pdfx(self):
         plt.figure()
-        plt.plot(self.xs,self.Px)
+        plt.plot(self.xs, self.Px)
 
     def cdfx(self, x):
-        return interp(x,self.xb,self.Cx)
+        return interp(x, self.xb, self.Cx)
 
     def plot_cdfx(self):
         plt.figure()
@@ -2067,7 +2157,7 @@ class Dist2d(Dist):
     def plot_cdfys(self):
         plt.figure()
         for ii in range(len(self.xs)):
-            plt.plot(self.yb,self.Cys[:,ii])    
+            plt.plot(self.yb, self.Cys[:,ii])    
 
     def sample(self, N, sequence=None, params=None):
         rns = self.rgen.rand((N,2),sequence,params)*unit_registry("dimensionless")
@@ -2091,6 +2181,83 @@ class Dist2d(Dist):
         x,y = self.sample(100000,sequence="hammersley") 
         plt.figure()
         plt.plot(x, y, '*')
+        
+    def get_x_pts(self, m):
+        return linspace(self.xs[0], self.xs[-1], m)
+    
+    def get_y_pts(self, n):
+        return linspace(self.ys[0], self.ys[-1], n)
+    
+    def get_xy_pts(self, m, n=None):
+        
+        if(n is None):
+            n=m
+        
+        return (self.get_x_pts(m), self.get_y_pts(n))
+        
+        
+
+class Product2d(Dist2d):
+    
+    """Dist object that allows user to multiply multiple 2d distributions together to form a new PDF for sampling"""
+
+    def __init__(self, variables, verbose, **kwargs):
+
+        vstrs = get_vars(variables)
+        assert len(vstrs)==2, f'Wrong number of variables given to Image2d: {len(vstrs)}'
+        assert 'dists' in kwargs, 'ProductDist 2d must be supplied the key word argument "dists"'
+        
+        vprint('Product 2d', verbose, 1, new_line=True)
+        
+        dist_defs = kwargs['dists']
+
+        dists={}
+
+        min_x, max_x = 0, 0
+        min_y, max_y = 0, 0
+
+        for ii, name in enumerate(dist_defs.keys()):
+
+            vprint(f'distribution name: {name}', verbose>0, 2, True)
+            
+            # handle 2d or radial here
+            if(is_radial_dist(dist_defs[name]['type'])):
+                dists[name] = get_dist('r', dist_defs[name], verbose=verbose)
+            else:
+                dists[name] = get_dist(variables, dist_defs[name], verbose=verbose)
+            
+            xi, yi = dists[name].get_xy_pts(10)
+
+            if(xi[0] <min_x): min_x = xi[0]
+            if(xi[-1]>max_x): max_x = xi[-1]
+            
+            if(yi[0] <min_y): min_y = yi[0]
+            if(yi[-1]>max_y): max_y = yi[-1]
+
+        xs = linspace(min_x, max_x, 10000)
+        ys = linspace(min_y, max_y, 10000)
+
+        for ii, name in enumerate(dists.keys()):          
+
+            #print(name, 'bot', xs.units, ys.units)            
+
+            if(is_radial_dist(dist_defs[name]['type'])):
+                pi = dists[name].rho_xy(xs, ys)
+            else:
+                pi = dists[name].pdf(xs, ys)
+            
+            #plt.figure()
+            #plt.imshow(pi)
+
+            if(ii==0):
+                ps = pi/np.max(pi.magnitude)
+            else:
+                ps = ps*pi/np.max(pi.magnitude)
+
+        ps = ps.magnitude*unit_registry(f'1/{xs.units}/{ys.units}')
+
+        # Update stuff here
+        super().__init__(xs, ys, ps, xstr=vstrs[0], ystr=vstrs[-1])
 
 
 class Image2d(Dist2d):
@@ -2101,8 +2268,7 @@ class Image2d(Dist2d):
 
         assert len(vstrs)==2, f'Wrong number of variables given to Image2d: {len(vstrs)}'
         
-        v1 = vstrs[0]
-        v2 = vstrs[1]
+        v1, v2 = vstrs[0], vstrs[1]
 
         self.required_params=['P']
         self.optional_params=[f'min_{v1}',  f'max_{v1}', f'min_{v2}',  f'max_{v2}', v1, v2]
@@ -2219,5 +2385,6 @@ class File2d(Dist2d):
 #   This allows the main function to be at the beginning of the file
 # ---------------------------------------------------------------------------- 
 if __name__ == '__main__':
+    pass
     
-    read_2d_file('')
+    

@@ -4,6 +4,7 @@ from .physical_constants import unit_registry
 import time
 import numpy as np
 import scipy.integrate 
+from scipy.interpolate import RectBivariateSpline
 import scipy.special
 import matplotlib.image as mpimg
 #from pdf2image import convert_from_path
@@ -214,6 +215,11 @@ def interp(x, xp, fp):
     return np.interp(x, xp, fp)
 
 
+@unit_registry.wraps('=B', ('=A','=A','=A','=A','=B'))
+def interp2d(x, y, xp, yp, fp):
+    interp_spline = RectBivariateSpline(yp, xp, fp)
+    return interp_spline(y, x)
+
 @unit_registry.wraps('=A', ('=A', '=A', None))
 def linspace(x1, x2, N):
     """
@@ -221,6 +227,9 @@ def linspace(x1, x2, N):
     """
     return np.linspace(x1, x2, N)
 
+@unit_registry.wraps(('=A', '=A'), ('=A', '=A'))
+def meshgrid(x, y):
+    return np.meshgrid(x,y)
 
 def centers(x):
     """
