@@ -217,7 +217,7 @@ def interp(x, xp, fp):
 
 @unit_registry.wraps('=B', ('=A','=A','=A','=A','=B'))
 def interp2d(x, y, xp, yp, fp):
-    interp_spline = RectBivariateSpline(yp, xp, fp)
+    interp_spline = RectBivariateSpline(yp, xp, fp, kx=0, ky=0)
     return interp_spline(y, x)
 
 @unit_registry.wraps('=A', ('=A', '=A', None))
