@@ -2243,15 +2243,6 @@ class Product2d(Dist2d):
 
         dists={}
 
-        #min_x, max_x = 0, 0
-        #min_y, max_y = 0, 0
-        
-        #x_range = np.array([-np.Inf, np.Inf])
-        #y_range = np.array([-np.Inf, np.Inf])
-        
-        #min_x, max_x = -np.Inf, +np.Inf
-        #min_y, max_y = -np.Inf, +np.Inf
-
         for ii, name in enumerate(dist_defs.keys()):
 
             vprint(f'distribution name: {name}', verbose>0, 2, True)
@@ -2267,6 +2258,7 @@ class Product2d(Dist2d):
            
             
             if(ii==0):
+                
                 min_x, max_x = xi[0], xi[-1]    
                 min_y, max_y = yi[0], yi[-1]    
                 
