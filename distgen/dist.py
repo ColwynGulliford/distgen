@@ -1459,6 +1459,12 @@ class DistRad(Dist):
             n=m
         
         return (self.get_x_pts(m), self.get_y_pts(n))
+    
+    def min_dx(self):
+        return np.diff(self.rs).min()
+    
+    def min_dy(self):
+        return np.diff(self.rs).min()
 
 class UniformRad(DistRad):
 
@@ -1552,6 +1558,14 @@ class UniformRad(DistRad):
 
     def cdfinv(self, rns):
         return np.sqrt( self.rL**2 + (self.rR**2 - self.rL**2)*rns) 
+    
+    @property
+    def min_dx(self):
+        return None
+    
+    @property
+    def min_dy(self):
+        return None
 
 
 class LinearRad(DistRad):
@@ -1802,6 +1816,14 @@ class NormRad(DistRad):
 
         pRrL2 = self.pR*self.rL**2
         return np.sqrt( 2*self.sigma**2 + self.rL**2 + (pRrL2 - pRrR2)/self.dp )
+    
+    @property
+    def min_dx(self):
+        return None
+    
+    @property
+    def min_dy(self):
+        return None
 
 class RadFile(DistRad):
 
@@ -2176,6 +2198,14 @@ class Dist2d(Dist):
                 y[in_column] = interp(rnys[in_column],self.Cys[:,ii],self.yb)
 
         return (x, y)
+    
+    @property
+    def min_dx(self):
+        return np.diff(self.xs).min()
+   
+    @property
+    def min_dy(self):
+        return np.diff(self.ys).min()
 
     def test_sampling(self):
         x,y = self.sample(100000,sequence="hammersley") 
@@ -2213,8 +2243,14 @@ class Product2d(Dist2d):
 
         dists={}
 
-        min_x, max_x = 0, 0
-        min_y, max_y = 0, 0
+        #min_x, max_x = 0, 0
+        #min_y, max_y = 0, 0
+        
+        #x_range = np.array([-np.Inf, np.Inf])
+        #y_range = np.array([-np.Inf, np.Inf])
+        
+        #min_x, max_x = -np.Inf, +np.Inf
+        #min_y, max_y = -np.Inf, +np.Inf
 
         for ii, name in enumerate(dist_defs.keys()):
 
@@ -2227,15 +2263,41 @@ class Product2d(Dist2d):
                 dists[name] = get_dist(variables, dist_defs[name], verbose=verbose)
             
             xi, yi = dists[name].get_xy_pts(10)
-
-            if(xi[0] <min_x): min_x = xi[0]
-            if(xi[-1]>max_x): max_x = xi[-1]
             
-            if(yi[0] <min_y): min_y = yi[0]
-            if(yi[-1]>max_y): max_y = yi[-1]
-
-        xs = linspace(min_x, max_x, 10000)
-        ys = linspace(min_y, max_y, 10000)
+           
+            
+            if(ii==0):
+                min_x, max_x = xi[0], xi[-1]    
+                min_y, max_y = yi[0], yi[-1]    
+                
+                if(dists[name].min_dx is not None):
+                    min_dx = dists[name].min_dx
+                else:
+                    min_dx = np.Inf*xi.units
+                    
+                if(dists[name].min_dy is not None):
+                    min_dy = dists[name].min_dy
+                else:
+                    min_dy = np.Inf*yi.units
+                
+            else:
+                
+                if(xi[0]  > min_x): min_x = xi[0]
+                if(xi[-1] < max_x): max_x = xi[-1]
+                
+                if(yi[0]  > min_y): min_y = yi[0]
+                if(yi[-1] < max_y): max_y = yi[-1]  
+                
+                if(dists[name].min_dx is not None and dists[name].min_dx < min_dx): 
+                    min_dx = dists[name].min_dx
+                    
+                if(dists[name].min_dy is not None and dists[name].min_dy < min_dy): 
+                    min_dy = dists[name].min_dy
+                
+        nx, ny = int( ((max_x-min_x)/min_dx).magnitude ), int( ((max_y-min_y)/min_dy).magnitude )
+        
+        xs = linspace(min_x, max_x, nx)
+        ys = linspace(min_y, max_y, ny)
 
         for ii, name in enumerate(dists.keys()):          
 
