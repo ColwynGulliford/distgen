@@ -40,6 +40,8 @@ import os
 
 from matplotlib import pyplot as plt
 
+import warnings
+
 def random_generator(shape,sequence=None,params=None):
     """ Returns a set of 'random' (either numpy.random.random or from a Hammersley sequence) numbers """
     if(sequence is None or sequence=='pseudo'):
@@ -2101,6 +2103,12 @@ class Dist2d(Dist):
 
         if(not isinstance(Pxy, Quantity)):
             Pxy = Pxy*unit_registry(f'1/{x_unit}/{y_unit}')
+            
+        assert len(xs) == Pxy.shape[1]
+        assert len(ys) == Pxy.shape[0]
+        
+        if(len(xs)<100): warnings.warn('Specificed grid was sparse (< 100) in x direction. \nThis may cause blurring near sharp edges in the distribition due to interpolation.')
+        if(len(ys)<100): warnings.warn('Specificed grid was sparse (< 100) in y direction. \nThis may cause blurring near sharp edges in the distribition due to interpolation.')
 
         self.xs=xs
         self.ys=ys
