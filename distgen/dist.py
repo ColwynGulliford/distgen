@@ -2254,9 +2254,7 @@ class Product2d(Dist2d):
                 dists[name] = get_dist(variables, dist_defs[name], verbose=verbose)
             
             xi, yi = dists[name].get_xy_pts(10)
-            
-           
-            
+
             if(ii==0):
                 
                 min_x, max_x = xi[0], xi[-1]    
@@ -2291,18 +2289,13 @@ class Product2d(Dist2d):
         xs = linspace(min_x, max_x, nx)
         ys = linspace(min_y, max_y, ny)
 
-        for ii, name in enumerate(dists.keys()):          
-
-            #print(name, 'bot', xs.units, ys.units)            
+        for ii, name in enumerate(dists.keys()):                    
 
             if(is_radial_dist(dist_defs[name]['type'])):
                 pi = dists[name].rho_xy(xs, ys)
             else:
                 pi = dists[name].pdf(xs, ys)
-            
-            #plt.figure()
-            #plt.imshow(pi)
-
+                
             if(ii==0):
                 ps = pi/np.max(pi.magnitude)
             else:
@@ -2310,7 +2303,7 @@ class Product2d(Dist2d):
 
         ps = ps.magnitude*unit_registry(f'1/{xs.units}/{ys.units}')
 
-        # Update stuff here
+        # Update the base class with the product distribution
         super().__init__(xs, ys, ps, xstr=vstrs[0], ystr=vstrs[-1])
 
 
