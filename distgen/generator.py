@@ -123,9 +123,9 @@ class Generator:
         assert params['n_particle']>0, 'User must speficy n_particle must > 0.'
 
         # Check consistency of transverse coordinate definitions
-        if( ("r_dist" in params) or ("x_dist" in params) or ("xy_dist" in params) ):
+        if( ("r_dist" in params) and ("x_dist" in params or "xy_dist" in params) ):
             raise ValueError('Multiple/Inconsistent transverse distribution specification.')
-        if( ("r_dist" in params) or ("y_dist" in params) or ("xy_dist" in params) ):
+        if( ("r_dist" in params) and ("y_dist" in params or "xy_dist" in params) ):
             raise ValueError('Multiple/Inconsistent transverse distribution specification.')
 
         if(params['start']['type'] == "cathode"):
