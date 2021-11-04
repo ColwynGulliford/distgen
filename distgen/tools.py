@@ -254,6 +254,9 @@ def nearest_neighbor(array, values):
 def concatenate(x1, x2):
     return np.concatenate((x1,x2))
 
+@unit_registry.wraps('=A', ('=A'))
+def flipud(x):
+    return np.flipud(x)
 
 
 #--------------------------------------------------------------

@@ -22,6 +22,8 @@ from .tools import radcumint
 from .tools import histogram
 from .tools import radial_histogram
 
+from .tools import flipud
+
 #from .tools import  concatenate
 
 from .tools import erf
@@ -2104,8 +2106,10 @@ class Dist2d(Dist):
         if(not isinstance(Pxy, Quantity)):
             Pxy = Pxy*unit_registry(f'1/{x_unit}/{y_unit}')
             
-        assert len(xs) == Pxy.shape[1]
-        assert len(ys) == Pxy.shape[0]
+        if(len(xs) != Pxy.shape[1]): raise ValueError('Length of input vector x must = Pxy.shape[1]')
+        if(len(ys) != Pxy.shape[0]): raise ValueError('Length of input vector y must = Pxy.shape[0]')
+        
+        #Pxy = flipud(Pxy)
         
         if(len(xs)<100): warnings.warn('Specificed grid was sparse (< 100) in x direction. \nThis may cause blurring near sharp edges in the distribition due to interpolation.')
         if(len(ys)<100): warnings.warn('Specificed grid was sparse (< 100) in y direction. \nThis may cause blurring near sharp edges in the distribition due to interpolation.')
@@ -2158,7 +2162,7 @@ class Dist2d(Dist):
         self.Cys=self.Cys*unit_registry("dimensionless")
 
     def pdf(self, x, y):
-        return interp2d(x, y, self.xs, self.ys, self.Pxy)
+        return interp2d(x, y, self.xs, self.ys, flipud(self.Pxy))
    
     def plot_pdf(self):
         plt.figure()
