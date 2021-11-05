@@ -339,7 +339,25 @@ def get_vars(varstr):
 #--------------------------------------------------------------
 def read_2d_file(filename):
 
-    """ Reads in a 2D image file """
+    """ 
+    Reads in a 2D image txt file 
+    
+    The first two lines of the file should have the form:
+    
+    var1  var1_range <var1>  [var1 units]
+    var2  var2_range <var2>  [var2 units]
+    
+    Where var1 is a single character string in 
+    ['x', 'y', 'z', 'px', 'py', 'pz', 't'], var1_range and <var1> are floats.
+    These are used to generate corresponding arrays with:
+        
+    v1 = <var1> + linspace(-var1_range/2, +var1_range/2, N)
+    v2 = <var1> + linspace(-var2_range/2, +var2_range/2, M)
+    
+    Here M,N is the shape of the image array data stored in the rest of the 
+    file.
+    
+    """
 
     xs=0
     ys=0

@@ -2111,8 +2111,8 @@ class Dist2d(Dist):
         
         #Pxy = flipud(Pxy)
         
-        if(len(xs)<100): warnings.warn('Specificed grid was sparse (< 100) in x direction. \nThis may cause blurring near sharp edges in the distribition due to interpolation.')
-        if(len(ys)<100): warnings.warn('Specificed grid was sparse (< 100) in y direction. \nThis may cause blurring near sharp edges in the distribition due to interpolation.')
+        if(len(xs)<100): warnings.warn('Specificed grid was sparse (< 100) in x direction. This may cause blurring near sharp edges in the distribition due to interpolation.')
+        if(len(ys)<100): warnings.warn('Specificed grid was sparse (< 100) in y direction. This may cause blurring near sharp edges in the distribition due to interpolation.')
 
         self.xs=xs
         self.ys=ys
@@ -2162,7 +2162,7 @@ class Dist2d(Dist):
         self.Cys=self.Cys*unit_registry("dimensionless")
 
     def pdf(self, x, y):
-        return interp2d(x, y, self.xs, self.ys, flipud(self.Pxy))
+        return interp2d(x, y, self.xs, self.ys, self.Pxy)
    
     def plot_pdf(self):
         plt.figure()
@@ -2265,7 +2265,7 @@ class Product2d(Dist2d):
             else:
                 dists[name] = get_dist(variables, dist_defs[name], verbose=verbose)
             
-            xi, yi = dists[name].get_xy_pts(10)
+            xi, yi = dists[name].get_xy_pts(2)
 
             if(ii==0):
                 
@@ -2334,7 +2334,7 @@ class Image2d(Dist2d):
     
         self.check_inputs(params)
 
-        Pxy = params['P']
+        Pxy = flipud( params['P'] )
         assert np.min(np.min(Pxy)) >= 0, 'Error in Image2d: the 2d probability function must be >= 0'   
 
         if(v1 not in params):
