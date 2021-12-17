@@ -79,8 +79,7 @@ def read_input_h5(h5):
     
     Note: h5py returns numbers as numpy types. This will cast to native python types, as in:
     https://stackoverflow.com/questions/9452775/converting-numpy-dtypes-to-native-python-types/11389998#11389998
-    """
-    print(dict(h5.attrs))    
+    """  
     d = {}
     for k in h5.attrs:
         v = h5.attrs[k]
