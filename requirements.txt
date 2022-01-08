@@ -5,4 +5,4 @@ h5py
 pint
 pyyaml
 pmd_beamphysics
-    
+lume-base
