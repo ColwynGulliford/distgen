@@ -1,18 +1,19 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-from .physical_constants import unit_registry, pi
+#from .physical_constants import unit_registry, pi
 from .tools import histogram
 from .tools import radial_histogram
 from .tools import trapz
-from .tools import interp
+#from .tools import interp
 from .tools import radint
-from .tools import linspace
+#from .tools import linspace
 from .tools import mean
 from .tools import centers
 from .tools import zeros
 
-LABELS = {'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}','thetax':'\\theta_x'}
+LABELS = {'x':'x', 'y':'y', 'z':'z', 'px':'p_x', 'py':'p_y', 'pz':'p_z', 't':'t', 
+          'r':'r', 'pr':'p_r', 'ptheta':'p_{\\theta}','thetax':'\\theta_x'}
 
 def get_scale(beam, scale):
 
@@ -133,8 +134,8 @@ def plot_radial_dist(beam, r_units, scale='charge', dist_units=None, ax=None, **
     (rho, r, scale_factor) = hist_to_pdf(r_hist, r_edges, scale=scale_factor, is_radial=True)
 
     ax.plot(r, rho)
-    ax.set_xlabel(f'${LABELS["r"]}$ ({r.units:G~P})')
-    ax.set_ylabel(f'{scale} density ({rho.units:G~P})')
+    ax.set_xlabel(f'${LABELS["r"]}$ ({r.units:~P})')
+    ax.set_ylabel(f'{scale} density ({rho.units:~P})')
 
     ax.set_xlim([0, ax.get_xlim()[1]])
     ax.set_ylim([0, ax.get_ylim()[1]])
