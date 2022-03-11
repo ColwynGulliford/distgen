@@ -1107,7 +1107,10 @@ class TemporalLaserPulseStacking(Dist1d):
 
 class Tukey(Dist1d):
 
-    """ Defines a 1d Tukey distribution """
+    """ 
+    Defines a 1d Tukey Window distribution.  This is a flat distribution with
+    cosine like tails on each end.
+    """
 
     def __init__(self, var, verbose=0, **kwargs):
         
