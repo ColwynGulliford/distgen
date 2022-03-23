@@ -23,7 +23,7 @@ from .physical_constants import pi
 from .physical_constants import MC2
 from .physical_constants import unit_registry
 
-from pmd_beamphysics import ParticleGroup, pmd_init
+from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
 
 import warnings
 
@@ -410,7 +410,13 @@ class Generator(Base):
         an openPMD-beamphysics ParticleGroup in self.particles """
         if self.input is not None:
             beam = self.beam()
-            self.particles = ParticleGroup(data=beam.data())
+        
+            if self.params['start']['type'] == "cathode":
+                status = ParticleStatus.CATHODE
+            else:
+                status = ParticleStatus.ALIVE
+                
+            self.particles = ParticleGroup(data=beam.data(status=status))
             self.output = self.particles
             vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose > 0, 1, False)
         else:

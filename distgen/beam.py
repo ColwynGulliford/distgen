@@ -1,3 +1,4 @@
+from pmd_beamphysics import ParticleStatus
 import numpy as np
 from .physical_constants import unit_registry, pi, MC2
 import functools
@@ -265,13 +266,13 @@ class Beam():
             vprint(f'avg_{x} = {self.avg(x).to(unit):G~P}, sigma_{x} = {self.std(x).to(unit):G~P}', True, 1, True)
             
 
-    def data(self):
+    def data(self, status=ParticleStatus.ALIVE):
         """
         Converts to fixed units and returns a dict of data.
         
         See function Sbeam_data
         """
-        return beam_data(self)
+        return beam_data(self, status)
    
 '''
 class Beam_old():
@@ -568,7 +569,7 @@ def beam_data_old(beam):
     return data            
 '''
 
-def beam_data(beam):
+def beam_data(beam, status):
     """
     Converts all units to standard units and strips them as a data dict with:
         str: species
@@ -594,7 +595,7 @@ def beam_data(beam):
     weight = np.abs((beam['w'].magnitude) * total_charge) # Weight should be macrocharge in C
     
     # Status
-    status = np.full(n_particle, 1) # Status == 1 means live
+    status_array = np.full(n_particle, int(status)) # Status == 1 means live
     
     # standard units and types
     names = ['x', 'y', 'z', 'px',   'py',   'pz',   't']
@@ -603,7 +604,7 @@ def beam_data(beam):
     data = {'n_particle':n_particle,
             'species':species,
             'weight':weight,
-            'status':status
+            'status':status_array
     }
     
     for name, unit in zip(names, units):
