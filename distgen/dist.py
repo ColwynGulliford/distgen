@@ -72,16 +72,18 @@ def get_dist(var,params,verbose=0):
     assert 'type' in params, 'No distribution type for '+var+' specified.'
     dtype = params['type']
 
-    if(dtype=="uniform" or dtype=="u"): 
-        dist = Uniform(var,verbose=verbose, **params)
+    if(dtype=='dist1d'):
+        dist = Dist1d(xstr=var, **params)
+    elif(dtype=="uniform" or dtype=="u"): 
+        dist = Uniform(var, verbose=verbose, **params)
     elif(dtype=="gaussian" or dtype=="g"): 
-        dist = Norm(var,verbose=verbose, **params)
+        dist = Norm(var, verbose=verbose, **params)
     elif(dtype=="file1d"):
-        dist = File1d(var,verbose=verbose, **params)
+        dist = File1d(var, verbose=verbose, **params)
     elif(dtype=='tukey'):
-        dist = Tukey(var,verbose=verbose, **params)
+        dist = Tukey(var, verbose=verbose, **params)
     elif(dtype=='super_gaussian' or dtype=='sg'):
-        dist = SuperGaussian(var,verbose=verbose, **params)
+        dist = SuperGaussian(var, verbose=verbose, **params)
     elif(dtype=="superposition" or dtype=='sup'):
         dist = Superposition(var, verbose=verbose, **params)
     elif( (dtype =='product' or dtype=='pro') and len(var)==1):
@@ -152,21 +154,33 @@ class Dist1d(Dist):
     the distribution allows analytic treatment.
     """
     
-    def __init__(self, xs=None, Px=None, xstr="x"):
+    def __init__(self, xs=None, Px=None, xstr="x", **params):
 
         super().__init__()
 
+        if(Px is None):   # User may supply NumPy arrays for dist
+            
+            pstr = f'P{xstr}'
+            
+            self.required_params = [xstr, pstr, 'units']
+            self.optional_params = []
+            
+            self.check_inputs(params)
+            
+            xs = params[xstr]*unit_registry(params['units'])
+            Px = params[pstr]*unit_registry(f'1/{params["units"]}')
+            
         self.xs = xs
         self.Px = Px
         self.xstr = xstr
-          
-        if(Px is not None):
-            norm = np.trapz(self.Px, self.xs)
-            if(norm<=0):
-                raise ValueError('Normalization of PDF was <= 0')
+        
+        norm = np.trapz(self.Px, self.xs)
+        if(norm<=0):
+            raise ValueError('Normalization of PDF was <= 0')
 
-            self.Px = self.Px/norm
-            self.Cx = cumtrapz(self.Px, self.xs)
+        self.Px = self.Px/norm
+        self.Cx = cumtrapz(self.Px, self.xs)
+
     
     def get_x_pts(self, n):
         """
@@ -1243,6 +1257,40 @@ class Deformable(Dist1d):
 
     def rms(self):
         return np.sqrt(self.std()**2 + self.avg()**2)
+    
+    
+    
+class Interpolation1d(Dist1d):
+    
+    def __init__(self, var, verbose=0, **kwargs):
+
+        self.xstr = var
+
+        sigstr = f'sigma_{var}'
+        avgstr = f'avg_{var}'
+         
+        self.required_params = ['pts', sigstr, avgstr]
+        self.optional_params = []
+
+        self.check_inputs(kwargs)
+
+        self.sigma = kwargs[sigstr]
+        self.mean = kwargs[avgstr]
+
+
+        pts = kwargs['pts']    
+
+        #Px = kwargs['spline_points']  f'{str(self.mean.units)}
+
+        #if('n_sigma_cutoff' in kwargs):
+        #    n_sigma_cutoff=kwargs['n_sigma_cutoff']
+        #else:
+        #    n_sigma_cutoff=3
+
+        #sg_params = {'alpha':kwargs['alpha'],  
+        #            sigstr:self.sigma, 
+        #            'n_sigma_cutoff':n_sigma_cutoff}
+    
 
 
 
