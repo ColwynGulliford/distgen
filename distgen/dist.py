@@ -13,6 +13,7 @@ from .tools import interp2d
 from .tools import meshgrid
 from .tools import linspace
 from .tools import centers
+from .tools import spline1d
 
 from .tools import trapz
 from .tools import cumtrapz
@@ -41,6 +42,8 @@ import numpy.matlib as mlib
 import os
 
 from matplotlib import pyplot as plt
+
+
 
 import warnings
 
@@ -159,7 +162,7 @@ class Dist1d(Dist):
         super().__init__()
 
         if(Px is None):   # User may supply NumPy arrays for dist
-            
+        
             pstr = f'P{xstr}'
             
             self.required_params = [xstr, pstr, 'units']
@@ -1269,30 +1272,57 @@ class Interpolation1d(Dist1d):
         sigstr = f'sigma_{var}'
         avgstr = f'avg_{var}'
          
-        self.required_params = ['pts', sigstr, avgstr]
-        self.optional_params = []
+        self.required_params = [f'P{var}', sigstr, avgstr, 'method']
+        self.optional_params = [f'{var}', 'n_pts']
 
         self.check_inputs(kwargs)
 
         self.sigma = kwargs[sigstr]
         self.mean = kwargs[avgstr]
 
+        pts = kwargs[f'P{var}']   
+        self.method = kwargs['method']
 
-        pts = kwargs['pts']    
+        if(isinstance(pts, list)):
+            pts = np.array(pts)
+            
+        elif(isinstance(pts, dict)):
+            pts = np.array([v  for k,v in pts.items()])
+            
+        
+        if('n_pts' in kwargs):
+            n_pts=kwargs['n_pts']
+        else:
+            n_pts=1000
+        
+        if(f'{var}s' in kwargs):
+            pass
+        else:
+            xs = np.linspace(-1, 1, len(pts))
 
-        #Px = kwargs['spline_points']  f'{str(self.mean.units)}
+        units = self.mean.units
+        
+        xs = xs*unit_registry(str(units))
+        Px = pts*unit_registry.parse_expression(f'1/{units}')
+        
+        # Save the original curve
+        self.x0s = xs
+        
+        # Do interpolation
+        xs, Px = self.interpolate1d(xs, Px, method=kwargs['method'], n_pts=n_pts)
+        
+        super().__init__(xs=xs, Px=Px, xstr=var)
+        
+        
+    def interpolate1d(self, x, y, method='spline', n_pts=1000):
 
-        #if('n_sigma_cutoff' in kwargs):
-        #    n_sigma_cutoff=kwargs['n_sigma_cutoff']
-        #else:
-        #    n_sigma_cutoff=3
-
-        #sg_params = {'alpha':kwargs['alpha'],  
-        #            sigstr:self.sigma, 
-        #            'n_sigma_cutoff':n_sigma_cutoff}
-    
-
-
+        xs = linspace(x[0], x[-1], n_pts)
+        
+        if(method=='spline'):
+            Px = spline1d(xs, x, y, s=0.5)
+            
+        return xs, Px
+            
 
 
 class DistTheta(Dist):    

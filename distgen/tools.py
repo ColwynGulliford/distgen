@@ -5,6 +5,7 @@ import time
 import numpy as np
 import scipy.integrate 
 from scipy.interpolate import RectBivariateSpline
+from scipy.interpolate import UnivariateSpline as UnivariateSpline 
 import scipy.special
 import matplotlib.image as mpimg
 #from pdf2image import convert_from_path
@@ -245,6 +246,12 @@ def nearest_neighbor(array, values):
     array = array.magnitude
     values = values.magnitude
     return np.abs(np.subtract.outer(array, values)).argmin(0)
+
+
+@unit_registry.wraps('=B', ('=A', '=A', '=B', None))
+def spline1d(x, xp, fp, s):
+    spl = UnivariateSpline(xp, fp, s=s)
+    return spl(x)
 
 
 #--------------------------------------------------------------
