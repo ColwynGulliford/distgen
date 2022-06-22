@@ -248,9 +248,9 @@ def nearest_neighbor(array, values):
     return np.abs(np.subtract.outer(array, values)).argmin(0)
 
 
-@unit_registry.wraps('=B', ('=A', '=A', '=B', None))
-def spline1d(x, xp, fp, s):
-    spl = UnivariateSpline(xp, fp, s=s)
+@unit_registry.wraps('=B', ('=A', '=A', '=B', None, None))
+def spline1d(x, xp, fp, s, k):
+    spl = UnivariateSpline(xp, fp, s=s, k=k)
     return spl(x)
 
 

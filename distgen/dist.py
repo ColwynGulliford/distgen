@@ -91,6 +91,8 @@ def get_dist(var,params,verbose=0):
         dist = Superposition(var, verbose=verbose, **params)
     elif( (dtype =='product' or dtype=='pro') and len(var)==1):
         dist = Product(var, verbose=verbose, **params)
+    elif( dtype=='interp'):
+        dist = Interpolation1d(var, verbose=verbose, **params)
     elif( (dtype =='product' or dtype=='pro') and len(var)==2):
         dist = Product2d(var, verbose=verbose, **params)
     elif(dtype=='deformable'):
@@ -1310,19 +1312,28 @@ class Interpolation1d(Dist1d):
         
         # Do interpolation
         xs, Px = self.interpolate1d(xs, Px, method=kwargs['method'], n_pts=n_pts)
+
+        # Make sure interoplation doesn't yield negative values
+        Px[Px.magnitude<0]=0*unit_registry.parse_expression(f'1/{units}')
         
         super().__init__(xs=xs, Px=Px, xstr=var)
         
         
-    def interpolate1d(self, x, y, method='spline', n_pts=1000):
+    def interpolate1d(self, x, y, method='spline', n_pts=1000, s=0.0, k=3):
 
         xs = linspace(x[0], x[-1], n_pts)
         
         if(method=='spline'):
-            Px = spline1d(xs, x, y, s=0.5)
+            Px = spline1d(xs, x, y, s=s, k=k)
             
         return xs, Px
             
+
+    def avg(self):
+        return self.mean
+
+    def std(self):
+        return self.sigma
 
 
 class DistTheta(Dist):    
