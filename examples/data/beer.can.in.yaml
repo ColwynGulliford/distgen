@@ -1,4 +1,4 @@
-n_particle: 200000
+n_particle: 200000.0
 output:
   file: beer.can.out.txt
   type: gpt

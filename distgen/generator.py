@@ -120,6 +120,12 @@ class Generator(Base):
 
         assert params['n_particle']>0, 'User must speficy n_particle must > 0.'
 
+        if(isinstance(params['n_particle'], float)):
+            params['n_particle']=int(params['n_particle'])
+            warnings.warn('Input variable n_particle was a float, expected int.')
+        
+        assert isinstance(params['n_particle'], int), f'Invalid type for n_particle parameter: {type(params["n_particle"])}'
+        
         # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) and ("x_dist" in params or "xy_dist" in params) ):
             raise ValueError('Multiple/Inconsistent transverse distribution specification.')
