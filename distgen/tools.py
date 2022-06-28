@@ -10,6 +10,7 @@ import scipy.special
 import matplotlib.image as mpimg
 #from pdf2image import convert_from_path
 #import yaml
+import pydicom as dicom
 
 import json
 from hashlib import blake2b
@@ -389,10 +390,15 @@ def read_2d_file(filename):
 
     return (xs, ys, Pxy, xstr, ystr)
 
-def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
-
-    img = mpimg.imread(filename)
+def read_image_file(filename, ext, rgb_weights = [0.2989, 0.5870, 0.1140]):
     
+    if ext=='.dcm':
+        greyscale = dicom.dcmread(filename).pixel_array
+        return greyscale
+        
+    else:
+        img = mpimg.imread(filename)
+
     if(len(img.shape)>3):
         clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
         greyscale = np.dot(img[...,:3], rgb_weights)

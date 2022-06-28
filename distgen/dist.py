@@ -2470,9 +2470,9 @@ class File2d(Dist2d):
 
         ext = (os.path.splitext(filename)[1]).lower()
 
-        if(ext in ['.png', '.jpg', '.jpeg', '.tiff','.jfif']):
+        if(ext in ['.png', '.jpg', '.jpeg', '.tiff','.jfif', '.dcm']):
 
-            Pxy  = read_image_file(filename)
+            Pxy  = read_image_file(filename, ext)
 
             xstr = var1
             ystr = var2
