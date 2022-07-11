@@ -109,6 +109,8 @@ def get_dist(var,params,verbose=0):
         dist = TukeyRad(verbose=verbose, **params)
     elif(dtype=='raddeformable' or dtype=='dr'):
         dist = DeformableRad(verbose=verbose, **params)
+    elif((dtype=="radial_interpolation" or dtype=="ri") and var=="r"):
+        dist = InterpolationRad(verbose=verbose, **params)
     elif(dtype=="file2d"):
         dist = File2d("x","y",verbose=verbose, **params)
     elif(dtype=="crystals"):
@@ -715,9 +717,14 @@ class Norm(Dist1d):
         """ Definies the canonical normal distribution """
         return (1/np.sqrt(2*pi))*np.exp( -csi**2/2.0 ) 
 
-    def pdf(self,x):     
+    def pdf(self, x=None):
 
         """ Define the PDF for non-canonical normal dist including truncations on either side"""   
+        
+        if(x is None):
+            x = self.get_x_pts()
+            
+        
         csi = (x-self.mu)/self.sigma
         res = self.canonical_pdf(csi)/self.Z/self.sigma
         x_out_of_range = (x<self.a) | (x>self.b)
@@ -776,7 +783,7 @@ class SuperGaussian(Dist1d):
 
     """ Distribution  object that samples a 1d Super Gaussian PDF"""
 
-    def __init__(self,var,verbose=0,**kwargs):
+    def __init__(self, var, verbose=0, **kwargs):
 
         self.type='SuperGaussian'
         self.xstr = var
@@ -799,6 +806,10 @@ class SuperGaussian(Dist1d):
 
         if(power_str in kwargs):
             self.p = kwargs[power_str]
+            
+            if(isinstance(self.p, float) or isinstance(self.p, int)):
+                self.p = float(self.p)*unit_registry('dimensionless')
+                
         else:
             alpha = kwargs[alpha_str]
             assert alpha >= 0 and alpha <= 1, 'SugerGaussian parameter must satisfy 0 <= alpha <= 1.'
@@ -828,7 +839,7 @@ class SuperGaussian(Dist1d):
         vprint(f'sigma_{var} = {self.std():G~P}, power = {self.p:G~P}', verbose, 2, True)
         vprint(f'n_sigma_cutoff = {self.n_sigma_cutoff}', int(verbose>=1 and self.n_sigma_cutoff!=3), 2, True)
  
-    def pdf(self,x=None):  
+    def pdf(self, x=None):  
 
         """ Defines the PDF for super Gaussian function """
         if(x is None):
@@ -880,7 +891,7 @@ class SuperGaussian(Dist1d):
         G2 = gamma(1+1/2/self.p)
         return self.Lambda * np.sqrt(2*G1/3/G2)
 
-    def get_lambda(self,sigma):
+    def get_lambda(self, sigma):
         """ Returns the length scale of the super Gausssian dist """
         G1 = gamma(1 + 3.0/2.0/self.p)
         G2 = gamma(1+1/2/self.p)
@@ -2106,7 +2117,11 @@ class SuperGaussianRad(DistRad):
     def get_lambda(self, sigma_xy):
         rrms = sigma_xy/np.sqrt(0.5)
         return np.sqrt(gamma(1+1.0/self.p)/gamma(1+2.0/self.p))*rrms
+    
+    
 
+
+ 
 class DeformableRad(DistRad):
 
     def __init__(self, verbose=0, **kwargs):
@@ -2164,9 +2179,69 @@ class DeformableRad(DistRad):
     #def rms(self):
     #    return np.sqrt(self.sigma()**2 + self.avg()**2)
 
+class InterpolationRad(DistRad):
+    
+    def __init__(self, verbose=0, **kwargs):
+
+        #sigstr = 'sigma_xy'
+        #avgstr = f'avg_xy'
+         
+        self.required_params = ['Pr', 'method']
+        self.optional_params = ['r', 'n_pts']
+
+        self.check_inputs(kwargs)
+
+        #self.sigma_xy = kwargs[sigstr]
+        #self.mean = kwargs[avgstr]
+
+        pts = kwargs['Pr']   
+        self.method = kwargs['method']
+
+        if(isinstance(pts, list)):
+            pts = np.array(pts)
+            
+        elif(isinstance(pts, dict)):
+            pts = np.array([v  for k,v in pts.items()])
+        
+        if('n_pts' in kwargs):
+            n_pts=kwargs['n_pts']
+        else:
+            n_pts=1000
+        
+        if('rs' in kwargs):
+            pass
+        else:
+            rs = np.linspace(0, 1, len(pts))
+
+        rs = rs*unit_registry('mm')
+        Pr = pts*unit_registry.parse_expression('1/mm/mm')
+        
+        # Save the original curve
+        self.r0s = rs
+        
+        # Do interpolation
+        rs, Pr = self.interpolate1d(rs, Pr, method=kwargs['method'], n_pts=n_pts)
+
+        # Make sure interoplation doesn't yield negative values
+        Pr[Pr.magnitude<0]=0*unit_registry.parse_expression('1/mm/mm')
+        
+        vprint('radial interpolation',verbose>0,0,True)
+        #vprint(f'lambda = {self.Lambda:G~P}, power = {self.p:G~P}',verbose>0,2,True)
+        
+        super().__init__(rs=rs, Pr=Pr)
+        
+    def interpolate1d(self, r, P, method='spline', n_pts=1000, s=0.0, k=3):
+
+        rs = linspace(r[0], r[-1], n_pts)
+        
+        if(method=='spline'):
+            Pr = spline1d(rs, r, P, s=s, k=k)
+            
+        return rs, Pr
+
 def is_radial_dist(dtype):
     
-    abrevs = ['rg', 'ru', 'rsg', 'dr']
+    abrevs = ['rg', 'ru', 'rsg', 'dr', 'ri']
     
     if (dtype in abrevs): return True
     
@@ -2175,7 +2250,9 @@ def is_radial_dist(dtype):
                  "radial_super_gaussian",
                  "radfile",
                  "radial_tukey",
-                 "raddeformable"]
+                 "raddeformable",
+                 "radial_interpolation"
+                 ]
     
     if (dtype in full_names): return True
     
