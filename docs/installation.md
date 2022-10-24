@@ -35,5 +35,8 @@ conda activate distgen-dev
 pip install --no-dependencies -e .
 ```
 
-
+Create documentation:
+```shell
+mkdocs serve
+```
 
