@@ -6,3 +6,4 @@ pint
 pyyaml
 openpmd-beamphysics
 lume-base
+pydicom

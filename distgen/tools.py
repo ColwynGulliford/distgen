@@ -16,6 +16,11 @@ from hashlib import blake2b
 import datetime
 import os
 
+import pydicom as dicom
+
+
+from pathlib import Path
+
 # HELPER FUNCTIONS:
 
 def full_path(path):
@@ -389,6 +394,7 @@ def read_2d_file(filename):
 
     return (xs, ys, Pxy, xstr, ystr)
 
+"""
 def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
 
     img = mpimg.imread(filename)
@@ -404,6 +410,48 @@ def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
         greyscale = greyscale/greyscale.max()
         
 
+    return greyscale
+"""
+
+def get_file_extension(filename):
+    return Path(filename).suffix.lower()
+    
+
+
+SUPPORTED_IMAGE_EXTENSIONS = ['.png', 
+                              '.tiff', 
+                              '.jpeg', '.jpg', 
+                              '.dicom', '.dcm']
+
+def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
+
+    file_extension = Path(filename).suffix.lower()
+    
+    if file_extension not in SUPPORTED_IMAGE_EXTENSIONS:
+        raise ValueError(f'Image file extension "{file_extension}" is not supported.')
+    
+    elif file_extension == '.dcm':
+        img = dicom.dcmread(filename).pixel_array
+        
+    else:
+        img = mpimg.imread(filename)
+        
+    #print(img.shape)
+
+    if(len(img.shape)>3):
+        clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
+        greyscale = np.dot(img[...,:3], rgb_weights)
+        greyscale = greyscale/greyscale.max()
+        greyscale[clear_pixels]=1
+        
+    elif(len(img.shape)==3):
+        greyscale = np.dot(img[...,:3], rgb_weights)
+        greyscale = greyscale/greyscale.max()
+        
+    else:
+        greyscale=img
+        #greyscale=img/img.max()
+        
     return greyscale
 
 """

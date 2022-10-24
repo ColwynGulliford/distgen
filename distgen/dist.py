@@ -32,6 +32,8 @@ from .tools import erfinv
 from .tools import gamma
 
 from .tools import get_vars
+from .tools import get_file_extension
+from .tools import SUPPORTED_IMAGE_EXTENSIONS
 from .tools import read_2d_file
 from .tools import read_image_file
 
@@ -2547,7 +2549,7 @@ class File2d(Dist2d):
 
         ext = (os.path.splitext(filename)[1]).lower()
 
-        if(ext in ['.png', '.jpg', '.jpeg', '.tiff','.jfif']):
+        if(ext in SUPPORTED_IMAGE_EXTENSIONS):
 
             Pxy  = read_image_file(filename)
 
