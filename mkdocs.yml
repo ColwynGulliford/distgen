@@ -11,7 +11,11 @@ nav:
         - examples/example_dists.ipynb
         - examples/conversion_examples.ipynb
         - examples/transforms.ipynb
-        - examples/metrics.ipynb                                
+        - examples/metrics.ipynb     
+    - Tests:
+      - regression_tests/beam.ipynb  
+      - regression_tests/correlations.ipynb  
+      - regression_tests/dist.ipynb                           
 
 theme:
   icon:

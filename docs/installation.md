@@ -1,28 +1,22 @@
-Installing distgen
-===============
+# Installing Distgen
 
-Installing `distgen` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
 
-```shell
-conda config --add channels conda-forge
+##  Using conda
+
+
+```bash
+conda install -c conda-forge pytao
 ```
 
-Once the `conda-forge` channel has been enabled, `distgen` can be installed with:
+## Using setuptools
 
-```shell
-conda install distgen
-```
-
-It is possible to list all of the versions of `distgen` available on your platform with:
-
-```shell
-conda search distgen --channel conda-forge
+```bash
+python setup.py install
 ```
 
 
 
-Developers
-==========
+## Developers
 
 
 Clone this repository:
@@ -32,9 +26,8 @@ git clone https://github.com/ColwynGulliford/distgen.git
 
 Create an environment `distgen-dev` with all the dependencies:
 ```shell
-conda env create -f environment.yml
+conda env create -f environment-dev.yml
 ```
-
 
 Install as editable:
 ```shell
