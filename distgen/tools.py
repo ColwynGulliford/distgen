@@ -418,10 +418,10 @@ def get_file_extension(filename):
     
 
 
-SUPPORTED_IMAGE_EXTENSIONS = ['.png', 
-                              '.tiff', 
+SUPPORTED_IMAGE_EXTENSIONS = ['.dicom', '.dcm'
                               '.jpeg', '.jpg', 
-                              '.dicom', '.dcm']
+                              '.png', 
+                              '.tiff',]
 
 def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
 
