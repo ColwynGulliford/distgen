@@ -21,7 +21,7 @@ jobs:
           mamba-version: "*"
           channels: conda-forge
           activate-environment: distgen-dev
-          environment-file: environment.yml
+          environment-file: environment-dev.yml
 
       - name: Execute notebooks
         shell: bash -l {0}
