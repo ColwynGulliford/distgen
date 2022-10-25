@@ -1,0 +1,29 @@
+# conda env create -f environment-dev.yml
+name: distgen-dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - matplotlib-base
+  - numpy
+  - scipy
+  - pyyaml
+  - h5py
+  - pint
+  - openpmd-beamphysics
+  - lume-base
+  - pydicom
+# Developer
+  - pytest
+  - poppler
+  - jupyterlab>=3
+  - ipywidgets
+  - pygments
+  - mkdocs
+  - mkdocstrings
+  - mkdocs-material
+  - mkdocs-jupyter
+  - pip
+  - pip:
+    - mkdocstrings-python
+

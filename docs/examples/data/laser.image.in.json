@@ -1,0 +1,25 @@
+{
+    "n_particle": 1000000,
+    "random_type": "hammersley",
+    "total_charge": {
+        "units": "pC",
+        "value": 10
+    }, 
+    "start":{
+        "type":"cathode",
+        "MTE":{
+            "value":150,
+             "units":"meV"
+        }
+    },
+
+    "xy_dist": {
+        "type": "file2d",
+        "file": "data/laser.image.txt"
+    },
+    "output": {
+        "file": "rad.uniform.out.txt",
+        "type": "gpt"
+    }
+}
+

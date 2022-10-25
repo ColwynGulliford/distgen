@@ -1,0 +1,196 @@
+laser.image:
+  count: 1000000
+  n_particles: 1000000
+  output:
+    file: rad.uniform.out.txt
+    type: gpt
+  random_type: hammersley
+  total_charge:
+    units: pC
+    value: 10
+  xy_dist:
+    params:
+      file: data/laser.image.txt
+    type: file2d
+rad.file:
+  count: 200000
+  n_particles: 200000
+  output:
+    file: rad.file.out.txt
+    type: gpt
+  r_dist:
+    params:
+      file: data/cutgauss.rad.txt
+      units: mm
+    type: radfile
+  random_type: hammersley
+  total_charge:
+    units: pC
+    value: 10
+rad.gaussian:
+  count: 200000
+  n_particles: 200000
+  r_dist:
+    params:
+      sigma_xy:
+        units: mm
+        value: 2
+    type: radial_gaussian
+  random_type: hammersley
+  t_dist:
+    params:
+      max_t:
+        units: ps
+        value: 2
+      min_t:
+        units: ps
+        value: -2
+    type: uniform
+  total_charge:
+    units: pC
+    value: 10
+rad.trunc.gaussian:
+  count: 200000
+  n_particles: 200000
+  output:
+    file: rad.trunc.gaussian.out.txt
+    type: gpt
+  r_dist:
+    params:
+      truncation_fraction:
+        units: dimensionless
+        value: 0.5
+      truncation_radius:
+        units: mm
+        value: 1
+    type: rg
+  random_type: hammersley
+  total_charge:
+    units: pC
+    value: 10
+rad.uniform:
+  count: 100000
+  n_particles: 100000
+  output:
+    file: rad.uniform.out.txt
+    type: gpt
+  r_dist:
+    params:
+      max_r:
+        units: mm
+        value: 2
+      min_r:
+        units: mm
+        value: 1
+    type: radial_uniform
+  random_type: hammersley
+  t_dist:
+    params:
+      avg_t:
+        units: ns
+        value: 0.5
+      sigma_t:
+        units: ns
+        value: 2
+    type: gaussian
+  total_charge:
+    units: pC
+    value: 10
+t.crystals:
+  count: 100000
+  n_particles: 100000
+  output:
+    file: tcrystals.out.txt
+    type: gpt
+  random_type: hammersley
+  t_dist:
+    params:
+      crystal_angle_1:
+        units: deg
+        value: 0.6
+      crystal_angle_2:
+        units: deg
+        value: 1.8
+      crystal_angle_3:
+        units: deg
+        value: -0.9
+      crystal_angle_4:
+        units: deg
+        value: -0.5
+      crystal_length_1:
+        units: mm
+        value: 15.096
+      crystal_length_2:
+        units: mm
+        value: 7.548
+      crystal_length_3:
+        units: mm
+        value: 3.774
+      crystal_length_4:
+        units: mm
+        value: 1.887
+    type: crystals
+  total_charge:
+    units: pC
+    value: 10
+tukey.beer.can:
+  count: 100000
+  n_particles: 100000
+  output:
+    file: tukey.beer.can.out.txt
+    type: gpt
+  r_dist:
+    params:
+      length:
+        units: mm
+        value: 5
+      ratio:
+        units: ''
+        value: 0.25
+    type: radial_tukey
+  random_type: hammersley
+  t_dist:
+    params:
+      length:
+        units: ps
+        value: 5.0
+      ratio:
+        units: ''
+        value: 0.75
+    type: tukey
+  total_charge:
+    units: pC
+    value: 10
+x.uniform.y.file.t.gaussian:
+  count: 100000
+  n_particles: 100000
+  output:
+    file: x.uniform.y.file.t.gaussian.out.txt
+    type: gpt
+  random_type: hammersley
+  t_dist:
+    params:
+      avg_t:
+        units: ps
+        value: -0.5
+      sigma_t:
+        units: ps
+        value: 1
+    type: gaussian
+  total_charge:
+    units: pC
+    value: 10
+  x_dist:
+    params:
+      max_x:
+        units: mm
+        value: 2
+      min_x:
+        units: mm
+        value: -1
+    type: uniform
+  y_dist:
+    params:
+      file: data/cutgauss.1d.txt
+      units: mm
+    type: file1d

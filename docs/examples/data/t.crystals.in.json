@@ -1,0 +1,57 @@
+{
+    "n_particle":200000,
+    "total_charge": {
+        "units": "pC",
+        "value": 10
+    },
+    "random_type":"hammersley",
+    "start": {
+        "type": "cathode",
+        "MTE": {
+            "units": "meV",
+            "value": 120
+
+       },
+    },
+    "t_dist": {
+        "type": "crystals",
+        "crystal_angle_1": {
+        "units": "deg",
+        "value": 0.6
+        },
+        "crystal_angle_2": {
+            "units": "deg",
+            "value": 1.8
+        },
+        "crystal_angle_3": {
+            "units": "deg",
+            "value": -0.9
+        },
+        "crystal_angle_4": {
+            "units": "deg",
+            "value": -0.5
+        },
+        "crystal_length_1": {
+            "units": "mm",
+            "value": 15.096
+        },
+        "crystal_length_2": {
+            "units": "mm",
+            "value": 7.548
+        },
+        "crystal_length_3": {
+            "units": "mm",
+            "value": 3.774
+        },
+        "crystal_length_4": {
+            "units": "mm",
+            "value": 1.887
+        },
+       
+    },
+    "output": {
+        "file": "tcrystals.out.txt",
+        "type": "gpt"
+    },
+
+}

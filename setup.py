@@ -18,5 +18,9 @@ setup(
     long_description_content_type='text/markdown',
     install_requires=requirements,
     include_package_data=True,
-    python_requires='>=3.7'
+    python_requires='>=3.7',
+    entry_points={
+    'console_scripts': [
+        'Distgen=distgen.command_line:main'],
+    },    
 )

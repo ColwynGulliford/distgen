@@ -1,0 +1,53 @@
+{
+    "n_particle":200000,
+    "total_charge": {
+            "value": 10,
+            "units": "pC"
+    }, 
+    "start":{
+        "type":"cathode",
+        "MTE": {
+            "value": 150, 
+            "units": "meV"
+        },
+    },
+    "random_type":"hammersley",
+    "x_dist": {
+        "type": "uniform", 
+        "min_x": {
+            "value": -2, 
+            "units": "mm"
+        }, 
+        "max_x": {
+            "value": 2, 
+            "units": "mm"
+        }
+    }, 
+    "y_dist": {
+        "type": "uniform", 
+        "min_y": {
+            "value": -1, 
+            "units": "mm"
+            }, 
+        "max_y": {
+            "value": 1, 
+            "units": "mm"
+        }
+    },
+    "t_dist": {
+        "type": "gaussian", 
+        "avg_t": {
+            "value": -0.5,
+            "units": "ps"
+        }, 
+        "sigma_t": {
+            "value": 1, 
+            "units": "ps"
+        }
+    
+    }, 
+    "output": {
+        "type": "gpt", 
+        "file": "x.uniform.y.file.t.gaussian.out.txt"
+    }
+}

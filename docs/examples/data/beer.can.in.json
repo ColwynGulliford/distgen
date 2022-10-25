@@ -1,0 +1,38 @@
+{
+    "start": {
+        "type":"cathode",
+        "MTE":{
+            "value":150,
+            "units":"meV"
+        }
+    },
+    "random_type": "hammersley",
+    "n_particle":200000,
+    "total_charge": {
+        "value": 10,
+        "units": "pC"
+    },
+    "r_dist": {
+        "type": "radial_uniform",
+        "max_r": {
+            "value": 2,
+            "units": "mm"
+        }
+    },
+    "t_dist": {
+        "type": "uniform",
+        "min_t": {
+            "value": -2,
+            "units": "ps"
+        },
+        "max_t": {
+            "value": 2,
+            "units": "ps"
+        }
+    },
+    "output": {
+        "type": "gpt",
+        "file": "beer.can.out.txt"
+    },
+    
+}

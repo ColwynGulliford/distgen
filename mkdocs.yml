@@ -1,0 +1,82 @@
+site_name: distgen
+repo_url: https://github.com/ColwynGulliford/distgen
+repo_name: ColwynGulliford/distgen
+
+nav:
+    - Home: index.md
+    - Installation: installation.md
+    - Examples:
+        - examples/basic.ipynb
+        - examples/dist.ipynb
+        - examples/example_dists.ipynb
+        - examples/conversion_examples.ipynb
+        - examples/transforms.ipynb
+        - examples/metrics.ipynb     
+    - Tests:
+      - regression_tests/beam.ipynb  
+      - regression_tests/correlations.ipynb  
+      - regression_tests/dist.ipynb                           
+
+theme:
+  icon:
+    repo: fontawesome/brands/github
+  name: material
+
+  custom_dir: overrides
+  features:
+    - navigation.top
+    - navigation.tabs
+    - navigation.indexes
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ColwynGulliford/distgen
+      name: distgen
+
+extra_css:
+  - stylesheets/extra.css      
+
+plugins:
+    - search
+
+    - mkdocs-jupyter:
+        include_source: True
+
+    - mkdocstrings:
+        default_handler: python
+        handlers:
+          python:
+            selection:
+              docstring_style: "numpy"
+              inherited_members: false
+              filters:
+                - "!^_"  # exclude all members starting with _
+                - "^__init__$"  # but always include __init__ modules and methods
+            rendering:
+              show_source: true
+              show_root_heading: true
+
+
+
+
+
+

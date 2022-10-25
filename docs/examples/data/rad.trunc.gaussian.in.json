@@ -1,0 +1,31 @@
+{
+    "n_particle":200000,
+    "random_type":"hammersley",
+    "total_charge": {
+        "units": "pC",
+        "value": 10
+    },
+    "start":{
+        "type":"cathode",
+        "MTE":{
+            "value":150,
+            "units":"meV"
+        },
+    },
+    "r_dist": {
+        "truncation_fraction": {
+            "units": "dimensionless",
+            "value": 0.5
+        },
+        "truncation_radius": {
+            "units": "mm",
+            "value": 1
+        },
+        "type": "rg"
+    },
+    "output": {
+        "file": "rad.trunc.gaussian.out.txt",
+        "type": "gpt"
+    },
+   
+}

@@ -1,0 +1,40 @@
+{
+
+    "n_particle": 100000, 
+    "random_type": "hammersley", 
+    "start": {
+        "type": "cathode", 
+        "MTE": {
+            "value": 150, 
+            "units": "meV"
+        },
+    }, 
+    "total_charge": {
+        "value": 10, 
+        "units": "pC"
+    }, 
+    "x_dist": {
+        "type": "uniform", 
+        "min_x": {
+            "value": -1, 
+            "units": "mm"
+        }, 
+        "max_x": {
+            "value": 2, 
+            "units": "mm"
+        }
+    }, 
+    "y_dist": {
+        "type": "file1d", 
+        "file": "data/cutgauss.1d.txt", "units": "mm"
+    }, 
+    "t_dist": {
+        "type": "file1d", 
+        "file": "data/tdist_file.dat", 
+        "units": "ps"
+    }, 
+    "output": {
+        "type": "gpt", 
+        "file": "t.file.out.txt"
+    }
+}
