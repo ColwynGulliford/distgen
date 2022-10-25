@@ -1,0 +1,24 @@
+{
+    "n_particle":200000,
+    "random_type":"hammersley",
+    "total_charge": {
+        "units": "pC",
+        "value": 10
+    },
+    "start": {
+        "type": "cathode",
+        "MTE": {
+            "units": "meV",
+            "value": 150
+        },
+    },
+    "r_dist": {
+        "file": "data/cutgauss.rad.txt",
+        "units": "mm",
+        "type": "radfile",
+    },
+    "output": {
+        "file": "rad.file.out.txt",
+        "type": "gpt"
+    },
+}

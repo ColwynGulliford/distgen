@@ -1,0 +1,41 @@
+{
+   "n_particle":100000,
+   "total_charge": {
+       "units": "pC",
+       "value": 10
+    },
+   "random_type":"hammersley",
+   "start": {
+       "type":"cathode",
+       "MTE": {
+           "units": "meV",
+           "value": 150
+       }
+   },
+   "r_dist": {
+       "type": "radial_uniform",
+       "max_r": {
+           "units": "mm",
+           "value": 2
+       },
+       "min_r": {
+           "units": "mm",
+           "value": 1
+       }
+   },
+    "t_dist": {
+        "type": "gaussian",
+        "avg_t": {
+            "units": "ns",
+            "value": 0.5
+        },
+        "sigma_t": {
+            "units": "ns",
+            "value": 2
+        }
+    },
+   "output": {
+       "file": "rad.uniform.out.txt",
+       "type": "gpt"
+    },
+}

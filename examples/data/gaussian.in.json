@@ -1,0 +1,58 @@
+{
+    "n_particle":200000,
+    "total_charge": {
+        "value": 10,
+        "units": "pC"
+    },
+    "start":{
+        "type":"time",
+        "tstart": {
+            "value": 0,
+            "units": "sec"
+        },
+    },
+    "random_type":"hammersley",
+    "r_dist":{
+        "type":"radial_gaussian",
+        "sigma_xy":{
+            "units":"mm",
+            "value":1.0
+        }
+    },
+    "px_dist":{
+        "type":"gaussian",
+        "sigma_px":{
+            "units":"keV/c",
+            "value":1.0
+        }
+   },
+   "py_dist":{
+        "type":"gaussian",
+        "sigma_py":{
+            "units":"keV/c",
+            "value":1.0
+        }
+    },
+    "pz_dist":{
+        "type":"gaussian",
+        "sigma_pz":{
+            "units":"MeV/c",
+            "value":1.0
+        },
+        "avg_pz":{
+            "units":"GeV/c",
+            "value":0
+        }
+    },
+    "z_dist":{
+        "type":"gaussian",
+        "sigma_z":{
+            "units":"mm",
+            "value":2.0
+        },
+        "avg_z":{
+            "units":"mm",
+            "value":0
+        }
+    }
+}

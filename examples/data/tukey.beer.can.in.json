@@ -1,0 +1,44 @@
+{
+    "n_particle":200000,
+    "total_charge": {
+        "units": "pC",
+        "value": 10
+
+    },
+    "random_type":"hammersley",
+    "start": {
+        "type":"cathode",
+        "MTE": {
+            "units": "meV",
+            "value": 150
+        }
+    },
+    "r_dist": {
+        "type": "radial_tukey",
+        "length": {
+            "units": "mm",
+            "value": 5
+        },
+        "ratio": {
+            "units": "",
+            "value": 0.25
+        },
+        "type": "radial_tukey"
+    },
+    "t_dist": {
+        "type": "tukey",
+        "length": {
+            "units": "ps",
+             "value": 5.0
+        },
+        "ratio": {
+            "units": "",
+             "value": 0.75
+        }
+    },
+    "output": {
+        "file": "tukey.beer.can.out.txt",
+        "type": "gpt"
+    },
+    
+}

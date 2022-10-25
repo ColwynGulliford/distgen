@@ -1,0 +1,32 @@
+n_particle: 200000
+
+output:
+  file: SG.beer.can.out.txt
+  type: gpt
+
+r_dist:
+  sigma_xy:
+    units: mm
+    value: 1
+  alpha:
+    units: ''
+    value: 0
+  type: rsg
+
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+t_dist:
+  sigma_t:
+    units: ps
+    value: 8.0
+  alpha:
+    units: ''
+    value: 0.5
+  type: sg
+total_charge:
+  units: pC
+  value: 100

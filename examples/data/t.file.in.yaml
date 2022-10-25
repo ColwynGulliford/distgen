@@ -1,0 +1,29 @@
+n_particle: 100000
+output:
+  file: t.file.out.txt
+  type: gpt
+random_type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+t_dist:
+  file: data/tdist_file.dat
+  type: file1d
+  units: ps
+total_charge:
+  units: pC
+  value: 10
+x_dist:
+  max_x:
+    units: mm
+    value: 2
+  min_x:
+    units: mm
+    value: -1
+  type: uniform
+y_dist:
+  file: data/cutgauss.1d.txt
+  type: file1d
+  units: mm
