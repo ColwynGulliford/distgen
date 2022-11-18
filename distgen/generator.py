@@ -408,7 +408,7 @@ class Generator(Base):
                 bdist = transform(bdist, T)
 
         watch.stop()
-        vprint(f'...done. Time Ellapsed: {watch.print()}.\n',verbose>0,0,True)
+        vprint(f'...done. Time Elapsed: {watch.print()}.\n',verbose>0,0,True)
         return bdist
 
     def run(self):
