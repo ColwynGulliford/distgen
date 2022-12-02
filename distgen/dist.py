@@ -49,20 +49,28 @@ from matplotlib import pyplot as plt
 
 import warnings
 
-def random_generator(shape,sequence=None,params=None):
+def random_generator(shape, sequence, **kwargs):
     """ Returns a set of 'random' (either numpy.random.random or from a Hammersley sequence) numbers """
-    if(sequence is None or sequence=='pseudo'):
+    
+    if(sequence=='pseudo'):
+        
+        if('seed' in kwargs):
+            np.random.seed(kwargs['seed'])    
+        
         return np.random.random(shape)
 
     elif(sequence=="hammersley"):
 
         dim = shape[0]
         N = shape[1] 
+        
+        if('burnin' not in kwargs):
+            kwargs['burnin']= -1
+        
+        if('primes' not in kwargs):
+            kwargs['primes'] = ()
 
-        if(params is None):
-            return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=-1, primes=()))
-        else:
-            return np.squeeze(create_hammersley_samples(N, dim=dim, burnin=params["burnin"], primes=params["primes"]))
+        return np.squeeze(create_hammersley_samples(N, dim=dim, **kwargs))
     else:
         raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
@@ -215,11 +223,11 @@ class Dist1d(Dist):
         """
         return interp(rns, self.Cx, self.xs)
 
-    def sample(self, N, sequence=None, params=None):
+    def sample(self, N, sequence, **kwargs):
         """
         Generate coordinates by sampling the underlying pdf
         """
-        return self.cdfinv( random_generator((1,N),sequence,params)*unit_registry("dimensionless") )
+        return self.cdfinv( random_generator((1,N), sequence, **kwargs)*unit_registry("dimensionless") )
 
     def plot_pdf(self, n=1000):
         """
@@ -1484,8 +1492,8 @@ class DistRad(Dist):
 
         return r
     
-    def sample(self,N,sequence=None,params=None):
-        return self.cdfinv(random_generator( (1,N),sequence,params)*unit_registry("dimensionless"))
+    def sample(self,N,sequence='hammersley', **kwargs):
+        return self.cdfinv(random_generator( (1,N), sequence, *kwargs)*unit_registry("dimensionless"))
 
     def plot_pdf(self,n=1000):
 

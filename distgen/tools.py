@@ -418,7 +418,7 @@ def get_file_extension(filename):
     
 
 
-SUPPORTED_IMAGE_EXTENSIONS = ['.dicom', '.dcm'
+SUPPORTED_IMAGE_EXTENSIONS = ['.dicom', '.dcm',
                               '.jpeg', '.jpg', 
                               '.png', 
                               '.tiff',]

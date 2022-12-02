@@ -1,0 +1,30 @@
+n_particle: 1000000
+random: 
+  type: pseudo
+  seed: 0
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+total_charge:
+  units: pC
+  value: 10
+xy_dist:
+  file: seaturtle.jpeg
+  type: file2d
+  min_x: 
+    value: -1
+    units: mm
+  max_x:
+    value: 1
+    units: mm
+  min_y: 
+    value: -1
+    units: mm
+  max_y:
+    value: 1
+    units: mm
+  threshold: 0.0
+  #invert: True
+    

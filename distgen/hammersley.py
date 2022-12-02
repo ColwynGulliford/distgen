@@ -24,7 +24,7 @@ import numpy
 #from .halton import create_halton_samples
 
 
-def create_hammersley_samples(order, dim=1, burnin=-1, primes=()):
+def create_hammersley_samples(order, dim=1, burnin=-1, primes=(), **kwargs):
     """
     Create samples from the Hammersley set.
     For ``dim == 1`` the sequence falls back to Van Der Corput sequence.

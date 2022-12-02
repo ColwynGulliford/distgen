@@ -108,12 +108,12 @@ class Generator(Base):
         """Perform consistency checks on the user input data"""
 
         # Make sure all required top level params are present
-        required_params = ['n_particle', 'random_type', 'total_charge']
+        required_params = ['n_particle', 'total_charge']
         for rp in required_params:
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output', 'transforms', 'start']
+        allowed_params = required_params + ['output', 'transforms', 'start', 'random_seed', 'random_type', 'random']
         for p in params:
             #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
             assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p
@@ -205,8 +205,20 @@ class Generator(Base):
         n_particle = int(self.params['n_particle'])
         shape = ( n_coordinate, n_particle )
 
+        random = {}
+
         if(n_coordinate>0):
-            rns = random_generator(shape, sequence=self.params['random_type'])
+            
+            if('random' in self.params):
+                random = self.params['random']
+                
+            elif('random_type' in self.params):
+                random['type'] = self.params['random_type']
+                
+                if('random_seed' in self.params):
+                    random['seed']=self.params['random_seed']
+            
+            rns = random_generator(shape, random['type'], **random)
 
         for ii, key in enumerate(self.rands.keys()):
             if(len(rns.shape)>1):

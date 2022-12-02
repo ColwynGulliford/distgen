@@ -1,5 +1,6 @@
 n_particle: 1000000
 random_type: hammersley
+random_seed: 0
 start:
   MTE:
     units: meV
@@ -24,5 +25,4 @@ xy_dist:
     value: 1
     units: mm
   threshold: 0.0
-  #invert: True
     
