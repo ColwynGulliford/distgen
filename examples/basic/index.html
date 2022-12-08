@@ -1821,7 +1821,8 @@ r_dist:
     units: mm
     value: 2
   type: radial_gaussian
-random_type: hammersley
+random:
+  type: hammersley
 start:
   MTE:
     units: meV
@@ -2146,7 +2147,7 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.39489 s.
+...done. Time Elapsed: 1.27684 s.
 
 </pre>
 </div>
@@ -2218,7 +2219,7 @@ gen.particles</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;ParticleGroup with 200000 particles at 0x7fcf04ac1d60&gt;</pre>
+<pre>&lt;ParticleGroup with 200000 particles at 0x7f99512c8580&gt;</pre>
 </div>
 
 </div>
@@ -2704,9 +2705,9 @@ writer("openPMD", beam, "openPMD.out.h5",verbose=1)</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Printing 200000 particles to &#34;gpt.out.txt&#34;: done. Time ellapsed: 1.63447 s.
-Printing 200000 particles to &#34;astra.out.txt&#34;: ,done. Time ellapsed: 1.76099 s.
-Printing 200000)+&#34; particles to &#34;openPMD.out.h5&#34;: done. Time ellapsed: 18.6234 ms.
+<pre>Printing 200000 particles to &#34;gpt.out.txt&#34;: done. Time ellapsed: 1.64362 s.
+Printing 200000 particles to &#34;astra.out.txt&#34;: ,done. Time ellapsed: 1.8416 s.
+Printing 200000)+&#34; particles to &#34;openPMD.out.h5&#34;: done. Time ellapsed: 16.2301 ms.
 </pre>
 </div>
 </div>
@@ -3159,9 +3160,9 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.32355 s.
+...done. Time Elapsed: 1.18801 s.
 
-Printing 200000 particles to &#34;beer.can.out.txt&#34;: done. Time ellapsed: 1.6276 s.
+Printing 200000 particles to &#34;beer.can.out.txt&#34;: done. Time ellapsed: 1.63377 s.
 
 Beam stats:
    avg_x = 3.38813E-17 mm, sigma_x = 1 mm
@@ -3271,9 +3272,9 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 5.70372 eV/c, sigma_pz -&gt; 4.309 eV/c
-...done. Time Elapsed: 1.32519 s.
+...done. Time Elapsed: 1.18208 s.
 
-Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.64889 s.
+Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.64365 s.
 
 Beam stats:
    avg_x = 1.0842E-16 mm, sigma_x = 2 mm
@@ -3388,9 +3389,9 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.37613 s.
+...done. Time Elapsed: 1.27608 s.
 
-Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.61805 s.
+Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.62996 s.
 
 Beam stats:
    avg_x = 1.0842E-16 mm, sigma_x = 2 mm
@@ -3605,7 +3606,7 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.33296 s.
+...done. Time Elapsed: 1.20419 s.
 
 </pre>
 </div>
@@ -3798,7 +3799,8 @@ r_dist:
     units: mm
     value: 1.0
   type: radial_gaussian
-random_type: hammersley
+random:
+  type: hammersley
 start:
   tstart:
     units: sec
@@ -4595,7 +4597,7 @@ gen.run()</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;ParticleGroup with 200000 particles at 0x7fcef35ee2b0&gt;</pre>
+<pre>&lt;ParticleGroup with 200000 particles at 0x7f9950667910&gt;</pre>
 </div>
 
 </div>
@@ -4664,7 +4666,7 @@ afile</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&#39;distgen_58486ed2a099457926b362bcc04d688c.h5&#39;</pre>
+<pre>&#39;distgen_8908f76ace8f3ea6868a8e49e7ca9505.h5&#39;</pre>
 </div>
 
 </div>
@@ -4731,7 +4733,7 @@ G2.load_archive(afile)</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>   Reading group ./ from archive file distgen_58486ed2a099457926b362bcc04d688c.h5</pre>
+<pre>   Reading group ./ from archive file distgen_8908f76ace8f3ea6868a8e49e7ca9505.h5</pre>
 </div>
 </div>
 

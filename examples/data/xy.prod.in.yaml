@@ -1,7 +1,17 @@
 n_particle: 200000
+random:
+  type: hammersley
+start:
+  MTE:
+    units: meV
+    value: 150
+  type: cathode
+total_charge:
+  units: pC
+  value: 10
 xy_dist:
   dists:
-    d1: 
+    d1:
       truncation_fraction:
         units: dimensionless
         value: 0.5
@@ -13,12 +23,3 @@ xy_dist:
       file: laser.image.txt
       type: file2d
   type: product
-random_type: hammersley
-start:
-  MTE:
-    units: meV
-    value: 150
-  type: cathode
-total_charge:
-  units: pC
-  value: 10

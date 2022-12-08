@@ -10,7 +10,8 @@ r_dist:
     units: mm
     value: 1
   type: rg
-random_type: hammersley
+random:
+  type: hammersley
 start:
   MTE:
     units: meV

@@ -96,6 +96,8 @@ rad.uniform:
   total_charge:
     units: pC
     value: 10
+random:
+  type: hammersley
 t.crystals:
   count: 100000
   n_particles: 100000
