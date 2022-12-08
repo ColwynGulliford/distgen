@@ -22,7 +22,8 @@ r_dist:
     units: mm
     value: 1.0
   type: radial_gaussian
-random_type: hammersley
+random:
+  type: hammersley
 start:
   tstart:
     units: sec

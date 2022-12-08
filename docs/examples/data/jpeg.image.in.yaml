@@ -1,5 +1,6 @@
 n_particle: 1000000
-random_type: hammersley
+random:
+  type: hammersley
 random_seed: 0
 start:
   MTE:
@@ -11,18 +12,17 @@ total_charge:
   value: 10
 xy_dist:
   file: seaturtle.jpeg
-  type: file2d
-  min_x: 
-    value: -1
-    units: mm
   max_x:
+    units: mm
     value: 1
-    units: mm
-  min_y: 
-    value: -1
-    units: mm
   max_y:
-    value: 1
     units: mm
+    value: 1
+  min_x:
+    units: mm
+    value: -1
+  min_y:
+    units: mm
+    value: -1
   threshold: 0.0
-    
+  type: file2d
