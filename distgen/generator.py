@@ -53,6 +53,12 @@ class Generator(Base):
         """
         super().__init__(*args, **kwargs)
 
+        # This will be set by .confgure()
+        self.params = {}
+
+        # This will be set by .get_dists()
+        self.dists = {}
+
         # This will be set with .beam()
         self.rands = None
 
@@ -102,6 +108,7 @@ class Generator(Base):
             self.params['start'] = {'type': 'free'}
         convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
         self.check_input_consistency(self.params)       # Check that the result is logically sound
+        #self.get_dists()                                # Creat the distribution objects which be sampled to create particles
         self.configured = True
 
     def check_input_consistency(self, params):
@@ -168,6 +175,7 @@ class Generator(Base):
          return get_nested_dict(self.input, varstr, sep=':', prefix='distgen')
 
     def __setitem__(self, varstr, val):
+        self.configured=False   
         return set_nested_dict(self.input, varstr, val, sep=':', prefix='distgen')
 
     def get_dist_params(self):
@@ -185,6 +193,14 @@ class Generator(Base):
             raise ValueError('Error: t_dist should not be set for time start')
 
         return dist_params
+
+    def get_dists(self):
+
+        dist_params = self.get_dist_params()
+
+        for var, params in dist_params.items():
+            vprint(f'{var} distribution: ', self.verbose>0, 1, False)
+            self.dists[var] = get_dist(var, dist_params[var], verbose=self.verbose)
 
     def get_rands(self, variables):
 
@@ -243,7 +259,8 @@ class Generator(Base):
         watch = StopWatch()
         watch.start()
 
-        self.configure()
+        if(not self.configured):
+            self.configure()
 
         verbose = self.verbose
         #outputfile = []
@@ -286,23 +303,24 @@ class Generator(Base):
         avgs = {var:0*unit_registry(units[var]) for var in units}
         stds = {var:0*unit_registry(units[var]) for var in units}
 
-        dist_params = self.get_dist_params()   # Get the relevant dist params, setting defaults as needed, and samples random number generator
-        self.get_rands(list(dist_params.keys()))
+        #dist_params = self.get_dist_params()    # Get the relevant dist params, setting defaults as needed
+        self.get_dists()                         # 
+        self.get_rands(list(self.dists.keys()))  # samples random number generator
 
         # Do radial dist first if requested
-        if('r' in dist_params and 'theta' in dist_params):
+        if('r' in self.dists and 'theta' in self.dists):
 
-            vprint('r distribution: ',verbose>0, 1, False)
+            #vprint('r distribution: ',verbose>0, 1, False)
 
             # Get r distribution
-            rdist = get_dist('r', dist_params['r'], verbose=verbose)
+            rdist = self.dists['r'] 
 
             if(rdist.rms()>0):
                 r = rdist.cdfinv(self.rands['r'])       # Sample to get beam coordinates
 
             # Sample to get beam coordinates
-            vprint('theta distribution: ', verbose>0, 1, False)
-            theta_dist = get_dist('theta', dist_params['theta'], verbose=verbose)
+            #vprint('theta distribution: ', verbose>0, 1, False)
+            theta_dist = self.dists['theta']
             theta = theta_dist.cdfinv(self.rands['theta'])
 
             rrms = rdist.rms()
@@ -322,15 +340,12 @@ class Generator(Base):
             stds['x'] = rrms*np.sqrt(avgCos2)
             stds['y'] = rrms*np.sqrt(avgSin2)
 
-            # remove r, theta from list of distributions to sample
-            del dist_params['r']
-            del dist_params['theta']
 
         # Do 2D distributions
-        if("xy" in dist_params):
+        if("xy" in self.dists):
 
-            vprint('xy distribution: ', verbose>0, 1, False)
-            dist = get_dist('xy', dist_params['xy'], verbose=verbose)
+            #vprint('xy distribution: ', verbose>0, 1, False)
+            dist = self.dists['xy']
             bdist['x'], bdist['y'] = dist.cdfinv(self.rands['x'], self.rands['y'])
 
             dist_params.pop('xy')
@@ -342,10 +357,13 @@ class Generator(Base):
             stds['y']=bdist.std('y')
 
         # Do all other specified single coordinate dists
-        for x in dist_params.keys():
 
-            vprint(x+" distribution: ",verbose>0,1,False)
-            dist = get_dist(x, dist_params[x], verbose=verbose)      # Get distribution
+        remaining_dist_vars = [var for var in list(self.dists.keys()) if var not in ['r', 'theta']]
+
+        for x in remaining_dist_vars:
+
+            #vprint(x+" distribution: ",verbose>0,1,False)
+            dist = self.dists[x]    # Get distribution
 
             if(dist.std()>0):
 
@@ -353,10 +371,11 @@ class Generator(Base):
                 bdist[x]=dist.cdfinv(self.rands[x])                      # Sample to get beam coordinates
 
                 # Fix up the avg and std so they are exactly what user asked for
-                if("avg_"+x in dist_params[x]):
-                    avgs[x]=dist_params[x]["avg_"+x]
-                else:
-                    avgs[x] = dist.avg()
+                avgs[x] = dist.avg()
+                #if("avg_"+x in dist_params[x]):
+                #    avgs[x]=dist_params[x]["avg_"+x]
+                #else:
+                #    avgs[x] = dist.avg()
 
                 stds[x] = dist.std()
                 #if("sigma_"+x in dist_params[x]):
@@ -495,6 +514,9 @@ class Generator(Base):
 
         else:
             g = h5
+
+
+        
 
         # Init
         archive.distgen_init(g)
