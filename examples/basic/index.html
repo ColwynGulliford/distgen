@@ -2147,7 +2147,7 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.27684 s.
+...done. Time Elapsed: 1.2466 s.
 
 </pre>
 </div>
@@ -2219,7 +2219,7 @@ gen.particles</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;ParticleGroup with 200000 particles at 0x7f99512c8580&gt;</pre>
+<pre>&lt;ParticleGroup with 200000 particles at 0x7fd5424fb1f0&gt;</pre>
 </div>
 
 </div>
@@ -2705,9 +2705,9 @@ writer("openPMD", beam, "openPMD.out.h5",verbose=1)</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Printing 200000 particles to &#34;gpt.out.txt&#34;: done. Time ellapsed: 1.64362 s.
-Printing 200000 particles to &#34;astra.out.txt&#34;: ,done. Time ellapsed: 1.8416 s.
-Printing 200000)+&#34; particles to &#34;openPMD.out.h5&#34;: done. Time ellapsed: 16.2301 ms.
+<pre>Printing 200000 particles to &#34;gpt.out.txt&#34;: done. Time ellapsed: 1.63227 s.
+Printing 200000 particles to &#34;astra.out.txt&#34;: ,done. Time ellapsed: 1.86704 s.
+Printing 200000)+&#34; particles to &#34;openPMD.out.h5&#34;: done. Time ellapsed: 16.0472 ms.
 </pre>
 </div>
 </div>
@@ -2762,13 +2762,13 @@ Printing 200000)+&#34; particles to &#34;openPMD.out.h5&#34;: done. Time ellapse
 
 <span class="n">fig</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="c1"># X-Y Plot</span>
-<span class="n">plot_dist2d</span><span class="p">(</span><span class="n">beam</span><span class="p">,</span>
-        <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span>
-        <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span>
-        <span class="n">style</span><span class="o">=</span><span class="s1">&#39;scatter_hist2d&#39;</span><span class="p">,</span>
-        <span class="n">nbins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-        <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span>
-        <span class="n">title_on</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<span class="n">plot_dist2d</span><span class="p">(</span><span class="n">beam</span><span class="p">,</span> 
+            <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span>
+            <span class="n">style</span><span class="o">=</span><span class="s1">&#39;scatter_hist2d&#39;</span><span class="p">,</span>
+            <span class="n">nbins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span>
+            <span class="n">title_on</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 <div id="cell-15" class="clipboard-copy-txt"># The distgen module has some basic plotting routines
 from distgen.plot import *
@@ -2782,13 +2782,13 @@ beam = gen.beam()
 
 fig=plt.figure(1)
 # X-Y Plot
-plot_dist2d(beam,
-        'x', units['x'],
-        'y', units['y'],
-        style='scatter_hist2d',
-        nbins=100,
-        axis='equal',
-        title_on=True);</div>
+plot_dist2d(beam, 
+            'x', units['x'],
+            'y', units['y'],
+            style='scatter_hist2d',
+            nbins=100,
+            axis='equal',
+            title_on=True);</div>
     
         </div>
     </div>
@@ -3160,9 +3160,9 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.18801 s.
+...done. Time Elapsed: 1.17119 s.
 
-Printing 200000 particles to &#34;beer.can.out.txt&#34;: done. Time ellapsed: 1.63377 s.
+Printing 200000 particles to &#34;beer.can.out.txt&#34;: done. Time ellapsed: 1.63932 s.
 
 Beam stats:
    avg_x = 3.38813E-17 mm, sigma_x = 1 mm
@@ -3272,9 +3272,9 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 5.70372 eV/c, sigma_pz -&gt; 4.309 eV/c
-...done. Time Elapsed: 1.18208 s.
+...done. Time Elapsed: 1.16781 s.
 
-Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.64365 s.
+Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.65305 s.
 
 Beam stats:
    avg_x = 1.0842E-16 mm, sigma_x = 2 mm
@@ -3389,9 +3389,9 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.27608 s.
+...done. Time Elapsed: 1.25779 s.
 
-Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.62996 s.
+Printing 200000 particles to &#34;rad.gaussian.out.txt&#34;: done. Time ellapsed: 1.63387 s.
 
 Beam stats:
    avg_x = 1.0842E-16 mm, sigma_x = 2 mm
@@ -3606,7 +3606,7 @@ Creating beam distribution....
    Scaling sigma_t = 1.1547 ps -&gt; 1.1547 ps
    Cathode start: fixing pz momenta to forward hemisphere
       avg_pz -&gt; 220.904 eV/c, sigma_pz -&gt; 166.887 eV/c
-...done. Time Elapsed: 1.20419 s.
+...done. Time Elapsed: 1.19761 s.
 
 </pre>
 </div>
@@ -4597,7 +4597,7 @@ gen.run()</div>
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>&lt;ParticleGroup with 200000 particles at 0x7f9950667910&gt;</pre>
+<pre>&lt;ParticleGroup with 200000 particles at 0x7fd541defa00&gt;</pre>
 </div>
 
 </div>
