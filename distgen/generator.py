@@ -364,6 +364,9 @@ class Generator(Base):
                 #else:
                     #stds[x] = dist.std()
                     #print(x, stds[x])
+                    
+            elif("avg_"+x in dist_params[x]):
+                    avgs[x]=dist_params[x]["avg_"+x]
 
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
