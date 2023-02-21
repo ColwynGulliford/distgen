@@ -12,6 +12,7 @@ from .tools import get_nested_dict
 from .tools import set_nested_dict
 from .tools import StopWatch
 from .tools import vprint
+from .tools import update_quantity
 
 
 from .transforms import set_avg
@@ -52,6 +53,9 @@ class Generator(Base):
         The class initialization takes in a verbose level for controlling text output to the user
         """
         super().__init__(*args, **kwargs)
+        
+        # This will be set by 
+        self.params = None   # The parsed and most up-to-date configuration parameters for the generator
 
         # This will be set with .beam()
         self.rands = None
@@ -97,10 +101,13 @@ class Generator(Base):
         2. Converts physical quantities to PINT quantities in the params dictionary
         3. Runs consistency checks on the resulting params dict
         """
-        self.params = copy.deepcopy(self.input)         # Copy the input dictionary
-        if 'start' not in self.params:
-            self.params['start'] = {'type': 'free'}
-        convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
+        
+        if(self.params is None):
+            self.params = copy.deepcopy(self.input)         # Copy the input dictionary
+            if 'start' not in self.params:
+                self.params['start'] = {'type': 'free'}
+            convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
+            
         self.check_input_consistency(self.params)       # Check that the result is logically sound
         self.configured = True
 
@@ -165,10 +172,48 @@ class Generator(Base):
 
 
     def __getitem__(self, varstr):
-         return get_nested_dict(self.input, varstr, sep=':', prefix='distgen')
+        
+        if(varstr.endswith(':value')):
+            
+            pstr = varstr.replace(':value', '')
+            var = get_nested_dict(self.params, pstr, sep=':', prefix='distgen')
+            
+            if(isinstance(var, unit_registry.Quantity)):
+                return var.magnitude
+            else:
+                return var
+            
+        elif(varstr.endswith(':units')):
+            
+            pstr = varstr.replace(':units', '')
+            var = get_nested_dict(self.params, pstr, sep=':', prefix='distgen')
+            
+            if(isinstance(var, unit_registry.Quantity)):
+                return var.units
+            else:
+                return var 
+        else:
+            return get_nested_dict(self.params, varstr, sep=':', prefix='distgen')
+        
+        return get_nested_dict(self.input, varstr, sep=':', prefix='distgen')
 
     def __setitem__(self, varstr, val):
-        return set_nested_dict(self.input, varstr, val, sep=':', prefix='distgen')
+        
+        if(varstr.endswith(':value') or varstr.endswith(':units')):
+            
+            pstr = varstr.replace(':value', '').replace(':units', '')
+            var = get_nested_dict(self.params, pstr, sep=':', prefix='distgen')
+            
+            return set_nested_dict(self.params, pstr, update_quantity(var, val), sep=':', prefix='distgen')
+            
+        else:
+            var = get_nested_dict(self.params, varstr, sep=':', prefix='distgen')
+            
+            if(isinstance(var, unit_registry.Quantity)):
+                return set_nested_dict(self.params, varstr, update_quantity(var, val), sep=':', prefix='distgen')
+        
+            else:
+                return set_nested_dict(self.params, varstr, val, sep=':', prefix='distgen')
 
     def get_dist_params(self):
 

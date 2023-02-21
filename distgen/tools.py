@@ -616,11 +616,69 @@ def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
     return d
 
 def is_quantity(d):
+    
     """ Checks if a dict can be converted to a quantity with units """
-    if(isinstance(d,dict) and len(d.keys())==2 and "value" in d and "units" in d):
+    if(isinstance(d, dict) and len(d.keys())==2 and "value" in d and "units" in d):
         return True
+    
+    elif(isinstance(d, str)):
+        
+        if(is_unit(d)):
+            return False
+            
+        try: 
+            q = unit_registry(d)
+            if(isinstance(q, unit_registry.Quantity)):
+                return True
+            else:
+                return False
+        except:
+            return False
+
     else:
         return False
+    
+def is_unit(u):
+    
+    if(isinstance(u, str)):
+        u = u.replace('1', '2')  # '2 mm' is not a unit, but '1 mm' is, so handle this oddity
+    try: 
+        unit_registry.Unit(u)
+        return True
+    except:
+        return False
+    
+def parse_quantity(q):
+    
+    if(is_quantity(q)):
+    
+        if(isinstance(q, str)): 
+            return unit_registry.Quantity(q)
+        elif(isinstance(q, dict)):
+            return dict_to_quantity(q)
+    else:
+        raise ValueError(f'Could not parse object into a quantity: {q}')
+    
+def update_quantity_in_dict(k, d, new_val): 
+    d[k] = update_quantity(d[k], new_val)
+    
+def update_quantity(x, new_val):
+    
+    Q_ = unit_registry.Quantity
+    
+    if(is_floatable(new_val) or isinstance(new_val, np.ndarray)):
+        x = Q_(new_val, x.units)
+    
+    elif(isinstance(new_val, str)):
+        x = Q_(x.magnitude, unit_registry.parse_expression(new_val))
+        
+    elif(isinstance(new_val, unit_registry.Quantity)):
+        return new_val
+        
+    else:
+        raise ValueError('Unsupported input value for setting quantity!')
+        
+    return x
 
 def dict_to_quantity(qd):
     
@@ -640,8 +698,9 @@ def list_to_dict(ll):
 def convert_list_params(d):
     """ Converts elements in a list to quantities with units where appropriate """
     for ii,v in enumerate(d):
+        
         if(is_quantity(v)):
-            d[ii]=dict_to_quantity(v)
+            d[ii]=parse_quantity(v)
         elif(isinstance(v,dict)):
             convert_params(v)
 
@@ -649,8 +708,11 @@ def convert_params(d):
 
     """ Converts a nested dictionary to quantities with units where appropriate """
     for k, v in d.items():
+        
+        #print(k, v, is_quantity(v))
+        
         if(is_quantity(v)):
-            d[k]=dict_to_quantity(v)
+            d[k]=parse_quantity(v)
         elif isinstance(v, list):
             convert_list_params(v)
         elif isinstance(v, dict) or isinstance(v, list):
