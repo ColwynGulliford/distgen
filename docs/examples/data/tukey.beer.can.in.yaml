@@ -3,27 +3,17 @@ output:
   file: tukey.beer.can.out.txt
   type: gpt
 r_dist:
-  length:
-    units: mm
-    value: 5
-  ratio:
-    units: ''
-    value: 0.25
+  length: 5 mm
+  ratio: 0.25 dimensionless
   type: radial_tukey
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 150
+  MTE: 150 meV
   type: cathode
 t_dist:
-  length:
-    units: ps
-    value: 5.0
-  ratio:
-    units: ''
-    value: 0.75
+  length: 5.0 ps
+  ratio: 0.75 dimensionless
   type: tukey
 total_charge:
   units: pC

@@ -62,16 +62,13 @@ def run_distgen(
     # Make distribution
     gen = Generator(inputs, verbose=verbose)
 
-    gen.input = update_nested_dict(gen.input, settings, verbose=verbose)
+    gen._input = update_nested_dict(gen._input, settings, verbose=verbose)
 
     beam = gen.beam()
-    
-    # Get params
-    params = gen.params
 
     # Write to file
-    if 'file' in params['output']:
-        writer(params['output']['type'], beam, params['output']['file'],verbose, params)
+    if 'file' in gen['output']:
+        writer(gen['output']['type'], beam, gen['output']['file'],verbose)
 
     # Print beam stats
     if(verbose>0):

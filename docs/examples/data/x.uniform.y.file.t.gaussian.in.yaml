@@ -5,28 +5,16 @@ output:
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 120
+  MTE: 120 meV
   type: cathode
 t_dist:
-  avg_t:
-    units: ps
-    value: -0.5
-  sigma_t:
-    units: ps
-    value: 1
+  avg_t: -0.5 ps
+  sigma_t: 1 ps
   type: gaussian
-total_charge:
-  units: pC
-  value: 10
+total_charge: 10 pC
 x_dist:
-  max_x:
-    units: mm
-    value: 2
-  min_x:
-    units: mm
-    value: -1
+  max_x: 2 mm
+  min_x: -1 mm
   type: uniform
 y_dist:
   file: cutgauss.1d.txt

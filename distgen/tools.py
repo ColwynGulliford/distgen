@@ -572,7 +572,7 @@ def update_nested_dict(d, settings, verbose=False, create_new=True):
     return new_dict
 
 
-def set_nested_dict(dd, flatkey, val, sep=':', prefix='', verbose=0):
+def set_nested_dict(dd, flatkey, val, sep=':', prefix='', verbose=0, create_new=True):
     """
     Set a value inside nested dicts using a key string. 
     Example:
@@ -593,7 +593,7 @@ def set_nested_dict(dd, flatkey, val, sep=':', prefix='', verbose=0):
         d = d[k]
     final_key = keys[-1]
     # Set
-    if final_key in d:
+    if final_key in d or create_new:
         d[final_key] = val
         return True
     else:
@@ -614,6 +614,15 @@ def get_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
     for k in keys:
         d = d[k]
     return d
+
+
+def is_key_in_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
+    
+    try:
+        get_nested_dict(dd, flatkey, sep=':', prefix='distgen')
+        return True
+    except:
+        return False
 
 def is_quantity(d):
     

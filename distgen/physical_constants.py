@@ -30,3 +30,8 @@ unit_registry.define(f'GB = {MC2.magnitude} * eV/c')
 
 # Mathematical constants
 pi = math.pi*unit_registry("rad")
+
+def is_quantity(q):
+    return isinstance(q, unit_registry.Quantity)
+
+
