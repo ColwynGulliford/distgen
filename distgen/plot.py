@@ -279,9 +279,9 @@ def scatter_hist2d(x, y,
     """
     if ax is None:
         ax = plt.gca()
-
+   
     h, xe, ye = np.histogram2d(x, y, bins=bins,
-                               range=range, normed=normed,
+                               range=range, density=normed,
                                weights=weights)
     # bins = (xe, ye)
     dens = map_hist(x, y, h, bins=(xe, ye))
