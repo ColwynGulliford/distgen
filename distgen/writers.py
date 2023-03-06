@@ -147,7 +147,7 @@ def write_astra(beam,
     # Astra units and types
     units = ['m', 'm', 'm', 'eV/c', 'eV/c', 'eV/c', 'ns', 'nC']
     names = ['x', 'y', 'z', 'px', 'py', 'pz', 't', 'q', 'index', 'status']
-    types = 8*[np.float] + 2*[np.int8]
+    types = 8*[float] + 2*[np.int8]
     # Convert to these units in place
     for i in range(8):
         name = names[i]
