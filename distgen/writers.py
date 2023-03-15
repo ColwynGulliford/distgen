@@ -16,7 +16,7 @@ def get_species_charge(species):
     else:
         raise ValueError(f'get_species_charge: Species "{species}" is not supported.')
 
-def writer(output_format,beam,outfile,verbose=0,params=None):
+def writer(output_format, beam, outfile, verbose=0, params=None):
 
     """ Returns a simulaiton code specific writer function """
 
@@ -39,7 +39,7 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
     return result
     
 
-def write_gpt(beam,outfile,verbose=0,params=None,asci2gdf_bin=None):  
+def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):  
 
 
         """ Writes particles to file in GPT format """
@@ -127,7 +127,7 @@ def write_astra(beam,
     watch = StopWatch()
     watch.start()
 
-    vprint(f'Printing {(beam["n_particle"])} particles to "{outfile}": ,', verbose>0, 0, False)
+    vprint(f'Printing {(beam["n_particle"])} particles to "{outfile}": ', verbose>0, 0, False)
 
     assert species == 'electron' # TODO: add more species
     

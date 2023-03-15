@@ -18,9 +18,7 @@ r_dist:
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 130
+  MTE: 130 meV
   type: cathode
 t_dist:
   Pt:
@@ -36,28 +34,16 @@ t_dist:
     pt10: 10.0
     pt11: 6.0
     pt12: 1.0
-  avg_t:
-    units: ns
-    value: 0.0
+  avg_t: 0.0 ns
   method: spline
-  sigma_t:
-    units: ns
-    value: 0.08287285705
+  sigma_t: 0.08287285705 ns
   type: interp
-total_charge:
-  units: nC
-  value: 1
+total_charge: 1 nC
 transforms:
   tt:
-    avg_t:
-      units: ps
-      value: 0.0
-    sigma_t:
-      units: ps
-      value: 100
+    avg_t: 0.0 ps
+    sigma_t: 100 ps
     type: set_avg_and_std t
   xy:
-    sigma_xy:
-      units: mm
-      value: 1.2
+    sigma_xy: 1.2 mm
     type: set_stdxy

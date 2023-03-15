@@ -3,25 +3,15 @@ output:
   file: rad.gaussian.out.txt
   type: gpt
 r_dist:
-  sigma_xy:
-    units: mm
-    value: 2
+  sigma_xy: 2 mm
   type: radial_gaussian
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 150
+  MTE: 150 meV
   type: cathode
 t_dist:
-  max_t:
-    units: ps
-    value: 2
-  min_t:
-    units: ps
-    value: -2
+  max_t: 2 ps
+  min_t: -2 ps
   type: uniform
-total_charge:
-  units: pC
-  value: 10
+total_charge: 10 pC

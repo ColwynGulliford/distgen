@@ -1,29 +1,29 @@
 
-from . import archive
-
-from .beam import Beam
-
-from .dist import get_dist
-from .dist import random_generator
-
-from .tools import convert_params
-from .tools import full_path
-from .tools import get_nested_dict
-from .tools import set_nested_dict
-from .tools import StopWatch
-from .tools import vprint
 
 
-from .transforms import set_avg
-from .transforms import set_avg_and_std
-from .transforms import transform
 
 
-from .physical_constants import pi
-from .physical_constants import MC2
-from .physical_constants import unit_registry
+#from .dist import get_dist
+#from .dist import random_generator
 
-from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
+#from .tools import convert_params
+#from .tools import full_path
+
+#from .tools import StopWatch
+#from .tools import vprint
+#from .tools import update_quantity
+
+
+#from .transforms import set_avg
+#from .transforms import set_avg_and_std
+#from .transforms import transform
+
+
+#from .physical_constants import pi
+#from .physical_constants import MC2
+#from .physical_constants import unit_registry
+
+
 
 import warnings
 
@@ -35,6 +35,39 @@ import os
 
 from lume.base import Base
 from lume.tools import full_path
+
+
+from . import archive
+
+from .beam import Beam
+
+from .dist import get_dist
+from .dist import random_generator
+
+from .parsing import convert_input_quantities
+from .parsing import convert_quantities_to_user_input
+from .parsing import expand_input_filepaths
+from .parsing import update_quantity
+
+from .physical_constants import is_quantity
+from .physical_constants import MC2
+from .physical_constants import pi
+from .physical_constants import unit_registry
+
+from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
+
+from .tools import get_nested_dict
+from .tools import is_key_in_nested_dict
+from .tools import set_nested_dict
+from .tools import StopWatch
+from .tools import update_nested_dict
+from .tools import vprint
+
+
+from .transforms import set_avg
+from .transforms import set_avg_and_std
+from .transforms import transform
+
 
 
 class Generator(Base):
@@ -52,6 +85,9 @@ class Generator(Base):
         The class initialization takes in a verbose level for controlling text output to the user
         """
         super().__init__(*args, **kwargs)
+        
+        # This will be set by 
+        self._input = None   # The parsed and most up-to-date configuration of input for the generator
 
         # This will be set with .beam()
         self.rands = None
@@ -87,25 +123,95 @@ class Generator(Base):
                 input = yaml.safe_load(input)
                 assert isinstance(input, dict), f'ERROR: parsing unsuccessful, could not read {input}'
                 expand_input_filepaths(input)
+                
+        else: expand_input_filepaths(input)
 
-        self.input = input
+        input = convert_input_quantities(input)
+        self.check_input_consistency(input)
+        self._input = input
 
-    def configure(self):
+    @property
+    def input(self):        
+        # User should see the generator input structure in user input notation  
+        return convert_quantities_to_user_input(copy.deepcopy(self._input)) 
+    
+    #@input.setter
+    #def input(self, input):   
+    #    # When setting the input dictionary, convert user input notation to internal format    
+    #    self._input = convert_input_quantities(input)
+    #    self.check_input_consistency()
+    
+    def __repr__(self):
+        s = '<disgten.Generator with input: \n'
+        return s+yaml.dump(self.input)+'\n>'
+        
+    def __getitem__(self, varstr):
+        
+        if(varstr.endswith(':value')):
+            
+            pstr = varstr.replace(':value', '')
+            var = get_nested_dict(self._input, pstr, sep=':', prefix='distgen')
+            
+            if(is_quantity(var)):
+                return var.magnitude
+            else:
+                return var
+            
+        elif(varstr.endswith(':units')):
+            
+            pstr = varstr.replace(':units', '')
+            var = get_nested_dict(self._input, pstr, sep=':', prefix='distgen')
+            
+            if(is_quantity(var)):
+                return str(var.units)
+            else:
+                return var 
+        else:
+            var = get_nested_dict(self._input, varstr, sep=':', prefix='distgen')
+            
+            if(is_quantity(var)):
+                return {'value':var.magnitude, 'units':str(var.units)}
+            
+            elif(isinstance(var, dict)):
+                return convert_quantities_to_user_input(var, in_place=False)
+            
+            else:
+                return var
 
-        """ Configures the generator for creating a 6d particle distribution:
-        1. Copies the input dictionary read in from a file or passed directly
-        2. Converts physical quantities to PINT quantities in the params dictionary
-        3. Runs consistency checks on the resulting params dict
-        """
-        self.params = copy.deepcopy(self.input)         # Copy the input dictionary
-        if 'start' not in self.params:
-            self.params['start'] = {'type': 'free'}
-        convert_params(self.params)                     # Conversion of the input dictionary using tools.convert_params
-        self.check_input_consistency(self.params)       # Check that the result is logically sound
-        self.configured = True
+    def __setitem__(self, varstr, val):
+        
+        params = copy.deepcopy(self._input)
+        
+        if(isinstance(val, dict)):
+            val = convert_input_quantities(val, in_place=False)
+            
+        pstr = varstr.replace(':value', '').replace(':units', '')
+            
+        if(not is_key_in_nested_dict(params, pstr, sep=':', prefix='distgen')):
+            params = update_nested_dict(params, {varstr:val}, verbose=False, create_new=True)
+        
+        if(varstr.endswith(':value') or varstr.endswith(':units')):
 
+            var = get_nested_dict(params, pstr, sep=':', prefix='distgen')
+            set_nested_dict(params, pstr, update_quantity(var, val), sep=':', prefix='distgen')
+            
+        else:
+            var = get_nested_dict(params, varstr, sep=':', prefix='distgen')
+
+            if(is_quantity(var)):
+                set_nested_dict(params, varstr, update_quantity(var, val), sep=':', prefix='distgen')
+        
+            else:
+                set_nested_dict(params, varstr, val, sep=':', prefix='distgen')
+                
+        self.check_input_consistency(params)  # Raises if something is wrong
+        self._input = params                  # Accept changes into the Generator input state
+    
     def check_input_consistency(self, params):
-        """Perform consistency checks on the user input data"""
+
+        """
+        Perform consistency/sanity checks on new user input data
+        """
 
         # Make sure all required top level params are present
         required_params = ['n_particle', 'total_charge']
@@ -132,56 +238,115 @@ class Generator(Base):
         if( ("r_dist" in params) and ("y_dist" in params or "xy_dist" in params) ):
             raise ValueError('Multiple/Inconsistent transverse distribution specification.')
 
+        if('output' in params):
+            out_params = params["output"]
+            for op in out_params:
+                assert op in ['file','type'], f'Unexpected output parameter specified: {op}'
+        else:
+            params['output'] = {"type":None}
+            
+        if('transforms' not in params):
+            params['transforms']=None
+            
         if(params['start']['type'] == "cathode"):
 
-            vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0 and "z_dist" in params,0,True )
-            vprint("Ignoring user specified px distribution for cathode start.", self.verbose>0 and "px_dist" in params,0,True )
-            vprint("Ignoring user specified py distribution for cathode start.", self.verbose>0 and "py_dist" in params,0,True )
-            vprint("Ignoring user specified pz distribution for cathode start.", self.verbose>0 and "pz_dist" in params,0,True )
+            for d in ['z_dist', 'px_dist', 'py_dist', 'pz_dist']:
+                if(d in params):
+                    vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0, 0, True)
+                    params.pop(d)
 
             assert "MTE" in params['start'], "User must specify the MTE for cathode start."
-
-            # Handle momentum distribution for cathode
-            MTE = self.params['start']["MTE"]
-            sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
-
-            self.params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
-            self.params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
-            self.params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
 
         elif(params['start']['type']=='time'):
 
             vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
             if('t_dist' in params):
                 warnings.warn('Ignoring user specified t distribution for time start.')
-                self.params.pop('t_dist')
+                params.pop('t_dist')   
 
-        if('output' in self.params):
-            out_params = self.params["output"]
-            for op in out_params:
-                assert op in ['file','type'], f'Unexpected output parameter specified: {op}'
+    def configure(self):
+        pass
+    
+    
+    def load_archive(self, h5=None):
+        """
+        Loads input and output from archived h5 file.
+        See: Generator.archive
+        """
+        if isinstance(h5, str):
+            g = h5py.File(h5, 'r')
+
+            glist = archive.find_distgen_archives(g)
+            n = len(glist)
+            if n == 0:
+                # legacy: try top level
+                message = 'legacy'
+            elif n == 1:
+                gname = glist[0]
+                message = f'group {gname} from'
+                g = g[gname]
+            else:
+                raise ValueError(f'Multiple archives found in file {h5}: {glist}')
+
+            vprint(f'Reading {message} archive file {h5}', self.verbose>0,1,False)
         else:
-            self.params['output'] = {"type":None}
+            g = h5
 
+            vprint(f'Reading Distgen archive file {h5}', self.verbose>0,1,False)
 
-    def __getitem__(self, varstr):
-         return get_nested_dict(self.input, varstr, sep=':', prefix='distgen')
+        #self.input = archive.read_input_h5(g['input'])
 
-    def __setitem__(self, varstr, val):
-        return set_nested_dict(self.input, varstr, val, sep=':', prefix='distgen')
+        if 'particles' in g:
+            self.particles = ParticleGroup(g['particles'])
+            self.output = self.particles
+        else:
+            vprint('No particles found.', self.verbose>0,1,False)
 
-    def get_dist_params(self):
+    def archive(self, h5=None):
+        """
+        Archive all data to an h5 handle or filename.
+
+        If no file is given, a file based on the fingerprint will be created.
+
+        """
+        if not h5:
+            h5 = 'distgen_'+self.fingerprint()+'.h5'
+
+        if isinstance(h5, str):
+            g = h5py.File(h5, 'w')
+            # Proper openPMD init
+            pmd_init(g, basePath='/', particlesPath='particles/')
+            g.attrs['software'] = np.string_('distgen') # makes a fixed string
+            #TODO: add version: g.attrs('version') = np.string_(__version__)
+
+        else:
+            g = h5
+
+        # Init
+        archive.distgen_init(g)
+
+        # Input
+        #archive.write_input_h5(g, self.input, name='input')
+
+        # Particles
+        if self.particles:
+            self.particles.write(g, name='particles')
+        return h5
+    
+    def get_dist_params(self, params):
 
         """ Loops through the input params dict and collects all distribution definitions """
 
-        dist_vars = [p.replace('_dist','') for p in self.params if(p.endswith('_dist')) ]
-        dist_params = {p.replace('_dist',''):self.params[p] for p in self.params if(p.endswith('_dist'))}
+        #params = self._input
+        
+        dist_vars = [p.replace('_dist','') for p in params if(p.endswith('_dist')) ]
+        dist_params = {p.replace('_dist',''):params[p] for p in params if(p.endswith('_dist'))}
 
         if('r' in dist_vars and 'theta' not in dist_vars):
             vprint("Assuming cylindrical symmetry...",self.verbose>0,1,True)
             dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
 
-        if(self.params['start']['type']=='time' and 't_dist' in self.params):
+        if(params['start']['type']=='time' and 't_dist' in params):
             raise ValueError('Error: t_dist should not be set for time start')
 
         return dist_params
@@ -190,6 +355,8 @@ class Generator(Base):
 
         """ Gets random numbers [0,1] for the coordinatess in variables
         using either the Hammersley sequence or rand """
+        
+        params = self._input
 
         specials = ['xy']
         self.rands = {var:None for var in variables if var not in specials}
@@ -202,21 +369,21 @@ class Generator(Base):
             self.rands['theta']=None
 
         n_coordinate = len(self.rands.keys())
-        n_particle = int(self.params['n_particle'])
+        n_particle = int(params['n_particle'])
         shape = ( n_coordinate, n_particle )
 
         random = {}
 
         if(n_coordinate>0):
             
-            if('random' in self.params):
-                random = self.params['random']
+            if('random' in params):
+                random = params['random']
                 
-            elif('random_type' in self.params):
-                random['type'] = self.params['random_type']
+            elif('random_type' in params):
+                random['type'] = params['random_type']
                 
-                if('random_seed' in self.params):
-                    random['seed']=self.params['random_seed']
+                if('random_seed' in params):
+                    random['seed']=params['random_seed']
             
             rns = random_generator(shape, random['type'], **random)
 
@@ -235,43 +402,63 @@ class Generator(Base):
             #v0 = self.rands[vii].magnitude-self.rands[vii].magnitude.mean()
             #v1 = self.rands[viip1].magnitude-self.rands[viip1].magnitude.mean()
             #print( np.mean(v0*v1) )
-
+            
     def beam(self):
 
         """ Creates a 6d particle distribution and returns it in a distgen.beam class """
 
         watch = StopWatch()
         watch.start()
+        
+        params = copy.deepcopy(self._input)
+        
+        if(params['start']['type'] == "cathode"):
 
-        self.configure()
+            assert "MTE" in params['start'], "User must specify the MTE for cathode start."
 
+            # Handle momentum distribution for cathode
+            MTE = params['start']["MTE"]
+            sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
+
+            params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
+            params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
+            params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
+
+        elif(params['start']['type']=='time'):
+
+            vprint("Ignoring user specified t distribution for time start.", self.verbose>0 and "t_dist" in params, 0, True)
+            if('t_dist' in params):
+                warnings.warn('Ignoring user specified t distribution for time start.')
+                params.pop('t_dist')    
+
+                
         verbose = self.verbose
         #outputfile = []
 
-        beam_params = {'total_charge':self.params['total_charge'], 'n_particle':self.params['n_particle']}
+        beam_params = {'total_charge':params['total_charge'], 'n_particle':params['n_particle']}
 
-        if('transforms' in self.params):
-            transforms = self.params['transforms']
+        if('transforms' in params):
+            transforms = params['transforms']
         else:
             transforms = None
 
         #dist_params = {p.replace('_dist',''):self.params[p] for p in self.params if(p.endswith('_dist')) }
         #self.get_rands()
 
-        vprint(f'Distribution format: {self.params["output"]["type"]}', self.verbose>0, 0, True)
+        vprint(f'Distribution format: {params["output"]["type"]}', verbose>0, 0, True)
 
-        N = int(self.params['n_particle'])
+        N = int(params['n_particle'])
         bdist = Beam(**beam_params)
 
-        if("file" in self.params['output']):
-            outfile = self.params['output']["file"]
+        if("file" in params['output']):
+            outfile = params['output']["file"]
         else:
             outfile = "None"
             vprint(f'Warning: no output file specified, defaulting to "{outfile}".', verbose>0, 1, True)
         vprint(f'Output file: {outfile}', verbose>0, 0, True)
 
         vprint('\nCreating beam distribution....',verbose>0,0,True)
-        vprint(f"Beam starting from: {self.params['start']['type']}",verbose>0,1,True)
+        vprint(f"Beam starting from: {params['start']['type']}",verbose>0,1,True)
         vprint(f'Total charge: {bdist.q:G~P}.',verbose>0,1,True)
         vprint(f'Number of macroparticles: {N}.',verbose>0,1,True)
 
@@ -286,7 +473,7 @@ class Generator(Base):
         avgs = {var:0*unit_registry(units[var]) for var in units}
         stds = {var:0*unit_registry(units[var]) for var in units}
 
-        dist_params = self.get_dist_params()   # Get the relevant dist params, setting defaults as needed, and samples random number generator
+        dist_params = self.get_dist_params(params)   # Get the relevant dist params, setting defaults as needed, and samples random number generator
         self.get_rands(list(dist_params.keys()))
 
         # Do radial dist first if requested
@@ -375,16 +562,16 @@ class Generator(Base):
             bdist = set_avg_and_std(bdist, **{'variables':x, 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':0})
 
         # Handle any start type specific settings
-        if(self.params['start']['type']=="cathode"):
+        if(params['start']['type']=="cathode"):
 
             bdist['pz']=np.abs(bdist['pz'])   # Only take forward hemisphere
             vprint('Cathode start: fixing pz momenta to forward hemisphere',verbose>0,1,True)
             vprint(f'avg_pz -> {bdist.avg("pz"):G~P}, sigma_pz -> {bdist.std("pz"):G~P}',verbose>0,2,True)
 
-        elif(self.params['start']['type']=='time'):
+        elif(params['start']['type']=='time'):
 
-            if('tstart' in self.params['start']):
-                tstart = self.params['start']['tstart']
+            if('tstart' in params['start']):
+                tstart = params['start']['tstart']
 
             else:
                 vprint("Time start: no start time specified, defaulting to 0 sec.",verbose>0,1,True)
@@ -397,7 +584,7 @@ class Generator(Base):
             pass
 
         else:
-            raise ValueError(f'Beam start type "{self.params["start"]["type"]}" is not supported!')
+            raise ValueError(f'Beam start type "{params["start"]["type"]}" is not supported!')
 
         # Apply any user desired coordinate transformations
         if(transforms):
@@ -426,10 +613,10 @@ class Generator(Base):
     def run(self):
         """ Runs the generator.beam function stores the partice in
         an openPMD-beamphysics ParticleGroup in self.particles """
-        if self.input is not None:
+        if self._input is not None:
             beam = self.beam()
         
-            if self.params['start']['type'] == "cathode":
+            if self._input['start']['type'] == "cathode":
                 status = ParticleStatus.CATHODE
             else:
                 status = ParticleStatus.ALIVE
@@ -441,117 +628,10 @@ class Generator(Base):
             print('No input data specified.')
 
         return self.output
+    
+    
+        
+        
 
-    def load_archive(self, h5=None):
-        """
-        Loads input and output from archived h5 file.
-        See: Generator.archive
-        """
-        if isinstance(h5, str):
-            g = h5py.File(h5, 'r')
-
-            glist = archive.find_distgen_archives(g)
-            n = len(glist)
-            if n == 0:
-                # legacy: try top level
-                message = 'legacy'
-            elif n == 1:
-                gname = glist[0]
-                message = f'group {gname} from'
-                g = g[gname]
-            else:
-                raise ValueError(f'Multiple archives found in file {h5}: {glist}')
-
-            vprint(f'Reading {message} archive file {h5}', self.verbose>0,1,False)
-        else:
-            g = h5
-
-            vprint(f'Reading Distgen archive file {h5}', self.verbose>0,1,False)
-
-        self.input = archive.read_input_h5(g['input'])
-
-        if 'particles' in g:
-            self.particles = ParticleGroup(g['particles'])
-            self.output = self.particles
-        else:
-            vprint('No particles found.', self.verbose>0,1,False)
-
-    def archive(self, h5=None):
-        """
-        Archive all data to an h5 handle or filename.
-
-        If no file is given, a file based on the fingerprint will be created.
-
-        """
-        if not h5:
-            h5 = 'distgen_'+self.fingerprint()+'.h5'
-
-        if isinstance(h5, str):
-            g = h5py.File(h5, 'w')
-            # Proper openPMD init
-            pmd_init(g, basePath='/', particlesPath='particles/')
-            g.attrs['software'] = np.string_('distgen') # makes a fixed string
-            #TODO: add version: g.attrs('version') = np.string_(__version__)
-
-        else:
-            g = h5
-
-        # Init
-        archive.distgen_init(g)
-
-        # Input
-        archive.write_input_h5(g, self.input, name='input')
-
-        # Particles
-        if self.particles:
-            self.particles.write(g, name='particles')
-        return h5
-
-    def __repr__(self):
-        s = '<disgten.Generator with input: \n'
-        return s+yaml.dump(self.input)+'\n>'
-
-    def check_inputs(self, params):
-
-        """ Checks the params sent to the generator only contain allowed inputs """
-
-        # Make sure user isn't passing the wrong parameters:
-        allowed_params = self.optional_params + self.required_params + ['verbose']
-        for param in params:
-            assert param in allowed_params, 'Incorrect param given to '+self.__class__.__name__+ '.__init__(**kwargs): '+param+'\nAllowed params: '+str(allowed_params)
-
-        # Make sure all required parameters are specified
-        for req in self.required_params:
-            assert req in params, 'Required input parameter '+req+' to '+self.__class__.__name__+'.__init__(**kwargs) was not found.'
-
-
-def expand_input_filepaths(input_dict, root=None, ignore_keys=[]):
-    """
-    Searches for 'file' keys with relative path values in the input dict,
-    and fills the value with an absolute path based on root.
-    If no root is given, os.path.getcwd() is used.
-    """
-
-    if not root:
-        root = os.getcwd()
-    else:
-        root = os.path.abspath(root)
-
-    for k1, v1 in input_dict.items():
-
-        if k1 in ignore_keys:
-            continue
-        if not isinstance(v1, dict):
-            continue
-        if 'file' in v1:
-            filepath = v1['file']
-            #print(filepath)
-            if not os.path.isabs(filepath):
-                fnew = os.path.join(root, filepath)
-                #print(fnew)
-                #assert os.path.exists(fnew), f'{fnew} does not exist'
-
-                v1['file'] = fnew
-
-        # Recursively search
-        expand_input_filepaths(v1, root=root, ignore_keys=ignore_keys)
+    
+   
