@@ -62,8 +62,12 @@ def run_distgen(
     # Make distribution
     gen = Generator(inputs, verbose=verbose)
 
-    gen._input = update_nested_dict(gen._input, settings, verbose=verbose)
+    #gen._input = update_nested_dict(gen._input, settings, verbose=verbose)
 
+    for k,v in settings.items():
+        vprint(f"Replacing parameter {k} with value {v}.", verbose>0, 0, True)
+        gen[k] = v
+    
     beam = gen.beam()
 
     # Write to file
