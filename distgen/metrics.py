@@ -45,7 +45,7 @@ def resample_pq(xp, P, xq, Q):
     
     return (x, Pi, Qi)
 
-def kullback_liebler_div(xp, P, xq, Q, adjusted=False):
+def kullback_liebler_div(xp, P, xq, Q, adjusted=False, as_float=True):
     
     # Check that input P, Q are PDFs (up to normalization):
     if(np.sum(P)==0.0): raise ValueError('PDF array P sums to zero!')
@@ -70,9 +70,20 @@ def kullback_liebler_div(xp, P, xq, Q, adjusted=False):
     Q0 = Q[p_and_q_nonzero]
     x0 = xi[p_and_q_nonzero]
     
-    return np.trapz(P0*( np.log(P0/Q0) ), x0 )
+    KLdiv = np.trapz(P0*( np.log(P0/Q0) ), x0 )
+    
+    if(as_float):
+        return KLdiv.magnitude
+    else:
+        return KLdiv
             
 
-def res2(xp, P, xq, Q):
+def res2(xp, P, xq, Q, as_float=True):
     xi, P, Q = resample_pq(xp, P, xq, Q)  # Interpolates to same grid, and renormalizes
-    return np.trapz((P-Q)**2, xi)
+    
+    residuals2 = np.trapz((P-Q)**2, xi)
+    
+    if(as_float):
+        return residuals2.magnitude
+    else:
+        return residuals2
