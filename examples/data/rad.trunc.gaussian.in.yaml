@@ -3,20 +3,12 @@ output:
   file: rad.trunc.gaussian.out.txt
   type: gpt
 r_dist:
-  truncation_fraction:
-    units: dimensionless
-    value: 0.5
-  truncation_radius:
-    units: mm
-    value: 1
+  truncation_fraction: 0.5 dimensionless
+  truncation_radius: 1 mm
   type: rg
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 150
+  MTE: 150 meV
   type: cathode
-total_charge:
-  units: pC
-  value: 10
+total_charge: 10 pC

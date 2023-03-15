@@ -3,28 +3,16 @@ output:
   file: SG.beer.can.out.txt
   type: gpt
 r_dist:
-  alpha:
-    units: ''
-    value: 0
-  sigma_xy:
-    units: mm
-    value: 1
+  alpha: 0 dimensionless
+  sigma_xy: 1 mm
   type: rsg
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 150
+  MTE: 150 meV
   type: cathode
 t_dist:
-  alpha:
-    units: ''
-    value: 0.5
-  sigma_t:
-    units: ps
-    value: 8.0
+  alpha: 0.5 dimensionless
+  sigma_t: 8 ps
   type: sg
-total_charge:
-  units: pC
-  value: 100
+total_charge: 100 pC

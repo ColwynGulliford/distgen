@@ -3,37 +3,19 @@ output:
   file: deformable.out.txt
   type: gpt
 r_dist:
-  alpha:
-    units: ''
-    value: 0.1
-  sigma_xy:
-    units: mm
-    value: 1
-  slope_fraction:
-    units: ''
-    value: -1
+  alpha: 0.1 dimensionless
+  sigma_xy: 1 mm
+  slope_fraction: -1 dimensionless
   type: dr
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 120
+  MTE: 120 meV
   type: cathode
 t_dist:
-  alpha:
-    units: ''
-    value: 0.25
-  avg_t:
-    units: ps
-    value: 0.0
-  sigma_t:
-    units: ps
-    value: 1
-  slope_fraction:
-    units: ''
-    value: 1
+  alpha: 0.25 dimensionless
+  avg_t: 0 ps
+  sigma_t: 1 ps
+  slope_fraction: 1 dimensionless
   type: deformable
-total_charge:
-  units: pC
-  value: 10
+total_charge: 10 pC

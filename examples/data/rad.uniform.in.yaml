@@ -3,28 +3,16 @@ output:
   file: rad.uniform.out.txt
   type: gpt
 r_dist:
-  max_r:
-    units: mm
-    value: 2
-  min_r:
-    units: mm
-    value: 1
+  max_r: 2 mm
+  min_r: 1 mm
   type: radial_uniform
 random:
   type: hammersley
 start:
-  MTE:
-    units: meV
-    value: 150
+  MTE: 150 meV
   type: cathode
 t_dist:
-  avg_t:
-    units: ns
-    value: 0.5
-  sigma_t:
-    units: ns
-    value: 2
+  avg_t: 0.5 ns
+  sigma_t: 2 ns
   type: gaussian
-total_charge:
-  units: pC
-  value: 10
+total_charge: 10 pC
