@@ -1,0 +1,21 @@
+n_particle: 200000.0
+output:
+  file: beer.can.out.txt
+  type: gpt
+r_dist:
+  max_r: 2 mm
+  type: radial_uniform
+random:
+  type: hammersley
+start:
+  type: cathode
+t_dist:
+  max_t: +2 ps
+  min_t: -2 ps
+  type: uniform
+KE_dist:
+  type: mbe
+  kT: 
+    units: meV
+    value: 150
+total_charge: 10 pC

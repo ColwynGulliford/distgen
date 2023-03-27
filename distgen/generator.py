@@ -49,6 +49,7 @@ from .parsing import convert_quantities_to_user_input
 from .parsing import expand_input_filepaths
 from .parsing import update_quantity
 
+from .physical_constants import c
 from .physical_constants import is_quantity
 from .physical_constants import MC2
 from .physical_constants import pi
@@ -68,7 +69,7 @@ from .transforms import set_avg
 from .transforms import set_avg_and_std
 from .transforms import transform
 
-
+from pprint import pprint
 
 class Generator(Base):
 
@@ -252,10 +253,16 @@ class Generator(Base):
 
             for d in ['z_dist', 'px_dist', 'py_dist', 'pz_dist']:
                 if(d in params):
-                    vprint("Ignoring user specified z distribution for cathode start.", self.verbose>0, 0, True)
+                    vprint(f"Ignoring user specified {d} distribution for cathode start.", self.verbose>0, 0, True)
                     params.pop(d)
 
-            assert "MTE" in params['start'], "User must specify the MTE for cathode start."
+            #assert "MTE" in params['start'], "User must specify the MTE for cathode start."
+            
+            if('p_dist' in params or 'KE_dist' in params):
+                pass
+
+            else: 
+                assert "MTE" in params['start'], "User must specify the MTE for cathode start if momentum/energy distribution not specified."
 
         elif(params['start']['type']=='time'):
 
@@ -341,10 +348,17 @@ class Generator(Base):
         
         dist_vars = [p.replace('_dist','') for p in params if(p.endswith('_dist')) ]
         dist_params = {p.replace('_dist',''):params[p] for p in params if(p.endswith('_dist'))}
-
+        
+        #pprint(dist_params)
+        
         if('r' in dist_vars and 'theta' not in dist_vars):
             vprint("Assuming cylindrical symmetry...",self.verbose>0,1,True)
             dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+            
+        if("p" in dist_params or "KE" in dist_params):
+        
+            dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+            dist_params['polar_angle']={'type':'up','min_phi':0*unit_registry('rad'),'max_phi':pi}
 
         if(params['start']['type']=='time' and 't_dist' in params):
             raise ValueError('Error: t_dist should not be set for time start')
@@ -414,15 +428,34 @@ class Generator(Base):
         
         if(params['start']['type'] == "cathode"):
 
-            assert "MTE" in params['start'], "User must specify the MTE for cathode start."
+            if('p_dist' not in params and 'KE_dist' not in params):
+                
+                new_method=False
+                
+                # Handle momentum distribution for cathode
+                if('MTE' in params['start']):
+                    MTE = params['start']["MTE"]
+                    sigma_p = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
+                
+                if(new_method): 
+                    params['p_dist'] = {"type":"mb", 'scale_p': sigma_p}
+                else: 
+                    params["px_dist"]={"type":"g", "sigma_px":sigma_p}
+                    params["py_dist"]={"type":"g", "sigma_py":sigma_p}
+                    params["pz_dist"]={"type":"g", "sigma_pz":sigma_p}
+                    
+            
+                
+
+            #assert "MTE" in params['start'], "User must specify the MTE for cathode start."
 
             # Handle momentum distribution for cathode
-            MTE = params['start']["MTE"]
-            sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
+            #MTE = params['start']["MTE"]
+            #sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
 
-            params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
-            params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
-            params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
+            #params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
+            #params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
+            #params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
 
         elif(params['start']['type']=='time'):
 
@@ -495,6 +528,7 @@ class Generator(Base):
             rrms = rdist.rms()
             avgr = rdist.avg()
 
+            # These should be filled by the theta dist?
             avgCos = 0
             avgSin = 0
             avgCos2 = 0.5
@@ -506,7 +540,7 @@ class Generator(Base):
             avgs['x'] = avgr*avgCos
             avgs['y'] = avgr*avgSin
 
-            stds['x'] = rrms*np.sqrt(avgCos2)
+            stds['x'] = rrms*np.sqrt(avgCos2)   # Should check that average needs subtracting?
             stds['y'] = rrms*np.sqrt(avgSin2)
 
             # remove r, theta from list of distributions to sample
@@ -527,7 +561,83 @@ class Generator(Base):
 
             stds['x']=bdist.std('x')
             stds['y']=bdist.std('y')
+            
+        if("p" in dist_params or 'KE' in dist_params):# or "E_dist" in dist_params or "KE_dist"):
+            
+            if("p" in dist_params):
+                vprint('p distribution: ', verbose>0, 1, False)
 
+                # Get p distribution
+                pdist = get_dist('p', dist_params['p'], verbose=verbose)
+
+                if(pdist.rms()>0):
+                    p = pdist.cdfinv(self.rands['p'])       # Sample to get beam coordinates
+                    
+                avgp = pdist.avg()
+                prms = pdist.rms()
+                    
+            elif('KE' in dist_params):
+                
+                vprint('KE distribution: ', verbose>0, 1, False)
+
+                # Get p distribution
+                KEdist = get_dist('KE', dist_params['KE'], verbose=verbose)
+                
+                if(KEdist.rms()>0):
+                    KE = KEdist.cdfinv(self.rands['KE'])       # Sample to get beam coordinates       
+                    p = np.sqrt( (KE+MC2)**2 - MC2**2 )/c
+                    
+                    avgp = np.mean(p)
+                    stdp = np.std(p)
+                    prms = np.sqrt(stdp**2 + avgp**2)
+                
+            # Sample to get beam coordinates
+            vprint('azimuthal angle distribution: ', verbose>0, 1, False)
+            theta_dist = get_dist('azimuthal_angle', dist_params['azimuthal_angle'], verbose=verbose)
+            theta = theta_dist.cdfinv(self.rands['azimuthal_angle'])
+            
+            vprint('polar angle distribution: ', verbose>0, 1, False)
+            phi_dist = get_dist('polar_angle', dist_params['polar_angle'], verbose=verbose)
+            phi = phi_dist.cdfinv(self.rands['polar_angle'])
+            
+            bdist['px']=p*np.cos(theta)*np.sin(phi)
+            bdist['py']=p*np.sin(theta)*np.sin(phi)
+            bdist['pz']=p*np.cos(phi)
+
+            avgCosTheta = theta_dist.avgCos()
+            avgSinTheta = theta_dist.avgSin()
+            
+            avgCos2Theta = theta_dist.avgCos2()
+            avgSin2Theta = theta_dist.avgCos2()
+            
+            avgCosPhi = phi_dist.avgCos()
+            avgSinPhi = phi_dist.avgSin()
+            
+            avgCos2Phi = phi_dist.avgCos2()
+            avgSin2Phi = phi_dist.avgSin2()
+            
+            avgs['px'] = avgp * avgCosTheta * avgSinPhi
+            avgs['py'] = avgp * avgSinTheta * avgSinPhi
+            avgs['pz'] = avgp * avgCosPhi
+            
+            pxrms2 = prms**2 * avgCos2Theta * avgSin2Phi  
+            pyrms2 = prms**2 * avgSin2Theta * avgSin2Phi 
+            pzrms2 = prms**2 * avgCos2Phi 
+            
+            stds['px'] = np.sqrt( pxrms2 - avgs['px']**2 )
+            stds['py'] = np.sqrt( pxrms2 - avgs['py']**2 )
+            stds['pz'] = np.sqrt( pxrms2 - avgs['pz']**2 )
+            
+            if('p' in dist_params):
+                dist_params.pop('p')
+            elif('KE' in dist_params):
+                dist_params.pop('KE')
+                
+            dist_params.pop('azimuthal_angle')
+            dist_params.pop('polar_angle')
+       
+        #pprint(dist_params)
+    
         # Do all other specified single coordinate dists
         for x in dist_params.keys():
 
@@ -554,7 +664,6 @@ class Generator(Base):
 
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
-
             vprint(f'Shifting avg_{x} = {bdist.avg(x):G~P} -> {avgs[x]:G~P}', verbose>0 and bdist[x].mean()!=avgs[x],1,True)
             vprint(f'Scaling sigma_{x} = {bdist.std(x):G~P} -> {stds[x]:G~P}',verbose>0 and bdist[x].std() !=stds[x],1,True)
 
@@ -580,7 +689,7 @@ class Generator(Base):
             vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True);
             bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec'), 'verbose':verbose>0})
 
-        elif(self.params['start']['type']=='free'):
+        elif(params['start']['type']=='free'):
             pass
 
         else:

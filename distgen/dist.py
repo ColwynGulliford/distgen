@@ -95,6 +95,10 @@ def get_dist(var,params,verbose=0):
         dist = File1d(var, verbose=verbose, **params)
     elif(dtype=='tukey'):
         dist = Tukey(var, verbose=verbose, **params)
+    elif(dtype=='maxell_boltzmann' or dtype=='mb'):
+        dist = MaxwellBoltzmannDist(var, verbose=verbose, **params)
+    elif(dtype=='maxell_boltzmann_kinetic_energy' or dtype=='mbe'):
+        dist = MaxwellBoltzmannEnergyDist(var, verbose=verbose, **params)
     elif(dtype=='super_gaussian' or dtype=='sg'):
         dist = SuperGaussian(var, verbose=verbose, **params)
     elif(dtype=="superposition" or dtype=='sup'):
@@ -127,6 +131,8 @@ def get_dist(var,params,verbose=0):
         dist = TemporalLaserPulseStacking(verbose=verbose, **params)
     elif(dtype=='uniform_theta' or dtype=='ut'):
         dist =  UniformTheta(verbose=verbose, **params)
+    elif(dtype=='uniform_phi' or dtype=='up'):
+        dist =  UniformPhi(verbose=verbose, **params)
     elif(dtype=='image2d'):
         dist = Image2d(var, verbose=verbose, **params)
     else:
@@ -1131,7 +1137,7 @@ class TemporalLaserPulseStacking(Dist1d):
 
     def cdfinv(self, rns):
         """ Computes the inverse of the CDF at probabilities rns """
-        return interp(rns*unit_registry(''),self.Ct,self.ts)
+        return interp(rns*unit_registry(''), self.Ct, self.ts)
 
     def avg(self):
         """ Computes the expectation value of t of the distribution """
@@ -1284,6 +1290,87 @@ class Deformable(Dist1d):
     def rms(self):
         return np.sqrt(self.std()**2 + self.avg()**2)
     
+
+class MaxwellBoltzmannDist(Dist1d):
+    
+    def __init__(self, var, verbose, **kwargs):
+        
+        self.xstr = var
+        
+        self.required_params = [f'scale_{var}']
+        self.optional_params = []
+        
+        self.check_inputs(kwargs)
+        
+        self.a = kwargs[f'scale_{var}']
+        self.f = np.sqrt(2/np.pi)
+        
+        self.xs = self.get_x_pts(10000)
+        self.Cx = self.cdf(self.xs)
+        
+        vprint('Maxwell-Boltzmann',verbose>0,0,True)
+        vprint(f'{var} scale = {self.a:G~P}', verbose>0, 2, True)
+        
+    def get_x_pts(self, n):
+        return linspace(0*unit_registry(str(self.a.units)), 5*self.a, n)
+    
+    def pdf(self, x):
+        xhat = x/self.a
+        return (1/self.a)* self.f * xhat**2 * np.exp(-xhat**2/2.0)
+    
+    def cdf(self, x):
+        xhat = x/self.a
+        return erf(xhat/np.sqrt(2)) - self.f * xhat * np.exp(-xhat**2/2.0)
+        
+    def avg(self):
+        return 2*self.a*self.f
+    
+    def std(self):
+        return self.a*np.sqrt( (3*np.pi-8)/np.pi )
+    
+    def rms(self):
+        return np.sqrt(self.std()**2 + self.avg()**2)
+    
+class MaxwellBoltzmannEnergyDist(Dist1d):
+    
+    def __init__(self, var, verbose, **kwargs):
+        
+        self.xstr = var
+        
+        self.required_params = [f'kT']
+        self.optional_params = []
+        self.check_inputs(kwargs)
+       
+        self.a = kwargs[f'kT']
+        self.f = np.sqrt(2/np.pi)
+    
+        xs = self.get_x_pts(10000)  
+        self.xs = xs
+       
+        super().__init__(xs=xs, Px=self.pdf(xs), xstr=var)
+        
+        vprint('Maxwell-Boltzmann Energy',verbose>0,0,True)
+        vprint(f'kT = {self.a:G~P}', verbose>0, 2, True)
+        
+    def get_x_pts(self, n):
+        return linspace(0*unit_registry(str(self.a.units)), 10*self.a, n)
+    
+    def pdf(self, x):
+        xhat = x/self.a
+        return (1/self.a)* self.f * np.sqrt(xhat) * np.exp(-xhat)
+    
+    #def cdf(self, x):
+    #    xhat = x/self.a
+    #    return erf(xhat/np.sqrt(2)) - self.f * xhat * np.exp(-xhat**2/2.0)
+        
+    #def avg(self):
+    #    return 2*self.a*self.f
+    
+    #def std(self):
+    #    return self.a*np.sqrt( (3*np.pi-8)/np.pi )
+    
+    #def rms(self):
+    #    return np.sqrt(self.std()**2 + self.avg()**2)
     
     
 class Interpolation1d(Dist1d):
@@ -1377,7 +1464,6 @@ class DistTheta(Dist):
         plt.xlabel(f'$theta$ ({str(theta.unit)}))')
         plt.ylabel(f'PDF(${self.theta_str}$) ({str(p.unit)})')
 
-
 class UniformTheta(DistTheta):
     """
     Defines a uniformly distributed theta over t0 <= min_theta < max_theta <= 2 pi
@@ -1431,7 +1517,82 @@ class UniformTheta(DistTheta):
         
     def cdfinv(self, rns):
         return rns*self.range
+    
 
+class DistPhi(Dist):
+    
+    
+    def __init__(self):
+        pass
+
+    def get_phi_pts(self, n):
+        return linspace(0*unit_registry('rad'), pi, n)
+
+
+    def plot_pdf(self, n=1000):
+
+        phi =self.get_phi_pts(n)
+        
+        p=self.pdf(phi)
+
+        plt.figure()
+        plt.plot(phi, p)
+        plt.xlabel(f'$theta$ ({str(phi.unit)}))')
+        plt.ylabel(f'PDF(${self.phi_str}$) ({str(p.unit)})')
+        
+class UniformPhi(DistPhi):
+    """
+    Defines a uniformly distributed theta over t0 <= min_phi < max_phi <= pi
+    """
+    def __init__(self, verbose=0, **kwargs):
+
+        self.required_params=['min_phi', 'max_phi']
+        self.optional_params=[]
+        self.check_inputs(kwargs)
+   
+        min_phi = kwargs['min_phi']
+        max_phi = kwargs['max_phi']
+
+        assert min_phi >= 0.0,  'Min phi value must be >= 0 rad'
+        assert max_phi <= pi, 'Max phi value must be <= pi rad'
+
+        self.a = min_phi
+        self.b = max_phi
+ 
+        self.range = max_phi-min_phi
+
+        self.Ca = np.cos(self.a)
+        self.Sa = np.sin(self.a)
+
+        self.Cb = np.cos(self.b)
+        self.Sb = np.sin(self.b)
+
+        vprint('uniform phi', verbose>0, 0, True)
+        vprint(f'min_phi = {self.a:G~P}, max_phi = {self.b:G~P}', verbose>0, 2, True)
+        
+    def avgCos(self):
+        return (self.Sb - self.Sa)/(self.Ca - self.Cb)
+    
+    def avgSin(self):
+        return 0.5 * (self.range - 0.5*(np.sin(2*self.b)-np.sin(2*self.a)))
+
+    def avgCos2(self):
+        return (1/3.0)*(self.Ca**3 - self.Cb**3)/(self.Ca - self.Cb)
+
+    def avgSin2(self):
+        return 1 - self.avgCos2()
+
+    def mod2pi(self, phis):
+        return np.mod(phis, 2*pi)
+
+    def pdf(self, phis):
+        return np.sin(phis)/(self.Ca-self.Cb)
+
+    def cdf(self, phis):
+        return (self.Ca - np.cos(phis))/(self.Ca-self.Cb)
+        
+    def cdfinv(self, rns):
+        return np.arccos( self.Ca - rns*(self.Ca-self.Cb) ) 
 
 class DistRad(Dist):
 
