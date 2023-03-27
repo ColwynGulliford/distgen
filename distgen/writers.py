@@ -20,7 +20,12 @@ def writer(output_format, beam, outfile, verbose=0, params=None):
 
     """ Returns a simulaiton code specific writer function """
 
-    file_writer = {'gpt':write_gpt, 'astra':write_astra, 'openPMD':write_openPMD}
+    file_writer = {'gpt':write_gpt, 
+                   'astra':write_astra, 
+                   'openPMD':write_openPMD,
+                   'simion':write_simion
+                  }
+    
     file_writer[output_format](beam, outfile, verbose, params)
 
 def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
@@ -203,6 +208,62 @@ def fstr(s):
     Makes a fixed string for h5 files
     """
     return np.string_(s)
+
+
+
+from scipy.constants import physical_constants
+
+#mc2 = 1e6 * physical_constants['electron mass energy equivalent in MeV'][0]
+#e_= physical_constants['elementary charge'][0]
+
+#me = physical_constants['electron mass in u'][0]
+
+
+def write_simion(beam, outfile, verbose=0, params={'color':0}):
+    
+    color=params['color']
+    
+    header=';0'
+    
+    simion_params= ['TOB', 'MASS', 'CHARGE', 'X', 'Y', 'Z', 'AZ', 'EL', 'KE', 'CWF', 'COLOR']
+    
+    simion_units = {'TOB':'usec', 
+                    'MASS':'amu', 
+                    'CHARGE':'e', 
+                    'X':'mm', 'Y':'mm', 'Z':'mm', 
+                    'AZ':'deg', 'EL':'deg', 
+                    'CWF':'', 
+                    'COLOR':''}
+    
+    N = beam.n_particle
+    
+    data = np.zeros( (N, len(simion_params)) )
+    
+    data[:, simion_params.index('TOB')] = beam.t.to('microseconds').magnitude    # [P.t] = sec, convert to usec
+    
+    if(beam.species == 'electron'):
+        data[:, simion_params.index('MASS')] = np.full(N, me.to('amu').magnitude)
+        data[:, simion_params.index('CHARGE')] = np.full(N, -1)
+    else:
+        raise ValueError(f'Species {P.species} is not supported')
+    
+    data[:, simion_params.index('X')] =  beam.z.to(simion_units['X']).magnitude
+    data[:, simion_params.index('Y')] =  beam.y.to(simion_units['Y']).magnitude
+    data[:, simion_params.index('Z')] = -beam.x.to(simion_units['Z']).magnitude
+    
+    px =  beam.pz.to('eV/c').magnitude
+    py =  beam.py.to('eV/c').magnitude
+    pz = -beam.px.to('eV/c').magnitude
+    
+    data[:, simion_params.index('KE')] = beam.kinetic_energy.magnitude                         # [eV] 
+    data[:, simion_params.index('AZ')] = np.arctan2(-pz, px) * (180/np.pi)                     # [deg]
+    data[:, simion_params.index('EL')] = np.arctan2(py, np.sqrt(px**2 + pz**2) ) * (180/np.pi) # [deg]
+    
+    # Charge Weighting Factor, derive from particle group weights
+    data[:, simion_params.index('CWF')] = (beam.q.to('C').magnitude / abs(qe.to('C').magnitude) / N)                
+    data[:, simion_params.index('COLOR')] = np.full(N, color)
+
+    np.savetxt(outfile, data, delimiter=',', header=header, comments='', fmt='  %.9e')
 
 def write_openPMD(beam,outfile,verbose=0, params=None):
 

@@ -19,11 +19,11 @@ import scipy.constants
 # Check http://docs.scipy.org/doc/scipy/reference/constants.html for a complete constants listing.
 
 # physical_constants
-c = scipy.constants.c * unit_registry.parse_expression('m/s')                                    # Speed of light
-e = scipy.constants.e * unit_registry.parse_expression('coulomb')                                # Fundamental Charge Unit
-qe = -e                                                                                          # Charge on electron 
-me = scipy.constants.m_e * unit_registry.kg                                                      # Mass of electron
-MC2 = scipy.constants.value('electron mass energy equivalent in MeV')*1e6*unit_registry('eV')    # Electron rest mass
+c = scipy.constants.c * unit_registry.parse_expression('m/s')                                    # Speed of light [m/s]
+e = scipy.constants.e * unit_registry.parse_expression('coulomb')                                # Fundamental Charge Unit [C]
+qe = -e                                                                                          # Charge on electron [C]
+me = scipy.constants.m_e * unit_registry.kg                                                      # Mass of electron [kg]
+MC2 = scipy.constants.value('electron mass energy equivalent in MeV')*1e6*unit_registry('eV')    # Electron rest energy [eV]
 
 # Register gamma*beta units for electrons
 unit_registry.define(f'GB = {MC2.magnitude} * eV/c')
