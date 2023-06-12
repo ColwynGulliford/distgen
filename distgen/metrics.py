@@ -13,6 +13,11 @@ from matplotlib import pyplot as plt
 from .tools import linspace
 from .tools import trapz
 
+from .physical_constants import unit_registry
+
+from .dist import Uniform
+from .dist import SuperGaussian
+
 
 #--------------------------------------------------------------
 # Comparing distributions / shaping metrics
@@ -142,7 +147,7 @@ def rms_equivalent_1d_nonuniformity(particle_group, var, bins=None, method='res2
 
     mean_x, sigma_x = particle_group[f'mean_{var}'], particle_group[f'sigma_{var}']
     
-    x_units = P.units(var).unitSymbol
+    x_units = particle_group.units(var).unitSymbol
     
     params = {f'avg_{var}':mean_x*unit_registry(x_units),
               f'sigma_{var}':sigma_x*unit_registry(x_units)}
