@@ -41,8 +41,12 @@ from . import archive
 
 from .beam import Beam
 
+from concurrent.futures import ProcessPoolExecutor
+
 from .dist import get_dist
 from .dist import random_generator
+
+#from .parallelization import set_up_generators
 
 from .parsing import convert_input_quantities
 from .parsing import convert_quantities_to_user_input
@@ -56,6 +60,7 @@ from .physical_constants import pi
 from .physical_constants import unit_registry
 
 from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
+from pmd_beamphysics.particles import join_particle_groups
 
 from .tools import get_nested_dict
 from .tools import is_key_in_nested_dict
@@ -719,27 +724,96 @@ class Generator(Base):
         vprint(f'...done. Time Elapsed: {watch.print()}.\n',verbose>0,0,True)
         return bdist
 
-    def run(self):
+    def run(self, max_workers=1, executor=None):
         """ Runs the generator.beam function stores the partice in
         an openPMD-beamphysics ParticleGroup in self.particles """
-        if self._input is not None:
-            beam = self.beam()
-        
-            if self._input['start']['type'] == "cathode":
-                status = ParticleStatus.CATHODE
+
+        if(max_workers==1):
+            # Default run, no parallelization
+            if self._input is not None:
+                beam = self.beam()
+            
+                if self._input['start']['type'] == "cathode":
+                    status = ParticleStatus.CATHODE
+                else:
+                    status = ParticleStatus.ALIVE
+                    
+                self.particles = ParticleGroup(data=beam.data(status=status))
+                self.output = self.particles
+                vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose > 0, 1, True)
             else:
-                status = ParticleStatus.ALIVE
-                
-            self.particles = ParticleGroup(data=beam.data(status=status))
-            self.output = self.particles
-            vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose > 0, 1, False)
+                print('No input data specified.')
+    
+            #return self.output
+
         else:
-            print('No input data specified.')
+
+            vprint(f'Creating particles in parallel with {max_workers} workers', self.verbose > 0, 0, True)
+            if(executor is None):
+        
+                executor = ProcessPoolExecutor()
+                executor.max_workers = max_workers
+
+            vprint(f'Setting up workers...', self.verbose > 0, 1, False)
+            generators = set_up_worker_generators(self, n_gen=max_workers)
+            inputs = [gen.input for gen in generators]
+            vprint(f'done.', self.verbose > 0, 0, True)
+            
+            # Run
+            vprint(f'Executing worker tasks...', self.verbose > 0, 1, False)
+            with executor as p:
+                ps = list(p.map(worker_func, inputs))
+            vprint(f'done', self.verbose > 0, 0, True)
+
+            vprint(f'Collecting beamlets...', self.verbose > 0, 1, False)
+            
+            #P = ps[0]
+            #for Pi in ps[1:]: P = P + Pi
+            #vprint(f'done', self.verbose > 0, 0, True)
+
+            #data = {k:np.hstack([pg[k] for pg in ps]) for k in ps[0].data.keys() if k not in ['species']}
+            #data['species'] = ps[0].species
+            
+            self.particles = join_particle_groups(*ps)
+            self.output = self.particles
+            vprint(f'Created particles in .particles: \n   {self.particles}', self.verbose > 0, 1, True)
 
         return self.output
     
     
+def worker_func(inputs):
+
+    G = Generator(inputs)
+
+    return G.run()
+
+
+def set_up_worker_generators(G, n_gen=1):
+    
+    inputs = G.input
+
+    if('random_type' in inputs):
+        inputs['random'] = {'type': inputs['random_type']}
+        del inputs['random_type']
+
+        G = Generator(inputs)
         
+    generators = [G.copy() for ii in range(n_gen)]
+    
+    for ii, gen in enumerate(generators):
+
+        n_particle_subset = int( G['n_particle'] / n_gen )
+        
+        gen['n_particle'] = n_particle_subset
+        gen['total_charge:value'] = G['total_charge:value'] / n_gen
+
+        if(gen['random']['type']=='hammersley'):
+            gen['random:burnin'] = ii*n_particle_subset
+
+    return generators     
+
+
+
         
 
     
