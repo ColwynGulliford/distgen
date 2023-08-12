@@ -799,7 +799,7 @@ def set_up_worker_generators(G, n_gen=1):
         G = Generator(inputs)
         
     generators = [G.copy() for ii in range(n_gen)]
-    
+
     for ii, gen in enumerate(generators):
 
         n_particle_subset = int( G['n_particle'] / n_gen )
