@@ -74,6 +74,9 @@ from .transforms import set_avg
 from .transforms import set_avg_and_std
 from .transforms import transform
 
+from .dowell_schmerge import sample_momentum_dowell_schmerge
+from pint import Quantity
+
 from pprint import pprint
 
 class Generator(Base):
@@ -237,6 +240,9 @@ class Generator(Base):
             warnings.warn('Input variable n_particle was a float, expected int.')
         
         assert isinstance(params['n_particle'], int), f'Invalid type for n_particle parameter: {type(params["n_particle"])}'
+        
+        if "dowell_schmerge_dist" in params and ("p_dist" in params or "KE_dist" in params):
+            raise ValueError('Multiple/Inconsistent transverse momentum distribution specification.')
         
         # Check consistency of transverse coordinate definitions
         if( ("r_dist" in params) and ("x_dist" in params or "xy_dist" in params) ):
@@ -567,6 +573,31 @@ class Generator(Base):
             stds['x']=bdist.std('x')
             stds['y']=bdist.std('y')
             
+        # TODO: warn that this doesn't respect hammersley
+        if "dowell_schmerge" in dist_params: 
+            def is_unitful(d):
+                return isinstance(d, dict) and set(d.keys()) == {'units', 'value'}
+            
+            def make_units_params(ps):
+                return {k: unit_registry(v['units'])*v['value'] if is_unitful(v) else v for k, v in ps.items()}
+            
+            # Convert parameters into the required units and run the sampler
+            vprint('p distribution: Dowell-Schmerge photocathode model: ', verbose>0, 1, False)
+            my_units = {
+                'photon_energy': 'eV',
+                'workfun': 'eV',
+                'fermi_energy': 'eV',
+                'temp': 'K',
+            }
+            my_params = {k: v.to(my_units[k]).m if isinstance(v, Quantity) else v for k, v in make_units_params(dist_params.pop('dowell_schmerge')).items()}
+            ds_dist = sample_momentum_dowell_schmerge(N, my_params.pop('photon_energy'), my_params.pop('workfun'), my_params.pop('fermi_energy'), **my_params)
+            bdist['px'], bdist['py'], bdist['pz']  = unit_registry['eV/c'] * ds_dist.T
+
+            # Deal with averages and standard deviations
+            avgs['px'], avgs['py'], avgs['pz'] = 0*unit_registry['eV/c'], 0*unit_registry['eV/c'], np.mean(bdist['pz'])
+            stds['px'], stds['py'], stds['pz'] = np.std(bdist['px']), np.std(bdist['py']), np.std(bdist['pz'])
+
+
         if("p" in dist_params or 'KE' in dist_params):# or "E_dist" in dist_params or "KE_dist"):
             
             if("p" in dist_params):
