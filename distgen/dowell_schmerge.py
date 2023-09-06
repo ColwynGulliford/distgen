@@ -40,9 +40,10 @@ def _sample_momentum_dowell_schmerge(samples, photon_energy, workfun, fermi_ener
     vac_level = workfun + fermi_energy
     mc2 = 511e3
     dist = sample_momentum_fermi_dirac(samples, fermi_energy, temp)
-    e_ext = np.sum(dist**2, axis=1)/2/mc2 - np.sum(dist[:, :2]**2, axis=1)/2/mc2 - vac_level + photon_energy
+    dist *= np.sqrt((np.sum(dist**2, axis=1) + 2*mc2*photon_energy)/np.sum(dist**2, axis=1))[:, None]
+    e_ext = dist[:, 2]**2/2/mc2 - vac_level
     dist = dist[e_ext > 0, :]
-    dist[:, 2] = (2*mc2*(np.sum(dist**2, axis=1)/2/mc2 - np.sum(dist[:, :2]**2, axis=1)/2/mc2 - vac_level + photon_energy))**0.5
+    dist[:, 2] = (2*mc2*(np.sum(dist**2, axis=1)/2/mc2 - np.sum(dist[:, :2]**2, axis=1)/2/mc2 - vac_level))**0.5
     return dist
 
 
