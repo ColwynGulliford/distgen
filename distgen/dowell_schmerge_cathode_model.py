@@ -79,3 +79,12 @@ def dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tai
     """
     a = np.sqrt(2*mc2*(photon_energy - workfun + kb*temp*n_tails))
     return [(-a, a), (-a, a), (0., a)]
+
+
+def dowell_schmerge_pdf_spherical(p, theta, photon_energy, workfun, temp, fermi_energy):
+    return dowell_schmerge_pdf(p*np.cos(theta), 0., p*np.sin(theta), photon_energy, workfun, temp, fermi_energy)
+
+
+def dowell_schmerge_pdf_bounds_spherical(photon_energy, workfun, temp, fermi_energy, n_tails=4):
+    (_, a), _, _ = dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tails=n_tails)
+    return (0, a), (0, np.pi/2)
