@@ -221,7 +221,7 @@ def interp(x, xp, fp):
     return np.interp(x, xp, fp)
 
 
-@unit_registry.wraps('=B', ('=A','=A','=A','=A','=B'))
+@unit_registry.wraps('=C', ('=A','=B','=A','=B','=C'))
 def interp2d(x, y, xp, yp, fp):
     interp_spline = RectBivariateSpline(yp, xp, fp)
     return interp_spline(y, x)
@@ -233,7 +233,7 @@ def linspace(x1, x2, N):
     """
     return np.linspace(x1, x2, N)
 
-@unit_registry.wraps(('=A', '=A'), ('=A', '=A'))
+@unit_registry.wraps(('=A', '=B'), ('=A', '=B'))
 def meshgrid(x, y):
     return np.meshgrid(x,y)
 
@@ -270,6 +270,9 @@ def concatenate(x1, x2):
 def flipud(x):
     return np.flipud(x)
 
+@unit_registry.wraps('=A', ('=A'))
+def fliplr(x):
+    return np.fliplr(x)
 
 #--------------------------------------------------------------
 # Histogramming routines

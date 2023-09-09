@@ -24,6 +24,9 @@ e = scipy.constants.e * unit_registry.parse_expression('coulomb')               
 qe = -e                                                                                          # Charge on electron [C]
 me = scipy.constants.m_e * unit_registry.kg                                                      # Mass of electron [kg]
 MC2 = scipy.constants.value('electron mass energy equivalent in MeV')*1e6*unit_registry('eV')    # Electron rest energy [eV]
+h = scipy.constants.value('Planck constant in eV/Hz')*unit_registry('eV/Hz')
+hc = h*c
+kb = scipy.constants.value('Boltzmann constant in eV/K')*unit_registry('eV/K')
 
 # Register gamma*beta units for electrons
 unit_registry.define(f'GB = {MC2.magnitude} * eV/c')

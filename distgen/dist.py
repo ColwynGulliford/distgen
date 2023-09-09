@@ -2,9 +2,13 @@
 Defines the random number generator class and distribution function objects.
 """
 
+from .dowell_schmerge_cathode_model import dowell_schmerge_pdf_bounds_spherical, dowell_schmerge_pdf_spherical
+
 from .hammersley import create_hammersley_samples
 from .physical_constants import unit_registry
 from .physical_constants import pi
+from .physical_constants import hc
+from .physical_constants import kb
 
 from .tools import vprint
 
@@ -23,7 +27,7 @@ from .tools import radcumint
 from .tools import histogram
 from .tools import radial_histogram
 
-from .tools import flipud
+from .tools import flipud, fliplr
 
 #from .tools import  concatenate
 
@@ -2459,7 +2463,7 @@ class Dist2d(Dist):
         self.Pxy = Pxy
         self.xstr=xstr
         self.ystr=ystr
-        
+
         self.var_type = '2d'
 
         assert np.count_nonzero(Pxy.magnitude) > 0, 'Supplied 2d distribution is zero everywhere.'
@@ -2486,19 +2490,19 @@ class Dist2d(Dist):
         self.dx = self.xb[1:]-self.xb[:-1] 
         self.dy = self.yb[1:]-self.yb[:-1] 
 
-        self.Px = np.matmul(np.transpose(Pxy.magnitude),self.dy.magnitude)*unit_registry("1/"+str(self.ys.units))
+        self.Px = np.matmul(np.transpose(Pxy.magnitude), self.dy.magnitude)*unit_registry("1/"+str(self.ys.units))
         self.Px = self.Px/np.sum(self.Px*self.dx)
         
         self.Cx = np.zeros(len(self.xb))*unit_registry("dimensionless")
         self.Cx[1:] = np.cumsum(self.Px*self.dx)
 
         # Get cumulative distributions along y as a function of x:
-        self.Cys=np.zeros((len(self.yb),len(self.xs)))
+        self.Cys=np.zeros((len(self.yb), len(self.xs)))
 
-        norms = np.sum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))), axis=0)
+        norms = np.sum(np.multiply(self.Pxy.magnitude, np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))), axis=0)
         norms[norms==0] = 1
 
-        self.Cys[1:,:] = np.cumsum(np.multiply(self.Pxy.magnitude,np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))),axis=0)/norms
+        self.Cys[1:,:] = np.cumsum(np.multiply(self.Pxy.magnitude, np.transpose(mlib.repmat(self.dy.magnitude,len(self.xs),1))),axis=0)/norms
         self.Cys=self.Cys*unit_registry("dimensionless")
 
     def pdf(self, x, y):
@@ -2523,7 +2527,7 @@ class Dist2d(Dist):
 
     def plot_cdfx(self):
         plt.figure()
-        plt.plot(self.xb,self.Cx)    
+        plt.plot(self.xb, self.Cx)    
 
     def cdfxinv(self, ps):
         return interp(ps,self.Cx,self.xb)
@@ -2541,13 +2545,13 @@ class Dist2d(Dist):
     def cdfinv(self, rnxs, rnys):
 
         x = self.cdfxinv(rnxs)
-        indx = np.searchsorted(self.xb,x)-1
+        indx = np.searchsorted(self.xb, x)-1
         
-        y = np.zeros(x.shape)*unit_registry(str(x.units))
+        y = np.zeros(x.shape)*unit_registry(str(self.ys.units))
         for ii in range(self.Cys.shape[1]):
             in_column = (ii==indx)
             if(np.count_nonzero(in_column)>0):
-                y[in_column] = interp(rnys[in_column],self.Cys[:,ii],self.yb)
+                y[in_column] = interp(rnys[in_column], self.Cys[:,ii], self.yb)
 
         return (x, y)
     
@@ -2778,6 +2782,75 @@ class File2d(Dist2d):
         vprint(f'2D pdf file: {params["file"]}', verbose>0, 2, True)
         vprint(f'min_{var1} = {min(xs):G~P}, max_{var1} = {max(xs):G~P}', verbose>0, 2, True)
         vprint(f'min_{var2} = {min(ys):G~P}, max_{var2} = {max(ys):G~P}', verbose>0, 2, True)
+
+
+class DowellSchmergeMomentumDist(Dist2d):
+
+    #photon_energy, workfun, temp, fermi_energy
+
+    def __init__(self, photon_wavelength, cathode_work_function, cathode_temperature, fermi_energy, verbose, **params):
+
+        """
+        Class for sampling the 2d distribution in |p| and spherical polar angle (angle between pvec and z axis in momentum space)
+
+        based on the Dowell-Schmerge cathode model.
+        """
+
+
+        self.photon_wavelength = photon_wavelength
+        self.photon_energy = hc / photon_wavelength
+        self.cathode_temperature = cathode_temperature
+        self.kT = kb * cathode_temperature
+        self.Wf = cathode_work_function
+        self.fermi_energy = fermi_energy
+
+        vprint('Dowell-Schermge Cathode Model', verbose>0, 0, True)
+        vprint(f'laser wavelength = {self.photon_wavelength.to("nm"):G~P}, photon energy = {self.photon_energy.to("eV"):G~P}', verbose>0, 2, True)
+        vprint(f'cathode temperature = {self.cathode_temperature.to("K"):G~P}, cathode work function = {self.Wf.to("eV"):G~P}, Fermi energy = {fermi_energy.to("eV"):G~P}', verbose>0, 2, True)
+
+
+        self.p_bounds, self.polar_angle_bounds = dowell_schmerge_pdf_bounds_spherical(self.photon_energy, 
+                                                                                      cathode_work_function, 
+                                                                                      cathode_temperature,
+                                                                                      fermi_energy)
+
+        p, a = self.p_pts(1000), self.polar_angle_pts(2000)
+        P, A = self.p_by_polar_angle_meshgrid(len(p), len(a))
+        rho = self.rho_p_polar_angle(P, A)
+
+        Ppa = rho*P.magnitude**2 * np.sin(A) * unit_registry(f'1/{p.units}/{a.units}')
+
+        super().__init__(p, a, Ppa, xstr='p', ystr='polar_angle')
+
+
+    def p_pts(self, n):
+        return linspace(self.p_bounds[0], self.p_bounds[1], n).to('eV/c')
+
+    def polar_angle_pts(self, n):
+        return linspace(self.polar_angle_bounds[0], self.polar_angle_bounds[1], n).to('rad')
+
+    def p_by_polar_angle_meshgrid(self, n, m):
+        return np.meshgrid(self.p_pts(n), self.polar_angle_pts(m))
+
+
+    def rho_p_polar_angle(self, p, polar_angle):
+        return dowell_schmerge_pdf_spherical(p, polar_angle, self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
 
     
 # ---------------------------------------------------------------------------- 

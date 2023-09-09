@@ -1,12 +1,14 @@
 import numpy as np
 import scipy.constants as const
 
-# Fetch constants from scipy
-kb = const.value('Boltzmann constant in eV/K')
-mc2 = const.value('electron mass energy equivalent in MeV')*1e6
+# Fetch constants from scipy (Eventually will pull these in from distgen.physical_constants)
+#kb = const.value('Boltzmann constant in eV/K')
+#MC2 = const.value('electron mass energy equivalent in MeV')*1e6
+
+from .physical_constants import c, kb, me, MC2, unit_registry, pi
 
 
-def fermi_dirac(e, mu, t, t_cutoff=1e-3):
+def fermi_dirac(e, mu, t, t_cutoff=1e-3*unit_registry('K')):
     """
     Fermi-Dirac distribution
     :param e: energy to evaluate at
@@ -17,23 +19,34 @@ def fermi_dirac(e, mu, t, t_cutoff=1e-3):
     """
     return 1/(1 + np.exp(np.clip((e - mu)/(kb*np.clip(t, t_cutoff, None)), -256, 256)))
 
-
 def dowell_schmerge_pdf_int(px, py, pz, fermi_energy, temp, photon_energy, workfun):
-    e = (px**2 + py**2 + pz**2)/2/mc2
+
+    cpx, cpy, cpz = c*px, c*py, c*pz
+
+    e = (cpx**2 + cpy**2 + cpz**2)/2/MC2
+
     p_excite = (1 - fermi_dirac(e + photon_energy, fermi_energy, temp))*fermi_dirac(e, fermi_energy, temp)
-    p_transport = pz > 0
-    p_escape = pz**2/2/mc2 + photon_energy >= fermi_energy + workfun
+    p_transport = cpz > 0
+    p_escape = cpz**2/2/MC2 + photon_energy >= fermi_energy + workfun
     return p_excite*p_transport*p_escape
 
 
 def ds_transform(px, py, pz, fermi_energy, photon_energy, workfun):
-    a = np.sqrt(1 - photon_energy/((px**2 + py**2 + pz**2)/2/mc2 + fermi_energy + workfun))
-    return px*a, py*a, np.sqrt(pz**2 + 2*mc2*(fermi_energy + workfun))*a
+
+    cpx, cpy, cpz = c*px, c*py, c*pz
+
+    a = np.sqrt(1 - photon_energy/((cpx**2 + cpy**2 + cpz**2)/2/MC2 + fermi_energy + workfun))
+
+    return px*a, py*a, np.sqrt(cpz**2 + 2*MC2*(fermi_energy + workfun))*a/c
 
 
 def ds_jacobian_factor(px, py, pz, fermi_energy, photon_energy, workfun):
-    num = pz*np.sqrt(px**2 + py**2 + pz**2 + 2*mc2*(fermi_energy + workfun - photon_energy))
-    den = np.sqrt((pz**2 + 2*mc2*(fermi_energy + workfun))*(px**2 + py**2 + pz**2 + 2*mc2*(fermi_energy + workfun)))
+
+    cpx, cpy, cpz = c*px, c*py, c*pz
+
+    num = cpz*np.sqrt(cpx**2 + cpy**2 + cpz**2 + 2*MC2*(fermi_energy + workfun - photon_energy))
+    den = np.sqrt((cpz**2 + 2*MC2*(fermi_energy + workfun))*(cpx**2 + cpy**2 + cpz**2 + 2*MC2*(fermi_energy + workfun)))
+
     return num/den
 
 
@@ -65,6 +78,7 @@ def dowell_schmerge_pdf(px, py, pz, photon_energy, workfun, temp, fermi_energy):
     :return: unnormalized density of the emitted electrons at this momentum
     """
     a = ds_jacobian_factor(px, py, pz, fermi_energy, photon_energy, workfun)
+
     return a*dowell_schmerge_pdf_int(*ds_transform(px, py, pz, fermi_energy, photon_energy, workfun), fermi_energy, temp, photon_energy, workfun)
 
 
@@ -77,14 +91,18 @@ def dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tai
     :param n_tails: amount of Fermi tail to include (in units of kB*T)
     :return: (xl, xu), (yl, yu), (zl, zu), the lower (l) and upper (u) bounds along each axis (x, y, z)
     """
-    a = np.sqrt(2*mc2*(photon_energy - workfun + kb*temp*n_tails))
+    a = np.sqrt(2*MC2*(photon_energy - workfun + kb*temp*n_tails))/c
     return [(-a, a), (-a, a), (0., a)]
+
+def dowell_schmerge_pdf_bounds_quantity(photon_energy, workfun, temp, fermi_energy, n_tails=4):
+    bounds = dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tails=n_tails)
+    return [bounds[0], bounds[1], (0*bounds[2][1], bounds[2][1])]
 
 
 def dowell_schmerge_pdf_spherical(p, theta, photon_energy, workfun, temp, fermi_energy):
-    return dowell_schmerge_pdf(p*np.cos(theta), 0., p*np.sin(theta), photon_energy, workfun, temp, fermi_energy)
+    return dowell_schmerge_pdf(p*np.sin(theta), 0.0*p, p*np.cos(theta), photon_energy, workfun, temp, fermi_energy)
 
 
 def dowell_schmerge_pdf_bounds_spherical(photon_energy, workfun, temp, fermi_energy, n_tails=4):
     (_, a), _, _ = dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tails=n_tails)
-    return (0, a), (0, np.pi/2)
+    return (0*a, a), (0*pi, pi/2)
