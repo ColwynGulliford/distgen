@@ -9,8 +9,8 @@ total_charge: 10 pC
 xy_dist:
   file: seaturtle.jpeg
   max_x: 1 mm
-  max_y: 1 mm
+  max_y: 1 cm
   min_x: -1 mm
-  min_y: -1 mm
+  min_y: -1 cm
   threshold: 0.0
   type: file2d
