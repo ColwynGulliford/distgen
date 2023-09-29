@@ -1,0 +1,19 @@
+n_particle: 200000
+p_polar_angle_dist:
+  fermi_energy: 6 eV
+  photon_wavelength: 495.937 nm
+  temperature: 300 K
+  type: fermi_dirac_3step_barrier_photocathode
+  work_function: 2 eV
+r_dist:
+  sigma_xy: 1.0 mm
+  type: radial_gaussian
+random:
+  type: hammersley
+start:
+  type: cathode
+t_dist:
+  avg_t: 0 ps
+  sigma_t: 10 ps
+  type: uniform
+total_charge: 10 pC
