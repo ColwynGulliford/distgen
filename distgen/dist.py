@@ -2,7 +2,7 @@
 Defines the random number generator class and distribution function objects.
 """
 
-from .dowell_schmerge_cathode_model import dowell_schmerge_pdf_bounds_spherical, dowell_schmerge_pdf_spherical
+from .fermi_dirac_3step_barrier_photocathode_model import fermi_dirac_3step_barrier_pdf_bounds_spherical, fermi_dirac_3step_barrier_pdf_spherical
 
 from .hammersley import create_hammersley_samples
 from .physical_constants import unit_registry
@@ -101,6 +101,8 @@ def get_dist(var,params,verbose=0):
         dist = Tukey(var, verbose=verbose, **params)
     elif(dtype=='maxell_boltzmann' or dtype=='mb'):
         dist = MaxwellBoltzmannDist(var, verbose=verbose, **params)
+    elif(dtype=='fermi_dirac_3step_barrier_photocathode' or dtype=='fd3sb'):
+        dist = FermiDirac3StepBarrierMomentumDist(verbose=verbose, **params)
     elif(dtype=='maxell_boltzmann_kinetic_energy' or dtype=='mbe'):
         dist = MaxwellBoltzmannEnergyDist(var, verbose=verbose, **params)
     elif(dtype=='super_gaussian' or dtype=='sg'):
@@ -151,6 +153,7 @@ class Dist():
     """
     def __init__(self):
         self._n_indent=2
+        self.optional_params = []
 
     def check_inputs(self, params):
         """
@@ -2125,6 +2128,7 @@ class RadFile(DistRad):
 
         if(len(headers)!=2):
             raise ValueError("radial distribution file must have two columns")
+            
         data = np.loadtxt(distfile,skiprows=1)
 
         rs = data[:,0]*unit_registry(units)
@@ -2784,11 +2788,9 @@ class File2d(Dist2d):
         vprint(f'min_{var2} = {min(ys):G~P}, max_{var2} = {max(ys):G~P}', verbose>0, 2, True)
 
 
-class DowellSchmergeMomentumDist(Dist2d):
+class FermiDirac3StepBarrierMomentumDist(Dist2d):
 
-    #photon_energy, workfun, temp, fermi_energy
-
-    def __init__(self, photon_wavelength, cathode_work_function, cathode_temperature, fermi_energy, verbose, **params):
+    def __init__(self, verbose=0, **params):
 
         """
         Class for sampling the 2d distribution in |p| and spherical polar angle (angle between pvec and z axis in momentum space)
@@ -2796,23 +2798,27 @@ class DowellSchmergeMomentumDist(Dist2d):
         based on the Dowell-Schmerge cathode model.
         """
 
+        self.required_params = ['photon_wavelength', 'work_function', 'temperature', 'fermi_energy']
+        self.optional_params = []
+        
+        self.check_inputs(params)
+        
+        self.photon_wavelength = params['photon_wavelength']
+        self.photon_energy = hc / params['photon_wavelength']
+        self.cathode_temperature = params['temperature']
+        self.kT = kb * self.cathode_temperature
+        self.Wf = params['work_function']
+        self.fermi_energy = params['fermi_energy']
 
-        self.photon_wavelength = photon_wavelength
-        self.photon_energy = hc / photon_wavelength
-        self.cathode_temperature = cathode_temperature
-        self.kT = kb * cathode_temperature
-        self.Wf = cathode_work_function
-        self.fermi_energy = fermi_energy
-
-        vprint('Dowell-Schermge Cathode Model', verbose>0, 0, True)
+        vprint('Fermi-Dirac 3 Step Barrier Photocathode Model', verbose>0, 0, True)
         vprint(f'laser wavelength = {self.photon_wavelength.to("nm"):G~P}, photon energy = {self.photon_energy.to("eV"):G~P}', verbose>0, 2, True)
-        vprint(f'cathode temperature = {self.cathode_temperature.to("K"):G~P}, cathode work function = {self.Wf.to("eV"):G~P}, Fermi energy = {fermi_energy.to("eV"):G~P}', verbose>0, 2, True)
+        vprint(f'cathode temperature = {self.cathode_temperature.to("K"):G~P}, cathode work function = {self.Wf.to("eV"):G~P}, Fermi energy = {self.fermi_energy.to("eV"):G~P}', verbose>0, 2, True)
 
 
-        self.p_bounds, self.polar_angle_bounds = dowell_schmerge_pdf_bounds_spherical(self.photon_energy, 
-                                                                                      cathode_work_function, 
-                                                                                      cathode_temperature,
-                                                                                      fermi_energy)
+        self.p_bounds, self.polar_angle_bounds = fermi_dirac_3step_barrier_pdf_bounds_spherical(self.photon_energy, 
+                                                                                                self.Wf, 
+                                                                                                self.cathode_temperature,
+                                                                                                self.fermi_energy)
 
         p, a = self.p_pts(1000), self.polar_angle_pts(2000)
         P, A = self.p_by_polar_angle_meshgrid(len(p), len(a))
@@ -2832,9 +2838,8 @@ class DowellSchmergeMomentumDist(Dist2d):
     def p_by_polar_angle_meshgrid(self, n, m):
         return np.meshgrid(self.p_pts(n), self.polar_angle_pts(m))
 
-
     def rho_p_polar_angle(self, p, polar_angle):
-        return dowell_schmerge_pdf_spherical(p, polar_angle, self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy)
+        return fermi_dirac_3step_barrier_pdf_spherical(p, polar_angle, self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy)
 
 
 

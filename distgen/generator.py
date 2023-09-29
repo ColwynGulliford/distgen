@@ -76,6 +76,17 @@ from .transforms import transform
 
 from pprint import pprint
 
+ALLOWED_CATHODE_DISTS = ['p_dist', 'KE_dist', 'p_polar_angle_dist']
+
+def single_allowed_cathode_dist_set(params):
+
+    if(len(set(ALLOWED_CATHODE_DISTS).intersection(set(params.keys())))==1):
+        return True
+    else:
+        return False
+
+    
+
 class Generator(Base):
 
     """
@@ -261,11 +272,9 @@ class Generator(Base):
                     vprint(f"Ignoring user specified {d} distribution for cathode start.", self.verbose>0, 0, True)
                     params.pop(d)
 
-            #assert "MTE" in params['start'], "User must specify the MTE for cathode start."
-            
-            if('p_dist' in params or 'KE_dist' in params):
+           
+            if(single_allowed_cathode_dist_set(params)):
                 pass
-
             else: 
                 assert "MTE" in params['start'], "User must specify the MTE for cathode start if momentum/energy distribution not specified."
 
@@ -361,9 +370,18 @@ class Generator(Base):
             dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
             
         if("p" in dist_params or "KE" in dist_params):
-        
-            dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
-            dist_params['polar_angle']={'type':'up','min_phi':0*unit_registry('rad'),'max_phi':pi}
+
+            if('azimuthal_angle' not in dist_params):
+                dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+
+            if('polar_angle' not in dist_params):
+                dist_params['polar_angle']={'type':'up','min_phi':0*unit_registry('rad'),'max_phi':pi}
+
+        if('p_polar_angle' in dist_params):
+
+            if('azimuthal_angle' not in dist_params):
+                vprint("Assuming cylindrical momentum symmetry...",self.verbose>0,1,True)
+                dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
 
         if(params['start']['type']=='time' and 't_dist' in params):
             raise ValueError('Error: t_dist should not be set for time start')
@@ -386,6 +404,10 @@ class Generator(Base):
 
         elif('r' in variables and 'theta' not in variables):
             self.rands['theta']=None
+
+        elif('p_polar_angle' in variables):
+            self.rands['p']=None
+            self.rands['polar_angle']=None
 
         n_coordinate = len(self.rands.keys())
         n_particle = int(params['n_particle'])
@@ -433,34 +455,15 @@ class Generator(Base):
         
         if(params['start']['type'] == "cathode"):
 
-            if('p_dist' not in params and 'KE_dist' not in params):
+            if(not len(set(ALLOWED_CATHODE_DISTS).intersection(set(params.keys())))):  # If cathode is specified, but no emission model
                 
-                new_method=False
-                
-                # Handle momentum distribution for cathode
-                if('MTE' in params['start']):
-                    MTE = params['start']["MTE"]
-                    sigma_p = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
-                
-                if(new_method): 
-                    params['p_dist'] = {"type":"mb", 'scale_p': sigma_p}
-                else: 
-                    params["px_dist"]={"type":"g", "sigma_px":sigma_p}
-                    params["py_dist"]={"type":"g", "sigma_py":sigma_p}
-                    params["pz_dist"]={"type":"g", "sigma_pz":sigma_p}
-                    
-            
-                
-
-            #assert "MTE" in params['start'], "User must specify the MTE for cathode start."
-
-            # Handle momentum distribution for cathode
-            #MTE = params['start']["MTE"]
-            #sigma_pxyz = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
-
-            #params["px_dist"]={"type":"g","sigma_px":sigma_pxyz}
-            #params["py_dist"]={"type":"g","sigma_py":sigma_pxyz}
-            #params["pz_dist"]={"type":"g","sigma_pz":sigma_pxyz}
+                # Handle momentum distribution for cathode: Assume Maxwell-Boltzmann
+                MTE = params['start']["MTE"]
+                sigma_p = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
+ 
+                params["px_dist"]={"type":"g", "sigma_px":sigma_p}
+                params["py_dist"]={"type":"g", "sigma_py":sigma_p}
+                params["pz_dist"]={"type":"g", "sigma_pz":sigma_p}
 
         elif(params['start']['type']=='time'):
 
@@ -641,8 +644,29 @@ class Generator(Base):
             dist_params.pop('azimuthal_angle')
             dist_params.pop('polar_angle')
        
-        #pprint(dist_params)
-    
+        if('p_polar_angle' in dist_params):
+
+            vprint('|p| and polar angle distribution: ', verbose>0, 1, False)
+            p_polar_angle_dist = get_dist('p_polar_angle', dist_params['p_polar_angle'], verbose=verbose)
+            ps, phis = p_polar_angle_dist.cdfinv(self.rands['p'], self.rands['polar_angle'])
+
+            vprint('azimuthal angle distribution: ', verbose>0, 1, False)
+            theta_dist = get_dist('azimuthal_angle', dist_params['azimuthal_angle'], verbose=verbose)
+            thetas = theta_dist.cdfinv(self.rands['azimuthal_angle'])
+
+            bdist['px']=ps*np.cos(thetas)*np.sin(phis)
+            bdist['py']=ps*np.sin(thetas)*np.sin(phis)
+            bdist['pz']=ps*np.cos(phis)
+
+            for pvar in ['px', 'py']: avgs[pvar]=0*unit_registry('eV/c')
+            avgs['pz'] = bdist['pz'].mean()
+
+            for pvar in ['px', 'py', 'pz']: stds[pvar]=bdist[pvar].std()
+
+            dist_params.pop('azimuthal_angle')
+            dist_params.pop('p_polar_angle')
+
+        
         # Do all other specified single coordinate dists
         for x in dist_params.keys():
 
@@ -666,7 +690,7 @@ class Generator(Base):
                 #else:
                     #stds[x] = dist.std()
                     #print(x, stds[x])
-
+        
         # Shift and scale coordinates to undo sampling error
         for x in avgs:
             vprint(f'Shifting avg_{x} = {bdist.avg(x):G~P} -> {avgs[x]:G~P}', verbose>0 and bdist[x].mean()!=avgs[x],1,True)
@@ -678,9 +702,10 @@ class Generator(Base):
         # Handle any start type specific settings
         if(params['start']['type']=="cathode"):
 
-            bdist['pz']=np.abs(bdist['pz'])   # Only take forward hemisphere
-            vprint('Cathode start: fixing pz momenta to forward hemisphere',verbose>0,1,True)
-            vprint(f'avg_pz -> {bdist.avg("pz"):G~P}, sigma_pz -> {bdist.std("pz"):G~P}',verbose>0,2,True)
+            if(np.count_nonzero(bdist['pz']<0) > 0):
+                bdist['pz']=np.abs(bdist['pz'])   # Only take forward hemisphere
+                vprint('Cathode start: fixing pz momenta to forward hemisphere',verbose>0,1,True)
+                vprint(f'avg_pz -> {bdist.avg("pz"):G~P}, sigma_pz -> {bdist.std("pz"):G~P}',verbose>0,2,True)
 
         elif(params['start']['type']=='time'):
 
