@@ -244,8 +244,11 @@ class Generator(Base):
         assert params['n_particle']>0, 'User must speficy n_particle must > 0.'
 
         if(isinstance(params['n_particle'], float)):
+            
+            if(params['n_particle'] - int(params['n_particle']) > 0):
+                warnings.warn('Input variable n_particle was a float, expected int.')
+
             params['n_particle']=int(params['n_particle'])
-            warnings.warn('Input variable n_particle was a float, expected int.')
         
         assert isinstance(params['n_particle'], int), f'Invalid type for n_particle parameter: {type(params["n_particle"])}'
         
