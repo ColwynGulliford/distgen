@@ -49,7 +49,7 @@ import os
 
 from matplotlib import pyplot as plt
 
-from scipy import integrate
+from scipy import integrate, optimize
 
 import warnings
 
@@ -135,6 +135,8 @@ def get_dist(var,params,verbose=0):
         dist = File2d("x","y",verbose=verbose, **params)
     elif(dtype=="crystals"):
         dist = TemporalLaserPulseStacking(verbose=verbose, **params)
+    elif(dtype=='sech2'):
+        dist = Sech2(verbose=verbose, **params)
     elif(dtype=='uniform_theta' or dtype=='ut'):
         dist =  UniformTheta(verbose=verbose, **params)
     elif(dtype=='uniform_phi' or dtype=='up'):
@@ -1166,36 +1168,40 @@ class Sech2(Dist1d):
 
     def __init__(self, verbose=0, **kwargs):
 
-        self.required_params = ['tau']
-        self.optional_params = ['avg_t', 'n_sigma_cutoff']
+        self.required_params = []
+        self.optional_params = ['avg_t', 'n_tau_cutoff', 'tau', 'sigma_t']
         self.check_inputs(kwargs)
   
         assert not ('tau' in kwargs and 'sigma_t' in kwargs), 'User must specify either tau or sigma_t.'
         
         self.xstr = 't'
 
+        if('tau' in kwargs):
+            self.tau = kwargs['tau']
+            reset_tau = False
+        elif('sigma_t' in kwargs):
+            self.tau = kwargs['sigma_t']  # Incorrect, but will be used as a starting guess
+            self.sigma = kwargs['sigma_t']
+            reset_tau = True
+
         if('avg_t' in kwargs):
             self.mu = kwargs['avg_t']
         else:
-            self.mu = 0 * unit_registry(str(self.sigma.units))
+            self.mu = 0 * unit_registry(str(self.tau.units))
         
         if('n_tau_cutoff' in kwargs):
-            self.n_tau_cutoff = n_sigma_cutoff         
+            self.n_tau_cutoff = kwargs['n_tau_cutoff']         
         else:
             self.n_tau_cutoff = 3
-
-        self.tau = kwargs['tau']
         
-        self.min_t = self.mu - self.n_tau_cutoff*self.tau
-        self.max_t = self.mu + self.n_tau_cutoff*self.tau
+        self.set_dist_params(self.tau)
 
-        self.eta_min = (self.min_t - self.mu)/self.tau
-        self.eta_max = (self.max_t - self.mu)/self.tau
+        if(reset_tau):
+            self.tau = self.reset_tau_from_sigma()
+            
+        else:
+            self.sigma = self.get_sigma_from_tau()
 
-        self.NT = 1/(np.tanh(self.eta_max) - np.tanh(self.eta_min))
-        self.norm = self.NT / self.tau
-
-        self.get_sigma_from_tau()
 
         vprint('Sech2',verbose>0,0,True)
         vprint(f'sigma_t = {self.sigma:G~P}, tau = {self.tau:G~P}',verbose>0,2,True)
@@ -1232,7 +1238,34 @@ class Sech2(Dist1d):
 
         rmsx = integrate.quad(lambda x: x**2/np.cosh(x)**2, self.eta_min, self.eta_max)[0]
 
-        self.sigma = self.tau*np.sqrt(self.NT * rmsx )        
+        return self.tau*np.sqrt(self.NT * rmsx )   
+
+    def reset_tau_from_sigma(self):
+
+        def sigma_squared_error(T):
+            self.set_dist_params(T[0] * unit_registry(str(self.sigma.units)))
+            return (self.get_sigma_from_tau().magnitude - self.sigma.magnitude)**2 /  self.sigma.magnitude**2
+
+        res = optimize.minimize(sigma_squared_error, self.sigma)
+
+        return res['x'][0]*unit_registry(str(self.sigma.units))
+
+            
+
+    def set_dist_params(self, T):
+
+        self.tau = T
+
+        self.min_t = self.mu - self.n_tau_cutoff*self.tau
+        self.max_t = self.mu + self.n_tau_cutoff*self.tau
+
+        self.eta_min = (self.min_t - self.mu)/self.tau
+        self.eta_max = (self.max_t - self.mu)/self.tau
+
+        self.NT = 1/(np.tanh(self.eta_max) - np.tanh(self.eta_min))
+        self.norm = self.NT / self.tau
+
+            
 
 
 class Tukey(Dist1d):
