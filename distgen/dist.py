@@ -49,7 +49,7 @@ import os
 
 from matplotlib import pyplot as plt
 
-
+from scipy import integrate
 
 import warnings
 
@@ -642,7 +642,7 @@ class Norm(Dist1d):
         sigma_cutoff_left  = "n_sigma_cutoff_left"
         sigma_cutoff_right = "n_sigma_cutoff_right"
         avgstr = f'avg_{var}'
-        self.optional_params=[sigma_cutoff_str,sigma_cutoff_left,sigma_cutoff_right,avgstr]
+        self.optional_params=[sigma_cutoff_str, sigma_cutoff_left, sigma_cutoff_right, avgstr]
 
         self.check_inputs(kwargs)
 
@@ -1158,6 +1158,83 @@ class TemporalLaserPulseStacking(Dist1d):
      #   """ Returns the crystal parameter list"""
     #    return (["crystal_length_$N","crystal_angle_$N"],["laser_pulse_FWHM","avg_"+var,"std_"+var])
 
+class Sech2(Dist1d):
+
+    """
+    Defines a (sech(t))^2 function, which is useful for modeling the temporal shape of a pulsed laser
+    """
+
+    def __init__(self, verbose=0, **kwargs):
+
+        self.required_params = ['tau']
+        self.optional_params = ['avg_t', 'n_sigma_cutoff']
+        self.check_inputs(kwargs)
+  
+        assert not ('tau' in kwargs and 'sigma_t' in kwargs), 'User must specify either tau or sigma_t.'
+        
+        self.xstr = 't'
+
+        if('avg_t' in kwargs):
+            self.mu = kwargs['avg_t']
+        else:
+            self.mu = 0 * unit_registry(str(self.sigma.units))
+        
+        if('n_tau_cutoff' in kwargs):
+            self.n_tau_cutoff = n_sigma_cutoff         
+        else:
+            self.n_tau_cutoff = 3
+
+        self.tau = kwargs['tau']
+        
+        self.min_t = self.mu - self.n_tau_cutoff*self.tau
+        self.max_t = self.mu + self.n_tau_cutoff*self.tau
+
+        self.eta_min = (self.min_t - self.mu)/self.tau
+        self.eta_max = (self.max_t - self.mu)/self.tau
+
+        self.NT = 1/(np.tanh(self.eta_max) - np.tanh(self.eta_min))
+        self.norm = self.NT / self.tau
+
+        self.get_sigma_from_tau()
+
+        vprint('Sech2',verbose>0,0,True)
+        vprint(f'sigma_t = {self.sigma:G~P}, tau = {self.tau:G~P}',verbose>0,2,True)
+
+    def get_x_pts(self, n):
+        return linspace(self.min_t, self.max_t, 10_000)
+
+    def pdf(self, t):
+        eta = (t - self.mu)/self.tau
+        return self.norm/np.cosh(eta)**2
+
+    def cdf(self, t):
+        eta = (t-self.mu)/self.tau
+        return (self.norm*self.tau)*( np.tanh(eta) - np.tanh(self.eta_min) ) 
+
+    def cdfinv(self, p):
+        alpha = p/(self.norm*self.tau)
+        return self.mu + self.tau*np.arctanh( alpha + np.tanh(self.eta_min) )
+
+    def avg(self):
+        return self.mu
+
+    def std(self):
+        return self.sigma
+
+    def tau(self):
+        return self.tau
+
+    @property
+    def t(self):
+        return self.get_x_pts(10_000)
+
+    def get_sigma_from_tau(self):
+
+        rmsx = integrate.quad(lambda x: x**2/np.cosh(x)**2, self.eta_min, self.eta_max)[0]
+
+        self.sigma = self.tau*np.sqrt(self.NT * rmsx )        
+
+
 class Tukey(Dist1d):
 
     """ 
@@ -1179,7 +1256,7 @@ class Tukey(Dist1d):
         vprint('Tukey',verbose>0,0,True)
         vprint(f'length = {self.L:G~P}, ratio = {self.r:G~P}',verbose>0,2,True)
             
-    def get_x_pts(self,n):
+    def get_x_pts(self, n):
         return 1.1*linspace(-self.L/2.0,self.L/2.0,n)
 
     def pdf(self, x):
@@ -1210,7 +1287,7 @@ class Tukey(Dist1d):
         #pdfs = self.pdf(xpts)
         cdfs = cumtrapz(self.pdf(xpts), xpts)
         cdfs = cdfs/cdfs[-1]
-        cdfs = interp(x,xpts,cdfs)
+        cdfs = interp(x, xpts,cdfs)
         cdfs = cdfs/cdfs[-1]
         return cdfs
 

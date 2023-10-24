@@ -119,7 +119,7 @@ def get_1d_profile(particle_group, var, bins=None):
 
     return hist_x, hist
 
-
+"""
 def get_1d_profile(particle_group, var, bins=None):
     
     if not bins:
@@ -132,10 +132,12 @@ def get_1d_profile(particle_group, var, bins=None):
     hist_x = bin_edges[:-1] + np.diff(bin_edges) / 2
 
     return hist_x, hist
-
+"""
 
 def get_current_profile(particle_group, bins=None):
-    return get_1d_profile(particle_group, 't', bins=bins)
+
+    t, rho = get_1d_profile(particle_group, 't', bins=bins)
+    return t, particle_group.charge*rho/np.trapz(rho, t)
 
 
 #--------------------------------------------------------------------
