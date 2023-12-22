@@ -1,0 +1,14 @@
+n_particle: 200000
+output:
+  file: tcrystals.out.txt
+  type: gpt
+random:
+  type: hammersley
+start:
+  MTE: 120 meV
+  type: cathode
+t_dist:
+  n_tau_cutoff: 4
+  tau: 3 ps
+  type: sech2
+total_charge: 10 pC
