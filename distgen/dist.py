@@ -270,13 +270,13 @@ class Dist1d(Dist):
         """
         Defines the 1st moment of the pdf, defaults to using trapz integration
         """
-        return trapz(self.xs*self.Px,self.xs)
+        return trapz(self.xs*self.Px, self.xs)
   
     def rms(self):
         """
         Defines the rms of the pdf, defaults to using trapz integration
         """
-        return np.sqrt(trapz(self.xs*self.xs*self.Px,self.xs))
+        return np.sqrt(trapz(self.xs*self.xs*self.Px, self.xs))
 
     def std(self):
         """
@@ -299,13 +299,16 @@ class Dist1d(Dist):
 
         rho, edges = histogram(xs, nbins=100)
         xc = centers(edges)
-        rho = rho/np.trapz(rho,xc)
+        rho = rho/np.trapz(rho, xc)
 
         savgx = xs.mean()
         sstdx = xs.std()
 
         davgx = self.avg()
-        dstdx = self.std()      
+        dstdx = self.std()     
+
+        assert np.isclose(savgx, davgx, rtol=1e-3, atol=1e-3)
+        assert np.isclose(sstdx, dstdx, rtol=1e-3, atol=1e-3)
 
         plt.figure()
         plt.plot(x, pdf, xc, rho, 'or')
@@ -1538,9 +1541,22 @@ class Interpolation1d(Dist1d):
         # Do interpolation
         xs, Px = self.interpolate1d(xs, Px, method=kwargs['method'], n_pts=n_pts)
 
+        Px = Px/trapz(Px, xs)
+        avgx = trapz(xs*Px, xs)
+        stdx = np.sqrt( trapz( (xs-avgx)**2*Px, xs) )
+        scale = self.sigma/stdx
+        
+        xs = scale*xs
+        Px = Px/scale
+
+        avgx = trapz(xs*Px, xs)
+        stdx = np.sqrt( trapz( (xs-avgx)**2*Px, xs) )
+
+        xs = xs - avgx + self.mean
+        
         # Make sure interoplation doesn't yield negative values
         Px[Px.magnitude<0]=0*unit_registry.parse_expression(f'1/{units}')
-        
+
         super().__init__(xs=xs, Px=Px, xstr=var)
         
         
@@ -1833,6 +1849,9 @@ class DistRad(Dist):
 
         davgr = self.avg()
         dstdr = self.std()
+
+        assert np.isclose(avgr, davgr, rtol=1e-3, atol=1e-3)
+        assert np.isclose(stdr, dstdr, rtol=1e-3, atol=1e-3)
 
         ax.plot(r, p, r_bins, r_hist, 'or')
         ax.set_xlabel(f'r ({r.units:~P})')

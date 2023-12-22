@@ -52,6 +52,8 @@ from .parsing import convert_input_quantities
 from .parsing import convert_quantities_to_user_input
 from .parsing import expand_input_filepaths
 from .parsing import update_quantity
+from .parsing import is_quantizable
+from .parsing import parse_quantity
 
 from .physical_constants import c
 from .physical_constants import is_quantity
@@ -205,6 +207,8 @@ class Generator(Base):
         pstr = varstr.replace(':value', '').replace(':units', '')
             
         if(not is_key_in_nested_dict(params, pstr, sep=':', prefix='distgen')):
+            if(is_quantizable(val)):
+                val = parse_quantity(val)
             params = update_nested_dict(params, {varstr:val}, verbose=False, create_new=True)
         
         if(varstr.endswith(':value') or varstr.endswith(':units')):
@@ -213,14 +217,15 @@ class Generator(Base):
             set_nested_dict(params, pstr, update_quantity(var, val), sep=':', prefix='distgen')
             
         else:
-            var = get_nested_dict(params, varstr, sep=':', prefix='distgen')
 
+            var = get_nested_dict(params, varstr, sep=':', prefix='distgen')
+            
             if(is_quantity(var)):
                 set_nested_dict(params, varstr, update_quantity(var, val), sep=':', prefix='distgen')
         
             else:
                 set_nested_dict(params, varstr, val, sep=':', prefix='distgen')
-                
+
         self.check_input_consistency(params)  # Raises if something is wrong
         self._input = params                  # Accept changes into the Generator input state
     

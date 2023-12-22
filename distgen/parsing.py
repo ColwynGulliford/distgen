@@ -60,6 +60,9 @@ def is_unit(u):
 def is_quantizable(d):
     
     """ Checks if a dict can be converted to a quantity with units """
+    if(isinstance(d, unit_registry.Quantity)):
+        return True
+    
     if(isinstance(d, dict) and len(d.keys())==2 and "value" in d and "units" in d):
         return True
     
@@ -84,14 +87,21 @@ def dict_to_quantity(qd):
     
     """ Converts a dict to quantity with units """
 
-    assert is_quantizable(qd), 'Could not convert dictionary to quantity: '+str(qd)
- 
+    if(not isinstance(qd, dict)):
+        raise ValueError('dict_to_quantity: Input must be a dictionary')
+
+    if(not is_quantizable(qd)):
+        raise ValueError('Could not convert dictionary to quantity: '+str(qd))
+
     if(isinstance(qd['value'], float) or is_floatable(qd['value'])):
         return float(qd['value'])*unit_registry(qd['units'])
     else:
         return np.array(qd['value'])*unit_registry(qd['units'])
     
 def parse_quantity(q):
+
+    if(isinstance(q, unit_registry.Quantity)):
+        return q
     
     if(is_quantizable(q)):
     
@@ -102,26 +112,36 @@ def parse_quantity(q):
     else:
         raise ValueError(f'Could not parse object into a quantity: {q}')
         
-def update_quantity_in_dict(k, d, new_val): 
-    d[k] = update_quantity(d[k], new_val)
-    
 def update_quantity(x, new_val):
     
     Q_ = unit_registry.Quantity
     
     if(is_floatable(new_val) or isinstance(new_val, np.ndarray)):
-        x = Q_(new_val, x.units)
+        xnew = Q_(new_val, x.units)
     
     elif(isinstance(new_val, str)):
-        x = Q_(x.magnitude, unit_registry.parse_expression(new_val))
+        
+        if(is_quantizable(new_val)):
+            xnew = Q_(new_val)
+        else:
+            xnew = Q_(x.magnitude, unit_registry.parse_expression(new_val))
         
     elif(isinstance(new_val, unit_registry.Quantity)):
-        return new_val
+        xnew = new_val
+
+    elif(isinstance(new_val, dict)):
+        xnew = dict_to_quantity(new_val)
         
     else:
-        raise ValueError('Unsupported input value for setting quantity!')
+        raise ValueError('Unsupported input value for updating quantity!')
         
-    return x
+    x-xnew # enforce consistent dimensionality
+    
+    return xnew
+
+def update_quantity_in_dict(k, d, new_val): 
+    d[k] = update_quantity(d[k], new_val)
+    
 
 def list_to_dict(ll):
     assert isinstance(ll, list), 'input to list_to_dict must be a list'
@@ -154,6 +174,8 @@ def convert_input_quantities(d, in_place=True):
 
     """ Converts a nested dictionary to quantities with units where appropriate """
     for k, v in d.items():
+
+        
     
         if(is_quantizable(v)):
             d[k]=parse_quantity(v)

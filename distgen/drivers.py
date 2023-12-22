@@ -5,6 +5,8 @@ from distgen.reader import Reader
 from distgen.writers import writer
 from distgen.generator import Generator
 
+import copy
+
 
 #def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
 
@@ -58,6 +60,9 @@ def run_distgen(
             verbose=True)
     
     """
+
+    if(isinstance(inputs, dict)):
+        inputs = copy.deepcopy(inputs)
     
     # Make distribution
     gen = Generator(inputs, verbose=verbose)

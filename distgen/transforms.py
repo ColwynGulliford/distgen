@@ -1,5 +1,4 @@
 from .physical_constants import unit_registry
-from .tools import dict_to_quantity
 from .tools import vprint, mean
 import numpy as np
 
