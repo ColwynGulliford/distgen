@@ -3105,8 +3105,8 @@ class UniformLaserSpeckle(Dist2d):
         else:
             random_seed = None
 
-        if('threshold' in params):
-            self.threshold = params['threshold']
+        if('pixel_threshold' in params):
+            self.threshold = params['pixel_threshold']
         else:
             self.threshold = 0
 
@@ -3125,6 +3125,8 @@ class UniformLaserSpeckle(Dist2d):
         #speckle_pattern = generate_laser_speckle_fft(image_size, self.speckle_size_in_pixels_avg.magnitude, random_seed=random_seed)
         speckle_pattern = generate_speckle_pattern_with_filter(image_size, self.scale, random_seed=random_seed)
 
+        #print(speckle_pattern.min(), speckle_pattern.max())
+    
         speckle_pattern[speckle_pattern<self.threshold]=0
         
         xs = linspace(self.min_x, self.max_x, self.image_size_x)

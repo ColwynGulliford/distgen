@@ -5,7 +5,7 @@ xy_dist:
   max_y: +2 mm 
   min_y: -2 mm
   sigma: 100
-  pixel_threshold: 200
+  pixel_threshold: 0.25
   random_seed: 42
   type: uniform_laser_speckle
 random:
