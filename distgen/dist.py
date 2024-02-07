@@ -5,6 +5,9 @@ Defines the random number generator class and distribution function objects.
 from .fermi_dirac_3step_barrier_photocathode_model import fermi_dirac_3step_barrier_pdf_bounds_spherical, fermi_dirac_3step_barrier_pdf_spherical
 
 from .hammersley import create_hammersley_samples
+
+from .parsing import convert_input_quantities
+
 from .physical_constants import unit_registry
 from .physical_constants import pi
 from .physical_constants import hc
@@ -78,7 +81,7 @@ def random_generator(shape, sequence, **kwargs):
     else:
         raise ValueError("Sequence: "+str(sequence)+" is not supported")
 
-def get_dist(var,params,verbose=0):
+def get_dist(var, params, verbose=0):
     """
     Translates user input strings and evaluated corrector corresponding distribution function.
     Inputs: var [str] name of variable (x,y,px,...,etc) for distribution,
@@ -143,6 +146,8 @@ def get_dist(var,params,verbose=0):
         dist =  UniformPhi(verbose=verbose, **params)
     elif(dtype=='image2d'):
         dist = Image2d(var, verbose=verbose, **params)
+    elif(dtype=='uniform_laser_speckle' and var == 'xy'):
+        dist = UniformLaserSpeckle(verbose=verbose, **params)
     else:
         raise ValueError(f'Distribution type "{dtype}" is not supported.')
             
@@ -162,6 +167,8 @@ class Dist():
         Checks the input dictionary to derived class.  Derived class supplies lists of required and optional params.
         """
 
+        params = convert_input_quantities(params)
+        
         # Make sure user isn't passing the wrong parameters:
         allowed_params = self.optional_params + self.required_params + ['verbose','type','indent']
         #print(allowed_params)
@@ -174,6 +181,11 @@ class Dist():
 
         if('indent' in params):
             self._n_indent = params['indent']
+
+    def parse_params(params):
+        return convert_input_quantities(params)
+
+        
 
 
 class Dist1d(Dist):
@@ -196,7 +208,7 @@ class Dist1d(Dist):
             
             self.required_params = [xstr, pstr, 'units']
             self.optional_params = []
-            
+
             self.check_inputs(params)
             
             xs = params[xstr]*unit_registry(params['units'])
@@ -315,8 +327,8 @@ class Dist1d(Dist):
         plt.xlabel(f'{self.xstr} ({x.units:~P})')   
         plt.ylabel(f'PDF ({pdf.units:~P})')  
 
-        stat_line = f'Sample stats: <{self.xstr}> = {savgx:G~P}, '+'$\sigma_{'+str(self.xstr)+'}$'+f' = {sstdx:G~P}'
-        dist_line =  f'Dist. stats: <{self.xstr}> = {davgx:G~P}, '+'$\sigma_{'+str(self.xstr)+'}$'+f' = {dstdx:G~P}'  
+        stat_line = f'Sample stats: <{self.xstr}> = {savgx:G~P}, '+r'$\sigma_{'+str(self.xstr)+'}$'+f' = {sstdx:G~P}'
+        dist_line =  f'Dist. stats: <{self.xstr}> = {davgx:G~P}, '+r'$\sigma_{'+str(self.xstr)+'}$'+f' = {dstdx:G~P}'  
  
         plt.title(stat_line+'\n'+dist_line)
         plt.legend(["PDF","Sampling"])    
@@ -1594,7 +1606,7 @@ class DistTheta(Dist):
 
         plt.figure()
         plt.plot(theta,p)
-        plt.xlabel(f'$theta$ ({str(theta.unit)}))')
+        plt.xlabel(f'$\theta$ ({str(theta.unit)}))')
         plt.ylabel(f'PDF(${self.theta_str}$) ({str(p.unit)})')
 
 class UniformTheta(DistTheta):
@@ -1856,7 +1868,7 @@ class DistRad(Dist):
         ax.plot(r, p, r_bins, r_hist, 'or')
         ax.set_xlabel(f'r ({r.units:~P})')
         ax.set_ylabel(f'$\\rho_r(r)$ ({r_hist.units:~P})')
-        ax.set_title(f'Sample stats: <r> = {avgr:G~P}, $\sigma_r$ = {stdr:G~P}\nDist. stats: <r> = {davgr:G~P}, $\sigma_r$ = {dstdr:G~P}')
+        ax.set_title(rf'Sample stats: <r> = {avgr:G~P}, $\sigma_r$ = {stdr:G~P}\nDist. stats: <r> = {davgr:G~P}, $\sigma_r$ = {dstdr:G~P}')
         ax.legend(['$\\rho_r$(r)','Sampling'])
         
     def get_x_pts(self, m):
@@ -1960,8 +1972,10 @@ class UniformRad(DistRad):
         X,Y = meshgrid(x,y)
         R = np.sqrt(X**2+Y**2)
         nonzero = (R>= self.rL) & (R <= self.rR)
-        res = np.zeros(R.shape)*unit_registry('1/'+str(x.units))
+        res = np.zeros(R.shape)*unit_registry(f'1/{x.units}/{y.units}')
         res[nonzero]=2.0/(self.rR**2-self.rL**2)
+
+        return res
 
     def cdf(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
@@ -2713,7 +2727,96 @@ class Dist2d(Dist):
             n=m
         
         return (self.get_x_pts(m), self.get_y_pts(n))
+
+
+class SuperPosition2d(Dist2d):
+
+    def __init__(self, variables, verbose, **kwargs):
+
+        vstrs = get_vars(variables)
         
+        #self, variables, verbose, **kwargs
+
+        assert len(vstrs)==2, f'Wrong number of variables given to Image2d: {len(vstrs)}'
+        assert 'dists' in kwargs, 'ProductDist 2d must be supplied the key word argument "dists"'
+
+        vprint('Superposition 2d', verbose, 1, new_line=True)
+
+        dist_defs = kwargs['dists']
+
+        dists={}
+
+        if('weights' in kwargs):
+            weights = kwargs['weights']
+        else:
+            weights = np.linspace(len(dist_defs.keys()))
+
+        weights = weights/np.sum(weights)
+
+        for ii, name in enumerate(dist_defs.keys()):
+
+            vprint(f'distribution name: {name}', verbose>0, 2, True)
+            
+            # handle 2d or radial here
+            if(is_radial_dist(dist_defs[name]['type'])):
+                dists[name] = get_dist('r', dist_defs[name], verbose=verbose)
+            else:
+                dists[name] = get_dist(variables, dist_defs[name], verbose=verbose)
+
+            xi, yi = dists[name].get_xy_pts(2)
+
+            if(ii==0):
+                
+                min_x, max_x = xi[0], xi[-1]    
+                min_y, max_y = yi[0], yi[-1]    
+                
+                if(dists[name].min_dx is not None):
+                    min_dx = dists[name].min_dx
+                else:
+                    min_dx = np.Inf*xi.units
+                    
+                if(dists[name].min_dy is not None):
+                    min_dy = dists[name].min_dy
+                else:
+                    min_dy = np.Inf*yi.units
+                
+            else:
+                
+                if(xi[0]  > min_x): min_x = xi[0]
+                if(xi[-1] < max_x): max_x = xi[-1]
+                
+                if(yi[0]  > min_y): min_y = yi[0]
+                if(yi[-1] < max_y): max_y = yi[-1]  
+                
+                if(dists[name].min_dx is not None and dists[name].min_dx < min_dx): 
+                    min_dx = dists[name].min_dx
+                    
+                if(dists[name].min_dy is not None and dists[name].min_dy < min_dy): 
+                    min_dy = dists[name].min_dy
+                
+        nx, ny = int( ((max_x-min_x)/min_dx).magnitude ), int( ((max_y-min_y)/min_dy).magnitude )
+        
+        xs = linspace(min_x, max_x, nx)
+        ys = linspace(min_y, max_y, ny)
+
+        for ii, name in enumerate(dists.keys()):                    
+
+            if(is_radial_dist(dist_defs[name]['type'])):
+                pi = dists[name].rho_xy(xs, ys)
+            else:
+                pi = dists[name].pdf(xs, ys)
+
+            pi = pi/np.sum(np.sum(pi))
+                
+            if(ii==0):
+                ps = pi/np.max(pi.magnitude)
+            else:
+                ps = weights[ii]*pi/np.max(pi.magnitude) + ps
+
+        ps = ps.magnitude*unit_registry(f'1/{xs.units}/{ys.units}')
+
+        # Update the base class with the superposition distribution
+        super().__init__(xs, ys, ps, xstr=vstrs[0], ystr=vstrs[-1])
         
 
 class Product2d(Dist2d):
@@ -2969,6 +3072,74 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
 
     def rho_p_polar_angle(self, p, polar_angle):
         return fermi_dirac_3step_barrier_pdf_spherical(p, polar_angle, self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy)
+
+
+from .laser_speckle import generate_laser_speckle_fft, generate_speckle_pattern_with_filter
+
+class UniformLaserSpeckle(Dist2d):
+
+    def __init__(self, verbose=0, **params):
+
+        self.required_params = ['min_x', 'max_x', 'min_y', 'max_y', 'sigma']
+        self.optional_params = ['image_size_x', 'image_size_y', 'random_seed', 'pixel_threshold']
+
+        self.check_inputs(params)
+
+        self.min_x, self.max_x = params['min_x'], params['max_x']
+        self.min_y, self.max_y = params['min_y'], params['max_y']
+
+        self.scale = params['sigma']
+
+        if('image_size_x' in params):
+            self.image_size_x  = params['image_size_x']
+        else:
+            self.image_size_x = 512
+
+        if('image_size_y' in params):
+            self.image_size_y  = params['image_size_y']
+        else:
+            self.image_size_y = 512
+
+        if('random_seed' in params):
+            random_seed = params['random_seed']
+        else:
+            random_seed = None
+
+        if('threshold' in params):
+            self.threshold = params['threshold']
+        else:
+            self.threshold = 0
+
+        pixels_per_x_scale = self.image_size_x / ( self.max_x - self.min_x )
+        pixels_per_y_scale = self.image_size_y / ( self.max_y - self.min_y )
+
+        speckle_size_in_pixels_x = pixels_per_x_scale * self.scale
+        speckle_size_in_pixels_y = pixels_per_y_scale * self.scale
+
+        #self.speckle_size_in_pixels_avg = 0.5*( speckle_size_in_pixels_x + speckle_size_in_pixels_y )
+
+        #print(self.speckle_size_in_pixels_avg, self.speckle_size_in_pixels_avg.magnitude)
+        
+        image_size = (self.image_size_x, self.image_size_y)
+
+        #speckle_pattern = generate_laser_speckle_fft(image_size, self.speckle_size_in_pixels_avg.magnitude, random_seed=random_seed)
+        speckle_pattern = generate_speckle_pattern_with_filter(image_size, self.scale, random_seed=random_seed)
+
+        speckle_pattern[speckle_pattern<self.threshold]=0
+        
+        xs = linspace(self.min_x, self.max_x, self.image_size_x)
+        ys = linspace(self.min_y, self.max_y, self.image_size_y)
+        
+        Pxy = speckle_pattern*unit_registry(f'1/{xs.units}/{ys.units}')
+
+        super().__init__(xs, ys, Pxy, xstr='x', ystr='y')
+
+        
+
+
+
+
+
 
 
 
