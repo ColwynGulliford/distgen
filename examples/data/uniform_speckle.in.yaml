@@ -1,0 +1,20 @@
+n_particle: 1000000
+random:
+  type: hammersley
+start:
+  MTE: 150 meV
+  type: cathode
+t_dist:
+  avg_t: 0.5 ns
+  sigma_t: 2 ns
+  type: gaussian
+total_charge: 10 pC
+xy_dist:
+  max_x: +1 mm
+  max_y: +2 mm
+  min_x: -1 mm
+  min_y: -2 mm
+  pixel_threshold: 0.25
+  random_seed: 42
+  sigma: 100
+  type: uniform_laser_speckle
