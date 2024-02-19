@@ -200,6 +200,8 @@ class Generator(Base):
     def __setitem__(self, varstr, val):
         
         params = copy.deepcopy(self._input)
+
+        #print(varstr, val)
         
         if(isinstance(val, dict)):
             val = convert_input_quantities(val, in_place=False)
