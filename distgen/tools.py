@@ -30,7 +30,7 @@ def full_path(path):
     return os.path.abspath(os.path.expandvars(path))
 
 
-def vprint(out_str,verbose,indent_number,new_line):
+def vprint(out_str, verbose, indent_number, new_line):
 
     """Defines verbose printing used for output:
     Inputs: out_str = string to be printed to screen, 
