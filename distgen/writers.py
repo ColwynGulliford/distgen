@@ -7,15 +7,6 @@ import os
 from collections import OrderedDict as odict
 from h5py import File
 
-#def get_species_charge(species):
-
-#    """ Returns the species charge (only electrons so far """
-
-#    if(species=="electron"):
-#        return qe
-#    else:
-#        raise ValueError(f'get_species_charge: Species "{species}" is not supported.')
-
 def writer(output_format, beam, outfile, verbose=0, params=None):
 
     """ Returns a simulaiton code specific writer function """
