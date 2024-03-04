@@ -4,13 +4,14 @@ output:
   type: gpt
 random:
   type: hammersley
+species: electron
 start:
   MTE:
     units: meV
     value: 150
   type: cathode
 t_dist:
-  file: data/tdist_file.dat
+  file: tdist_file.dat
   type: file1d
   units: ps
 total_charge:
@@ -25,6 +26,6 @@ x_dist:
     value: -1
   type: uniform
 y_dist:
-  file: data/cutgauss.1d.txt
+  file: cutgauss.1d.txt
   type: file1d
   units: mm

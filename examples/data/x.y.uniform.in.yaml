@@ -4,6 +4,7 @@ output:
   type: gpt
 random:
   type: hammersley
+species: electron
 start:
   MTE:
     units: meV

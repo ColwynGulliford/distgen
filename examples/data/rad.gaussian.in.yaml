@@ -7,6 +7,7 @@ r_dist:
   type: radial_gaussian
 random:
   type: hammersley
+species: electron
 start:
   MTE: 150 meV
   type: cathode

@@ -14,6 +14,7 @@ r_dist:
   type: radial_gaussian
 random:
   type: hammersley
+species: electron
 start:
   tstart: 0 sec
   type: time

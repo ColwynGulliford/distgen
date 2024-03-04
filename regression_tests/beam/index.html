@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.10">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
     
     
       
@@ -1227,11 +1227,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">distgen</span> <span class="kn">import</span> <span class="n">Generator</span>
-<span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">MC2</span>
+<span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">PHYSICAL_CONSTANTS</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">import numpy as np
 from distgen import Generator
-from distgen.physical_constants import MC2</div>
+from distgen.physical_constants import PHYSICAL_CONSTANTS
+from glob import glob</div>
 </div>
 </div>
 </div>
@@ -1256,25 +1258,69 @@ from distgen.physical_constants import MC2</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">input_file</span> <span class="o">=</span> <span class="s2">"../examples/data/rad.gaussian.in.yaml"</span>
-<span class="n">gen</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">beam</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">beam</span><span class="p">()</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">yaml_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">glob</span><span class="p">(</span><span class="s1">'../examples/data/*.yaml'</span><span class="p">)</span> <span class="p">)</span>
 
 <span class="n">coordinates</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">,</span> <span class="s1">'px'</span><span class="p">,</span> <span class="s1">'py'</span><span class="p">,</span> <span class="s1">'pz'</span><span class="p">,</span> 
                <span class="s1">'r'</span><span class="p">,</span> <span class="s1">'theta'</span><span class="p">,</span> <span class="s1">'pr'</span><span class="p">,</span> <span class="s1">'ptheta'</span><span class="p">,</span> 
                <span class="s1">'xp'</span><span class="p">,</span> <span class="s1">'yp'</span><span class="p">,</span> <span class="s1">'thetax'</span><span class="p">,</span> <span class="s1">'thetay'</span><span class="p">,</span>
                <span class="s1">'gamma'</span><span class="p">,</span> <span class="s1">'energy'</span><span class="p">,</span> <span class="s1">'kinetic_energy'</span><span class="p">,</span> 
                <span class="s1">'beta_x'</span><span class="p">,</span> <span class="s1">'beta_y'</span><span class="p">,</span> <span class="s1">'beta_z'</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">run_test_on_input_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">G</span><span class="p">[</span><span class="s1">'n_particle'</span><span class="p">]</span><span class="o">=</span><span class="mi">10_000</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">beam</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">run_test_on_input_files</span><span class="p">(</span><span class="n">input_files</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    
+    <span class="k">for</span> <span class="n">input_file</span> <span class="ow">in</span> <span class="n">input_files</span><span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'Testing:'</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
+            
+        <span class="n">run_test_on_input_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">check_abs_and_rel_tols</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ptest</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">):</span>
+
+    <span class="n">abs_dev</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">ptest</span>
+    
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_dev</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">magnitude</span><span class="o">&lt;</span><span class="n">abs_tol</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'&lt;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&gt; is not correct, max(|abs. deviation|) = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_dev</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ptest</span><span class="p">)</span> <span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">rel_dev</span> <span class="o">=</span> <span class="n">abs_dev</span><span class="o">/</span><span class="n">ptest</span>
+            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_dev</span><span class="p">)</span> <span class="p">)</span><span class="o">&lt;</span><span class="n">rel_tol</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'&lt;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&gt; is not correct, max(|rel. deviation|) = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_dev</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">input_file = "../examples/data/rad.gaussian.in.yaml"
-gen = Generator(input_file,verbose=0)
-beam = gen.beam()
+<div class="clipboard-copy-txt" id="cell-3">yaml_files = list( glob('../examples/data/*.yaml') )
 
 coordinates = {'x', 'y', 'z', 'px', 'py', 'pz', 
                'r', 'theta', 'pr', 'ptheta', 
                'xp', 'yp', 'thetax', 'thetay',
                'gamma', 'energy', 'kinetic_energy', 
-               'beta_x', 'beta_y', 'beta_z'}</div>
+               'beta_x', 'beta_y', 'beta_z'}
+
+def run_test_on_input_file(input_file, test):
+    G = Generator(input_file, verbose=0)
+    G['n_particle']=10_000
+    test(G.beam())
+
+def run_test_on_input_files(input_files, test, verbose=False):
+    
+    for input_file in input_files:
+        if(verbose): 
+            print('Testing:', input_file)
+            
+        run_test_on_input_file(input_file, test)
+    
+def check_abs_and_rel_tols(var, p, ptest, abs_tol=1e-12, rel_tol=1e-15):
+
+    abs_dev = p - ptest
+    
+    assert np.max( np.abs(abs_dev) ).magnitude<abs_tol, f'<{var}=""> is not correct, max(|abs. deviation|) = {np.max(np.abs(abs_dev))}'
+
+    if(np.min( np.abs(ptest) )&gt;0):
+            rel_dev = abs_dev/ptest
+            assert np.max( np.abs(rel_dev) )<rel_tol, f'<{var}=""> is not correct, max(|rel. deviation|) = {np.max(np.abs(rel_dev))}'
+
+    </rel_tol,></abs_tol,></div>
 </div>
 </div>
 </div>
@@ -1310,9 +1356,15 @@ coordinates = {'x', 'y', 'z', 'px', 'py', 'pz',
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e14</span><span class="p">,</span> <span class="s1">'Beam weights not normalized'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_weight_normalization</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'macroparticle weights'</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]),</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_weight_normalization</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4">assert np.abs(np.sum(beam['w'])-1)&lt;1e14, 'Beam weights not normalized'</div>
+<div class="clipboard-copy-txt" id="cell-4">def test_weight_normalization(beam):
+    check_abs_and_rel_tols('macroparticle weights', np.sum(beam['w']), 1.0, abs_tol=1e-12, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_weight_normalization)</div>
 </div>
 </div>
 </div>
@@ -1348,11 +1400,19 @@ coordinates = {'x', 'y', 'z', 'px', 'py', 'pz',
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]))</span><span class="o">.</span><span class="n">magnitude</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'&lt;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&gt; is not correct'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_avg</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
+        <span class="n">avg_beam</span><span class="p">,</span> <span class="n">avg_numpy</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.avg'</span><span class="p">,</span> <span class="n">avg_beam</span><span class="p">,</span> <span class="n">avg_numpy</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>  
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_avg</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-5">for var in coordinates:
-    assert np.abs(beam.avg(var) - np.sum(beam['w']*beam[var])).magnitude&lt;1e-14, f'&lt;{var}&gt; is not correct'</div>
+<div class="clipboard-copy-txt" id="cell-5">def test_avg(beam):
+    for var in coordinates:
+        avg_beam, avg_numpy = beam.avg(var), np.sum(beam['w']*beam[var])
+        check_abs_and_rel_tols('beam.avg', avg_beam, avg_numpy, abs_tol=1e-12, rel_tol=1e-15)  
+
+run_test_on_input_files(yaml_files, test_avg)</div>
 </div>
 </div>
 </div>
@@ -1388,11 +1448,21 @@ coordinates = {'x', 'y', 'z', 'px', 'py', 'pz',
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">magnitude</span><span class="o">&lt;</span><span class="mf">5e-10</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'&lt;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&gt; is not correct'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_std</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
+        <span class="n">sigma2_beam</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">sigma2_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.std'</span><span class="p">,</span> <span class="n">sigma2_beam</span><span class="p">,</span> <span class="n">sigma2_numpy</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_std</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-6">for var in coordinates:
-    assert np.abs(beam.std(var)**2 - np.sum(beam['w']*(beam[var]-beam.avg(var))**2)).magnitude&lt;5e-10, f'&lt;{var}&gt; is not correct'</div>
+<div class="clipboard-copy-txt" id="cell-6">def test_std(beam):
+    for var in coordinates:
+        sigma2_beam = beam.std(var)**2
+        sigma2_numpy = np.sum(beam['w']*(beam[var]-beam.avg(var))**2)
+        check_abs_and_rel_tols('beam.std', sigma2_beam, sigma2_numpy, abs_tol=1e-8, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_std)</div>
 </div>
 </div>
 </div>
@@ -1440,11 +1510,15 @@ coordinates = {'x', 'y', 'z', 'px', 'py', 'pz',
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'Radial coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_r</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.r'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_r</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-7">deviation =  np.abs(beam['r'] - np.sqrt(beam['x']**2 + beam['y']**2))
-assert max(deviation.magnitude)&lt;1e-14, 'Radial coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-7">def test_r(beam):
+    check_abs_and_rel_tols('beam.r', beam['r'], np.sqrt(beam['x']**2 + beam['y']**2), abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_r)</div>
 </div>
 </div>
 </div>
@@ -1480,11 +1554,15 @@ assert max(deviation.magnitude)&lt;1e-14, 'Radial coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'x coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_x</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.x = r cos(theta)'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_x</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-8">deviation = np.abs(beam['x'] - beam['r']*np.cos(beam['theta']))
-assert max(deviation.magnitude)&lt;1e-14, 'x coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-8">def test_x(beam):
+    check_abs_and_rel_tols('beam.x = r cos(theta)', beam['x'], beam['r']*np.cos(beam['theta']), abs_tol=1e-12, rel_tol=1e-11)
+
+run_test_on_input_files(yaml_files, test_x)</div>
 </div>
 </div>
 </div>
@@ -1520,11 +1598,15 @@ assert max(deviation.magnitude)&lt;1e-14, 'x coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">5e-13</span><span class="p">,</span> <span class="s1">'y coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_y</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.y = r sin(theta)'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'y'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_y</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-9">deviation = np.abs(beam['x'] - beam['r']*np.cos(beam['theta']))
-assert max(deviation.magnitude)&lt;5e-13, 'y coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-9">def test_y(beam):
+    check_abs_and_rel_tols('beam.y = r sin(theta)', beam['y'], beam['r']*np.sin(beam['theta']), abs_tol=1e-12, rel_tol=1e-11)
+
+run_test_on_input_files(yaml_files, test_y)</div>
 </div>
 </div>
 </div>
@@ -1537,7 +1619,7 @@ assert max(deviation.magnitude)&lt;5e-13, 'y coordinate incorrect'</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>$p_r = p_x\cos\theta - p_y\sin\theta$</p>
+<p>$p_r = p_x\cos\theta + p_y\sin\theta$</p>
 </div>
 </div>
 </div>
@@ -1560,11 +1642,21 @@ assert max(deviation.magnitude)&lt;5e-13, 'y coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pr'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">])</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">5e-13</span><span class="p">,</span> <span class="s1">'pr coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_pr</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.pr = px cos(theta) + py sin(theta)'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pr'</span><span class="p">],</span>
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">])</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> 
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-10">deviation = np.abs(beam['pr'] - beam['px']*np.cos(beam['theta']) - beam['py']*np.sin(beam['theta']))
-assert max(deviation.magnitude)&lt;5e-13, 'pr coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-10">def test_pr(beam):
+    check_abs_and_rel_tols('beam.pr = px cos(theta) + py sin(theta)', beam['pr'],
+                           beam['px']*np.cos(beam['theta']) + beam['py']*np.sin(beam['theta']), 
+                           abs_tol=1e-12, rel_tol=1e-15)
+
+
+run_test_on_input_files(yaml_files, test_pr)</div>
 </div>
 </div>
 </div>
@@ -1577,7 +1669,7 @@ assert max(deviation.magnitude)&lt;5e-13, 'pr coordinate incorrect'</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>$p_{\theta} = -p_x\cos\theta + p_y\sin\theta$</p>
+<p>$p_{\theta} = -p_x\sin\theta + p_y\cos\theta$</p>
 </div>
 </div>
 </div>
@@ -1600,11 +1692,21 @@ assert max(deviation.magnitude)&lt;5e-13, 'pr coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'ptheta'</span><span class="p">]</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">])</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">5e-13</span><span class="p">,</span> <span class="s1">'ptheta coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_ptheta</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.ptheta = -px sin(theta) + py cos(theta)'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'ptheta'</span><span class="p">],</span>
+                           <span class="o">-</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">])</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> 
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_ptheta</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-11">deviation = np.abs(beam['ptheta'] + beam['px']*np.sin(beam['theta']) - beam['py']*np.cos(beam['theta']))
-assert max(deviation.magnitude)&lt;5e-13, 'ptheta coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-11">def test_ptheta(beam):
+    check_abs_and_rel_tols('beam.ptheta = -px sin(theta) + py cos(theta)', 
+                           beam['ptheta'],
+                           -beam['px']*np.sin(beam['theta']) + beam['py']*np.cos(beam['theta']), 
+                           abs_tol=1e-12, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_ptheta)</div>
 </div>
 </div>
 </div>
@@ -1662,11 +1764,15 @@ assert max(deviation.magnitude)&lt;5e-13, 'ptheta coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'xp'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">])</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'xp coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_xp</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.xp = px/pz'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'xp'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">],</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_xp</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-12">deviation = np.abs(beam['xp'] - beam['px'].to(beam['pz'].units)/beam['pz'])
-assert max(deviation.magnitude)&lt;1e-14, 'xp coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-12">def test_xp(beam):
+    check_abs_and_rel_tols('beam.xp = px/pz', beam['xp'], beam['px'].to(beam['pz'].units)/beam['pz'], abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_xp)</div>
 </div>
 </div>
 </div>
@@ -1702,11 +1808,15 @@ assert max(deviation.magnitude)&lt;1e-14, 'xp coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'yp'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">])</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'yp coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_yp</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.yp = py/pz'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'yp'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">],</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_yp</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-13">deviation = np.abs(beam['yp'] - beam['py'].to(beam['py'].units)/beam['pz'])
-assert max(deviation.magnitude)&lt;1e-14, 'yp coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-13">def test_yp(beam):
+    check_abs_and_rel_tols('beam.yp = py/pz', beam['yp'], beam['py'].to(beam['pz'].units)/beam['pz'], abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_yp)</div>
 </div>
 </div>
 </div>
@@ -1742,11 +1852,21 @@ assert max(deviation.magnitude)&lt;1e-14, 'yp coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'thetax'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'thetax coordinate deviation = </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_thetax</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.thetax = arctan(px/pz)'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'thetax'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]),</span> 
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_thetax</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-14">deviation = np.abs(beam['thetax'] - np.arctan(beam['px'].to(beam['px'].units)/beam['pz']))
-assert max(deviation.magnitude)&lt;1e-14, f'thetax coordinate deviation = {max(deviation)}'</div>
+<div class="clipboard-copy-txt" id="cell-14">def test_thetax(beam):
+    check_abs_and_rel_tols('beam.thetax = arctan(px/pz)', 
+                           beam['thetax'], 
+                           np.arctan2(beam['px'].to(beam['pz'].units), beam['pz']), 
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_thetax)</div>
 </div>
 </div>
 </div>
@@ -1782,11 +1902,21 @@ assert max(deviation.magnitude)&lt;1e-14, f'thetax coordinate deviation = {max(d
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'thetay'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'thetay coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_thetay</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.thetay = arctan(py/pz)'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'thetay'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]),</span> 
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_thetay</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-15">deviation = np.abs(beam['thetay'] - np.arctan(beam['py'].to(beam['py'].units)/beam['pz']))
-assert max(deviation.magnitude)&lt;1e-14, 'thetay coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-15">def test_thetay(beam):
+    check_abs_and_rel_tols('beam.thetay = arctan(py/pz)', 
+                           beam['thetay'], 
+                           np.arctan2(beam['py'].to(beam['pz'].units), beam['pz']), 
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_thetay)</div>
 </div>
 </div>
 </div>
@@ -1823,11 +1953,23 @@ assert max(deviation.magnitude)&lt;1e-14, 'thetay coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'thetay coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_p</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.p = sqrt(px^2 + py^2 + pz^2)'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> 
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_p</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-16">deviation = np.abs(beam['p'] - np.sqrt(beam['px']**2 +beam['py']**2 + beam['pz']**2))
-assert max(deviation.magnitude)&lt;1e-14, 'thetay coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-16">def test_p(beam):
+    deviation = np.abs(beam['p'] - np.sqrt(beam['px']**2 +beam['py']**2 + beam['pz']**2))
+    check_abs_and_rel_tols('beam.p = sqrt(px^2 + py^2 + pz^2)', 
+                           beam['p'], 
+                           np.sqrt(beam['px']**2 +beam['py']**2 + beam['pz']**2), 
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_p)</div>
 </div>
 </div>
 </div>
@@ -1840,7 +1982,7 @@ assert max(deviation.magnitude)&lt;1e-14, 'thetay coordinate incorrect'</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>$\gamma = \sqrt{1+\left(\frac{p}{mc}\right)^2}$</p>
+<p>$E = \sqrt{c^2|\vec{p}|^2 + (mc^2)^2}$</p>
 </div>
 </div>
 </div>
@@ -1863,11 +2005,27 @@ assert max(deviation.magnitude)&lt;1e-14, 'thetay coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'eV/c'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span><span class="o">/</span><span class="n">MC2</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span>
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-13</span><span class="p">,</span> <span class="s1">'gamma coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_energy</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
+
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.energy = sqrt(c^2p^2 + (mc^2)^2)'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> 
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_energy</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-17">deviation = np.abs( beam['gamma'] - np.sqrt(1+ (beam['p'].to('eV/c').magnitude/MC2.magnitude)**2) )
-assert max(deviation.magnitude)&lt;1e-13, 'gamma coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-17">def test_energy(beam):
+
+    c = PHYSICAL_CONSTANTS['speed of light in vacuum']
+
+    check_abs_and_rel_tols('beam.energy = sqrt(c^2p^2 + (mc^2)^2)', 
+                           beam['energy'], 
+                           np.sqrt(c**2*beam['p']**2 + beam.mc2**2), 
+                           abs_tol=1e-9, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_energy)</div>
 </div>
 </div>
 </div>
@@ -1880,7 +2038,7 @@ assert max(deviation.magnitude)&lt;1e-13, 'gamma coordinate incorrect'</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>$\beta_{x_i} = p_{x_i}/\gamma$</p>
+<p>$\gamma = \sqrt{1+\left(\frac{p}{mc}\right)^2}$, $E/mc^2$</p>
 </div>
 </div>
 </div>
@@ -1903,13 +2061,37 @@ assert max(deviation.magnitude)&lt;1e-13, 'gamma coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">]:</span>
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'beta_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'GB'</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">])</span>  
-    <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'beta_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_gamma</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
+    
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.gamma = sqrt( 1 + (p/mc)^2 )'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span><span class="o">/</span><span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.gamma = E/mc^2'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">],</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">]</span><span class="o">/</span><span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_gamma</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-18">for var in ['x', 'y', 'z']:
-    deviation = np.abs( beam[f'beta_{var}'] - beam[f'p{var}'].to('GB')/beam['gamma'])  
-    assert max(deviation.magnitude)&lt;1e-14, f'beta_{var} coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-18">def test_gamma(beam):
+
+    mc = beam.species_mass * PHYSICAL_CONSTANTS['speed of light in vacuum']
+    
+    check_abs_and_rel_tols('beam.gamma = sqrt( 1 + (p/mc)^2 )', 
+                           beam['gamma'], 
+                           np.sqrt(1+ (beam['p']/mc).to_reduced_units()**2),
+                           abs_tol=1e-10, rel_tol=1e-10)
+
+    check_abs_and_rel_tols('beam.gamma = E/mc^2', 
+                           beam['gamma'], 
+                           beam['energy']/beam.mc2,
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_gamma)</div>
 </div>
 </div>
 </div>
@@ -1922,7 +2104,7 @@ assert max(deviation.magnitude)&lt;1e-13, 'gamma coordinate incorrect'</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>KE = $mc^2(\gamma-1)$</p>
+<p>$\beta = \sqrt{1 - \frac{1}{\gamma^2} }$</p>
 </div>
 </div>
 </div>
@@ -1945,11 +2127,25 @@ assert max(deviation.magnitude)&lt;1e-13, 'gamma coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">]</span> <span class="o">-</span> <span class="n">MC2</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span> 
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'KE coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_beta</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta = sqrt( 1 - 1/gamma**2 )'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">),</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'max(beta) &gt; 1, faster than light particle!'</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-19">deviation = np.abs( beam['kinetic_energy'] - MC2*(beam['gamma']-1) ) 
-assert max(deviation.magnitude)&lt;1e-14, 'KE coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-19">def test_beta(beam):
+    check_abs_and_rel_tols('beam.beta = sqrt( 1 - 1/gamma**2 )', 
+                           beam['beta'], 
+                           np.sqrt( 1 - 1/beam['gamma']**2 ),
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+    assert max(beam['beta']) &lt; 1, 'max(beta) &gt; 1, faster than light particle!'
+
+run_test_on_input_files(yaml_files, test_beta)</div>
 </div>
 </div>
 </div>
@@ -1962,7 +2158,7 @@ assert max(deviation.magnitude)&lt;1e-14, 'KE coordinate incorrect'</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>E = $mc^2\gamma$</p>
+<p>$\beta_{x_i} = \frac{p_{x_i}}{\gamma mc}$, $\beta_x = x^{\prime}\beta_z$, $\beta_y = y^{\prime}\beta_z$,  $\beta_z = \frac{\beta}{\sqrt{1+(x^{\prime})^2 +(y^{\prime})^2}}$</p>
 </div>
 </div>
 </div>
@@ -1985,11 +2181,99 @@ assert max(deviation.magnitude)&lt;1e-14, 'KE coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">]</span> <span class="o">-</span> <span class="n">MC2</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">])</span> <span class="p">)</span> 
-<span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">1e-14</span><span class="p">,</span> <span class="s1">'E coordinate incorrect'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_beta_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">]:</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta_xi = pxi/gamma/mc )'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'beta_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">],</span> 
+                           <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">/</span><span class="n">mc</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">])</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">(),</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s2">"beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )"</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'beta_z'</span><span class="p">],</span> 
+                           <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">])</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'xp'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'yp'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">),</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta_xi</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-20">deviation = np.abs( beam['energy'] - MC2*(beam['gamma']) ) 
-assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
+<div class="clipboard-copy-txt" id="cell-20">def test_beta_xi(beam):
+
+    mc = beam.species_mass * PHYSICAL_CONSTANTS['speed of light in vacuum']
+
+    for var in ['x', 'y', 'z']:
+        check_abs_and_rel_tols('beam.beta_xi = pxi/gamma/mc )', 
+                           beam[f'beta_{var}'], 
+                           (beam[f'p{var}']/mc/beam['gamma']).to_reduced_units(),
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+        check_abs_and_rel_tols("beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )", 
+                           beam['beta_z'], 
+                           np.sign(beam['pz'])*beam['beta']/np.sqrt( 1 + beam['xp']**2 + beam['yp']**2 ),
+                           abs_tol=1e-11, rel_tol=5e-6)
+
+run_test_on_input_files(yaml_files, test_beta_xi)</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>KE = $mc^2(\gamma-1)$, $E-mc^2$</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy for="cell-21">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_kinetic_energy</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = mc2*(gamma-1)'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
+                           <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = E - mc2'</span><span class="p">,</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
+                           <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_kinetic_energy</span><span class="p">)</span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-21">def test_kinetic_energy(beam):
+    check_abs_and_rel_tols('beam.kinetic_energy = mc2*(gamma-1)', 
+                           beam['kinetic_energy'], 
+                           beam.mc2*(beam['gamma']-1),
+                           abs_tol=1e-15, rel_tol=1e-15)
+
+    check_abs_and_rel_tols('beam.kinetic_energy = E - mc2', 
+                           beam['kinetic_energy'], 
+                           beam['energy'] - beam.mc2,
+                           abs_tol=1e-9, rel_tol=1e-5)
+
+run_test_on_input_files(yaml_files, test_kinetic_energy)</div>
 </div>
 </div>
 </div>
@@ -2013,10 +2297,10 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy for="cell-21">
+<clipboard-copy for="cell-22">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -2026,23 +2310,39 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-    <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'GB'</span><span class="p">))</span><span class="o">.</span><span class="n">magnitude</span>
-    <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'GB'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_emitt_normalized</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
     
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="p">))</span>
-    <span class="k">assert</span> <span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">&lt;</span> <span class="mf">1e-14</span>
+        <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
+        
+        <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span><span class="o">/</span><span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">))</span><span class="o">/</span><span class="n">mc</span> <span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span>
+
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.emitt (normalized)'</span><span class="p">,</span> 
+                               <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
+                               <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_emitt_normalized</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-21">for var in ['x', 'y']:
-    stdx = beam.std(var)
-    stdp = (beam.std(f'p{var}').to('GB')).magnitude
-    dx = beam[var]-beam.avg(var)
-    dp = (beam[f'p{var}']-beam.avg(f'p{var}')).to('GB').magnitude
+<div class="clipboard-copy-txt" id="cell-22">def test_emitt_normalized(beam):
+    for var in ['x', 'y']:
     
-    deviation = np.abs(beam.emitt(var) - np.sqrt(stdx**2 * stdp**2 - (np.sum(beam['w']*dx*dp))**2 ))
-    assert deviation.magnitude &lt; 1e-14</div>
+        mc = beam.species_mass * PHYSICAL_CONSTANTS['speed of light in vacuum']
+        
+        stdx = beam.std(var)
+        stdp = (beam.std(f'p{var}')/mc).to_reduced_units()
+        dx = beam[var]-beam.avg(var)
+        dp = ( (beam[f'p{var}']-beam.avg(f'p{var}'))/mc ).to_reduced_units()
+
+        check_abs_and_rel_tols('beam.emitt (normalized)', 
+                               beam.emitt(var), 
+                               np.sqrt(stdx**2 * stdp**2 - (np.sum(beam['w']*dx*dp))**2),
+                               abs_tol=1e-11, rel_tol=1e-11)
+
+run_test_on_input_files(yaml_files, test_emitt_normalized)</div>
 </div>
 </div>
 </div>
@@ -2065,10 +2365,10 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy for="cell-22">
+<clipboard-copy for="cell-23">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -2078,23 +2378,35 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-    <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span><span class="o">.</span><span class="n">magnitude</span>
-    <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span><span class="o">.</span><span class="n">magnitude</span>
-    
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="p">))</span>
-    <span class="k">assert</span> <span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">&lt;</span> <span class="mf">1e-14</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_emitt_geometric</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
+        <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
+
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.emitt (geometric)'</span><span class="p">,</span> 
+                               <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s1">'geometric'</span><span class="p">),</span> 
+                               <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_emitt_geometric</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-22">for var in ['x', 'y']:
-    stdx = beam.std(var)
-    stdp = (beam.std(f'{var}p')).magnitude
-    dx = beam[var]-beam.avg(var)
-    dp = (beam[f'{var}p']-beam.avg(f'{var}p')).magnitude
-    
-    deviation = np.abs(beam.emitt(var,'geometric') - np.sqrt(stdx**2 * stdp**2 - (np.sum(beam['w']*dx*dp))**2 ))
-    assert deviation.magnitude &lt; 1e-14</div>
+<div class="clipboard-copy-txt" id="cell-23">def test_emitt_geometric(beam):
+
+    for var in ['x', 'y']:
+        stdx = beam.std(var)
+        stdp = (beam.std(f'{var}p'))
+        dx = beam[var]-beam.avg(var)
+        dp = (beam[f'{var}p']-beam.avg(f'{var}p'))
+
+        check_abs_and_rel_tols('beam.emitt (geometric)', 
+                               beam.emitt(var, 'geometric'), 
+                               np.sqrt(stdx**2 * stdp**2 - (np.sum(beam['w']*dx*dp))**2),
+                               abs_tol=1e-14, rel_tol=1e-15)
+
+run_test_on_input_files(yaml_files, test_emitt_geometric)</div>
 </div>
 </div>
 </div>
@@ -2117,10 +2429,10 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy for="cell-23">
+<clipboard-copy for="cell-24">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -2130,19 +2442,35 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-    <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">twiss_beta_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
 
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="o">.</span><span class="n">Beta</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">-</span> <span class="n">stdx</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">epsx</span> <span class="p">)</span>
-    <span class="k">assert</span> <span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">&lt;</span> <span class="mf">1e-14</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
+        
+        <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">epsx</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.Beta_xi (Twiss)'</span><span class="p">,</span> 
+                                   <span class="n">beam</span><span class="o">.</span><span class="n">Beta</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
+                                   <span class="n">stdx</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">epsx</span> <span class="p">,</span>
+                                   <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+        
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta_xi</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-23">for var in ['x', 'y']:
-    stdx = beam.std(var)
-    epsx = beam.emitt(var,'geometric')
+<div class="clipboard-copy-txt" id="cell-24">def twiss_beta_xi(beam):
 
-    deviation = np.abs( beam.Beta(var) - stdx**2/epsx )
-    assert deviation.magnitude &lt; 1e-14</div>
+    for var in ['x', 'y']:
+        
+        stdx = beam.std(var)
+        epsx = beam.emitt(var,'geometric')
+
+        if(epsx&gt;0):
+            check_abs_and_rel_tols('beam.Beta_xi (Twiss)', 
+                                   beam.Beta(var), 
+                                   stdx**2/epsx ,
+                                   abs_tol=1e-14, rel_tol=1e-15)
+        
+run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </div>
 </div>
 </div>
@@ -2165,10 +2493,10 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy for="cell-24">
+<clipboard-copy for="cell-25">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -2178,19 +2506,35 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-    <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
-    <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="o">.</span><span class="n">Alpha</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">)</span><span class="o">/</span><span class="n">epsx</span> <span class="p">)</span>
-    <span class="k">assert</span> <span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">&lt;</span> <span class="mf">1e-15</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_alpha_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
+        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">epsx</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.Alpha_xi (Twiss)'</span><span class="p">,</span> 
+                                   <span class="n">beam</span><span class="o">.</span><span class="n">Alpha</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
+                                   <span class="o">-</span><span class="nb">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">)</span><span class="o">/</span><span class="n">epsx</span><span class="p">,</span>
+                                   <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
+        
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_alpha_xi</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-24">for var in ['x', 'y']:
-    dx = beam[var]-beam.avg(var)
-    dp = (beam[f'{var}p']-beam.avg(f'{var}p'))
-    epsx = beam.emitt(var,'geometric')
-    deviation = np.abs( beam.Alpha(var) + sum(beam['w']*dx*dp)/epsx )
-    assert deviation.magnitude &lt; 1e-15</div>
+<div class="clipboard-copy-txt" id="cell-25">def test_alpha_xi(beam):
+
+    for var in ['x', 'y']:
+        dx = beam[var]-beam.avg(var)
+        dp = (beam[f'{var}p']-beam.avg(f'{var}p'))
+        epsx = beam.emitt(var,'geometric')
+
+        if(epsx&gt;0):
+            check_abs_and_rel_tols('beam.Alpha_xi (Twiss)', 
+                                   beam.Alpha(var), 
+                                   -sum(beam['w']*dx*dp)/epsx,
+                                   abs_tol=1e-14, rel_tol=1e-14)
+        
+run_test_on_input_files(yaml_files, test_alpha_xi)    </div>
 </div>
 </div>
 </div>
@@ -2213,10 +2557,10 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [26]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy for="cell-25">
+<clipboard-copy for="cell-26">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -2226,17 +2570,60 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-    <span class="n">stdp</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">)</span>
-    <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">beam</span><span class="o">.</span><span class="n">Gamma</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">-</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">epsx</span> <span class="p">)</span>
-    <span class="k">assert</span> <span class="n">deviation</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">&lt;</span> <span class="mf">5e-15</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_gamma_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
+        <span class="n">stdp</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">)</span>
+        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">epsx</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.Gamma_xi (Twiss)'</span><span class="p">,</span> 
+                                   <span class="n">beam</span><span class="o">.</span><span class="n">Gamma</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
+                                   <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">epsx</span><span class="p">,</span>
+                                   <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
+
+<span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_gamma_xi</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-25">for var in ['x', 'y']:
-    stdp = beam.std(f'{var}p')
-    epsx = beam.emitt(var,'geometric')
-    deviation = np.abs( beam.Gamma(var) - stdp**2/epsx )
-    assert deviation.magnitude &lt; 5e-15</div>
+<div class="clipboard-copy-txt" id="cell-26">def test_gamma_xi(beam):
+
+    for var in ['x', 'y']:
+        stdp = beam.std(f'{var}p')
+        epsx = beam.emitt(var,'geometric')
+
+        if(epsx&gt;0):
+            check_abs_and_rel_tols('beam.Gamma_xi (Twiss)', 
+                                   beam.Gamma(var), 
+                                   stdp**2/epsx,
+                                   abs_tol=1e-14, rel_tol=1e-14)
+
+run_test_on_input_files(yaml_files, test_gamma_xi) </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy for="cell-27">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-27"></div>
 </div>
 </div>
 </div>
@@ -2313,7 +2700,7 @@ assert max(deviation.magnitude)&lt;1e-14, 'E coordinate incorrect'</div>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
       
     
   </body>

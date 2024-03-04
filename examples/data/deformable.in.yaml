@@ -9,6 +9,7 @@ r_dist:
   type: dr
 random:
   type: hammersley
+species: electron
 start:
   MTE: 120 meV
   type: cathode

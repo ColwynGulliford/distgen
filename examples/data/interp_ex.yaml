@@ -17,6 +17,7 @@ r_dist:
   type: radial_interpolation
 random:
   type: hammersley
+species: electron
 start:
   MTE: 130 meV
   type: cathode

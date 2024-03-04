@@ -8,6 +8,7 @@ r_dist:
   type: rg
 random:
   type: hammersley
+species: electron
 start:
   MTE: 150 meV
   type: cathode

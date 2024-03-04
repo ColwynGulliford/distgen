@@ -15,6 +15,7 @@ r_dist:
   type: radial_uniform
 random:
   type: hammersley
+species: electron
 start:
   type: cathode
 t_dist:

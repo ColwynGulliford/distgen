@@ -10,6 +10,7 @@ r_dist:
   type: radial_gaussian
 random:
   type: hammersley
+species: electron
 start:
   type: cathode
 t_dist:

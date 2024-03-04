@@ -1,6 +1,7 @@
 n_particle: 1000000
 random:
   type: hammersley
+species: electron
 start:
   MTE: 150 meV
   type: cathode
