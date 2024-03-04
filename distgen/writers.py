@@ -1,5 +1,5 @@
 from .tools import vprint, StopWatch, mean
-from .physical_constants import  *
+from .physical_constants import  PHYSICAL_CONSTANTS, unit_registry
 
 import numpy as np
 import subprocess
@@ -7,14 +7,14 @@ import os
 from collections import OrderedDict as odict
 from h5py import File
 
-def get_species_charge(species):
+#def get_species_charge(species):
 
-    """ Returns the species charge (only electrons so far """
+#    """ Returns the species charge (only electrons so far """
 
-    if(species=="electron"):
-        return qe
-    else:
-        raise ValueError(f'get_species_charge: Species "{species}" is not supported.')
+#    if(species=="electron"):
+#        return qe
+#    else:
+#        raise ValueError(f'get_species_charge: Species "{species}" is not supported.')
 
 def writer(output_format, beam, outfile, verbose=0, params=None):
 
@@ -52,16 +52,19 @@ def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):
         watch = StopWatch()
 
         # Format particles
-        gpt_units={"x":"m", "y":"m", "z":"m","px":"GB","py":"GB","pz":"GB","t":"s"}
+        gpt_units={"x":"m", "y":"m", "z":"m", "t":"s", 
+                   'gamma_beta_x':'dimensionless',
+                   'gamma_beta_y':'dimensionless',
+                   'gamma_beta_z':'dimensionless'}
 
-        qspecies = get_species_charge(beam.species)
+        qspecies = beam.species_charge
         qspecies.ito("coulomb")
         qs = np.full((beam['n_particle'],),1.0)*qspecies
         qbunch = beam.q.to("coulomb")
 
         watch.start()
         
-        assert beam.species == 'electron' # TODO: add more species
+        #assert beam.species == 'electron' # TODO: add more species
 
         nspecies = np.abs(qbunch.magnitude/qspecies.magnitude)
         nmacro = nspecies*np.abs(beam["w"])    #np.full((beam.n,),1)*np.abs( (beam.q.to("coulomb")).magnitude/beam.n/qspecies.magnitude)
@@ -72,7 +75,7 @@ def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):
         for var in gpt_units:
             beam[var].ito(gpt_units[var])
 
-        headers = odict( {'x':'x', 'y':'y', 'z':'z', 'px':'GBx',  'py':'GBy', 'pz':'GBz', 't':'t', 'q':'q', 'nmacro':'nmacro'} )
+        headers = odict( {'x':'x', 'y':'y', 'z':'z', 'gamma_beta_x':'GBx',  'gamma_beta_y':'GBy', 'gamma_beta_z':'GBz', 't':'t', 'q':'q', 'nmacro':'nmacro'} )
         header = '   '.join(headers.values())
 
         data = np.zeros( (len(beam["x"]),len(headers)) )
@@ -134,7 +137,7 @@ def write_astra(beam,
 
     vprint(f'Printing {(beam["n_particle"])} particles to "{outfile}": ', verbose>0, 0, False)
 
-    assert species == 'electron' # TODO: add more species
+    assert beam.species == 'electron' # TODO: add more species
     
     # number of lines in file
     size = beam['n_particle'] + 1 # Allow one for reference particle
@@ -152,6 +155,9 @@ def write_astra(beam,
     # Astra units and types
     units = ['m', 'm', 'm', 'eV/c', 'eV/c', 'eV/c', 'ns', 'nC']
     names = ['x', 'y', 'z', 'px', 'py', 'pz', 't', 'q', 'index', 'status']
+
+    ASTRA_SPECIES_INDEX = {'electron': 1}
+    
     types = 8*[float] + 2*[np.int8]
     # Convert to these units in place
     for i in range(8):
@@ -176,7 +182,7 @@ def write_astra(beam,
     
     # Set these to be the same
     data['q'] = q_macro    
-    data['index'] = 1    # electron
+    data['index'] = ASTRA_SPECIES_INDEX[beam.species]    
     data['status'] = -1  # Particle at cathode
     
     # Subtract off reference z, pz, t
@@ -211,12 +217,8 @@ def fstr(s):
 
 
 
-from scipy.constants import physical_constants
 
-#mc2 = 1e6 * physical_constants['electron mass energy equivalent in MeV'][0]
-#e_= physical_constants['elementary charge'][0]
 
-#me = physical_constants['electron mass in u'][0]
 
 
 def write_simion(beam, outfile, verbose=0, params={'color':0}):
@@ -242,7 +244,7 @@ def write_simion(beam, outfile, verbose=0, params={'color':0}):
     data[:, simion_params.index('TOB')] = beam.t.to('microseconds').magnitude    # [P.t] = sec, convert to usec
     
     if(beam.species == 'electron'):
-        data[:, simion_params.index('MASS')] = np.full(N, me.to('amu').magnitude)
+        data[:, simion_params.index('MASS')] = np.full(N, beam.species_mass.to('amu').magnitude)
         data[:, simion_params.index('CHARGE')] = np.full(N, -1)
     else:
         raise ValueError(f'Species {P.species} is not supported')
@@ -260,7 +262,7 @@ def write_simion(beam, outfile, verbose=0, params={'color':0}):
     data[:, simion_params.index('EL')] = np.arctan2(py, np.sqrt(px**2 + pz**2) ) * (180/np.pi) # [deg]
     
     # Charge Weighting Factor, derive from particle group weights
-    data[:, simion_params.index('CWF')] = (beam.q.to('C').magnitude / abs(qe.to('C').magnitude) / N)                
+    data[:, simion_params.index('CWF')] = (beam.q.to('C').magnitude / abs(beam.species_charge.to('C').magnitude) / N)                
     data[:, simion_params.index('COLOR')] = np.full(N, color)
 
     np.savetxt(outfile, data, delimiter=',', header=header, comments='', fmt='  %.9e')
@@ -276,7 +278,7 @@ def write_openPMD(beam,outfile,verbose=0, params=None):
 
         watch = StopWatch()
         watch.start()
-        vprint(f'Printing {beam["n_particle"]})+" particles to "{outfile}": ', verbose>0, 0, False)
+        vprint(f'Printing {beam["n_particle"]} particles to "{outfile}": ', verbose>0, 0, False)
         
         opmd_init(h5)
         write_openpmd_h5(beam, h5, name='/data/0/particles/', verbose=0)

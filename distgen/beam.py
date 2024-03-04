@@ -159,6 +159,10 @@ class Beam():
         return PHYSICAL_CONSTANTS.species(self.species)['mass']
 
     @property
+    def species_charge(self):
+        return PHYSICAL_CONSTANTS.species(self.species)['charge']
+
+    @property
     def energy(self):
         return np.sqrt( (c*self.p)**2 + self.mc2**2 ).to('eV')
 
@@ -188,6 +192,21 @@ class Beam():
     def beta_z(self):
         """vz/c"""
         return (self.pz/self.species_mass/c/self.gamma).to_reduced_units()
+
+    @property
+    def gamma_beta_x(self):
+        """gamma * vx/c"""
+        return (self.gamma*self.beta_x).to_reduced_units()
+
+    @property
+    def gamma_beta_y(self):
+        """gamma * vy/c"""
+        return (self.gamma*self.beta_y).to_reduced_units()
+
+    @property
+    def gamma_beta_z(self):
+        """gamma * vz/c"""
+        return (self.gamma*self.beta_z).to_reduced_units()
 
     # Statistical quantities
     def avg(self, var, desired_units=None):
