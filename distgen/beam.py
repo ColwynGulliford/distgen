@@ -1,6 +1,6 @@
 from pmd_beamphysics import ParticleStatus
 import numpy as np
-from .physical_constants import unit_registry, pi, MC2
+from .physical_constants import PHYSICAL_CONSTANTS
 import functools
 
 from .tools import vprint, mean, std
@@ -9,19 +9,23 @@ from .tools import vprint, mean, std
 This class defines the container for an initial particle distribution 
 """
 
+c = PHYSICAL_CONSTANTS['speed of light in vacuum']
+
 class Beam():
 
     """
     The fundamental bunch data is stored in __dict__ with keys
         pint quantity np.array: x, px, y, py, z, pz, t, weight, 
         np.array status, 
-        str: species
+        str: species,
+        sx, sy, sz 
     where:
         x, y, z have a base unit of meters 
         px, py, pz are momenta in base units [eV/c]
         t is time in [s]
         weight is the macro-charge weight in [C], used for all statistical calulations.
         species is a proper species name: 'electron', etc. 
+        sx, sy, sz are the inherient spin angular momentum [meters*eV/c]
     """
 
     def __init__(self, **kwargs):
@@ -35,7 +39,7 @@ class Beam():
         self._n_particle = kwargs['n_particle']
         self._species ='electron'   # TODO
 
-        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'w', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay'] 
+        self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'w', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay', 'sx', 'sy', 'sz'] 
 
     def check_inputs(self,inputs):
 
@@ -147,34 +151,46 @@ class Beam():
         return np.sqrt(self.px**2 + self.py**2 + self.pz**2)
 
     @property
-    def gamma(self):
-        return np.sqrt(1+ (self.p.to('GB').magnitude**2) )*unit_registry('')
+    def mc2(self):
+        return PHYSICAL_CONSTANTS.species(self.species)['rest_energy'].to('eV')
 
+    @property
+    def species_mass(self):
+        return PHYSICAL_CONSTANTS.species(self.species)['mass']
+
+    @property
+    def energy(self):
+        return np.sqrt( (c*self.p)**2 + self.mc2**2 ).to('eV')
+
+    @property
+    def gamma(self):
+        return self.energy/self.mc2
+
+    @property
+    def kinetic_energy(self):
+        return self.mc2*(self.gamma-1)
+
+    @property
+    def beta(self):
+        return np.sqrt( 1 - 1/self.gamma**2 )
+    
     @property
     def beta_x(self):
         """vx/c"""
-        return self.px.to('GB')/self.gamma
+        return (self.px/self.species_mass/c/self.gamma).to_reduced_units()
 
     @property
     def beta_y(self):
         """vy/c"""
-        return self.py.to('GB')/self.gamma
+        return (self.py/self.species_mass/c/self.gamma).to_reduced_units()
 
     @property
     def beta_z(self):
         """vz/c"""
-        return self.pz.to('GB')/self.gamma
-
-    @property
-    def kinetic_energy(self):
-        return MC2*(self.gamma-1)
-
-    @property
-    def energy(self):
-        return MC2*self.gamma
+        return (self.pz/self.species_mass/c/self.gamma).to_reduced_units()
 
     # Statistical quantities
-    def avg(self,var,desired_units=None):
+    def avg(self, var, desired_units=None):
 
         avgv = mean(getattr(self, var), getattr(self, 'w'))
         if(desired_units):
@@ -225,12 +241,13 @@ class Beam():
     def emitt(self, var, units='normalized'):
 
         x = getattr(self, var)
+        mc = self.species_mass*c
 
         if(units == 'normalized'):
-            p = getattr(self, f'p{var}').to('GB').magnitude
+            p = (getattr(self, f'p{var}')/mc).to_reduced_units()
 
         elif(units == 'geometric'): 
-            p = getattr(self, f'{var}p').magnitude
+            p = getattr(self, f'{var}p').to_reduced_units()
         else:
             raise ValueError(f'unknown emittance type: {units}')
 

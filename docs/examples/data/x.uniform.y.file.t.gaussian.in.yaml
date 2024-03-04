@@ -1,4 +1,5 @@
 n_particle: 200000
+species: electron
 output:
   file: x.uniform.y.file.t.gaussian.out.txt
   type: gpt

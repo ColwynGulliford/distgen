@@ -1,30 +1,3 @@
-
-
-
-
-
-#from .dist import get_dist
-#from .dist import random_generator
-
-#from .tools import convert_params
-#from .tools import full_path
-
-#from .tools import StopWatch
-#from .tools import vprint
-#from .tools import update_quantity
-
-
-#from .transforms import set_avg
-#from .transforms import set_avg_and_std
-#from .transforms import transform
-
-
-#from .physical_constants import pi
-#from .physical_constants import MC2
-#from .physical_constants import unit_registry
-
-
-
 import warnings
 
 import numpy as np
@@ -55,10 +28,10 @@ from .parsing import update_quantity
 from .parsing import is_quantizable
 from .parsing import parse_quantity
 
-from .physical_constants import c
+#from .physical_constants import c
 from .physical_constants import is_quantity
-from .physical_constants import MC2
-from .physical_constants import pi
+from .physical_constants import PHYSICAL_CONSTANTS
+#from .physical_constants import pi
 from .physical_constants import unit_registry
 
 from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
@@ -86,9 +59,7 @@ def single_allowed_cathode_dist_set(params):
         return True
     else:
         return False
-
     
-
 class Generator(Base):
 
     """
@@ -238,7 +209,7 @@ class Generator(Base):
         """
 
         # Make sure all required top level params are present
-        required_params = ['n_particle', 'total_charge']
+        required_params = ['n_particle', 'total_charge', 'species']
         for rp in required_params:
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
@@ -294,6 +265,10 @@ class Generator(Base):
             if('t_dist' in params):
                 warnings.warn('Ignoring user specified t distribution for time start.')
                 params.pop('t_dist')   
+
+        if('species' not in params):
+            warnings.warn('Particle species not set, defaulting to species = "electron"')
+            params['species']='electron'
 
     def configure(self):
         pass
@@ -368,8 +343,7 @@ class Generator(Base):
 
         """ Loops through the input params dict and collects all distribution definitions """
 
-        #params = self._input
-        
+        #params = self._input        
         dist_vars = [p.replace('_dist','') for p in params if(p.endswith('_dist')) ]
         dist_params = {p.replace('_dist',''):params[p] for p in params if(p.endswith('_dist'))}
         
@@ -377,21 +351,21 @@ class Generator(Base):
         
         if('r' in dist_vars and 'theta' not in dist_vars):
             vprint("Assuming cylindrical symmetry...",self.verbose>0,1,True)
-            dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+            dist_params['theta']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
             
         if("p" in dist_params or "KE" in dist_params):
 
             if('azimuthal_angle' not in dist_params):
-                dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+                dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
 
             if('polar_angle' not in dist_params):
-                dist_params['polar_angle']={'type':'up','min_phi':0*unit_registry('rad'),'max_phi':pi}
+                dist_params['polar_angle']={'type':'up','min_phi':0*unit_registry('rad'),'max_phi':PHYSICAL_CONSTANTS.pi}
 
         if('p_polar_angle' in dist_params):
 
             if('azimuthal_angle' not in dist_params):
                 vprint("Assuming cylindrical momentum symmetry...",self.verbose>0,1,True)
-                dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*pi}
+                dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
 
         if(params['start']['type']=='time' and 't_dist' in params):
             raise ValueError('Error: t_dist should not be set for time start')
@@ -462,6 +436,8 @@ class Generator(Base):
         watch.start()
         
         params = copy.deepcopy(self._input)
+
+        MC2 = PHYSICAL_CONSTANTS.species(params['species'])['rest_energy']
         
         if(params['start']['type'] == "cathode"):
 
@@ -469,7 +445,12 @@ class Generator(Base):
                 
                 # Handle momentum distribution for cathode: Assume Maxwell-Boltzmann
                 MTE = params['start']["MTE"]
-                sigma_p = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c")
+
+                # THIS IS INCORRECT FOR ANYTHING BUT ELECTRONS (TO BE REMOVED AFTER TESTING)
+                #sigma_p = (np.sqrt( (MTE/MC2).to_reduced_units() )*unit_registry("GB")).to("eV/c") 
+
+                # CORRECT FOR ALL SPECIES
+                sigma_p = np.sqrt( MC2.to('eV') * MTE.to('eV')).magnitude * unit_registry('eV/c')
  
                 params["px_dist"]={"type":"g", "sigma_px":sigma_p}
                 params["py_dist"]={"type":"g", "sigma_py":sigma_p}
@@ -603,7 +584,7 @@ class Generator(Base):
                 
                 if(KEdist.rms()>0):
                     KE = KEdist.cdfinv(self.rands['KE'])       # Sample to get beam coordinates       
-                    p = np.sqrt( (KE+MC2)**2 - MC2**2 )/c
+                    p = np.sqrt( (KE+MC2)**2 - MC2**2 )/PHYSICAL_CONSTANTS['speed of light in vacuum']
                     
                     avgp = np.mean(p)
                     stdp = np.std(p)

@@ -1,8 +1,11 @@
 import numpy as np
 import scipy.constants as const
 
-from .physical_constants import c, kb, me, MC2, unit_registry, pi
+from .physical_constants import unit_registry, pi, PHYSICAL_CONSTANTS
 
+MC2 = PHYSICAL_CONSTANTS.species('electron')['rest_energy']
+c = PHYSICAL_CONSTANTS['speed of light in vacuum']
+kb = PHYSICAL_CONSTANTS['Boltzmann constant in eV/K']
 
 def fermi_dirac(e, mu, t, t_cutoff=1e-3*unit_registry('K')):
     """
@@ -13,10 +16,11 @@ def fermi_dirac(e, mu, t, t_cutoff=1e-3*unit_registry('K')):
     :param t_cutoff: Clip the temperature at this value to avoid divide by zero
     :return: value of the Fermi-Dirac distribution
     """
+    
     return 1/(1 + np.exp(np.clip((e - mu)/(kb*np.clip(t, t_cutoff, None)), -256, 256)))
 
 def fermi_dirac_3step_barrier_pdf_int(px, py, pz, fermi_energy, temp, photon_energy, workfun):
-
+    
     cpx, cpy, cpz = c*px, c*py, c*pz
 
     e = (cpx**2 + cpy**2 + cpz**2)/2/MC2

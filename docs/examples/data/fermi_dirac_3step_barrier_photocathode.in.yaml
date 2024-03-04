@@ -1,4 +1,5 @@
 n_particle: 200000
+species: electron
 r_dist:
   sigma_xy: 1.0 mm
   type: radial_gaussian

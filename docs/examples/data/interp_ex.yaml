@@ -1,4 +1,5 @@
 n_particle: 30000
+species: electron
 r_dist:
   Pr:
     pt01: 0.0

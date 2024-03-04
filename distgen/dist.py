@@ -9,9 +9,10 @@ from .hammersley import create_hammersley_samples
 from .parsing import convert_input_quantities
 
 from .physical_constants import unit_registry
-from .physical_constants import pi
-from .physical_constants import hc
-from .physical_constants import kb
+from .physical_constants import PHYSICAL_CONSTANTS
+#from .physical_constants import pi
+#from .physical_constants import hc
+#from .physical_constants import kb
 
 from .tools import vprint
 
@@ -376,14 +377,14 @@ class Superposition(Dist1d):
 
         for ii, name in enumerate(dists.keys()):
 
-            pi = dists[name].pdf(xs)
+            pii = dists[name].pdf(xs)
 
             assert weights[name]>=0, 'Weights for superpostiion dist must be >= 0.'
 
             if(ii==0):
-                ps = weights[name]*pi/np.max(pi.magnitude)
+                ps = weights[name]*pii/np.max(pii.magnitude)
             else:
-                ps = ps + weights[name]*pi/np.max(pi.magnitude)
+                ps = ps + weights[name]*pii/np.max(pii.magnitude)
 
         super().__init__(xs, ps, var)
 
@@ -419,12 +420,12 @@ class Product(Dist1d):
 
         for ii, name in enumerate(dists.keys()):
 
-            pi = dists[name].pdf(xs)
+            pii = dists[name].pdf(xs)
 
             if(ii==0):
-                ps = pi/np.max(pi.magnitude)
+                ps = pii/np.max(pii.magnitude)
             else:
-                ps = ps*pi/np.max(pi.magnitude)
+                ps = ps*pii/np.max(pii.magnitude)
 
         super().__init__(xs, ps, var)
 
@@ -755,7 +756,7 @@ class Norm(Dist1d):
 
     def canonical_pdf(self,csi):
         """ Definies the canonical normal distribution """
-        return (1/np.sqrt(2*pi))*np.exp( -csi**2/2.0 ) 
+        return (1/np.sqrt(2*PHYSICAL_CONSTANTS.pi))*np.exp( -csi**2/2.0 ) 
 
     def pdf(self, x=None):
 
@@ -1089,7 +1090,7 @@ class TemporalLaserPulseStacking(Dist1d):
         self.total_crystal_length += next_crystal["length"];
         
         theta_fast = next_crystal["angle"]-next_crystal["angle_offset"];  
-        theta_slow = theta_fast + 0.5*pi;
+        theta_slow = theta_fast + 0.5*PHYSICAL_CONSTANTS.pi;
 
         new_pulses = []
 
@@ -1141,8 +1142,8 @@ class TemporalLaserPulseStacking(Dist1d):
         ey=np.zeros((2,len(self.ts)))*unit_registry("")
 
         for pulse in self.pulses: 
-            self.evaluate_sech_fields(0.5*pi,pulse,self.ts,ex);
-            self.evaluate_sech_fields(0.0,   pulse,self.ts,ey);
+            self.evaluate_sech_fields(0.5*PHYSICAL_CONSTANTS.pi, pulse,self.ts, ex);
+            self.evaluate_sech_fields(0.0,   pulse,self.ts, ey);
 
         self.Pt = ( (ex[0,:]**2 + ex[1,:]**2) + (ey[0,:]**2 + ey[1,:]**2) ).magnitude * unit_registry("THz")
         self.Pt = self.Pt/trapz(self.Pt,self.ts)
@@ -1322,8 +1323,8 @@ class Tukey(Dist1d):
             pcos_region = np.logical_and(x >= +Lflat/2.0, x<=+self.L/2.0)
             mcos_region = np.logical_and(x <= -Lflat/2.0, x>=-self.L/2.0)
             flat_region = np.logical_and(x < Lflat/2.0, x > -Lflat/2.0)
-            res[pcos_region]=0.5*(1+np.cos( (pi/Lcos)*(x[pcos_region]-Lflat/2.0) ))/self.L
-            res[mcos_region]=0.5*(1+np.cos( (pi/Lcos)*(x[mcos_region]+Lflat/2.0) ))/self.L
+            res[pcos_region]=0.5*(1+np.cos( (PHYSICAL_CONSTANTS.pi/Lcos)*(x[pcos_region]-Lflat/2.0) ))/self.L
+            res[mcos_region]=0.5*(1+np.cos( (PHYSICAL_CONSTANTS.pi/Lcos)*(x[mcos_region]+Lflat/2.0) ))/self.L
             res[flat_region]=1.0/self.L
 
             res[x<-self.L]=0*unit_registry('1/'+str(self.L.units))
@@ -1458,7 +1459,7 @@ class MaxwellBoltzmannDist(Dist1d):
         return 2*self.a*self.f
     
     def std(self):
-        return self.a*np.sqrt( (3*np.pi-8)/np.pi )
+        return self.a*np.sqrt( (3*np.pi-8)/PHYSICAL_CONSTANTS.pi )
     
     def rms(self):
         return np.sqrt(self.std()**2 + self.avg()**2)
@@ -1623,7 +1624,7 @@ class UniformTheta(DistTheta):
         max_theta = kwargs['max_theta']
 
         assert min_theta >= 0.0,  'Min theta value must be >= 0 rad'
-        assert max_theta <= 2*pi, 'Max theta value must be <= 2 pi rad'
+        assert max_theta <= 2*PHYSICAL_CONSTANTS.pi, 'Max theta value must be <= 2 pi rad'
 
         self.a = min_theta
         self.b = max_theta
@@ -1699,7 +1700,7 @@ class UniformPhi(DistPhi):
         max_phi = kwargs['max_phi']
 
         assert min_phi >= 0.0,  'Min phi value must be >= 0 rad'
-        assert max_phi <= pi, 'Max phi value must be <= pi rad'
+        assert max_phi <= PHYSICAL_CONSTANTS.pi, 'Max phi value must be <= pi rad'
 
         self.a = min_phi
         self.b = max_phi
@@ -2170,7 +2171,7 @@ class NormRad(DistRad):
         #vprint('underlying sigma_xy
 
     def canonical_rho(self,xi):
-        return (1.0/2.0/pi)*np.exp(-xi**2/2)
+        return (1.0/2.0/PHYSICAL_CONSTANTS.pi)*np.exp(-xi**2/2)
 
     def rho(self, r):
 
@@ -2211,7 +2212,7 @@ class NormRad(DistRad):
         return res
 
     def cdfinv(self,rns):
-        return np.sqrt( 2*self.sigma**2 * np.log(1/2/pi/( self.pL - self.dp*rns )) ) 
+        return np.sqrt( 2*self.sigma**2 * np.log(1/2/PHYSICAL_CONSTANTS.pi/( self.pL - self.dp*rns )) ) 
 
     def get_r_pts(self, n=1000):
         if(self.rR.magnitude==float('Inf')):
@@ -2233,7 +2234,7 @@ class NormRad(DistRad):
         else:
             xiRpR = xiR*self.pR
 
-        return self.sigma*( (xiL*self.pL - xiRpR) + (1.0/2.0/np.sqrt(2*pi))*(erfR-erfL) )/self.dp 
+        return self.sigma*( (xiL*self.pL - xiRpR) + (1.0/2.0/np.sqrt(2*PHYSICAL_CONSTANTS.pi))*(erfR-erfL) )/self.dp 
 
     def rms(self):
 
@@ -2321,7 +2322,7 @@ class TukeyRad(DistRad):
             Lcos = self.r*self.L
             cos_region = np.logical_and(r >= +Lflat, r <=+self.L)
             flat_region = np.logical_and(r < Lflat, r >= 0)
-            res[cos_region]=0.5*(1+np.cos( (pi/Lcos)*(r[cos_region]-Lflat) ))*unit_registry(ustr)
+            res[cos_region]=0.5*(1+np.cos( (PHYSICAL_CONSTANTS.pi/Lcos)*(r[cos_region]-Lflat) ))*unit_registry(ustr)
             res[flat_region]=1.0*unit_registry(ustr)
         
         res = res
@@ -2802,16 +2803,16 @@ class SuperPosition2d(Dist2d):
         for ii, name in enumerate(dists.keys()):                    
 
             if(is_radial_dist(dist_defs[name]['type'])):
-                pi = dists[name].rho_xy(xs, ys)
+                pii = dists[name].rho_xy(xs, ys)
             else:
-                pi = dists[name].pdf(xs, ys)
+                pii = dists[name].pdf(xs, ys)
 
-            pi = pi/np.sum(np.sum(pi))
+            pii = pii/np.sum(np.sum(pii))
                 
             if(ii==0):
                 ps = pi/np.max(pi.magnitude)
             else:
-                ps = weights[ii]*pi/np.max(pi.magnitude) + ps
+                ps = weights[ii]*pii/np.max(pi.magnitude) + ps
 
         ps = ps.magnitude*unit_registry(f'1/{xs.units}/{ys.units}')
 
@@ -2884,14 +2885,14 @@ class Product2d(Dist2d):
         for ii, name in enumerate(dists.keys()):                    
 
             if(is_radial_dist(dist_defs[name]['type'])):
-                pi = dists[name].rho_xy(xs, ys)
+                pii = dists[name].rho_xy(xs, ys)
             else:
-                pi = dists[name].pdf(xs, ys)
+                pii = dists[name].pdf(xs, ys)
                 
             if(ii==0):
-                ps = pi/np.max(pi.magnitude)
+                ps = pii/np.max(pii.magnitude)
             else:
-                ps = ps*pi/np.max(pi.magnitude)
+                ps = ps*pii/np.max(pii.magnitude)
 
         ps = ps.magnitude*unit_registry(f'1/{xs.units}/{ys.units}')
 
@@ -3034,11 +3035,15 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
         self.optional_params = []
         
         self.check_inputs(params)
+
+        h = PHYSICAL_CONSTANTS['Planck constant in eV/Hz']
+        c = PHYSICAL_CONSTANTS['speed of light in vacuum']
+        kb = PHYSICAL_CONSTANTS['Boltzmann constant in eV/K']
         
         self.photon_wavelength = params['photon_wavelength']
-        self.photon_energy = hc / params['photon_wavelength']
+        self.photon_energy = (h*c / params['photon_wavelength']).to('eV')
         self.cathode_temperature = params['temperature']
-        self.kT = kb * self.cathode_temperature
+        self.kT = (kb * self.cathode_temperature).to('eV')
         self.Wf = params['work_function']
         self.fermi_energy = params['fermi_energy']
 

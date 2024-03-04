@@ -1,4 +1,5 @@
 n_particle: 200000
+species: electron
 output:
   file: tukey.beer.can.out.txt
   type: gpt

@@ -1,4 +1,5 @@
 n_particle: 200000
+species: electron
 output:
   file: rad.file.out.txt
   type: gpt

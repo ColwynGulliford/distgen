@@ -1,4 +1,5 @@
 n_particle: 200000
+species: electron
 output:
   file: deformable.out.txt
   type: gpt
