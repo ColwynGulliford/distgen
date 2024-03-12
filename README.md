@@ -1,12 +1,7 @@
 # Distgen
 Flexible routines for generating particle beams in Python.
 
-| **`Documentation`**                                                                                                              |
-|----------------------------------------------------------------------------------------------------------------------------------|
-[![Documentation](https://colwyngulliford.github.io/distgen/)) 
-
-
-Installing distgen
+Installation
 ==================
 
 Installing `distgen` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
