@@ -759,6 +759,19 @@ def create_archivable_inputs(params):
 """UTC to ISO 8601 with Local TimeZone information without microsecond"""
 def isotime():
     return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).astimezone().replace(microsecond=0).isoformat()    
+
+
+
+def check_abs_and_rel_tols(var, p, ptest, abs_tol=1e-12, rel_tol=1e-15):
+
+    abs_dev = p - ptest
+    
+    assert np.max( np.abs(abs_dev) ).magnitude<abs_tol, f'<{var}> is not correct, max(|abs. deviation|) = {np.max(np.abs(abs_dev))}'
+
+    if(np.min( np.abs(ptest) )>0):
+            rel_dev = abs_dev/ptest
+            assert np.max( np.abs(rel_dev) )<rel_tol, f'<{var}> is not correct, max(|rel. deviation|) = {np.max(np.abs(rel_dev))}'
+
     
 
 

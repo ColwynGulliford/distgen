@@ -3,7 +3,7 @@ import scipy.constants as const
 
 from .physical_constants import unit_registry, pi, PHYSICAL_CONSTANTS
 
-MC2 = PHYSICAL_CONSTANTS.species('electron')['rest_energy']
+MC2 = PHYSICAL_CONSTANTS.species('electron')['mc2']
 c = PHYSICAL_CONSTANTS['speed of light in vacuum']
 kb = PHYSICAL_CONSTANTS['Boltzmann constant in eV/K']
 

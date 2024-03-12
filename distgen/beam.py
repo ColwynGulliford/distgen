@@ -30,14 +30,15 @@ class Beam():
 
     def __init__(self, **kwargs):
 
-        self.required_inputs = ['total_charge', 'n_particle']
-        self.optional_inputs = ['species']
+        self.required_inputs = ['total_charge', 'n_particle', 'species']
+        self.optional_inputs = []
 
         self.check_inputs(kwargs)
 
         self._q = kwargs['total_charge']
         self._n_particle = kwargs['n_particle']
-        self._species ='electron'   # TODO
+        self._species = kwargs['species']
+        
 
         self._settable_array_keys = ['x', 'px', 'y', 'py', 'z', 'pz', 't', 'w', 'theta', 'pr', 'ptheta', 'xp', 'yp', 'thetax', 'thetay', 'sx', 'sy', 'sz'] 
 
@@ -54,6 +55,10 @@ class Beam():
     def __getitem__(self, key):
         return getattr(self, key) 
 
+    @property
+    def species(self):
+        return self._species
+    
     @property
     def n_particle(self):
         return self._n_particle
@@ -152,7 +157,7 @@ class Beam():
 
     @property
     def mc2(self):
-        return PHYSICAL_CONSTANTS.species(self.species)['rest_energy'].to('eV')
+        return PHYSICAL_CONSTANTS.species(self.species)['mc2'].to('eV')
 
     @property
     def species_mass(self):
@@ -172,26 +177,26 @@ class Beam():
 
     @property
     def kinetic_energy(self):
-        return self.mc2*(self.gamma-1)
+        return self.energy - self.mc2 #self.mc2*(self.gamma-1)
 
     @property
     def beta(self):
-        return np.sqrt( 1 - 1/self.gamma**2 )
+        return (c*self.p/self.energy).to_reduced_units() #np.sqrt( 1 - 1/self.gamma**2 )
     
     @property
     def beta_x(self):
         """vx/c"""
-        return (self.px/self.species_mass/c/self.gamma).to_reduced_units()
+        return (c*self.px/self.energy).to_reduced_units() #(self.px/self.species_mass/c/self.gamma).to_reduced_units()
 
     @property
     def beta_y(self):
         """vy/c"""
-        return (self.py/self.species_mass/c/self.gamma).to_reduced_units()
+        return (c*self.py/self.energy).to_reduced_units() #(self.py/self.species_mass/c/self.gamma).to_reduced_units()
 
     @property
     def beta_z(self):
         """vz/c"""
-        return (self.pz/self.species_mass/c/self.gamma).to_reduced_units()
+        return (c*self.pz/self.energy).to_reduced_units() #(self.pz/self.species_mass/c/self.gamma).to_reduced_units()
 
     @property
     def gamma_beta_x(self):

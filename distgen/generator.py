@@ -437,7 +437,7 @@ class Generator(Base):
         
         params = copy.deepcopy(self._input)
 
-        MC2 = PHYSICAL_CONSTANTS.species(params['species'])['rest_energy']
+        MC2 = PHYSICAL_CONSTANTS.species(params['species'])['mc2']
         
         if(params['start']['type'] == "cathode"):
 
@@ -467,7 +467,10 @@ class Generator(Base):
         verbose = self.verbose
         #outputfile = []
 
-        beam_params = {'total_charge':params['total_charge'], 'n_particle':params['n_particle']}
+        beam_params = {'total_charge': params['total_charge'],
+                       'n_particle': params['n_particle'],
+                       'species': params['species']
+                      }
 
         if('transforms' in params):
             transforms = params['transforms']
