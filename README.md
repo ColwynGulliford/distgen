@@ -3,7 +3,7 @@ Flexible routines for generating particle beams in Python.
 
 | **`Documentation`**                                                                                                              |
 |----------------------------------------------------------------------------------------------------------------------------------|
-| [![Documentation](https://colwyngulliford.github.io/distgen/)) |
+[![Documentation](https://colwyngulliford.github.io/distgen/)) 
 
 
 Installing distgen
