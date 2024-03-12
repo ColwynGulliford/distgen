@@ -1228,11 +1228,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">distgen</span> <span class="kn">import</span> <span class="n">Generator</span>
 <span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">PHYSICAL_CONSTANTS</span>
+<span class="kn">from</span> <span class="nn">distgen.tools</span> <span class="kn">import</span> <span class="n">check_abs_and_rel_tols</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">import numpy as np
 from distgen import Generator
 from distgen.physical_constants import PHYSICAL_CONSTANTS
+from distgen.tools import check_abs_and_rel_tols
 from glob import glob</div>
 </div>
 </div>
@@ -1278,16 +1280,6 @@ from glob import glob</div>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'Testing:'</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
             
         <span class="n">run_test_on_input_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
-    
-<span class="k">def</span> <span class="nf">check_abs_and_rel_tols</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ptest</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">):</span>
-
-    <span class="n">abs_dev</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">ptest</span>
-    
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_dev</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">magnitude</span><span class="o">&lt;</span><span class="n">abs_tol</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'&lt;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&gt; is not correct, max(|abs. deviation|) = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_dev</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span>
-
-    <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ptest</span><span class="p">)</span> <span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
-            <span class="n">rel_dev</span> <span class="o">=</span> <span class="n">abs_dev</span><span class="o">/</span><span class="n">ptest</span>
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_dev</span><span class="p">)</span> <span class="p">)</span><span class="o">&lt;</span><span class="n">rel_tol</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'&lt;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&gt; is not correct, max(|rel. deviation|) = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_dev</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-3">yaml_files = list( glob('../examples/data/*.yaml') )
 
@@ -1308,19 +1300,7 @@ def run_test_on_input_files(input_files, test, verbose=False):
         if(verbose): 
             print('Testing:', input_file)
             
-        run_test_on_input_file(input_file, test)
-    
-def check_abs_and_rel_tols(var, p, ptest, abs_tol=1e-12, rel_tol=1e-15):
-
-    abs_dev = p - ptest
-    
-    assert np.max( np.abs(abs_dev) ).magnitude<abs_tol, f'<{var}=""> is not correct, max(|abs. deviation|) = {np.max(np.abs(abs_dev))}'
-
-    if(np.min( np.abs(ptest) )&gt;0):
-            rel_dev = abs_dev/ptest
-            assert np.max( np.abs(rel_dev) )<rel_tol, f'<{var}=""> is not correct, max(|rel. deviation|) = {np.max(np.abs(rel_dev))}'
-
-    </rel_tol,></abs_tol,></div>
+        run_test_on_input_file(input_file, test)</div>
 </div>
 </div>
 </div>
@@ -2104,7 +2084,7 @@ run_test_on_input_files(yaml_files, test_gamma)</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>$\beta = \sqrt{1 - \frac{1}{\gamma^2} }$</p>
+<p>$\beta = \frac{c|\vec{p}|}{E}$</p>
 </div>
 </div>
 </div>
@@ -2128,20 +2108,20 @@ run_test_on_input_files(yaml_files, test_gamma)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_beta</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta = sqrt( 1 - 1/gamma**2 )'</span><span class="p">,</span> 
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta = c|p|/E'</span><span class="p">,</span> 
                            <span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">),</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+                           <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="o">.</span><span class="n">p</span><span class="o">/</span><span class="n">beam</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'max(beta) &gt; 1, faster than light particle!'</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-19">def test_beta(beam):
-    check_abs_and_rel_tols('beam.beta = sqrt( 1 - 1/gamma**2 )', 
+    check_abs_and_rel_tols('beam.beta = c|p|/E', 
                            beam['beta'], 
-                           np.sqrt( 1 - 1/beam['gamma']**2 ),
-                           abs_tol=1e-15, rel_tol=1e-15)
+                           PHYSICAL_CONSTANTS['speed of light in vacuum']*beam.p/beam.energy,
+                           abs_tol=1e-11, rel_tol=1e-14)
 
     assert max(beam['beta']) &lt; 1, 'max(beta) &gt; 1, faster than light particle!'
 
@@ -2158,7 +2138,7 @@ run_test_on_input_files(yaml_files, test_beta)</div>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>$\beta_{x_i} = \frac{p_{x_i}}{\gamma mc}$, $\beta_x = x^{\prime}\beta_z$, $\beta_y = y^{\prime}\beta_z$,  $\beta_z = \frac{\beta}{\sqrt{1+(x^{\prime})^2 +(y^{\prime})^2}}$</p>
+<p>$\beta_{x_i} = \frac{cp_{x_i}}{E}$, $\beta_x = x^{\prime}\beta_z$, $\beta_y = y^{\prime}\beta_z$,  $\beta_z = \frac{\beta}{\sqrt{1+(x^{\prime})^2 +(y^{\prime})^2}}$</p>
 </div>
 </div>
 </div>
@@ -2183,35 +2163,31 @@ run_test_on_input_files(yaml_files, test_beta)</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_beta_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
 
-    <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
-
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">]:</span>
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta_xi = pxi/gamma/mc )'</span><span class="p">,</span> 
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta_xi = c pxi/E )'</span><span class="p">,</span> 
                            <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'beta_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">],</span> 
-                           <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">/</span><span class="n">mc</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">])</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">(),</span>
+                           <span class="p">(</span><span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">])</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">(),</span>
                            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
 
         <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s2">"beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )"</span><span class="p">,</span> 
                            <span class="n">beam</span><span class="p">[</span><span class="s1">'beta_z'</span><span class="p">],</span> 
                            <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">])</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'xp'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'yp'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">),</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">)</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">5e-9</span><span class="p">)</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta_xi</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-20">def test_beta_xi(beam):
 
-    mc = beam.species_mass * PHYSICAL_CONSTANTS['speed of light in vacuum']
-
     for var in ['x', 'y', 'z']:
-        check_abs_and_rel_tols('beam.beta_xi = pxi/gamma/mc )', 
+        check_abs_and_rel_tols('beam.beta_xi = c pxi/E )', 
                            beam[f'beta_{var}'], 
-                           (beam[f'p{var}']/mc/beam['gamma']).to_reduced_units(),
+                           (PHYSICAL_CONSTANTS['speed of light in vacuum']*beam[f'p{var}']/beam['energy']).to_reduced_units(),
                            abs_tol=1e-15, rel_tol=1e-15)
 
         check_abs_and_rel_tols("beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )", 
                            beam['beta_z'], 
                            np.sign(beam['pz'])*beam['beta']/np.sqrt( 1 + beam['xp']**2 + beam['yp']**2 ),
-                           abs_tol=1e-11, rel_tol=5e-6)
+                           abs_tol=1e-11, rel_tol=5e-9)
 
 run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </div>
@@ -2250,28 +2226,34 @@ run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_kinetic_energy</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = mc2*(gamma-1)'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
-                           <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'species'</span><span class="p">])[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+    
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = mc2*(gamma-1)'</span><span class="p">,</span> 
+                               <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
+                               <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">)</span>
 
     <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = E - mc2'</span><span class="p">,</span> 
                            <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
                            <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_kinetic_energy</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-21">def test_kinetic_energy(beam):
-    check_abs_and_rel_tols('beam.kinetic_energy = mc2*(gamma-1)', 
-                           beam['kinetic_energy'], 
-                           beam.mc2*(beam['gamma']-1),
-                           abs_tol=1e-15, rel_tol=1e-15)
+
+    if(PHYSICAL_CONSTANTS.species(beam['species'])['mass']&gt;0):
+    
+        check_abs_and_rel_tols('beam.kinetic_energy = mc2*(gamma-1)', 
+                               beam['kinetic_energy'], 
+                               beam.mc2*(beam['gamma']-1),
+                               abs_tol=1e-9, rel_tol=1e-05)
 
     check_abs_and_rel_tols('beam.kinetic_energy = E - mc2', 
                            beam['kinetic_energy'], 
                            beam['energy'] - beam.mc2,
-                           abs_tol=1e-9, rel_tol=1e-5)
+                           abs_tol=1e-15, rel_tol=1e-15)
 
 run_test_on_input_files(yaml_files, test_kinetic_energy)</div>
 </div>

@@ -1237,7 +1237,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="n">c</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
 <span class="n">hc</span> <span class="o">=</span> <span class="n">h</span><span class="o">*</span><span class="n">c</span>
 
-<span class="n">MC2</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'electron'</span><span class="p">)[</span><span class="s1">'rest_energy'</span><span class="p">]</span>
+<span class="n">MC2</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'electron'</span><span class="p">)[</span><span class="s1">'mc2'</span><span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 </pre></div>
@@ -1247,7 +1247,7 @@ h = PHYSICAL_CONSTANTS['Planck constant in eV/Hz']
 c = PHYSICAL_CONSTANTS['speed of light in vacuum']
 hc = h*c
 
-MC2 = PHYSICAL_CONSTANTS.species('electron')['rest_energy']
+MC2 = PHYSICAL_CONSTANTS.species('electron')['mc2']
 
 import scipy.constants as const</div>
 </div>
@@ -1490,15 +1490,15 @@ Creating beam distribution....
       min_theta = 0 rad, max_theta = 6.28319 rad
    t distribution: uniform
       min_t = -17.3205 ps, max_t = 17.3205 ps
-   Shifting avg_x = -9.22801E-06 mm -&gt; 0 mm
-   Scaling sigma_x = 0.99994 mm -&gt; 1 mm
-   Shifting avg_y = 9.98282E-06 mm -&gt; 0 mm
-   Scaling sigma_y = 0.999945 mm -&gt; 1 mm
+   Shifting avg_x = -1.75251E-06 mm -&gt; 0 mm
+   Scaling sigma_x = 0.999928 mm -&gt; 1 mm
+   Shifting avg_y = 2.14895E-05 mm -&gt; 0 mm
+   Scaling sigma_y = 0.999965 mm -&gt; 1 mm
    Shifting avg_px = 0.0058674 eV/c -&gt; 0 eV/c
    Shifting avg_py = -0.0095719 eV/c -&gt; 0 eV/c
-   Shifting avg_t = -0.000320773 ps -&gt; 0 ps
-   Scaling sigma_t = 10 ps -&gt; 10 ps
-...done. Time Elapsed: 2.37857 s.
+   Shifting avg_t = -0.000333868 ps -&gt; 0 ps
+   Scaling sigma_t = 9.99998 ps -&gt; 10 ps
+...done. Time Elapsed: 2.28993 s.
 
    Created particles in .particles: 
    ParticleGroup with 200000 particles with total charge 1.0000000000000003e-11 C

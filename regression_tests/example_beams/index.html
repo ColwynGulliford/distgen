@@ -1280,7 +1280,7 @@ from pmd_beamphysics import ParticleGroup</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>'1.3.0+7.g9bca906'</pre>
+<pre>'0+untagged.1.gd28ff2b'</pre>
 </div>
 </div>
 </div>
@@ -1348,14 +1348,14 @@ from pmd_beamphysics import ParticleGroup</div>
     <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">YAML</span><span class="p">)</span>
     <span class="n">D</span><span class="p">[</span><span class="s1">'n_particle'</span><span class="p">]</span><span class="o">=</span><span class="mi">1_000</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-    <span class="n">P</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'archive/</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">YAML</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'.yaml'</span><span class="p">,</span><span class="w"> </span><span class="s1">'.h5'</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">P</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'archive/</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">YAML</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">".yaml"</span><span class="p">,</span><span class="w"> </span><span class="s2">".h5"</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-5">for YAML in YAMLS:
 
     D = Generator(YAML)
     D['n_particle']=1_000
     P = D.run()
-    P.write(f'archive/{Path(YAML).name.replace('.yaml', '.h5')}') 
+    P.write(f'archive/{Path(YAML).name.replace(".yaml", ".h5")}') 
 </div>
 </div>
 </div>
@@ -1422,7 +1422,7 @@ from pmd_beamphysics import ParticleGroup</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>'/Users/colwyngulliford/GitHub/distgen/docs/regression_tests'</pre>
+<pre>'/home/runner/work/distgen/distgen/docs/regression_tests'</pre>
 </div>
 </div>
 </div>
@@ -1445,7 +1445,7 @@ from pmd_beamphysics import ParticleGroup</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy for="cell-8">
@@ -1458,9 +1458,9 @@ from pmd_beamphysics import ParticleGroup</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="c1">#PREVIOUS_ARCHIVE = 'archive'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PREVIOUS_ARCHIVE</span> <span class="o">=</span> <span class="s1">'archive'</span>
 
-<span class="n">PREVIOUS_ARCHIVE</span> <span class="o">=</span> <span class="s1">'/Users/colwyngulliford/devel/distgen/test2.0/distgen1.3.0'</span>
+<span class="c1">#PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/distgen2.0.0'</span>
 
 <span class="k">def</span> <span class="nf">test_beam</span><span class="p">(</span><span class="n">beam_file</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">=</span> <span class="mf">1e-11</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
@@ -1495,14 +1495,14 @@ from pmd_beamphysics import ParticleGroup</div>
         <span class="n">test_beam</span><span class="p">(</span><span class="n">beam_file</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="n">abs_tol</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">=</span> <span class="n">rel_tol</span><span class="p">)</span>
 
     <span class="k">if</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">All beams check to an absolute tolerance of:'</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'All beams check to an relative tolerance of:'</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">All beams check to w/absolute tolerance of:'</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'All beams check to an w/relative tolerance of:'</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="p">)</span>
 
-<span class="n">test_beams</span><span class="p">(</span><span class="n">YAMLS</span><span class="p">,</span> <span class="n">PREVIOUS_ARCHIVE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
+<span class="n">test_beams</span><span class="p">(</span><span class="n">YAMLS</span><span class="p">,</span> <span class="n">PREVIOUS_ARCHIVE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-8">#PREVIOUS_ARCHIVE = 'archive'
+<div class="clipboard-copy-txt" id="cell-8">PREVIOUS_ARCHIVE = 'archive'
 
-PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/test2.0/distgen1.3.0'
+#PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/distgen2.0.0'
 
 def test_beam(beam_file, previous_archive, abs_tol = 1e-9, rel_tol = 1e-11, verbose=True):
 
@@ -1537,10 +1537,10 @@ def test_beams(beam_files, previous_archive, verbose=True, abs_tol=1e-10, rel_to
         test_beam(beam_file, previous_archive, verbose=verbose, abs_tol = abs_tol, rel_tol = rel_tol)
 
     if(verbose):
-        print('\nAll beams check to an absolute tolerance of:', abs_tol )
-        print('All beams check to an relative tolerance of:', rel_tol )
+        print('\nAll beams check to w/absolute tolerance of:', abs_tol )
+        print('All beams check to an w/relative tolerance of:', rel_tol )
 
-test_beams(YAMLS, PREVIOUS_ARCHIVE, verbose=True, abs_tol = 1e-14, rel_tol=1e-14)</div>
+test_beams(YAMLS, PREVIOUS_ARCHIVE, verbose=True, abs_tol = 1e-11, rel_tol=1e-12)</div>
 </div>
 </div>
 </div>
@@ -1551,12 +1551,39 @@ test_beams(YAMLS, PREVIOUS_ARCHIVE, verbose=True, abs_tol = 1e-14, rel_tol=1e-14
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>
-<span class="ansi-cyan-fg">  Cell </span><span class="ansi-green-fg">In[10], line 14</span>
-<span class="ansi-red-fg">    print('Checking:', Path(p1file).name, 'against', p2file))</span>
-                                                            ^
-<span class="ansi-red-fg">SyntaxError</span><span class="ansi-red-fg">:</span> unmatched ')'
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Comparing the current beam archive to archive
+
+Checking: rad.uniform.in.h5 against archive/rad.uniform.in.h5
+Checking: maxwell_boltzmann_KE.beer.can.in.h5 against archive/maxwell_boltzmann_KE.beer.can.in.h5
+Checking: t.file.in.h5 against archive/t.file.in.h5
+Checking: rad.gaussian.in.h5 against archive/rad.gaussian.in.h5
+Checking: uniform_speckle.in.h5 against archive/uniform_speckle.in.h5
+Checking: beer.can.in.h5 against archive/beer.can.in.h5
+Checking: multi.gaussian.in.h5 against archive/multi.gaussian.in.h5
+Checking: maxwell_boltzmann.beer.can.in.h5 against archive/maxwell_boltzmann.beer.can.in.h5
+Checking: laser.image.in.h5 against archive/laser.image.in.h5
+Checking: deformable.in.h5 against archive/deformable.in.h5
+Checking: xy.prod.in.h5 against archive/xy.prod.in.h5
+Checking: x.y.uniform.in.h5 against archive/x.y.uniform.in.h5
+Checking: rad.trunc.gaussian.in.h5 against archive/rad.trunc.gaussian.in.h5
+Checking: interp_ex.h5 against archive/interp_ex.h5
+Checking: rad.file.in.h5 against archive/rad.file.in.h5
+Checking: t-sech2.in.h5 against archive/t-sech2.in.h5
+Checking: KEdist.beer.can.in.h5 against archive/KEdist.beer.can.in.h5
+Checking: SG.beer.can.in.h5 against archive/SG.beer.can.in.h5
+Checking: product.gaussian.in.h5 against archive/product.gaussian.in.h5
+Checking: dcm.image.in.h5 against archive/dcm.image.in.h5
+Checking: x.uniform.y.file.t.gaussian.in.h5 against archive/x.uniform.y.file.t.gaussian.in.h5
+Checking: tukey.beer.can.in.h5 against archive/tukey.beer.can.in.h5
+Checking: rad_new_format.uniform.in.h5 against archive/rad_new_format.uniform.in.h5
+Checking: jpeg.image.in.h5 against archive/jpeg.image.in.h5
+Checking: gaussian.in.h5 against archive/gaussian.in.h5
+Checking: t.crystals.in.h5 against archive/t.crystals.in.h5
+Checking: fermi_dirac_3step_barrier_photocathode.in.h5 against archive/fermi_dirac_3step_barrier_photocathode.in.h5
+
+All beams check to w/absolute tolerance of: 1e-11
+All beams check to an w/relative tolerance of: 1e-12
 </pre>
 </div>
 </div>

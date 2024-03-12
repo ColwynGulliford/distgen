@@ -1161,8 +1161,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen</span> <span class="kn">import</span> <span class="n">Generator</span>
+<span class="kn">from</span> <span class="nn">distgen</span> <span class="kn">import</span> <span class="n">PHYSICAL_CONSTANTS</span>
+<span class="kn">from</span> <span class="nn">distgen.tools</span> <span class="kn">import</span> <span class="n">check_abs_and_rel_tols</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-1">from distgen import Generator</div>
+<div class="clipboard-copy-txt" id="cell-1">from distgen import Generator
+from distgen import PHYSICAL_CONSTANTS
+from distgen.tools import check_abs_and_rel_tols
+</div>
 </div>
 </div>
 </div>
@@ -1336,7 +1341,7 @@ test_setitem_()</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy for="cell-4">
@@ -1349,9 +1354,51 @@ test_setitem_()</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_species_rest_energy</span><span class="p">():</span>
+
+    <span class="n">inputs</span><span class="o">=</span> <span class="p">{</span><span class="s1">'n_particle'</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+             <span class="s1">'total_charge'</span><span class="p">:</span> <span class="s1">'0 C'</span><span class="p">,</span>
+             <span class="s1">'species'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="s1">'start'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">}</span>
+            <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species_list</span><span class="p">:</span>
+
+        <span class="n">inputs</span><span class="p">[</span><span class="s1">'species'</span><span class="p">]</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="n">inputs</span><span class="p">[</span><span class="s1">'total_charge'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">inputs</span><span class="p">[</span><span class="s1">'n_particle'</span><span class="p">]</span><span class="o">*</span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">species</span><span class="p">)[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span><span class="si">}</span><span class="s1"> C'</span>
+
+        <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">beam</span><span class="p">()</span>
+
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'rest energy'</span><span class="p">,</span> 
+                               <span class="n">B</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">],</span> 
+                               <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">species</span><span class="p">)[</span><span class="s1">'mc2'</span><span class="p">],</span>
+                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+
+<span class="n">test_species_rest_energy</span><span class="p">()</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4"></div>
+<div class="clipboard-copy-txt" id="cell-4">def test_species_rest_energy():
+
+    inputs= {'n_particle': 1000,
+             'total_charge': '0 C',
+             'species': None,
+             'start': {'type': 'time'}
+            }
+
+    for species in PHYSICAL_CONSTANTS.species_list:
+
+        inputs['species'] = species
+        inputs['total_charge'] = f'{inputs['n_particle']*PHYSICAL_CONSTANTS.species(species)['charge'].magnitude} C'
+
+        D = Generator(inputs)
+        B = D.beam()
+
+        check_abs_and_rel_tols('rest energy', 
+                               B['energy'], 
+                               PHYSICAL_CONSTANTS.species(species)['mc2'],
+                               abs_tol=1e-6)
+
+test_species_rest_energy()</div>
 </div>
 </div>
 </div>
