@@ -1,6 +1,9 @@
-# distgen
-Particle distribution generator
+# Distgen
+Flexible routines for generating particle beams in Python.
 
+| **`Documentation`**                                                                                                              |
+|----------------------------------------------------------------------------------------------------------------------------------|
+| [![Documentation](https://img.shields.io/badge/Xopt-documentation-blue.svg)](https://ChristopherMayes.github.io/Xopt/index.html) |
 
 
 Installing distgen
