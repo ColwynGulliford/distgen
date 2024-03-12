@@ -3,7 +3,7 @@ Flexible routines for generating particle beams in Python.
 
 | **`Documentation`**                                                                                                              |
 |----------------------------------------------------------------------------------------------------------------------------------|
-| [![Documentation](https://img.shields.io/badge/Xopt-documentation-blue.svg)](https://ChristopherMayes.github.io/Xopt/index.html) |
+| [![Documentation](https://colwyngulliford.github.io/distgen/)) |
 
 
 Installing distgen
