@@ -21,9 +21,9 @@ def main():
 
     inputfile = options.filename
     verbose = int(options.verbose)  
-    output = options.output    
+    #output = options.output    
 
-    run_distgen(inputs=inputfile,verbose=verbose)
+    run_distgen(inputs=inputfile, verbose=verbose)
     #---------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------- 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from distgen.tools import StopWatch, vprint, update_nested_dict
-from distgen.reader import Reader
+from distgen.tools import vprint
 from distgen.writers import writer
 from distgen.generator import Generator
 
