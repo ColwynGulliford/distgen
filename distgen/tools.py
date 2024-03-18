@@ -8,11 +8,6 @@ from scipy.interpolate import RectBivariateSpline
 from scipy.interpolate import UnivariateSpline as UnivariateSpline 
 import scipy.special
 import matplotlib.image as mpimg
-#from pdf2image import convert_from_path
-#import yaml
-
-import json
-from hashlib import blake2b
 import datetime
 import os
 
@@ -58,7 +53,7 @@ def is_floatable(value):
     try:
         float(value)
         return True
-    except:
+    except ValueError:
         return False
 
 def is_unit_str(ustr):
@@ -171,8 +166,8 @@ def cumrectint(f,x):
     xb = np.zeros(len(x)+1)
     xb[1:-1] = centers(x)
 
-    dxL = xb[1]-x[0];    dxR = xb[-2]-x[-1]
-    xb[0] = x[0]-dxL;    xb[-1]= x[-1]+dxR
+    dxL, dxR = xb[1]-x[0], xb[-2]-x[-1]
+    xb[0], xb[-1] = x[0]-dxL,  x[-1]+dxR
 
     crint = np.zeros(len(xb))
     crint[1:] = np.cumsum((xb[1:]-xb[:-1])*f)
@@ -187,7 +182,7 @@ def radint(f, r):
     r_bins = centers(r)
     rs = np.zeros( (len(r_bins)+2,) )
     rs[1:-1] = r_bins
-    rs[0] = r[0]; rs[-1] = r[-1]
+    rs[0], rs[-1] = r[0], r[-1]
 
     return np.sum( 0.5*(rs[1:]**2 - rs[:-1]**2)*f )
 
@@ -305,8 +300,8 @@ def radial_histogram(r, weights=None, nbins=1000):
 
     """ Performs histogramming of the varibale r using non-equally space bins """
     r2 = r*r
-    dr2 = (max(r2)-min(r2))/(nbins-2);
-    r2_edges = np.linspace(min(r2), max(r2) + 0.5*dr2, nbins);
+    dr2 = (max(r2)-min(r2))/(nbins-2)
+    r2_edges = np.linspace(min(r2), max(r2) + 0.5*dr2, nbins)
     dr2 = r2_edges[1]-r2_edges[0]
     edges = np.sqrt(r2_edges)
     
@@ -624,7 +619,7 @@ def is_key_in_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
     try:
         get_nested_dict(dd, flatkey, sep=':', prefix='distgen')
         return True
-    except:
+    except Exception as ex:
         return False
 '''
 def is_quantity(d):

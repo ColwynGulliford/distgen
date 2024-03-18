@@ -1,5 +1,5 @@
 from .physical_constants import unit_registry
-from .tools import vprint, mean
+from .tools import vprint
 import numpy as np
 
 
@@ -103,7 +103,7 @@ def set_std(beam, **params):
 
 def set_stdxy(beam, **params):
 
-    var = params['variables']
+    #var = params['variables']
     params['variables']='x:y'
     check_inputs(params, ['sigma_xy'], [], 2, 'set_stdxy(beam, **kwargs)') 
     beam = set_std(beam, **{'variables':'x', 'sigma_x':params['sigma_xy']})
@@ -270,7 +270,7 @@ def magnetize(beam, **params):
     if(variables=='r:ptheta'):
 
         sigx = beam.std('x')
-        sigy = beam.std('y')
+        #sigy = beam.std('y')
     
         magnetization = params['magnetization']
         sparams = {'type':'shear','variables':'r:ptheta','shear_coefficient': -magnetization/sigx/sigx, 'verbose':params['verbose'] }        

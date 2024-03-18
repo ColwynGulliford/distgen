@@ -28,10 +28,8 @@ from .parsing import update_quantity
 from .parsing import is_quantizable
 from .parsing import parse_quantity
 
-#from .physical_constants import c
 from .physical_constants import is_quantity
 from .physical_constants import PHYSICAL_CONSTANTS
-#from .physical_constants import pi
 from .physical_constants import unit_registry
 
 from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
