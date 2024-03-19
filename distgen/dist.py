@@ -4,15 +4,14 @@ Defines the random number generator class and distribution function objects.
 
 from .fermi_dirac_3step_barrier_photocathode_model import fermi_dirac_3step_barrier_pdf_bounds_spherical, fermi_dirac_3step_barrier_pdf_spherical
 
+from .laser_speckle import generate_speckle_pattern_with_filter
+
 from .hammersley import create_hammersley_samples
 
 from .parsing import convert_input_quantities
 
 from .physical_constants import unit_registry
 from .physical_constants import PHYSICAL_CONSTANTS
-#from .physical_constants import pi
-#from .physical_constants import hc
-#from .physical_constants import kb
 
 from .tools import vprint
 
@@ -23,24 +22,26 @@ from .tools import linspace
 from .tools import centers
 from .tools import spline1d
 
+# Numerical integration
 from .tools import trapz
 from .tools import cumtrapz
 from .tools import radint
 from .tools import radcumint
 
+# Histogramming
 from .tools import histogram
 from .tools import radial_histogram
 
-from .tools import flipud, fliplr
+# Array manipluation
+from .tools import flipud
 
-#from .tools import  concatenate
-
+# Special functions
 from .tools import erf
 from .tools import erfinv
 from .tools import gamma
 
+# Imagine handling
 from .tools import get_vars
-from .tools import get_file_extension
 from .tools import SUPPORTED_IMAGE_EXTENSIONS
 from .tools import read_2d_file
 from .tools import read_image_file
@@ -370,8 +371,10 @@ class Superposition(Dist1d):
             
             xi = dists[name].get_x_pts(10)
 
-            if(xi[0] <min_var): min_var = xi[0]
-            if(xi[-1]>max_var): max_var = xi[-1]
+            if(xi[0] <min_var): 
+                min_var = xi[0]
+            if(xi[-1]>max_var):
+                max_var = xi[-1]
 
         xs = linspace(min_var, max_var, 10000)
 
@@ -413,8 +416,10 @@ class Product(Dist1d):
             
             xi = dists[name].get_x_pts(10)
 
-            if(xi[0] <min_var): min_var = xi[0]
-            if(xi[-1]>max_var): max_var = xi[-1]
+            if(xi[0] <min_var): 
+                min_var = xi[0]
+            if(xi[-1]>max_var): 
+                max_var = xi[-1]
 
         xs = linspace(min_var, max_var, 10000)
 
@@ -1027,15 +1032,15 @@ class TemporalLaserPulseStacking(Dist1d):
         elif(pulse_FWHM is None):
             pulse_FWHM = params["pulse_FWHM"]
         
-        self.dV = dv;
-        self.w0 = wc;
-        self.laser_pulse_FWHM = pulse_FWHM;
+        self.dV = dv
+        self.w0 = wc
+        self.laser_pulse_FWHM = pulse_FWHM
 
         self.crystals = []
         self.total_crystal_length=0     
      
-        self.set_crystals(lengths,angles);
-        self.propagate_pulses();
+        self.set_crystals(lengths,angles)
+        self.propagate_pulses()
 
         self.ts = self.get_t_pts(10000)
         self.set_pdf()
@@ -1067,19 +1072,19 @@ class TemporalLaserPulseStacking(Dist1d):
 
         """ Propagates the sech pulses through each crystal, resulting in two new pulses """
 
-        self.total_crystal_length = 0;
+        self.total_crystal_length = 0
         self.pulses=[]
 
         initial_pulse={"intensity":1,"polarization_angle":0*unit_registry("rad"),"relative_delay":0}
         self.pulses.append(initial_pulse)
 
         for ii in range(len(self.crystals)): 
-            vprint("applying crystal: "+str(ii+1),self.verbose>1,3,True);
-            self.apply_crystal(self.crystals[ii]);
+            vprint("applying crystal: "+str(ii+1),self.verbose>1,3,True)
+            self.apply_crystal(self.crystals[ii])
 
         #[t_min t_max] is the default range over which to sample rho(u)
-        self.t_max = 0.5*self.total_crystal_length*self.dV + 5.0*self.laser_pulse_FWHM;  
-        self.t_min = -self.t_max;
+        self.t_max = 0.5*self.total_crystal_length*self.dV + 5.0*self.laser_pulse_FWHM
+        self.t_min = -self.t_max
 
         vprint(f'Pulses propagated: min t = {self.t_min:G~P}, max t = {self.t_max:G~P}',self.verbose>0,2,True) 
 
@@ -1087,10 +1092,10 @@ class TemporalLaserPulseStacking(Dist1d):
         """ Generates two new pulses from an incoming pulse in a given crystal """
 
         #add to total crystal length
-        self.total_crystal_length += next_crystal["length"];
+        self.total_crystal_length += next_crystal["length"]
         
-        theta_fast = next_crystal["angle"]-next_crystal["angle_offset"];  
-        theta_slow = theta_fast + 0.5*PHYSICAL_CONSTANTS.pi;
+        theta_fast = next_crystal["angle"]-next_crystal["angle_offset"] 
+        theta_slow = theta_fast + 0.5*PHYSICAL_CONSTANTS.pi
 
         new_pulses = []
 
@@ -1103,16 +1108,16 @@ class TemporalLaserPulseStacking(Dist1d):
             pulse_fast={}
             pulse_slow={}
 
-            pulse_fast["intensity"] = initial_pulse["intensity"]*np.cos(initial_pulse["polarization_angle"] - theta_fast);
-            pulse_fast["polarization_angle"] = theta_fast;
-            pulse_fast["relative_delay"] = initial_pulse["relative_delay"] - self.dV*next_crystal["length"]*0.5;
+            pulse_fast["intensity"] = initial_pulse["intensity"]*np.cos(initial_pulse["polarization_angle"] - theta_fast)
+            pulse_fast["polarization_angle"] = theta_fast
+            pulse_fast["relative_delay"] = initial_pulse["relative_delay"] - self.dV*next_crystal["length"]*0.5
 
-            pulse_slow["intensity"] = initial_pulse["intensity"]*np.cos(initial_pulse["polarization_angle"] - theta_slow);
-            pulse_slow["polarization_angle"] = theta_slow;
-            pulse_slow["relative_delay"] = initial_pulse["relative_delay"] + self.dV*next_crystal["length"]*0.5;
+            pulse_slow["intensity"] = initial_pulse["intensity"]*np.cos(initial_pulse["polarization_angle"] - theta_slow)
+            pulse_slow["polarization_angle"] = theta_slow
+            pulse_slow["relative_delay"] = initial_pulse["relative_delay"] + self.dV*next_crystal["length"]*0.5
 
-            new_pulses.append(pulse_fast);
-            new_pulses.append(pulse_slow);
+            new_pulses.append(pulse_fast)
+            new_pulses.append(pulse_slow)
 
         self.pulses=new_pulses
 
@@ -1121,8 +1126,8 @@ class TemporalLaserPulseStacking(Dist1d):
         """ Evaluates the electric field of the sech pulses """
 
         #Evaluates the real and imaginary parts of one component of the E-field:
-        normalization = pulse["intensity"]*np.cos(pulse["polarization_angle"] - axis_angle);
-        w = 2*np.arccosh(np.sqrt(2))/self.laser_pulse_FWHM;
+        normalization = pulse["intensity"]*np.cos(pulse["polarization_angle"] - axis_angle)
+        w = 2*np.arccosh(np.sqrt(2))/self.laser_pulse_FWHM
 
         field[0] = field[0] + normalization*np.cos(self.w0*(t-pulse["relative_delay"])) / np.cosh(w*(t-pulse["relative_delay"]))
         field[1] = field[1] + normalization*np.sin(self.w0*(t-pulse["relative_delay"])) / np.cosh(w*(t-pulse["relative_delay"]))
@@ -1142,8 +1147,8 @@ class TemporalLaserPulseStacking(Dist1d):
         ey=np.zeros((2,len(self.ts)))*unit_registry("")
 
         for pulse in self.pulses: 
-            self.evaluate_sech_fields(0.5*PHYSICAL_CONSTANTS.pi, pulse,self.ts, ex);
-            self.evaluate_sech_fields(0.0,   pulse,self.ts, ey);
+            self.evaluate_sech_fields(0.5*PHYSICAL_CONSTANTS.pi, pulse,self.ts, ex)
+            self.evaluate_sech_fields(0.0,   pulse,self.ts, ey)
 
         self.Pt = ( (ex[0,:]**2 + ex[1,:]**2) + (ey[0,:]**2 + ey[1,:]**2) ).magnitude * unit_registry("THz")
         self.Pt = self.Pt/trapz(self.Pt,self.ts)
@@ -1470,11 +1475,11 @@ class MaxwellBoltzmannEnergyDist(Dist1d):
         
         self.xstr = var
         
-        self.required_params = [f'kT']
+        self.required_params = ['kT']
         self.optional_params = []
         self.check_inputs(kwargs)
        
-        self.a = kwargs[f'kT']
+        self.a = kwargs['kT']
         self.f = np.sqrt(2/np.pi)
     
         xs = self.get_x_pts(10000)  
@@ -1596,7 +1601,7 @@ class DistTheta(Dist):
         pass
 
     def get_theta_pts(self, n):
-        return linspace(0*unit_registry('rad'), 2*pi, n)
+        return linspace(0*unit_registry('rad'), 2*PHYSICAL_CONSTANTS.pi, n)
 
 
     def plot_pdf(self, n=1000):
@@ -1653,13 +1658,13 @@ class UniformTheta(DistTheta):
         return 0.5*(1 - (self.Cb*self.Sb - self.Ca*self.Sa)/self.range)
 
     def mod2pi(self, thetas):
-        return np.mod(thetas, 2*pi)
+        return np.mod(thetas, 2*PHYSICAL_CONSTANTS.pi)
 
     def pdf(self, thetas):
         return np.full( (len(thetas),), 1/self.range) 
 
     def cdf(self, thetas):
-        return self.mod2pi(thetas)/self.range;
+        return self.mod2pi(thetas)/self.range
         
     def cdfinv(self, rns):
         return rns*self.range
@@ -1672,7 +1677,7 @@ class DistPhi(Dist):
         pass
 
     def get_phi_pts(self, n):
-        return linspace(0*unit_registry('rad'), pi, n)
+        return linspace(0*unit_registry('rad'), PHYSICAL_CONSTANTS.pi, n)
 
 
     def plot_pdf(self, n=1000):
@@ -1729,7 +1734,7 @@ class UniformPhi(DistPhi):
         return 1 - self.avgCos2()
 
     def mod2pi(self, phis):
-        return np.mod(phis, 2*pi)
+        return np.mod(phis, 2*PHYSICAL_CONSTANTS.pi)
 
     def pdf(self, phis):
         return np.sin(phis)/(self.Ca-self.Cb)
@@ -2394,10 +2399,10 @@ class SuperGaussianRad(DistRad):
 
     def get_r_pts(self, n=1000):
         
-        if(self.p < float('Inf')):
-            f = self.p.magnitude
-        else:
-            f=1
+        #if(self.p < float('Inf')):
+        #    f = self.p.magnitude
+        #else:
+        #    f=1
 
         return np.linspace(0, 5*self.Lambda.magnitude, n)*unit_registry(str(self.Lambda.units))
 
@@ -2462,13 +2467,13 @@ class DeformableRad(DistRad):
         self.sigma = kwargs[sigstr]
         #self.mean = kwargs[avgstr]
 
-        if('n_sigma_cutoff' in kwargs):
-            n_sigma_cutoff=kwargs['n_sigma_cutoff']
-        else:
-            n_sigma_cutoff=3
+        #if('n_sigma_cutoff' in kwargs):
+        #    n_sigma_cutoff=kwargs['n_sigma_cutoff']
+        #else:
+        #    n_sigma_cutoff=3
 
         sg_params = {'alpha':kwargs['alpha'], sigstr:self.sigma}
-                    #'n_sigma_cutoff':n_sigma_cutoff}
+                     #'n_sigma_cutoff':n_sigma_cutoff}
 
         self.dist={}
         self.dist['super_gaussian'] = SuperGaussianRad(verbose=verbose, **sg_params)
@@ -2566,7 +2571,8 @@ def is_radial_dist(dtype):
     
     abrevs = ['rg', 'ru', 'rsg', 'dr', 'ri']
     
-    if (dtype in abrevs): return True
+    if (dtype in abrevs): 
+        return True
     
     full_names = ["radial_uniform",
                  "radial_gaussian", 
@@ -2577,7 +2583,8 @@ def is_radial_dist(dtype):
                  "radial_interpolation"
                  ]
     
-    if (dtype in full_names): return True
+    if (dtype in full_names): 
+        return True
     
     return False
    
@@ -2598,13 +2605,17 @@ class Dist2d(Dist):
         if(not isinstance(Pxy, Quantity)):
             Pxy = Pxy*unit_registry(f'1/{x_unit}/{y_unit}')
             
-        if(len(xs) != Pxy.shape[1]): raise ValueError('Length of input vector x must = Pxy.shape[1]')
-        if(len(ys) != Pxy.shape[0]): raise ValueError('Length of input vector y must = Pxy.shape[0]')
+        if(len(xs) != Pxy.shape[1]): 
+            raise ValueError('Length of input vector x must = Pxy.shape[1]')
+        if(len(ys) != Pxy.shape[0]): 
+            raise ValueError('Length of input vector y must = Pxy.shape[0]')
         
         #Pxy = flipud(Pxy)
         
-        if(len(xs)<100): warnings.warn('Specificed grid was sparse (< 100) in x direction. This may cause blurring near sharp edges in the distribition due to interpolation.')
-        if(len(ys)<100): warnings.warn('Specificed grid was sparse (< 100) in y direction. This may cause blurring near sharp edges in the distribition due to interpolation.')
+        if(len(xs)<100): 
+            warnings.warn('Specificed grid was sparse (< 100) in x direction. This may cause blurring near sharp edges in the distribition due to interpolation.')
+        if(len(ys)<100): 
+            warnings.warn('Specificed grid was sparse (< 100) in y direction. This may cause blurring near sharp edges in the distribition due to interpolation.')
 
         self.xs=xs
         self.ys=ys
@@ -2783,11 +2794,15 @@ class SuperPosition2d(Dist2d):
                 
             else:
                 
-                if(xi[0]  > min_x): min_x = xi[0]
-                if(xi[-1] < max_x): max_x = xi[-1]
+                if(xi[0]  > min_x):
+                    min_x = xi[0]
+                if(xi[-1] < max_x): 
+                    max_x = xi[-1]
                 
-                if(yi[0]  > min_y): min_y = yi[0]
-                if(yi[-1] < max_y): max_y = yi[-1]  
+                if(yi[0]  > min_y): 
+                    min_y = yi[0]
+                if(yi[-1] < max_y): 
+                    max_y = yi[-1]  
                 
                 if(dists[name].min_dx is not None and dists[name].min_dx < min_dx): 
                     min_dx = dists[name].min_dx
@@ -2810,9 +2825,9 @@ class SuperPosition2d(Dist2d):
             pii = pii/np.sum(np.sum(pii))
                 
             if(ii==0):
-                ps = pi/np.max(pi.magnitude)
+                ps = pii/np.max(pii.magnitude)
             else:
-                ps = weights[ii]*pii/np.max(pi.magnitude) + ps
+                ps = weights[ii]*pii/np.max(pii.magnitude) + ps
 
         ps = ps.magnitude*unit_registry(f'1/{xs.units}/{ys.units}')
 
@@ -2865,11 +2880,15 @@ class Product2d(Dist2d):
                 
             else:
                 
-                if(xi[0]  > min_x): min_x = xi[0]
-                if(xi[-1] < max_x): max_x = xi[-1]
+                if(xi[0]  > min_x): 
+                    min_x = xi[0]
+                if(xi[-1] < max_x): 
+                    max_x = xi[-1]
                 
-                if(yi[0]  > min_y): min_y = yi[0]
-                if(yi[-1] < max_y): max_y = yi[-1]  
+                if(yi[0]  > min_y): 
+                    min_y = yi[0]
+                if(yi[-1] < max_y): 
+                    max_y = yi[-1]  
                 
                 if(dists[name].min_dx is not None and dists[name].min_dx < min_dx): 
                     min_dx = dists[name].min_dx
@@ -3078,9 +3097,6 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
     def rho_p_polar_angle(self, p, polar_angle):
         return fermi_dirac_3step_barrier_pdf_spherical(p, polar_angle, self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy)
 
-
-from .laser_speckle import generate_laser_speckle_fft, generate_speckle_pattern_with_filter
-
 class UniformLaserSpeckle(Dist2d):
 
     def __init__(self, verbose=0, **params):
@@ -3115,11 +3131,11 @@ class UniformLaserSpeckle(Dist2d):
         else:
             self.threshold = 0
 
-        pixels_per_x_scale = self.image_size_x / ( self.max_x - self.min_x )
-        pixels_per_y_scale = self.image_size_y / ( self.max_y - self.min_y )
+        #pixels_per_x_scale = self.image_size_x / ( self.max_x - self.min_x )
+        #pixels_per_y_scale = self.image_size_y / ( self.max_y - self.min_y )
 
-        speckle_size_in_pixels_x = pixels_per_x_scale * self.scale
-        speckle_size_in_pixels_y = pixels_per_y_scale * self.scale
+        #speckle_size_in_pixels_x = pixels_per_x_scale * self.scale
+        #speckle_size_in_pixels_y = pixels_per_y_scale * self.scale
 
         #self.speckle_size_in_pixels_avg = 0.5*( speckle_size_in_pixels_x + speckle_size_in_pixels_y )
 

@@ -46,6 +46,7 @@ def vprint(out_str, verbose, indent_number, new_line):
         else:
             print(total_indent+out_str,end="")
 
+'''
 def is_floatable(value):
 
     """Check if an object can be cast to a float, return true if so, false if not"""
@@ -55,7 +56,9 @@ def is_floatable(value):
         return True
     except ValueError:
         return False
+'''
 
+'''
 def is_unit_str(ustr):
 
    """Check if a string defines a unit"""
@@ -64,7 +67,9 @@ def is_unit_str(ustr):
        return True
    else: 
        return False
+'''
 
+'''
 def get_unit_str(ustr):
 
     """Parse a string that defines a unit"""
@@ -72,6 +77,7 @@ def get_unit_str(ustr):
         return ustr[1:-1]
     else:
         raise ValueError("Could not recover units string from "+ustr)
+'''
 
 class StopWatch():
 
@@ -377,13 +383,16 @@ def read_2d_file(filename):
         header1 = f.readline().split()
         header2 = f.readline().split()
 
+    unit_x_str = header1[3].replace('[', '').replace(']', '')
+    unit_y_str = header2[3].replace('[', '').replace(']', '')
+
     xstr = header1[0]
-    delta_x = float(header1[1])*unit_registry(get_unit_str(header1[3]))
-    avg_x = float(header1[2])*unit_registry(get_unit_str(header1[3]))
+    delta_x = float(header1[1])*unit_registry(unit_x_str)
+    avg_x = float(header1[2])*unit_registry(unit_x_str)
 
     ystr = header2[0]
-    delta_y = float(header2[1])*unit_registry(get_unit_str(header2[3]))
-    avg_y = float(header2[2])*unit_registry(get_unit_str(header2[3]))
+    delta_y = float(header2[1])*unit_registry(unit_y_str)
+    avg_y = float(header2[2])*unit_registry(unit_y_str)
 
     Pxy = np.loadtxt(filename,skiprows=2)*unit_registry("1/"+str(avg_x.units)+"/"+str(avg_y.units))
 

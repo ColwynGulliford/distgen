@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.constants as const
 
 from .physical_constants import unit_registry, pi, PHYSICAL_CONSTANTS
 
