@@ -28,10 +28,8 @@ from .parsing import update_quantity
 from .parsing import is_quantizable
 from .parsing import parse_quantity
 
-#from .physical_constants import c
 from .physical_constants import is_quantity
 from .physical_constants import PHYSICAL_CONSTANTS
-#from .physical_constants import pi
 from .physical_constants import unit_registry
 
 from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
@@ -48,8 +46,6 @@ from .tools import vprint
 from .transforms import set_avg
 from .transforms import set_avg_and_std
 from .transforms import transform
-
-from pprint import pprint
 
 ALLOWED_CATHODE_DISTS = ['p_dist', 'KE_dist', 'p_polar_angle_dist']
 
@@ -114,7 +110,8 @@ class Generator(Base):
                 assert isinstance(input, dict), f'ERROR: parsing unsuccessful, could not read {input}'
                 expand_input_filepaths(input)
                 
-        else: expand_input_filepaths(input)
+        else: 
+            expand_input_filepaths(input)
 
         input = convert_input_quantities(input)
         self.check_input_consistency(input)
@@ -627,8 +624,8 @@ class Generator(Base):
             pzrms2 = prms**2 * avgCos2Phi 
             
             stds['px'] = np.sqrt( pxrms2 - avgs['px']**2 )
-            stds['py'] = np.sqrt( pxrms2 - avgs['py']**2 )
-            stds['pz'] = np.sqrt( pxrms2 - avgs['pz']**2 )
+            stds['py'] = np.sqrt( pyrms2 - avgs['py']**2 )
+            stds['pz'] = np.sqrt( pzrms2 - avgs['pz']**2 )
             
             if('p' in dist_params):
                 dist_params.pop('p')
@@ -652,10 +649,12 @@ class Generator(Base):
             bdist['py']=ps*np.sin(thetas)*np.sin(phis)
             bdist['pz']=ps*np.cos(phis)
 
-            for pvar in ['px', 'py']: avgs[pvar]=0*unit_registry('eV/c')
+            for pvar in ['px', 'py']: 
+                avgs[pvar]=0*unit_registry('eV/c')
             avgs['pz'] = bdist['pz'].mean()
 
-            for pvar in ['px', 'py', 'pz']: stds[pvar]=bdist[pvar].std()
+            for pvar in ['px', 'py', 'pz']: 
+                stds[pvar]=bdist[pvar].std()
 
             dist_params.pop('azimuthal_angle')
             dist_params.pop('p_polar_angle')
@@ -710,7 +709,7 @@ class Generator(Base):
                 vprint("Time start: no start time specified, defaulting to 0 sec.",verbose>0,1,True)
                 tstart = 0*unit_registry('sec')
 
-            vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True);
+            vprint(f'Time start: fixing all particle time values to start time: {tstart:G~P}.', verbose>0, 1, True)
             bdist = set_avg(bdist,**{'variables':'t','avg_t':0.0*unit_registry('sec'), 'verbose':verbose>0})
 
         elif(params['start']['type']=='free'):
@@ -773,18 +772,18 @@ class Generator(Base):
                 executor = ProcessPoolExecutor()
                 executor.max_workers = max_workers
 
-            vprint(f'Setting up workers...', self.verbose > 0, 1, False)
+            vprint('Setting up workers...', self.verbose > 0, 1, False)
             generators = set_up_worker_generators(self, n_gen=max_workers)
             inputs = [gen.input for gen in generators]
-            vprint(f'done.', self.verbose > 0, 0, True)
+            vprint('done.', self.verbose > 0, 0, True)
             
             # Run
-            vprint(f'Executing worker tasks...', self.verbose > 0, 1, False)
+            vprint('Executing worker tasks...', self.verbose > 0, 1, False)
             with executor as p:
                 ps = list(p.map(worker_func, inputs))
-            vprint(f'done', self.verbose > 0, 0, True)
+            vprint('done', self.verbose > 0, 0, True)
 
-            vprint(f'Collecting beamlets...', self.verbose > 0, 1, False)
+            vprint('Collecting beamlets...', self.verbose > 0, 1, False)
             
             #P = ps[0]
             #for Pi in ps[1:]: P = P + Pi

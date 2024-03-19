@@ -59,13 +59,17 @@ def resample_pq(xp, P, xq, Q, plot=False):
 def kullback_liebler_div(xp, P, xq, Q, adjusted=False, as_float=True):
     
     # Check that input P, Q are PDFs (up to normalization):
-    if(np.sum(P)==0.0): raise ValueError('PDF array P sums to zero!')
+    if(np.sum(P)==0.0): 
+        raise ValueError('PDF array P sums to zero!')
         
-    if(np.sum(Q)==0.0): raise ValueError('PDF array Q sums to zero!')
+    if(np.sum(Q)==0.0): 
+        raise ValueError('PDF array Q sums to zero!')
         
-    if(len(P[P<0])>0): raise ValueError('P array has negative values, and is not a true PDF.')
+    if(len(P[P<0])>0): 
+        raise ValueError('P array has negative values, and is not a true PDF.')
         
-    if(len(Q[Q<0])>0): raise ValueError('Q array has negative values, and is not a true PDF.')
+    if(len(Q[Q<0])>0): 
+        raise ValueError('Q array has negative values, and is not a true PDF.')
     
     xi, P, Q = resample_pq(xp, P, xq, Q)  # Interpolates to same grid, and renormalizes
          

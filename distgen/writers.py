@@ -1,8 +1,8 @@
-from .tools import vprint, StopWatch, mean
-from .physical_constants import  PHYSICAL_CONSTANTS, unit_registry
+from .tools import vprint, StopWatch
+from .physical_constants import  unit_registry
 
 import numpy as np
-import subprocess
+
 import os
 from collections import OrderedDict as odict
 from h5py import File
@@ -24,8 +24,8 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
     """Convert an ASCII GPT file to GDF format"""
 
     if(gdf_file == txt_file):
-        os.rename(txt_file, f'txt_file.tmp')
-        txt_file = f'txt_file.tmp'
+        os.rename(txt_file, 'txt_file.tmp')
+        txt_file = 'txt_file.tmp'
 
     result = os.system(f'{asci2gdf_bin} -o {gdf_file} {txt_file}')
   
@@ -186,12 +186,18 @@ def write_astra(beam,
     
     # Optional: probes, according to the manual
     if probe:
-        data[1]['x'] = 0.5*sigma['x'];data[1]['t'] =  0.5*sigma['t']
-        data[2]['y'] = 0.5*sigma['y'];data[2]['t'] = -0.5*sigma['t']
-        data[3]['x'] = 1.0*sigma['x'];data[3]['t'] =  sigma['t']
-        data[4]['y'] = 1.0*sigma['y'];data[4]['t'] = -sigma['t']
-        data[5]['x'] = 1.5*sigma['x'];data[5]['t'] =  1.5*sigma['t']
-        data[6]['y'] = 1.5*sigma['y'];data[6]['t'] = -1.5*sigma['t']        
+        data[1]['x'] = 0.5*sigma['x']
+        data[1]['t'] =  0.5*sigma['t']
+        data[2]['y'] = 0.5*sigma['y']
+        data[2]['t'] = -0.5*sigma['t']
+        data[3]['x'] = 1.0*sigma['x']
+        data[3]['t'] =  sigma['t']
+        data[4]['y'] = 1.0*sigma['y']
+        data[4]['t'] = -sigma['t']
+        data[5]['x'] = 1.5*sigma['x']
+        data[5]['t'] =  1.5*sigma['t']
+        data[6]['y'] = 1.5*sigma['y']
+        data[6]['t'] = -1.5*sigma['t']        
         data[1:7]['status'] = 3
         data[1:7]['pz'] = 0 #? This is what the Astra Generator does
     
@@ -238,7 +244,7 @@ def write_simion(beam, outfile, verbose=0, params={'color':0}):
         data[:, simion_params.index('MASS')] = np.full(N, beam.species_mass.to('amu').magnitude)
         data[:, simion_params.index('CHARGE')] = np.full(N, -1)
     else:
-        raise ValueError(f'Species {P.species} is not supported')
+        raise ValueError(f'Species {beam.species} is not supported')
     
     data[:, simion_params.index('X')] =  beam.z.to(simion_units['X']).magnitude
     data[:, simion_params.index('Y')] =  beam.y.to(simion_units['Y']).magnitude
@@ -258,14 +264,9 @@ def write_simion(beam, outfile, verbose=0, params={'color':0}):
 
     np.savetxt(outfile, data, delimiter=',', header=header, comments='', fmt='  %.9e')
 
-def write_openPMD(beam,outfile,verbose=0, params=None):
+def write_openPMD(beam, outfile, verbose=0, params=None):
 
     with File(outfile, 'w') as h5:
-
-        if(params):
-            name = params["name"]
-        else:
-            name = None
 
         watch = StopWatch()
         watch.start()

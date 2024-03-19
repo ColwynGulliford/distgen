@@ -1,6 +1,5 @@
 import numpy as np
 from numpy.fft import fft2, fftshift, ifft2
-from matplotlib import pyplot as plt
 
 def generate_laser_speckle_fft(image_size, speckle_size, random_seed=None):
     """

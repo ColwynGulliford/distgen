@@ -1,7 +1,7 @@
 from pmd_beamphysics import ParticleStatus
 import numpy as np
 from .physical_constants import PHYSICAL_CONSTANTS
-import functools
+
 
 from .tools import vprint, mean, std
 
@@ -66,10 +66,6 @@ class Beam():
     @property
     def q(self):
         return self._q
-
-    @property
-    def species(self):
-        return self._species
 
     # Cylindrical coordinates
     @property

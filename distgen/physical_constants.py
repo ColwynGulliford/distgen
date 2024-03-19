@@ -3,9 +3,9 @@ Defines common/useful physical constants.
 """
 
 import math
-import numpy as np
 import warnings
 from pint import UnitRegistry, Quantity
+import scipy.constants
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -14,7 +14,7 @@ with warnings.catch_warnings():
 unit_registry = UnitRegistry()
 unit_registry.setup_matplotlib()
 
-import scipy.constants
+
 
 # Mathematical constants
 pi = math.pi*unit_registry("rad")
@@ -58,19 +58,19 @@ class PhysicalConstants():
                 'charge': 0*self['elementary charge'],
                 'mass': 0*self['electron mass'],
                 'mc2': 0.0*unit_registry('eV'),
-                'g_factor': 0*self[f'electron g factor']
+                'g_factor': 0*self['electron g factor']
             },
             'positron': {
                 'charge': self['elementary charge'],
                 'mass': self['electron mass'],
                 'mc2': self['electron mass energy equivalent in MeV'].to('eV'),
-                'g_factor': -self[f'electron g factor']
+                'g_factor': -self['electron g factor']
             },
             'tau': {
                 'charge': -self['elementary charge'],
                 'mass': self['tau mass'],
                 'mc2': self['tau mass energy equivalent in MeV'].to('eV'),
-                'g_factor': +self[f'electron g factor']
+                'g_factor': +self['electron g factor']
             }
                 
             
