@@ -321,12 +321,15 @@ def set_twiss(beam, **params): #plane, beta, alpha, eps):
     avg_p0 = p0.mean()
     beam[pstr]=beam[pstr]-avg_p0
 
+    p_units = 'dimensionless'
+
     assert beta0>0, f'Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform.'
     assert eps0>0, f'Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform.'
     assert beta>0, f'Error in set_twiss: final beta = {beta} was <=0, the final distribution must have finite size to use this transform.'
 
     m11 = (np.sqrt(beta*eps/beta0/eps0)).to_base_units()
-    m12 = (0*unit_registry(str(beam[xstr].units)+'/'+str(beam[pstr].units))).to_base_units()
+    #m12 = (0*unit_registry(str(beam[xstr].units)+'/'+str(beam[pstr].units))).to_base_units()
+    m12 = (0*unit_registry(str(x0.units))).to_base_units()  # Twiss uses x' for momentum, which is unitless
     m21 = (( (alpha0-alpha)/np.sqrt(beta*beta0) )*np.sqrt(eps/eps0)).to_base_units()
     m22 = (np.sqrt(beta0/beta)*np.sqrt(eps/eps0)).to_base_units()
 

@@ -628,7 +628,7 @@ def is_key_in_nested_dict(dd, flatkey, sep=':', prefix='distgen'):
     try:
         get_nested_dict(dd, flatkey, sep=':', prefix='distgen')
         return True
-    except Exception as ex:
+    except Exception:
         return False
 '''
 def is_quantity(d):
