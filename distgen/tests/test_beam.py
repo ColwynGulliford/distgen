@@ -33,8 +33,10 @@ coordinates = {
     "beta_z",
 }
 
+yaml_files = list(EXAMPLES_DATA_PATH.glob("*.yaml"))
 
-@pytest.fixture(params=list(EXAMPLES_DATA_PATH.glob("*.yaml")), scope="module")
+
+@pytest.fixture(params=yaml_files, ids=[fn.name for fn in yaml_files], scope="module")
 def yaml_file(request: pytest.FixtureRequest) -> pathlib.Path:
     return request.param
 
