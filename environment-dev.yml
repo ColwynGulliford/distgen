@@ -15,6 +15,7 @@ dependencies:
   - pydicom
   # Developer
   - pytest
+  - pytest-cov
   - poppler
   - jupyterlab>=3
   - ipywidgets
