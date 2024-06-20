@@ -319,8 +319,8 @@ class Generator(Base):
             g = h5py.File(h5, 'w')
             # Proper openPMD init
             pmd_init(g, basePath='/', particlesPath='particles/')
-            g.attrs['software'] = np.string_('distgen') # makes a fixed string
-            #TODO: add version: g.attrs('version') = np.string_(__version__)
+            g.attrs['software'] = np.bytes_('distgen') # makes a fixed string
+            #TODO: add version: g.attrs('version') = np.bytes_(__version__)
 
         else:
             g = h5
