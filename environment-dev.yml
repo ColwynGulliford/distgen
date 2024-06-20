@@ -13,7 +13,7 @@ dependencies:
   - openpmd-beamphysics
   - lume-base
   - pydicom
-# Developer
+  # Developer
   - pytest
   - poppler
   - jupyterlab>=3
@@ -25,5 +25,6 @@ dependencies:
   - mkdocs-jupyter
   - pip
   - pip:
-    - mkdocstrings-python
-
+      - mkdocstrings-python
+      # Install distgen as well
+      - .

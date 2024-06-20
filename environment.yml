@@ -13,3 +13,7 @@ dependencies:
   - openpmd-beamphysics
   - lume-base
   - pydicom
+  - pip
+  - pip:
+      # Install distgen as well
+      - .

@@ -22,12 +22,7 @@ jobs:
           mamba-version: "*"
           channels: conda-forge
           activate-environment: distgen
-          environment-file: environment.yml
-
-      - name: Install test requirements
-        shell: bash -l {0}
-        run: |
-          conda install pytest
+          environment-file: environment-dev.yml
 
       - name: Show conda environment packages
         shell: bash -l {0}
