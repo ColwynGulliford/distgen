@@ -210,7 +210,7 @@ def fstr(s):
     """
     Makes a fixed string for h5 files
     """
-    return np.string_(s)
+    return np.bytes_(s)
 
 
 
@@ -293,7 +293,7 @@ def opmd_init(h5):
         'particlesPath':'particles/'        
     }
     for k,v in d.items():
-        h5.attrs[k] = np.string_(v)
+        h5.attrs[k] = np.bytes_(v)
     h5.create_group('/data/')
 
 

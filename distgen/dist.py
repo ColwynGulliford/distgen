@@ -2785,12 +2785,12 @@ class SuperPosition2d(Dist2d):
                 if(dists[name].min_dx is not None):
                     min_dx = dists[name].min_dx
                 else:
-                    min_dx = np.Inf*xi.units
+                    min_dx = np.inf*xi.units
                     
                 if(dists[name].min_dy is not None):
                     min_dy = dists[name].min_dy
                 else:
-                    min_dy = np.Inf*yi.units
+                    min_dy = np.inf*yi.units
                 
             else:
                 
@@ -2871,12 +2871,12 @@ class Product2d(Dist2d):
                 if(dists[name].min_dx is not None):
                     min_dx = dists[name].min_dx
                 else:
-                    min_dx = np.Inf*xi.units
+                    min_dx = np.inf*xi.units
                     
                 if(dists[name].min_dy is not None):
                     min_dy = dists[name].min_dy
                 else:
-                    min_dy = np.Inf*yi.units
+                    min_dy = np.inf*yi.units
                 
             else:
                 

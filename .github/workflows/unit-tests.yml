@@ -1,0 +1,41 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Test ${{ matrix.os }} (${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          mamba-version: "*"
+          channels: conda-forge
+          activate-environment: distgen
+          environment-file: environment-dev.yml
+
+      - name: Show conda environment packages
+        shell: bash -l {0}
+        run: |
+          conda list
+
+      - name: Ensure importability
+        shell: bash -l {0}
+        run: |
+          cd /
+          python -c "import distgen"
+
+      - name: Run Tests
+        shell: bash -l {0}
+        run: |
+          pytest -v --cov=distgen/
