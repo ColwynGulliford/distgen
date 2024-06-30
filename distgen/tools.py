@@ -139,7 +139,7 @@ def cumtrapz(f, x):
     """
     Numerically integrates f(x) using trapezoid method cummulatively
     """
-    return scipy.integrate.cumtrapz(f, x, initial=0)
+    return scipy.integrate.cumulative_trapezoid(f, x, initial=0)
 
 
 @unit_registry.wraps('=A*A*B', ('=B', '=A'))
