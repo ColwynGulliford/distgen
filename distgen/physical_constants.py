@@ -32,7 +32,9 @@ class PhysicalConstants():
                                    'proton',
                                    'muon',
                                    'neutron',
-                                   'tau']
+                                   'tau',
+                                   'H2+'
+                                  ]
 
         self._pi = math.pi*unit_registry("rad")
 
@@ -51,7 +53,9 @@ class PhysicalConstants():
                    'proton': +1,
                    'muon': -1,
                    'neutron': 0,
-                   'tau': -1 }
+                   'tau': -1,
+                   'H2+': +1
+                  }
 
         extra_species = {
             'photon': {
@@ -71,6 +75,13 @@ class PhysicalConstants():
                 'mass': self['tau mass'],
                 'mc2': self['tau mass energy equivalent in MeV'].to('eV'),
                 'g_factor': +self['electron g factor']
+            },
+            'H2+': {
+                'description': 'ionized hydrogen molecule',
+                'charge': +self['elementary charge'],
+                'mass': 2*self['proton mass'] + self['electron mass'],
+                'mc2': 2*self['proton mass energy equivalent in MeV'].to('eV') + self['electron mass energy equivalent in MeV'].to('eV'),
+                #'g_factor': +self['electron g factor']
             }
                 
             
