@@ -200,7 +200,7 @@ def map_hist(x, y, h, bins):
     vals = h.flatten()[inds]
     bads = ((x < bins[0][0]) | (x > bins[0][-1]) |
             (y < bins[1][0]) | (y > bins[1][-1]))
-    vals[bads] = np.NaN
+    vals[bads] = np.nan
     return vals
 
 
