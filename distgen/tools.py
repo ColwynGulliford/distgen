@@ -131,7 +131,7 @@ def trapz(f, x):
     """ 
     Numerically integrates f(x) using trapezoid method.
     """
-    return np.trapz(f, x)
+    return np.trapezoid(f, x)
 
 
 @unit_registry.wraps('=A*B', ('=B', '=A'))
