@@ -379,8 +379,6 @@ class Generator(Base):
 
     def get_rands(self, variables):
 
-        print(variables)
-
         """ Gets random numbers [0,1] for the coordinatess in variables
         using either the Hammersley sequence or rand """
         
@@ -523,7 +521,7 @@ class Generator(Base):
         rand_variables = list(dist_params.keys())    # All variables with distributions specified
 
         if('spin_polarization' in params):
-            rand_variables = rand_variables + ['sx', 'sy', 'sz']
+            rand_variables = rand_variables + ['sz']
         
         self.get_rands(rand_variables)
 
