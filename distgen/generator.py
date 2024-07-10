@@ -211,7 +211,7 @@ class Generator(Base):
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output', 'transforms', 'start', 'random_seed', 'random_type', 'random']
+        allowed_params = required_params + ['output', 'transforms', 'start', 'random_seed', 'random_type', 'random', 'spin_polarization']
         for p in params:
             #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
             assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p
@@ -266,6 +266,9 @@ class Generator(Base):
         if('species' not in params):
             warnings.warn('Particle species not set, defaulting to species = "electron"')
             params['species']='electron'
+
+        if('spin_polarization' in params):
+            assert params['species'] == 'electron', "Polarization currently may only be set for electrons"
 
     def configure(self):
         pass
@@ -364,12 +367,19 @@ class Generator(Base):
                 vprint("Assuming cylindrical momentum symmetry...",self.verbose>0,1,True)
                 dist_params['azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
 
+        if('spin_polarization' in params):
+            vprint("Assuming longitudinally polarized electrons...",self.verbose>0,1,True)
+            dist_params['spin_azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
+            
+
         if(params['start']['type']=='time' and 't_dist' in params):
             raise ValueError('Error: t_dist should not be set for time start')
-
+        
         return dist_params
 
     def get_rands(self, variables):
+
+        print(variables)
 
         """ Gets random numbers [0,1] for the coordinatess in variables
         using either the Hammersley sequence or rand """
@@ -389,6 +399,10 @@ class Generator(Base):
         elif('p_polar_angle' in variables):
             self.rands['p']=None
             self.rands['polar_angle']=None
+
+        elif('spin_polarization' in variables):
+            self.rands['sz']=None
+            #self.rands['spin_azimuthal_angle']=None
 
         n_coordinate = len(self.rands.keys())
         n_particle = int(params['n_particle'])
@@ -466,8 +480,7 @@ class Generator(Base):
 
         beam_params = {'total_charge': params['total_charge'],
                        'n_particle': params['n_particle'],
-                       'species': params['species']
-                      }
+                       'species': params['species']}
 
         if('transforms' in params):
             transforms = params['transforms']
@@ -506,7 +519,13 @@ class Generator(Base):
         stds = {var:0*unit_registry(units[var]) for var in units}
 
         dist_params = self.get_dist_params(params)   # Get the relevant dist params, setting defaults as needed, and samples random number generator
-        self.get_rands(list(dist_params.keys()))
+
+        rand_variables = list(dist_params.keys())    # All variables with distributions specified
+
+        if('spin_polarization' in params):
+            rand_variables = rand_variables + ['sx', 'sy', 'sz']
+        
+        self.get_rands(rand_variables)
 
         # Do radial dist first if requested
         if('r' in dist_params and 'theta' in dist_params):
@@ -659,6 +678,29 @@ class Generator(Base):
             dist_params.pop('azimuthal_angle')
             dist_params.pop('p_polar_angle')
 
+        if('spin_polarization' in params):
+
+            hbar = PHYSICAL_CONSTANTS['reduced Planck constant'].to('nm * eV/c')
+
+            bdist['sx'] = np.full(N, 0.0)*unit_registry('nm * eV/c')
+            bdist['sy'] = np.full(N, 0.0)*unit_registry('nm * eV/c')
+            bdist['sz'] = np.full(N, 0.0)*unit_registry('nm * eV/c')
+
+            sphi_dist = get_dist('spin_azimuthal_angle', dist_params['spin_azimuthal_angle'], verbose=verbose)
+
+            sphi = sphi_dist.cdfinv(self.rands['spin_azimuthal_angle'])
+
+            P = params['spin_polarization']
+
+            bdist['sz'][self.rands['sz'] < 0.5 * (1 - P)] = -hbar/2
+            bdist['sz'][self.rands['sz'] >= 0.5 * (1 - P)] = +hbar/2
+
+            bdist['sx'] = (hbar/np.sqrt(2))*np.cos(sphi)
+            bdist['sy'] = (hbar/np.sqrt(2))*np.sin(sphi)
+
+            del dist_params['spin_azimuthal_angle']
+            
+
         
         # Do all other specified single coordinate dists
         for x in dist_params.keys():
@@ -717,6 +759,7 @@ class Generator(Base):
 
         else:
             raise ValueError(f'Beam start type "{params["start"]["type"]}" is not supported!')
+
 
         # Apply any user desired coordinate transformations
         if(transforms):

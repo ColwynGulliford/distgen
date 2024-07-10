@@ -18,7 +18,7 @@ class Beam():
         pint quantity np.array: x, px, y, py, z, pz, t, weight, 
         np.array status, 
         str: species,
-        sx, sy, sz 
+        np.array: sx, sy, sz 
     where:
         x, y, z have a base unit of meters 
         px, py, pz are momenta in base units [eV/c]
@@ -284,10 +284,15 @@ class Beam():
         return (self.Beta(var), self.Alpha(var), self.emitt(var,'geometric'))
 
     
-    # Spin
+
     @property
-    def sx(self):
-        return None
+    def s2(self):
+        return self.sx**2 + self.sy**2 + self.sz**2
+
+    #def spin_polarization(self, ehat=[0, 0, 1]):
+        
+        
+        
     
 
     # Set functiontality
