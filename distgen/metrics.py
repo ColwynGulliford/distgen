@@ -24,8 +24,8 @@ from .dist import SuperGaussian
 #--------------------------------------------------------------
 
 def mean_and_sigma(x, rho):
-    x0 = np.trapz(rho*x, x)
-    x2 = np.trapz(rho*(x-x0)**2, x)
+    x0 = np.trapezoid(rho*x, x)
+    x2 = np.trapezoid(rho*(x-x0)**2, x)
     
     return x0, np.sqrt(x2)
 
@@ -85,7 +85,7 @@ def kullback_liebler_div(xp, P, xq, Q, adjusted=False, as_float=True):
     Q0 = Q[p_and_q_nonzero]
     x0 = xi[p_and_q_nonzero]
     
-    KLdiv = np.trapz(P0*( np.log(P0/Q0) ), x0 )
+    KLdiv = np.trapezoid(P0*( np.log(P0/Q0) ), x0 )
     
     if(as_float):
         return KLdiv.magnitude
@@ -98,11 +98,11 @@ def res2(xp, P, xq, Q, as_float=True, normalize=False):
     xi, P, Q = resample_pq(xp, P, xq, Q)  # Interpolates to same grid, and renormalizes
     
     if(normalize):
-        N = np.trapz(Q**2, xi)
+        N = np.trapezoid(Q**2, xi)
     else:
         N=1
     
-    residuals2 = np.trapz((P-Q)**2, xi) / N
+    residuals2 = np.trapezoid((P-Q)**2, xi) / N
     
     if(as_float):
         return residuals2.magnitude
@@ -141,7 +141,7 @@ def get_1d_profile(particle_group, var, bins=None):
 def get_current_profile(particle_group, bins=None):
 
     t, rho = get_1d_profile(particle_group, 't', bins=bins)
-    return t, particle_group.charge*rho/np.trapz(rho, t)
+    return t, particle_group.charge*rho/np.trapezoid(rho, t)
 
 
 #--------------------------------------------------------------------

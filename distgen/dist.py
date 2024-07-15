@@ -220,7 +220,7 @@ class Dist1d(Dist):
         self.Px = Px
         self.xstr = xstr
         
-        norm = np.trapz(self.Px, self.xs)
+        norm = np.trapezoid(self.Px, self.xs)
         if(norm<=0):
             raise ValueError('Normalization of PDF was <= 0')
 
@@ -313,7 +313,7 @@ class Dist1d(Dist):
 
         rho, edges = histogram(xs, nbins=100)
         xc = centers(edges)
-        rho = rho/np.trapz(rho, xc)
+        rho = rho/np.trapezoid(rho, xc)
 
         savgx = xs.mean()
         sstdx = xs.std()
@@ -480,7 +480,7 @@ class Uniform(Dist1d):
         #self.xL = kwargs[minstr]           
         #self.xR = kwargs[maxstr]
         vprint('uniform',verbose>0,0,True)
-        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
+        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}, avg_{var} = {self.avg():G~P}, sigma_{var}: {self.std(): G~P}', verbose>0, 2, True)
   
     def get_x_pts(self, n, f=0.2):
         """
@@ -1406,12 +1406,12 @@ class Deformable(Dist1d):
         Px = Px*self.dist['linear'].pdf(xs)
 
 
-        norm = np.trapz(Px, xs)
+        norm = np.trapezoid(Px, xs)
         assert norm > 0, 'Error: derformable distribution can not be normalized.'
         Px = Px/norm
 
-        avgx = np.trapz(xs*Px, xs)
-        stdx = np.sqrt(np.trapz( Px*(xs-avgx)**2, xs))
+        avgx = np.trapezoid(xs*Px, xs)
+        stdx = np.sqrt(np.trapezoid( Px*(xs-avgx)**2, xs))
 
         #print(avgx, stdx)
 
