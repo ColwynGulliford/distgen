@@ -683,6 +683,12 @@ class Generator(Base):
                 #else:
                     #stds[x] = dist.std()
                     #print(x, stds[x])
+                    
+            else: # Someone may set sigma = 0 but have a non-zero avg 
+                if("avg_"+x in dist_params[x]):
+                    avgs[x]=dist_params[x]["avg_"+x]
+                else:
+                    avgs[x] = dist.avg()
         
         # Shift and scale coordinates to undo sampling error
         for x in avgs:

@@ -480,7 +480,7 @@ class Uniform(Dist1d):
         #self.xL = kwargs[minstr]           
         #self.xR = kwargs[maxstr]
         vprint('uniform',verbose>0,0,True)
-        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
+        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}, avg_{var} = {self.avg():G~P}, sigma_{var}: {self.std(): G~P}', verbose>0, 2, True)
   
     def get_x_pts(self, n, f=0.2):
         """
