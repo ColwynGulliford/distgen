@@ -7,6 +7,9 @@ import os
 from collections import OrderedDict as odict
 from h5py import File
 
+import subprocess
+
+
 def writer(output_format, beam, outfile, verbose=0, params=None):
 
     """ Returns a simulaiton code specific writer function """
@@ -26,7 +29,7 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
     if(gdf_file == txt_file):
         os.rename(txt_file, 'txt_file.tmp')
         txt_file = 'txt_file.tmp'
-
+        
     result = os.system(f'{asci2gdf_bin} -o {gdf_file} {txt_file}')
   
     if(remove_txt_file):
