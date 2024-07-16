@@ -1,6 +1,7 @@
 from pmd_beamphysics import ParticleStatus
 import numpy as np
 from .physical_constants import PHYSICAL_CONSTANTS
+from .physical_constants import unit_registry
 
 
 from .tools import vprint, mean, std
@@ -302,7 +303,9 @@ class Beam():
         return np.sum(self['w'] * spin_projection) / np.sum( np.abs(self['w']*spin_projection) )
         
         
-        
+    @property
+    def g_factor(self):
+        return np.full( (self._n_particle, ), PHYSICAL_CONSTANTS.species_g_factor(self.species)) * unit_registry('dimensionless')
     
 
     # Set functiontality
