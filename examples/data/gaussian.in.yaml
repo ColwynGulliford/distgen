@@ -15,6 +15,7 @@ r_dist:
 random:
   type: hammersley
 species: electron
+spin_polarization: 0.35
 start:
   tstart: 0 sec
   type: time
