@@ -106,7 +106,7 @@ def plot_dist1d(beam, var, units, scale='charge', dist_units=None, ax=None, **pa
     ax.set_ylabel(f'{scale} density ({rho_x.units:~P})')
 
     if(title_on):
-        ax.set_title('$<'+label+'>$ = '+f'{avgt:G~P}, '+'$\sigma_{'+label+'}$ = '+f'{stdt:G~P}, total {scale} = {total_scale:G~P}')
+        ax.set_title(r'$<'+label+'>$ = '+f'{avgt:G~P}, '+r'$\sigma_{'+label+'}$ = '+f'{stdt:G~P}, total {scale} = {total_scale:G~P}')
 
 
 def plot_current_profile(beam, t_units, current_units, ax=None, **params):
@@ -143,7 +143,7 @@ def plot_radial_dist(beam, r_units, scale='charge', dist_units=None, ax=None, **
     if('title_on' in params and params['title_on']):
         avgr = mean(beam['r'], beam['w'])
         rmsr = np.sqrt( mean(beam['r']*beam['r'], beam['w']) )
-        ax.set_title(f'$<{LABELS["r"]}>$ = {avgr:G~P}, '+'$r_{rms}$'+f' = {rmsr:G~P}, total {scale} = {scale_factor:G~P}')
+        ax.set_title(rf'$<{LABELS["r"]}>$ = {avgr:G~P}, '+r'$r_{rms}$'+f' = {rmsr:G~P}, total {scale} = {scale_factor:G~P}')
 
     return ax
 
@@ -185,8 +185,8 @@ def plot_dist2d(beam, var1, units1, var2, units2, style='scatter_hist2d', ax=Non
         plt.ylim([-1,1])
   
     if('title_on' in params and params['title_on']):
-        line1 = f'$<{LABELS[var1]}>$ = {avgx:G~P}, '+'$\sigma_{'+LABELS[var1]+'}$ = '+f'{stdx:G~P}'
-        line2 = f'$<{LABELS[var2]}>$ = {avgy:G~P}, '+'$\sigma_{'+LABELS[var2]+'}$ = '+f'{stdy:G~P}'
+        line1 = rf'$<{LABELS[var1]}>$ = {avgx:G~P}, '+r'$\sigma_{'+LABELS[var1]+'}$ = '+f'{stdx:G~P}'
+        line2 = rf'$<{LABELS[var2]}>$ = {avgy:G~P}, '+r'$\sigma_{'+LABELS[var2]+'}$ = '+f'{stdy:G~P}'
         ax.set_title(line1+'\n'+line2)
     return ax
 
