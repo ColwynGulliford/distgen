@@ -71,7 +71,7 @@ def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):
         headers = odict( {'x':'x', 'y':'y', 'z':'z', 'gamma_beta_x':'GBx',  'gamma_beta_y':'GBy', 'gamma_beta_z':'GBz', 't':'t', 'q':'q', 'nmacro':'nmacro'} )
 
         # Check for spin:
-        if beam['sx'] is not None:
+        if hasattr(beam, 'sx'):
             headers['sx'], headers['sy'], headers['sz'], headers['g_factor'] = 'spinx', 'spiny', 'spinz', 'sping'
     
         header = '   '.join(headers.values())
