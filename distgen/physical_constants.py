@@ -112,7 +112,7 @@ class PhysicalConstants():
 
     def species(self, key):
         
-        if(key in self._species_data):
+        if key in self._species_data:
             return self._species_data[key]
         else:
             raise ValueError(f'Unsupported particle species: {key}')
@@ -121,7 +121,10 @@ class PhysicalConstants():
         return self._species_data[species]['rest_energy'] 
 
     def species_charge(self, species):
-        return self.species_data[species]['charge']
+        return self._species_data[species]['charge']
+
+    def species_g_factor(self, species):
+        return self._species_data[species]['g_factor']
 
     @property
     def species_list(self):

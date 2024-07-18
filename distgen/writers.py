@@ -1,11 +1,14 @@
 from .tools import vprint, StopWatch
-from .physical_constants import  unit_registry
+from .physical_constants import  unit_registry, PHYSICAL_CONSTANTS
 
 import numpy as np
 
 import os
 from collections import OrderedDict as odict
 from h5py import File
+
+import subprocess
+
 
 def writer(output_format, beam, outfile, verbose=0, params=None):
 
@@ -26,7 +29,7 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
     if(gdf_file == txt_file):
         os.rename(txt_file, 'txt_file.tmp')
         txt_file = 'txt_file.tmp'
-
+        
     result = os.system(f'{asci2gdf_bin} -o {gdf_file} {txt_file}')
   
     if(remove_txt_file):
@@ -37,9 +40,8 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
 
 def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):  
 
-
         """ Writes particles to file in GPT format """
-
+        
         watch = StopWatch()
 
         # Format particles
@@ -50,7 +52,7 @@ def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):
 
         qspecies = beam.species_charge
         qspecies.ito("coulomb")
-        qs = np.full((beam['n_particle'],),1.0)*qspecies
+        qs = np.full((beam['n_particle'],), 1.0)*qspecies
         qbunch = beam.q.to("coulomb")
 
         watch.start()
@@ -67,16 +69,25 @@ def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):
             beam[var].ito(gpt_units[var])
 
         headers = odict( {'x':'x', 'y':'y', 'z':'z', 'gamma_beta_x':'GBx',  'gamma_beta_y':'GBy', 'gamma_beta_z':'GBz', 't':'t', 'q':'q', 'nmacro':'nmacro'} )
-        header = '   '.join(headers.values())
 
-        data = np.zeros( (len(beam["x"]),len(headers)) )
+        # Check for spin:
+        if hasattr(beam, 'sx'):
+            headers['sx'], headers['sy'], headers['sz'], headers['g_factor'] = 'spinx', 'spiny', 'spinz', 'sping'
+    
+        header = '   '.join(headers.values())
+    
+        data = np.zeros( (len(beam["x"]), len(headers)) )
         for index, var in enumerate(headers):
             if(var=="q"):
-                data[:,index]=qs.magnitude
+                data[:, index]=qs.magnitude
             elif(var=="nmacro"):
-                data[:,index]=nmacro.magnitude
+                data[:, index]=nmacro.magnitude
+            elif var in ['sx', 'sy', 'sz']:
+                data[:, index] = beam[var].to('m*eV/c').magnitude / np.sqrt(beam['s2']).to('m*eV/c').magnitude
+            elif var == 'g_factor':
+                data[:, index] = np.abs(beam[var].magnitude)
             else:
-                data[:,index] = beam[var].magnitude
+                data[:, index] = beam[var].magnitude
 
         if(".txt"==outfile[-4:]):
         	gdffile = outfile[:-4]+".gdf"
@@ -88,7 +99,7 @@ def write_gpt(beam, outfile, verbose=0, params=None, asci2gdf_bin=None):
 
         np.savetxt(outfile ,data, header=header ,comments='')
    
-        if(asci2gdf_bin):
+        if asci2gdf_bin :
             gdfwatch = StopWatch()
             gdfwatch.start()
             vprint('Converting file to GDF: ',verbose>0,1,False)

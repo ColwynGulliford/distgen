@@ -23,3 +23,6 @@ z_dist:
   avg_z: 0.0 mm
   sigma_z: 2.0 mm
   type: gaussian
+spin_polarization: 0.35
+  
+
