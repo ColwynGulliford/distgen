@@ -14,6 +14,7 @@ from . import archive
 
 from .beam import Beam
 
+
 from concurrent.futures import ProcessPoolExecutor
 
 from .dist import get_dist
@@ -677,6 +678,7 @@ class Generator(Base):
             dist_params.pop('p_polar_angle')
 
         if('spin_polarization' in params):
+            
 
             hbar = PHYSICAL_CONSTANTS['reduced Planck constant'].to('nm * eV/c')
 
