@@ -1298,7 +1298,7 @@ uniform theta
    Scaling sigma_pz = 0.000999972 GeV/c -&gt; 1 MeV/c
    Time start: fixing all particle time values to start time: 0 s.
       Setting avg_t -&gt; 0 s.
-...done. Time Elapsed: 279.921 ms.
+...done. Time Elapsed: 280.378 ms.
 
 </pre>
 </div>
@@ -1570,8 +1570,8 @@ uniform theta
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>   Converting file to GDF: done. Time ellapsed: 30.0946 ms.
-...done. Time ellapsed: 1.7245 s.
+<pre>   Converting file to GDF: done. Time ellapsed: 30.412 ms.
+...done. Time ellapsed: 1.70822 s.
 </pre>
 </div>
 </div>
@@ -1585,13 +1585,13 @@ uniform theta
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=67493bf1-1d30-4bce-a901-5c4a47229640">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=67493bf1-1d30-4bce-a901-5c4a47229640">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy for="cell-11">
@@ -1604,9 +1604,98 @@ uniform theta
 </div>
 </clipboard-copy>
 </div>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-11">print(D)</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>&lt;disgten.Generator with input: 
+n_particle: 200000
+output:
+  type: null
+px_dist:
+  sigma_px:
+    units: kiloelectron_volt / speed_of_light
+    value: 1.0
+  type: gaussian
+py_dist:
+  sigma_py:
+    units: kiloelectron_volt / speed_of_light
+    value: 1.0
+  type: gaussian
+pz_dist:
+  avg_pz:
+    units: gigaelectron_volt / speed_of_light
+    value: 0.0
+  sigma_pz:
+    units: megaelectron_volt / speed_of_light
+    value: 1.0
+  type: gaussian
+r_dist:
+  sigma_xy:
+    units: millimeter
+    value: 1.0
+  type: radial_gaussian
+random:
+  type: hammersley
+species: electron
+spin_polarization: 0.35
+start:
+  tstart:
+    units: second
+    value: 0
+  type: time
+total_charge:
+  units: picocoulomb
+  value: 10
+transforms: null
+z_dist:
+  avg_z:
+    units: millimeter
+    value: 0.0
+  sigma_z:
+    units: millimeter
+    value: 2.0
+  type: gaussian
+
+&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c8bcbe98-1ecd-49b6-bb2c-582e72a183d4">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy for="cell-12">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
 <div class="highlight-ipynb hl-python"><pre><span></span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-11"></div>
+<div class="clipboard-copy-txt" id="cell-12"></div>
 </div>
 </div>
 </div>
