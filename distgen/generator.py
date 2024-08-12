@@ -42,6 +42,7 @@ from .tools import set_nested_dict
 from .tools import StopWatch
 from .tools import update_nested_dict
 from .tools import vprint
+from .tools import shuffle
 
 
 from .transforms import set_avg
@@ -692,6 +693,8 @@ class Generator(Base):
 
             P = params['spin_polarization']
 
+            #self.rands['sz'] = shuffle(self.rands['sz'])
+            
             bdist['sz'][self.rands['sz'] < 0.5 * (1 - P)] = -hbar/2
             bdist['sz'][self.rands['sz'] >= 0.5 * (1 - P)] = +hbar/2
 

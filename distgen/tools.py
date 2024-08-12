@@ -275,6 +275,14 @@ def flipud(x):
 def fliplr(x):
     return np.fliplr(x)
 
+
+@unit_registry.wraps('=A', ('=A'))
+def shuffle(x):
+    rng = np.random.default_rng()
+    rng.shuffle(x)
+    return x
+    
+
 #--------------------------------------------------------------
 # Histogramming routines
 #--------------------------------------------------------------
