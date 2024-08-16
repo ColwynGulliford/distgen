@@ -371,7 +371,7 @@ class Generator(Base):
 
         if('spin_polarization' in params):
             vprint("Assuming longitudinally polarized electrons...",self.verbose>0,1,True)
-            dist_params['spin_azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
+            #dist_params['spin_azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
             
 
         if(params['start']['type']=='time' and 't_dist' in params):
