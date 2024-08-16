@@ -687,9 +687,9 @@ class Generator(Base):
             bdist['sy'] = np.full(N, 0.0)*unit_registry('nm * eV/c')
             bdist['sz'] = np.full(N, 0.0)*unit_registry('nm * eV/c')
 
-            sphi_dist = get_dist('spin_azimuthal_angle', dist_params['spin_azimuthal_angle'], verbose=verbose)
+            #sphi_dist = get_dist('spin_azimuthal_angle', dist_params['spin_azimuthal_angle'], verbose=verbose)
 
-            sphi = sphi_dist.cdfinv(self.rands['spin_azimuthal_angle'])
+            #sphi = sphi_dist.cdfinv(self.rands['spin_azimuthal_angle'])
 
             P = params['spin_polarization']
 
@@ -698,10 +698,10 @@ class Generator(Base):
             bdist['sz'][self.rands['sz'] < 0.5 * (1 - P)] = -hbar/2
             bdist['sz'][self.rands['sz'] >= 0.5 * (1 - P)] = +hbar/2
 
-            bdist['sx'] = (hbar/np.sqrt(2))*np.cos(sphi)
-            bdist['sy'] = (hbar/np.sqrt(2))*np.sin(sphi)
+            #bdist['sx'] = (hbar/np.sqrt(2))*np.cos(sphi)
+            #bdist['sy'] = (hbar/np.sqrt(2))*np.sin(sphi)
 
-            del dist_params['spin_azimuthal_angle']
+            #del dist_params['spin_azimuthal_angle']
             
 
         
