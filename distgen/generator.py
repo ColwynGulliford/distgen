@@ -702,7 +702,7 @@ class Generator(Base):
             #bdist['sy'] = (hbar/np.sqrt(2))*np.sin(sphi)
 
             #del dist_params['spin_azimuthal_angle']
-            print(dist_params['spin_azimuthal_angle'])
+            #print(dist_params['spin_azimuthal_angle'])
 
         
         # Do all other specified single coordinate dists
