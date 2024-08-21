@@ -696,6 +696,7 @@ class Generator(Base):
             #self.rands['sz'] = shuffle(self.rands['sz'])
             
             bdist['sz'][self.rands['sz'] < 0.5 * (1 - P)] = -hbar/2
+            
             bdist['sz'][self.rands['sz'] >= 0.5 * (1 - P)] = +hbar/2
 
             #bdist['sx'] = (hbar/np.sqrt(2))*np.cos(sphi)
