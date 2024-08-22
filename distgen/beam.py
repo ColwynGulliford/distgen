@@ -290,17 +290,18 @@ class Beam():
     def s2(self):
         return self.sx**2 + self.sy**2 + self.sz**2
 
-    def spin_polarization(self, ehat=[0, 0, 1]):
+    def spin_polarization(self):
+        return np.linalg.norm( np.array([self.avg('sx'), self.avg('sy'), self.avg('sz')]) )
         
-        norm = np.linalg.norm(ehat)
-        if norm == 0: 
-           raise ValueError('Spin polarization direction must not be zero.')
+        #norm = np.linalg.norm(ehat)
+        #if norm == 0: 
+        #   raise ValueError('Spin polarization direction must not be zero.')
             
-        ehat = ehat / norm
+        #ehat = ehat / norm
 
-        spin_projection = self.sx*ehat[0] + self.sy*ehat[1] + self.sz*ehat[2]
+        #spin_projection = self.sx*ehat[0] + self.sy*ehat[1] + self.sz*ehat[2]
 
-        return np.sum(self['w'] * spin_projection) / np.sum( np.abs(self['w']*spin_projection) )
+        #return np.sum(self['w'] * spin_projection) / np.sum( np.abs(self['w']*spin_projection) )
         
         
     @property
