@@ -14,6 +14,10 @@ import os
 try:
     import pydicom as dicom
 except ImportError:
+    # The optional pydicom library is not installed.
+    dicom = None
+except TypeError:
+    # pydicom is unavailable on Python 3.9 as it uses python 3.10+ features.
     dicom = None
 
 from pathlib import Path
