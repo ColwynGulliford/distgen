@@ -11,8 +11,10 @@ import matplotlib.image as mpimg
 import datetime
 import os
 
-import pydicom as dicom
-
+try:
+    import pydicom as dicom
+except ImportError:
+    dicom = None
 
 from pathlib import Path
 
@@ -433,10 +435,16 @@ def get_file_extension(filename):
     
 
 
-SUPPORTED_IMAGE_EXTENSIONS = ['.dicom', '.dcm',
-                              '.jpeg', '.jpg', 
-                              '.png', 
-                              '.tiff',]
+SUPPORTED_IMAGE_EXTENSIONS = [
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".tiff",
+]
+
+if dicom is not None:
+    SUPPORTED_IMAGE_EXTENSIONS.extend(['.dicom', '.dcm'])
+
 
 def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
 
@@ -445,7 +453,13 @@ def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
     if file_extension not in SUPPORTED_IMAGE_EXTENSIONS:
         raise ValueError(f'Image file extension "{file_extension}" is not supported.')
     
-    elif file_extension == '.dcm':
+    elif file_extension in {'.dcm', '.dicom'}:
+        if dicom is None:
+            raise RuntimeError(
+                "To read dicom image files, please install pydicom. "
+                "Please note that as of September 2024, it is only "
+                "compatible with Python 3.10+."
+            )
         img = dicom.dcmread(filename).pixel_array
         
     else:
