@@ -19,7 +19,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
-          mamba-version: "*"
+          miniforge-version: latest
           channels: conda-forge
           activate-environment: distgen
           environment-file: environment-dev.yml

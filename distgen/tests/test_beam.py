@@ -43,6 +43,12 @@ def yaml_file(request: pytest.FixtureRequest) -> pathlib.Path:
 
 @pytest.fixture(scope="module")
 def beam(yaml_file: pathlib.Path) -> Beam:
+    if yaml_file.name == "dcm.image.in.yaml":
+        from ..tools import dicom
+
+        if dicom is None:
+            pytest.skip("pydicom unavailable")
+
     G = Generator(str(yaml_file), verbose=0)
     G["n_particle"] = 10_000
     return G.beam()
