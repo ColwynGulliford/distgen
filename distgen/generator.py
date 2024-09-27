@@ -678,7 +678,7 @@ class Generator(Base):
             dist_params.pop('azimuthal_angle')
             dist_params.pop('p_polar_angle')
 
-        if('spin_polarization' in params):
+        if 'spin_polarization' in params:
             
 
             hbar = PHYSICAL_CONSTANTS['reduced Planck constant'].to('nm * eV/c')

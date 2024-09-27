@@ -290,8 +290,17 @@ class Beam():
     def s2(self):
         return self.sx**2 + self.sy**2 + self.sz**2
 
+    @property
     def spin_polarization(self):
-        return np.linalg.norm( np.array([self.avg('sx'), self.avg('sy'), self.avg('sz')]) )
+
+        hbar = PHYSICAL_CONSTANTS['reduced Planck constant'].to('nm * eV/c')
+
+        if self.species is in ['electron', 'positron', 'tau', 'muon']:
+            Sz = hbar/2
+        else:
+            raise ValueError(f'Unsupported particles species: {self.species}')
+        
+        return np.sqrt(self.avg('sx')**2 + self.avg('sy')**2 + self.avg('sz')**2)/ Sz
         
         #norm = np.linalg.norm(ehat)
         #if norm == 0: 
