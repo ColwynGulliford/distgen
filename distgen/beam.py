@@ -295,7 +295,7 @@ class Beam():
 
         hbar = PHYSICAL_CONSTANTS['reduced Planck constant'].to('nm * eV/c')
 
-        if self.species is in ['electron', 'positron', 'tau', 'muon']:
+        if self.species in ['electron', 'positron', 'tau', 'muon']:
             Sz = hbar/2
         else:
             raise ValueError(f'Unsupported particles species: {self.species}')
