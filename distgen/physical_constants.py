@@ -118,7 +118,7 @@ class PhysicalConstants():
             raise ValueError(f'Unsupported particle species: {key}')
 
     def species_rest_energy(self, species):
-        return self._species_data[species]['rest_energy'] 
+        return self._species_data[species]['mc2'] 
 
     def species_charge(self, species):
         return self._species_data[species]['charge']

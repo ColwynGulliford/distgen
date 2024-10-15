@@ -213,7 +213,7 @@ class Generator(Base):
             assert rp in params, 'Required generator parameter ' + rp + ' not found.'
 
         # Check that only allowed params present at top level
-        allowed_params = required_params + ['output', 'transforms', 'start', 'random_seed', 'random_type', 'random', 'spin_polarization']
+        allowed_params = required_params + ['output', 'transforms', 'start', 'random_seed', 'random_type', 'random', 'spin_polarization', 'spin_orientation']
         for p in params:
             #assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
             assert p in allowed_params or p.endswith('_dist'), 'Unexpected distgen input parameter: ' + p
@@ -688,22 +688,48 @@ class Generator(Base):
             bdist['sz'] = np.full(N, 0.0)*unit_registry('nm * eV/c')
 
             #sphi_dist = get_dist('spin_azimuthal_angle', dist_params['spin_azimuthal_angle'], verbose=verbose)
-
             #sphi = sphi_dist.cdfinv(self.rands['spin_azimuthal_angle'])
 
             P = params['spin_polarization']
 
-            #self.rands['sz'] = shuffle(self.rands['sz'])
-            
-            bdist['sz'][self.rands['sz'] < 0.5 * (1 - P)] = -hbar/2
-            
+            bdist['sz'][self.rands['sz']  < 0.5 * (1 - P)] = -hbar/2
             bdist['sz'][self.rands['sz'] >= 0.5 * (1 - P)] = +hbar/2
 
-            #bdist['sx'] = (hbar/np.sqrt(2))*np.cos(sphi)
-            #bdist['sy'] = (hbar/np.sqrt(2))*np.sin(sphi)
+            if 'spin_orientation' in params:
 
-            #del dist_params['spin_azimuthal_angle']
-            #print(dist_params['spin_azimuthal_angle'])
+                thx = params['spin_orientation']['theta_x'].to('rad')
+                thy = params['spin_orientation']['theta_y'].to('rad')
+                thz = params['spin_orientation']['theta_z'].to('rad')
+
+                #print(thx, thy, thz)
+                
+                Cx, Sx = np.cos(thx), np.sin(thx)
+                Cy, Sy = np.cos(thy), np.sin(thy)
+                Cz, Sz = np.cos(thz), np.sin(thz)
+
+                Mx = np.array([[1,   0,   0], 
+                               [0,  Cx, -Sx], 
+                               [0,  Sx,  Cx]])
+
+                My = np.array([[ Cy,  0, +Sy], 
+                               [  0,  1,   0], 
+                               [-Sy,  0,  Cy]])
+
+                Mz = np.array([[ Cy, -Sy,  0], 
+                               [ Sy,  Cy,  0], 
+                               [  0,   0,  1]])
+
+                M = np.matmul(Mx, np.matmul(My, Mz))
+
+                N, len(bdist['sz'])
+
+                e3 = bdist['sz']/(hbar/2)
+                S = np.stack([np.zeros(N), np.zeros(N), e3.magnitude])
+                Sp = np.dot(M, S)
+
+                bdist['sx'] = Sp[0, :] * (hbar/2)
+                bdist['sy'] = Sp[1, :] * (hbar/2)
+                bdist['sz'] = Sp[2, :] * (hbar/2)
 
         
         # Do all other specified single coordinate dists
