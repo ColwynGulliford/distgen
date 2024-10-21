@@ -3,7 +3,7 @@ name: distgen
 channels:
   - conda-forge
 dependencies:
-  - python>=3.9
+  - python>=3.9,<3.13
   - matplotlib-base
   - numpy
   - scipy
@@ -13,7 +13,3 @@ dependencies:
   - openpmd-beamphysics
   - lume-base
   - pydicom
-  - pip
-  - pip:
-      # Install distgen as well
-      - .
