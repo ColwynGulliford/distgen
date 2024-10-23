@@ -249,7 +249,7 @@ class Generator(Base):
 
             for d in ['z_dist', 'px_dist', 'py_dist', 'pz_dist']:
                 if(d in params):
-                    vprint(f"Ignoring user specified {d} distribution for cathode start.", self.verbose>0, 0, True)
+                    warnings.warn(f"Ignoring user specified {d} distribution for cathode start.")
                     params.pop(d)
 
            
