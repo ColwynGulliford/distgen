@@ -1,4 +1,4 @@
-#Copied from: https://raw.githubusercontent.com/jonathf/chaospy/master/chaospy/distributions/sampler/sequences/
+# Copied from: https://raw.githubusercontent.com/jonathf/chaospy/master/chaospy/distributions/sampler/sequences/
 
 
 """
@@ -19,9 +19,10 @@ Standard usage::
      [0.2   0.4   0.6   0.8  ]]
 .. _Hammersley set: https://en.wikipedia.org/wiki/Low-discrepancy_sequence#Hammersley_set
 """
+
 import numpy
 
-#from .halton import create_halton_samples
+# from .halton import create_halton_samples
 
 
 def create_hammersley_samples(order, dim=1, burnin=-1, primes=(), **kwargs):
@@ -44,14 +45,13 @@ def create_hammersley_samples(order, dim=1, burnin=-1, primes=(), **kwargs):
             Hammersley set with ``shape == (dim, order)``.
     """
     if dim == 1:
-        return create_halton_samples(
-            order=order, dim=1, burnin=burnin, primes=primes)
+        return create_halton_samples(order=order, dim=1, burnin=burnin, primes=primes)
     out = numpy.empty((dim, order), dtype=float)
-    out[:dim-1] = create_halton_samples(
-        order=order, dim=dim-1, burnin=burnin, primes=primes)
-    out[dim-1] = numpy.linspace(0, 1, order+2)[1:-1]
+    out[: dim - 1] = create_halton_samples(
+        order=order, dim=dim - 1, burnin=burnin, primes=primes
+    )
+    out[dim - 1] = numpy.linspace(0, 1, order + 2)[1:-1]
     return out
-
 
 
 """
@@ -83,7 +83,6 @@ Standard usage::
 """
 
 
-
 def create_halton_samples(order, dim=1, burnin=-1, primes=()):
     """
     Create Halton sequence.
@@ -107,7 +106,7 @@ def create_halton_samples(order, dim=1, burnin=-1, primes=()):
     """
     primes = list(primes)
     if not primes:
-        prime_order = 10*dim
+        prime_order = 10 * dim
         while len(primes) < dim:
             primes = create_primes(prime_order)
             prime_order *= 2
@@ -118,12 +117,10 @@ def create_halton_samples(order, dim=1, burnin=-1, primes=()):
         burnin = max(primes)
 
     out = numpy.empty((dim, order))
-    indices = [idx+burnin for idx in range(order)]
+    indices = [idx + burnin for idx in range(order)]
     for dim_ in range(dim):
-        out[dim_] = create_van_der_corput_samples(
-            indices, number_base=primes[dim_])
+        out[dim_] = create_van_der_corput_samples(indices, number_base=primes[dim_])
     return out
-
 
 
 """
@@ -176,7 +173,7 @@ def create_van_der_corput_samples(idx, number_base=2):
     base = float(number_base)
     active = numpy.ones(len(idx), dtype=bool)
     while numpy.any(active):
-        out[active] += (idx[active] % number_base)/base
+        out[active] += (idx[active] % number_base) / base
         idx //= number_base
         base *= number_base
         active = idx > 0
@@ -216,18 +213,18 @@ def create_primes(threshold):
     elif threshold < 2:
         return []
 
-    numbers = list(range(3, threshold+1, 2))
-    root_of_threshold = threshold ** 0.5
-    half = int((threshold+1)/2-1)
+    numbers = list(range(3, threshold + 1, 2))
+    root_of_threshold = threshold**0.5
+    half = int((threshold + 1) / 2 - 1)
     idx = 0
     counter = 3
     while counter <= root_of_threshold:
         if numbers[idx]:
-            idy = int((counter*counter-3)/2)
+            idy = int((counter * counter - 3) / 2)
             numbers[idy] = 0
             while idy < half:
                 numbers[idy] = 0
                 idy += counter
         idx += 1
-        counter = 2*idx+3
+        counter = 2 * idx + 3
     return [2] + [number for number in numbers if number]

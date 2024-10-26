@@ -16,9 +16,9 @@ t_dist:
   type: uniform
 KE_dist:
   type: g
-  avg_KE: 
+  avg_KE:
     value: 100
-    units: eV 
+    units: eV
   sigma_KE:
     value: 3
     units: eV

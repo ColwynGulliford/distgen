@@ -1,9 +1,9 @@
 n_particle: 1000000
 species: electron
 xy_dist:
-  max_x: +1 mm 
+  max_x: +1 mm
   min_x: -1 mm
-  max_y: +2 mm 
+  max_y: +2 mm
   min_y: -2 mm
   sigma: 100
   pixel_threshold: 0.25
@@ -19,4 +19,3 @@ t_dist:
   sigma_t: 2 ns
   type: gaussian
 total_charge: 10 pC
-

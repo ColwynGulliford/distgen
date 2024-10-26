@@ -11,11 +11,11 @@ nav:
         - examples/example_dists.ipynb
         - examples/conversion_examples.ipynb
         - examples/transforms.ipynb
-        - examples/metrics.ipynb     
+        - examples/metrics.ipynb
     - Tests:
-      - regression_tests/beam.ipynb  
-      - regression_tests/correlations.ipynb  
-      - regression_tests/dist.ipynb                           
+      - regression_tests/beam.ipynb
+      - regression_tests/correlations.ipynb
+      - regression_tests/dist.ipynb
 
 theme:
   icon:
@@ -53,7 +53,7 @@ extra:
       name: distgen
 
 extra_css:
-  - stylesheets/extra.css      
+  - stylesheets/extra.css
 
 plugins:
     - search
@@ -74,9 +74,3 @@ plugins:
             rendering:
               show_source: true
               show_root_heading: true
-
-
-
-
-
-

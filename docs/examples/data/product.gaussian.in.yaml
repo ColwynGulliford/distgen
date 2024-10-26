@@ -3,7 +3,7 @@ species: electron
 px_dist:
   sigma_px: 1 keV/c
   type: gaussian
-py_dist: 
+py_dist:
   sigma_py: 1 keV/c
   type: gaussian
 pz_dist:
@@ -26,7 +26,7 @@ z_dist:
       min_z: -3 mm
       type: uniform
     d2:
-      avg_z: 0 mm 
+      avg_z: 0 mm
       sigma_z: 2 mm
       type: gaussian
   type: product

@@ -4,7 +4,7 @@ output:
   file: rad.uniform.out.txt
   type: gpt
 r_dist:
-  max_r: 2 mm 
+  max_r: 2 mm
   min_r: 1 mm
   type: radial_uniform
 random:
@@ -17,4 +17,3 @@ t_dist:
   sigma_t: 2 ns
   type: gaussian
 total_charge: 10 pC
-
