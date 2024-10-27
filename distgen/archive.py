@@ -1,9 +1,9 @@
 import numpy as np
 
 from .tools import isotime, flatten_dict, unflatten_dict
-from . import _version
+# from . import __version__
 
-__version__ = _version.get_versions()["version"]
+# __version__ = _version.get_versions()["version"]
 
 
 def fstr(s):
@@ -13,7 +13,7 @@ def fstr(s):
     return np.bytes_(s)
 
 
-def distgen_init(h5, version=__version__):
+def distgen_init(h5, version=None):
     """
     Set basic information to an open h5 handle
 
@@ -22,7 +22,7 @@ def distgen_init(h5, version=__version__):
     d = {
         "dataType": "distgen",
         "software": "distgen",
-        "version": version,
+        # "version": version,
         "date": isotime(),
     }
     for k, v in d.items():
