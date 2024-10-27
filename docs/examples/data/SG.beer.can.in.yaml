@@ -12,7 +12,7 @@ random:
 start:
   MTE: 150 meV
   type: cathode
-t_dist: 
+t_dist:
   alpha: 0.5 dimensionless
   sigma_t: 8 ps
   type: sg

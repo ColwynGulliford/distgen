@@ -211,10 +211,6 @@ def test_thetay(beam):
 
 def test_p(beam):
     # $p=\sqrt{p_x^2 + p_y^2 + p_z^2}$
-
-    deviation = np.abs(
-        beam["p"] - np.sqrt(beam["px"] ** 2 + beam["py"] ** 2 + beam["pz"] ** 2)
-    )
     check_abs_and_rel_tols(
         "beam.p = sqrt(px^2 + py^2 + pz^2)",
         beam["p"],

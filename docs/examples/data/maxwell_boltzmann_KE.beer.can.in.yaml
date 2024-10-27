@@ -16,7 +16,7 @@ t_dist:
   type: uniform
 KE_dist:
   type: mbe
-  kT: 
+  kT:
     units: meV
     value: 150
 total_charge: 10 pC

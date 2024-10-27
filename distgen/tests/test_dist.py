@@ -332,7 +332,6 @@ def test_tukey_1d():
     from distgen.dist import Tukey
 
     var = "y"
-    verbose = 1
     params = {
         "length": 2 * unit_registry("mm"),
         "ratio": 0.75 * unit_registry("dimensionless"),
@@ -389,7 +388,6 @@ def test_radial_distributions():
 
     from distgen.dist import UniformRad
 
-    verbose = 1
     params = {"min_r": 1 * unit_registry("mm"), "max_r": 2 * unit_registry("mm")}
     urad = UniformRad(verbose=1, **params)
     urad.plot_pdf()
@@ -443,7 +441,6 @@ def test_radial_normal_distribution_truncation():
 
     from distgen.dist import NormRad
 
-    verbose = 1
     params = {"sigma_xy": 1 * unit_registry("mm")}
     nrad = NormRad(verbose=1, **params)
     nrad.plot_pdf()
@@ -456,7 +453,6 @@ def test_radial_normal_distribution_truncation1():
 
     from distgen.dist import NormRad
 
-    verbose = 1
     params = {
         "truncation_radius": 1 * unit_registry("mm"),
         "truncation_fraction": 0.5 * unit_registry("dimensionless"),

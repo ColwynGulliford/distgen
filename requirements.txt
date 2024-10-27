@@ -1,9 +1,0 @@
-numpy
-scipy
-matplotlib
-h5py
-pint
-pyyaml
-openpmd-beamphysics
-lume-base
-pydicom

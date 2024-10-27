@@ -16,7 +16,7 @@ t_dist:
   type: uniform
 p_dist:
   type: mb
-  scale_p: 
+  scale_p:
     units: eV/c
     value: 276.8570795554991
 total_charge: 10 pC

@@ -39,4 +39,3 @@ Create documentation:
 ```shell
 mkdocs serve
 ```
-

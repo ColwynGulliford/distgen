@@ -6,7 +6,7 @@ px_dist:
 py_dist:
   sigma_py: 1.0 keV/c
   type: gaussian
-pz_dist: 
+pz_dist:
   avg_pz: 0 GeV/c
   sigma_pz: 1 MeV/c
   type: gaussian
@@ -24,5 +24,3 @@ z_dist:
   sigma_z: 2.0 mm
   type: gaussian
 spin_polarization: 0.35
-  
-
