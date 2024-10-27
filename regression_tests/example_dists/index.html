@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1162,11 +1162,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen</span> <span class="kn">import</span> <span class="n">Generator</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">parse_quantity</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">from distgen import Generator
-import numpy as np
-from distgen.parsing import parse_quantity</div>
+import numpy as np</div>
 </div>
 </div>
 </div>
@@ -1192,53 +1190,53 @@ from distgen.parsing import parse_quantity</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_uniform_rad</span><span class="p">():</span>
-    
-    <span class="n">D</span><span class="o">=</span><span class="n">Generator</span><span class="p">(</span><span class="s1">'../examples/data/rad.uniform.in.yaml'</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:min_r'</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="s2">"../examples/data/rad.uniform.in.yaml"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:min_r"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="n">max_r</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s1">'r_dist'</span><span class="p">][</span><span class="s1">'max_r'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+    <span class="n">max_r</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s2">"r_dist"</span><span class="p">][</span><span class="s2">"max_r"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"m"</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
 
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_x'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_y'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'sigma_x'</span><span class="p">],</span> <span class="n">max_r</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'sigma_y'</span><span class="p">],</span> <span class="n">max_r</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span> <span class="nb">max</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'r'</span><span class="p">])</span> <span class="p">,</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_x"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_y"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"sigma_x"</span><span class="p">],</span> <span class="n">max_r</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"sigma_y"</span><span class="p">],</span> <span class="n">max_r</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"r"</span><span class="p">]),</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
 
-    <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:min_r'</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
-    <span class="n">min_r</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s1">'r_dist'</span><span class="p">][</span><span class="s1">'min_r'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+    <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:min_r"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">min_r</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s2">"r_dist"</span><span class="p">][</span><span class="s2">"min_r"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"m"</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
     <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_x'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_y'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span> <span class="nb">min</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'r'</span><span class="p">])</span> <span class="p">,</span> <span class="n">min_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span> <span class="nb">max</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'r'</span><span class="p">])</span> <span class="p">,</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
-    
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_x"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_y"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"r"</span><span class="p">]),</span> <span class="n">min_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"r"</span><span class="p">]),</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+
+
 <span class="n">test_uniform_rad</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">def test_uniform_rad():
-    
-    D=Generator('../examples/data/rad.uniform.in.yaml',verbose=0)
-    D['r_dist:min_r']=0
+    D = Generator("../examples/data/rad.uniform.in.yaml", verbose=0)
+    D["r_dist:min_r"] = 0
     D.run()
 
-    max_r = D._input['r_dist']['max_r'].to('m').magnitude
+    max_r = D._input["r_dist"]["max_r"].to("m").magnitude
 
-    assert np.isclose(D.particles['mean_x'], 0)
-    assert np.isclose(D.particles['mean_y'], 0)
-    assert np.isclose(D.particles['sigma_x'], max_r/2)
-    assert np.isclose(D.particles['sigma_y'], max_r/2)
-    assert np.isclose( max(D.particles['r']) , max_r, rtol=1e-8, atol=1e-7)
+    assert np.isclose(D.particles["mean_x"], 0)
+    assert np.isclose(D.particles["mean_y"], 0)
+    assert np.isclose(D.particles["sigma_x"], max_r / 2)
+    assert np.isclose(D.particles["sigma_y"], max_r / 2)
+    assert np.isclose(max(D.particles["r"]), max_r, rtol=1e-8, atol=1e-7)
 
-    D['r_dist:min_r']=1
-    min_r = D._input['r_dist']['min_r'].to('m').magnitude
+    D["r_dist:min_r"] = 1
+    min_r = D._input["r_dist"]["min_r"].to("m").magnitude
     D.run()
 
-    assert np.isclose(D.particles['mean_x'], 0)
-    assert np.isclose(D.particles['mean_y'], 0)
-    assert np.isclose( min(D.particles['r']) , min_r, rtol=1e-8, atol=1e-7)
-    assert np.isclose( max(D.particles['r']) , max_r, rtol=1e-8, atol=1e-7)
-    
+    assert np.isclose(D.particles["mean_x"], 0)
+    assert np.isclose(D.particles["mean_y"], 0)
+    assert np.isclose(min(D.particles["r"]), min_r, rtol=1e-8, atol=1e-7)
+    assert np.isclose(max(D.particles["r"]), max_r, rtol=1e-8, atol=1e-7)
+
+
 test_uniform_rad()</div>
 </div>
 </div>
@@ -1265,49 +1263,48 @@ test_uniform_rad()</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_radial_gaussian</span><span class="p">():</span>
-
-    <span class="n">D</span><span class="o">=</span><span class="n">Generator</span><span class="p">(</span><span class="s1">'../examples/data/rad.gaussian.in.yaml'</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">sigma_xy</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s1">'r_dist'</span><span class="p">][</span><span class="s1">'sigma_xy'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="s2">"../examples/data/rad.gaussian.in.yaml"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sigma_xy</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s2">"r_dist"</span><span class="p">][</span><span class="s2">"sigma_xy"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"m"</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
     <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_x'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_y'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sigma_xy</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'sigma_x'</span><span class="p">])</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sigma_xy</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'sigma_y'</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_x"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_y"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sigma_xy</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"sigma_x"</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sigma_xy</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"sigma_y"</span><span class="p">])</span>
 
-    <span class="n">D</span><span class="o">=</span><span class="n">Generator</span><span class="p">(</span><span class="s1">'../examples/data/rad.trunc.gaussian.in.yaml'</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="s2">"../examples/data/rad.trunc.gaussian.in.yaml"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-    
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_x'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'mean_y'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="n">max_r</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s1">'r_dist'</span><span class="p">][</span><span class="s1">'truncation_radius'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>    
-    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]),</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_x"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"mean_y"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">max_r</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">_input</span><span class="p">[</span><span class="s2">"r_dist"</span><span class="p">][</span><span class="s2">"truncation_radius"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"m"</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s2">"r"</span><span class="p">]),</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+
 
 <span class="n">test_radial_gaussian</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-3">def test_radial_gaussian():
-
-    D=Generator('../examples/data/rad.gaussian.in.yaml',verbose=0)
-    sigma_xy = D._input['r_dist']['sigma_xy'].to('m').magnitude
+    D = Generator("../examples/data/rad.gaussian.in.yaml", verbose=0)
+    sigma_xy = D._input["r_dist"]["sigma_xy"].to("m").magnitude
     D.run()
 
-    assert np.isclose(D.particles['mean_x'], 0)
-    assert np.isclose(D.particles['mean_y'], 0)
-    assert np.isclose(sigma_xy, D.particles['sigma_x'])
-    assert np.isclose(sigma_xy, D.particles['sigma_y'])
+    assert np.isclose(D.particles["mean_x"], 0)
+    assert np.isclose(D.particles["mean_y"], 0)
+    assert np.isclose(sigma_xy, D.particles["sigma_x"])
+    assert np.isclose(sigma_xy, D.particles["sigma_y"])
 
-    D=Generator('../examples/data/rad.trunc.gaussian.in.yaml',verbose=0)
+    D = Generator("../examples/data/rad.trunc.gaussian.in.yaml", verbose=0)
     D.run()
-    
-    assert np.isclose(D.particles['mean_x'], 0)
-    assert np.isclose(D.particles['mean_y'], 0)
 
-    max_r = D._input['r_dist']['truncation_radius'].to('m').magnitude    
-    assert np.isclose(max(D.particles['r']), max_r, rtol=1e-8, atol=1e-7)
+    assert np.isclose(D.particles["mean_x"], 0)
+    assert np.isclose(D.particles["mean_y"], 0)
 
-test_radial_gaussian()
-</div>
+    max_r = D._input["r_dist"]["truncation_radius"].to("m").magnitude
+    assert np.isclose(max(D.particles["r"]), max_r, rtol=1e-8, atol=1e-7)
+
+
+test_radial_gaussian()</div>
 </div>
 </div>
 </div>

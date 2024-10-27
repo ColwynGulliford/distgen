@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1142,7 +1142,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3dc46c30">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=71d86451">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -1171,7 +1171,7 @@ import os</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=802ddcfe">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cfeac97b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -1190,25 +1190,23 @@ import os</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-
     <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()):</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'json'</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"json"</span><span class="p">):</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
 
-            <span class="n">newfile</span> <span class="o">=</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span><span class="o">+</span><span class="s1">'.yaml'</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">newfile</span><span class="p">,</span><span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">yid</span><span class="p">:</span>
+            <span class="n">newfile</span> <span class="o">=</span> <span class="s2">"."</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">".yaml"</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">newfile</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">yid</span><span class="p">:</span>
                 <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">yid</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">def main():
-
     for filename in os.listdir(os.getcwd()):
-        if(filename.endswith('json')):
+        if filename.endswith("json"):
             with open(filename) as fid:
                 data = yaml.safe_load(fid)
 
-            newfile = '.'.join( (filename.split('.'))[:-1] )+'.yaml'
-            with open(newfile,'w') as yid:
+            newfile = ".".join((filename.split("."))[:-1]) + ".yaml"
+            with open(newfile, "w") as yid:
                 yaml.dump(data, yid, default_flow_style=False)</div>
 </div>
 </div>
@@ -1216,7 +1214,7 @@ import os</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3dce6de1">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=60f17067">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -1234,24 +1232,24 @@ import os</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="n">main</span><span class="p">():</span>
-    <span class="c1">#main()</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s1">'tukey.beer.can.in.json'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="n">main</span><span class="p">():</span>
+    <span class="c1"># main()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s2">"tukey.beer.can.in.json"</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
 
-    <span class="n">newfile</span><span class="o">=</span><span class="s1">'tukey.beer.can.in.yaml'</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">newfile</span><span class="p">,</span><span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">yid</span><span class="p">:</span>
+    <span class="n">newfile</span> <span class="o">=</span> <span class="s2">"tukey.beer.can.in.yaml"</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">newfile</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">yid</span><span class="p">:</span>
         <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">yid</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">if __name__==main():
-    #main()
-    filename='tukey.beer.can.in.json'
+<div class="clipboard-copy-txt" id="cell-3">if __name__ == main():
+    # main()
+    filename = "tukey.beer.can.in.json"
     with open(filename) as fid:
         data = yaml.safe_load(fid)
 
-    newfile='tukey.beer.can.in.yaml'
-    with open(newfile,'w') as yid:
+    newfile = "tukey.beer.can.in.yaml"
+    with open(newfile, "w") as yid:
         yaml.dump(data, yid, default_flow_style=False)</div>
 </div>
 </div>

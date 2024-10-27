@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1142,7 +1142,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=5dfe2766">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=72fbedec">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -1173,7 +1173,7 @@ import copy</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c5bcb384">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=acfe93bb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -1192,69 +1192,61 @@ import copy</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-
     <span class="n">exs</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-
-        <span class="k">if</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'json'</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">'examples'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"json"</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"examples"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">jid</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
 
             <span class="n">ndata</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-            <span class="n">ndata</span><span class="p">[</span><span class="s1">'total_charge'</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'beam'</span><span class="p">][</span><span class="s1">'params'</span><span class="p">][</span><span class="s1">'total_charge'</span><span class="p">]</span>
-            <span class="n">ndata</span><span class="p">[</span><span class="s1">'n_particles'</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'generator'</span><span class="p">][</span><span class="s1">'rand'</span><span class="p">][</span><span class="s1">'count'</span><span class="p">]</span> 
-            <span class="n">ndata</span><span class="p">[</span><span class="s1">'random_type'</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'generator'</span><span class="p">][</span><span class="s1">'rand'</span><span class="p">][</span><span class="s1">'type'</span><span class="p">]</span> 
-            <span class="n">ndata</span><span class="p">[</span><span class="s1">'count'</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'generator'</span><span class="p">][</span><span class="s1">'rand'</span><span class="p">][</span><span class="s1">'count'</span><span class="p">]</span>
+            <span class="n">ndata</span><span class="p">[</span><span class="s2">"total_charge"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"beam"</span><span class="p">][</span><span class="s2">"params"</span><span class="p">][</span><span class="s2">"total_charge"</span><span class="p">]</span>
+            <span class="n">ndata</span><span class="p">[</span><span class="s2">"n_particles"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"generator"</span><span class="p">][</span><span class="s2">"rand"</span><span class="p">][</span><span class="s2">"count"</span><span class="p">]</span>
+            <span class="n">ndata</span><span class="p">[</span><span class="s2">"random_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"generator"</span><span class="p">][</span><span class="s2">"rand"</span><span class="p">][</span><span class="s2">"type"</span><span class="p">]</span>
+            <span class="n">ndata</span><span class="p">[</span><span class="s2">"count"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"generator"</span><span class="p">][</span><span class="s2">"rand"</span><span class="p">][</span><span class="s2">"count"</span><span class="p">]</span>
 
-            <span class="k">del</span><span class="p">[</span><span class="n">ndata</span><span class="p">[</span><span class="s1">'generator'</span><span class="p">]]</span>
-            <span class="k">del</span><span class="p">[</span><span class="n">ndata</span><span class="p">[</span><span class="s1">'beam'</span><span class="p">]]</span>
+            <span class="k">del</span> <span class="p">[</span><span class="n">ndata</span><span class="p">[</span><span class="s2">"generator"</span><span class="p">]]</span>
+            <span class="k">del</span> <span class="p">[</span><span class="n">ndata</span><span class="p">[</span><span class="s2">"beam"</span><span class="p">]]</span>
 
-            <span class="n">exs</span><span class="p">[</span><span class="n">filename</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">]]</span><span class="o">=</span><span class="n">ndata</span>
+            <span class="n">exs</span><span class="p">[</span><span class="n">filename</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ndata</span>
 
-    
-
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'examples.json'</span><span class="p">,</span><span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">exs</span><span class="p">,</span><span class="n">jfile</span><span class="p">,</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"examples.json"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">exs</span><span class="p">,</span> <span class="n">jfile</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">def main():
-
     exs = {}
 
-    files = os.listdir('.')
+    files = os.listdir(".")
     for filename in files:
-
-        if(filename.endswith('json') and 'examples' not in filename):
+        if filename.endswith("json") and "examples" not in filename:
             print(filename)
             with open(filename) as jid:
                 data = json.load(jid)
 
             ndata = copy.deepcopy(data)
 
-            ndata['total_charge']=data['beam']['params']['total_charge']
-            ndata['n_particles']=data['generator']['rand']['count'] 
-            ndata['random_type']=data['generator']['rand']['type'] 
-            ndata['count']=data['generator']['rand']['count']
+            ndata["total_charge"] = data["beam"]["params"]["total_charge"]
+            ndata["n_particles"] = data["generator"]["rand"]["count"]
+            ndata["random_type"] = data["generator"]["rand"]["type"]
+            ndata["count"] = data["generator"]["rand"]["count"]
 
-            del[ndata['generator']]
-            del[ndata['beam']]
+            del [ndata["generator"]]
+            del [ndata["beam"]]
 
-            exs[filename[:-8]]=ndata
+            exs[filename[:-8]] = ndata
 
-    
-
-    with open('examples.json','w') as jfile:
-        json.dump(exs,jfile,indent=4,sort_keys=True)</div>
+    with open("examples.json", "w") as jfile:
+        json.dump(exs, jfile, indent=4, sort_keys=True)</div>
 </div>
 </div>
 </div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=62694730">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=81a486a3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -1272,10 +1264,10 @@ import copy</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">if __name__== "__main__":
+<div class="clipboard-copy-txt" id="cell-3">if __name__ == "__main__":
     main()</div>
 </div>
 </div>

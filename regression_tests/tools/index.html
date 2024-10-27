@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1164,25 +1164,27 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="kn">import</span> <span class="nn">os</span>
 
+
 <span class="k">def</span> <span class="nf">test_full_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"DISTGEN_EXAMPLES"</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">"../examples"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">full_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"DISTGEN_EXAMPLES"</span><span class="p">]</span>
 
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'DISTGEN_EXAMPLES'</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">'../examples'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">full_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'DISTGEN_EXAMPLES'</span><span class="p">]</span>
 
-<span class="n">test_full_path</span><span class="p">(</span><span class="s1">'$DISTGEN_EXAMPLES'</span><span class="p">)</span>
-<span class="n">test_full_path</span><span class="p">(</span><span class="s1">'../examples'</span><span class="p">)</span>
+<span class="n">test_full_path</span><span class="p">(</span><span class="s2">"$DISTGEN_EXAMPLES"</span><span class="p">)</span>
+<span class="n">test_full_path</span><span class="p">(</span><span class="s2">"../examples"</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">from distgen.tools import full_path
 
 import os
 
+
 def test_full_path(path):
+    os.environ["DISTGEN_EXAMPLES"] = os.path.abspath("../examples")
+    assert full_path(path) == os.environ["DISTGEN_EXAMPLES"]
 
-    os.environ['DISTGEN_EXAMPLES'] = os.path.abspath('../examples')
-    assert full_path(path) == os.environ['DISTGEN_EXAMPLES']
 
-test_full_path('$DISTGEN_EXAMPLES')
-test_full_path('../examples')</div>
+test_full_path("$DISTGEN_EXAMPLES")
+test_full_path("../examples")</div>
 </div>
 </div>
 </div>

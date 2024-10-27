@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1166,8 +1166,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">from distgen import Generator
 from distgen import PHYSICAL_CONSTANTS
-from distgen.tools import check_abs_and_rel_tols
-</div>
+from distgen.tools import check_abs_and_rel_tols</div>
 </div>
 </div>
 </div>
@@ -1193,8 +1192,7 @@ from distgen.tools import check_abs_and_rel_tols
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_getitem_</span><span class="p">():</span>
-
-    <span class="n">ins</span> <span class="o">=</span><span class="s2">"""</span>
+    <span class="n">ins</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">n_particle: 200000</span>
 <span class="s2">species: electron</span>
 <span class="s2">r_dist:</span>
@@ -1209,14 +1207,14 @@ from distgen.tools import check_abs_and_rel_tols
 <span class="s2">"""</span>
 
     <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'value'</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span><span class="o">==</span><span class="s1">'millimeter'</span>
-    
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"millimeter"</span>
+
+
 <span class="n">test_getitem_</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">def test_getitem_():
-
-    ins ="""
+    ins = """
 n_particle: 200000
 species: electron
 r_dist:
@@ -1231,9 +1229,10 @@ total_charge: 10 pC
 """
 
     D = Generator(ins)
-    assert D['r_dist:sigma_xy']['value']==1
-    assert D['r_dist:sigma_xy']['units']=='millimeter'
-    
+    assert D["r_dist:sigma_xy"]["value"] == 1
+    assert D["r_dist:sigma_xy"]["units"] == "millimeter"
+
+
 test_getitem_()</div>
 </div>
 </div>
@@ -1260,7 +1259,7 @@ test_getitem_()</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_setitem_</span><span class="p">():</span>
-    <span class="n">ins</span> <span class="o">=</span><span class="s2">"""</span>
+    <span class="n">ins</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">n_particle: 200000</span>
 <span class="s2">species: electron</span>
 <span class="s2">r_dist:</span>
@@ -1273,30 +1272,31 @@ test_getitem_()</div>
 <span class="s2">  type: time</span>
 <span class="s2">total_charge: 10 pC</span>
 <span class="s2">"""</span>
-    
+
     <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span>
-    <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
-    
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'value'</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span><span class="o">==</span><span class="s1">'millimeter'</span>
+    <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
 
-    <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy:units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'cm'</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'value'</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span><span class="o">==</span><span class="s1">'centimeter'</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"millimeter"</span>
 
-    <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy:value'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'value'</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span><span class="o">==</span><span class="s1">'centimeter'</span>
-    
-    <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'4 um'</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'value'</span><span class="p">]</span><span class="o">==</span><span class="mi">4</span>
-    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s1">'r_dist:sigma_xy'</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span><span class="o">==</span><span class="s1">'micrometer'</span>
+    <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy:units"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"cm"</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"centimeter"</span>
+
+    <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy:value"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"centimeter"</span>
+
+    <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"4 um"</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span>
+    <span class="k">assert</span> <span class="n">D</span><span class="p">[</span><span class="s2">"r_dist:sigma_xy"</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"micrometer"</span>
+
 
 <span class="n">test_setitem_</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-3">def test_setitem_():
-    ins ="""
+    ins = """
 n_particle: 200000
 species: electron
 r_dist:
@@ -1309,25 +1309,26 @@ start:
   type: time
 total_charge: 10 pC
 """
-    
+
     D = Generator(ins)
-    D['r_dist:sigma_xy'] = 2.0
-    
-    assert isinstance(D['r_dist:sigma_xy'], dict)
-    assert D['r_dist:sigma_xy']['value']==2
-    assert D['r_dist:sigma_xy']['units']=='millimeter'
+    D["r_dist:sigma_xy"] = 2.0
 
-    D['r_dist:sigma_xy:units'] = 'cm'
-    assert D['r_dist:sigma_xy']['value']==2
-    assert D['r_dist:sigma_xy']['units']=='centimeter'
+    assert isinstance(D["r_dist:sigma_xy"], dict)
+    assert D["r_dist:sigma_xy"]["value"] == 2
+    assert D["r_dist:sigma_xy"]["units"] == "millimeter"
 
-    D['r_dist:sigma_xy:value'] = 3
-    assert D['r_dist:sigma_xy']['value']==3
-    assert D['r_dist:sigma_xy']['units']=='centimeter'
-    
-    D['r_dist:sigma_xy'] = '4 um'
-    assert D['r_dist:sigma_xy']['value']==4
-    assert D['r_dist:sigma_xy']['units']=='micrometer'
+    D["r_dist:sigma_xy:units"] = "cm"
+    assert D["r_dist:sigma_xy"]["value"] == 2
+    assert D["r_dist:sigma_xy"]["units"] == "centimeter"
+
+    D["r_dist:sigma_xy:value"] = 3
+    assert D["r_dist:sigma_xy"]["value"] == 3
+    assert D["r_dist:sigma_xy"]["units"] == "centimeter"
+
+    D["r_dist:sigma_xy"] = "4 um"
+    assert D["r_dist:sigma_xy"]["value"] == 4
+    assert D["r_dist:sigma_xy"]["units"] == "micrometer"
+
 
 test_setitem_()</div>
 </div>
@@ -1355,48 +1356,56 @@ test_setitem_()</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_species_rest_energy</span><span class="p">():</span>
-
-    <span class="n">inputs</span><span class="o">=</span> <span class="p">{</span><span class="s1">'n_particle'</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
-             <span class="s1">'total_charge'</span><span class="p">:</span> <span class="s1">'0 C'</span><span class="p">,</span>
-             <span class="s1">'species'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="s1">'start'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="s1">'time'</span><span class="p">}</span>
-            <span class="p">}</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"n_particle"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">"total_charge"</span><span class="p">:</span> <span class="s2">"0 C"</span><span class="p">,</span>
+        <span class="s2">"species"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">},</span>
+    <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species_list</span><span class="p">:</span>
-
-        <span class="n">inputs</span><span class="p">[</span><span class="s1">'species'</span><span class="p">]</span> <span class="o">=</span> <span class="n">species</span>
-        <span class="n">inputs</span><span class="p">[</span><span class="s1">'total_charge'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">inputs</span><span class="p">[</span><span class="s2">"n_particle"</span><span class="p">]</span><span class="o">*</span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">species</span><span class="p">)[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span><span class="si">}</span><span class="s1"> C'</span>
+        <span class="n">inputs</span><span class="p">[</span><span class="s2">"species"</span><span class="p">]</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="n">inputs</span><span class="p">[</span><span class="s2">"total_charge"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">inputs</span><span class="p">[</span><span class="s2">"n_particle"</span><span class="p">]</span><span class="o">*</span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">species</span><span class="p">)[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span><span class="si">}</span><span class="s1"> C'</span>
+        <span class="p">)</span>
 
         <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">B</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">beam</span><span class="p">()</span>
 
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'rest energy'</span><span class="p">,</span> 
-                               <span class="n">B</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">],</span> 
-                               <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">species</span><span class="p">)[</span><span class="s1">'mc2'</span><span class="p">],</span>
-                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"rest energy"</span><span class="p">,</span>
+            <span class="n">B</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">],</span>
+            <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">species</span><span class="p">)[</span><span class="s2">"mc2"</span><span class="p">],</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+        <span class="p">)</span>
+
 
 <span class="n">test_species_rest_energy</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-4">def test_species_rest_energy():
-
-    inputs= {'n_particle': 1000,
-             'total_charge': '0 C',
-             'species': None,
-             'start': {'type': 'time'}
-            }
+    inputs = {
+        "n_particle": 1000,
+        "total_charge": "0 C",
+        "species": None,
+        "start": {"type": "time"},
+    }
 
     for species in PHYSICAL_CONSTANTS.species_list:
-
-        inputs['species'] = species
-        inputs['total_charge'] = f'{inputs["n_particle"]*PHYSICAL_CONSTANTS.species(species)["charge"].magnitude} C'
+        inputs["species"] = species
+        inputs["total_charge"] = (
+            f'{inputs["n_particle"]*PHYSICAL_CONSTANTS.species(species)["charge"].magnitude} C'
+        )
 
         D = Generator(inputs)
         B = D.beam()
 
-        check_abs_and_rel_tols('rest energy', 
-                               B['energy'], 
-                               PHYSICAL_CONSTANTS.species(species)['mc2'],
-                               abs_tol=1e-6)
+        check_abs_and_rel_tols(
+            "rest energy",
+            B["energy"],
+            PHYSICAL_CONSTANTS.species(species)["mc2"],
+            abs_tol=1e-6,
+        )
+
 
 test_species_rest_energy()</div>
 </div>

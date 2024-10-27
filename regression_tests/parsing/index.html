@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1193,29 +1193,31 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">is_floatable</span>
 
+
 <span class="k">def</span> <span class="nf">test_isfloatable</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_floatable</span><span class="p">(</span><span class="s2">"foobar"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_floatable</span><span class="p">([])</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_floatable</span><span class="p">({})</span>
 
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_floatable</span><span class="p">(</span><span class="s1">'foobar'</span><span class="p">)</span> 
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_floatable</span><span class="p">([])</span> 
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_floatable</span><span class="p">({})</span> 
-
-    <span class="k">assert</span> <span class="n">is_floatable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> 
-    <span class="k">assert</span> <span class="n">is_floatable</span><span class="p">(</span><span class="s1">'1234'</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">is_floatable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">is_floatable</span><span class="p">(</span><span class="s2">"1234"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">is_floatable</span><span class="p">(</span><span class="mf">12350.0</span><span class="p">)</span>
+
 
 <span class="n">test_isfloatable</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">from distgen.parsing import is_floatable
 
+
 def test_isfloatable():
+    assert not is_floatable("foobar")
+    assert not is_floatable([])
+    assert not is_floatable({})
 
-    assert not is_floatable('foobar') 
-    assert not is_floatable([]) 
-    assert not is_floatable({}) 
-
-    assert is_floatable(1) 
-    assert is_floatable('1234')
+    assert is_floatable(1)
+    assert is_floatable("1234")
     assert is_floatable(12350.0)
+
 
 test_isfloatable()</div>
 </div>
@@ -1245,32 +1247,34 @@ test_isfloatable()</div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">is_unit</span>
 <span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">unit_registry</span>
 
-<span class="k">def</span> <span class="nf">test_is_unit</span><span class="p">():</span>
 
+<span class="k">def</span> <span class="nf">test_is_unit</span><span class="p">():</span>
     <span class="c1"># Strings with a value and unit return False</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_unit</span><span class="p">(</span><span class="s1">'2 ps'</span><span class="p">)</span>   
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_unit</span><span class="p">(</span><span class="s1">'1 ps'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_unit</span><span class="p">(</span><span class="s1">'1.0 ps'</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_unit</span><span class="p">(</span><span class="s2">"2 ps"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_unit</span><span class="p">(</span><span class="s2">"1 ps"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_unit</span><span class="p">(</span><span class="s2">"1.0 ps"</span><span class="p">)</span>
 
     <span class="c1"># Strings with known units work, as will an actual Pint unit object</span>
-    <span class="k">assert</span> <span class="n">is_unit</span><span class="p">(</span><span class="s1">'ps'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">is_unit</span><span class="p">(</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'ps'</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">is_unit</span><span class="p">(</span><span class="s2">"ps"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">is_unit</span><span class="p">(</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s2">"ps"</span><span class="p">))</span>
+
 
 <span class="n">test_is_unit</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-3">from distgen.parsing import is_unit
 from distgen.physical_constants import unit_registry
 
-def test_is_unit():
 
+def test_is_unit():
     # Strings with a value and unit return False
-    assert not is_unit('2 ps')   
-    assert not is_unit('1 ps')
-    assert not is_unit('1.0 ps')
+    assert not is_unit("2 ps")
+    assert not is_unit("1 ps")
+    assert not is_unit("1.0 ps")
 
     # Strings with known units work, as will an actual Pint unit object
-    assert is_unit('ps')
-    assert is_unit(unit_registry.Unit('ps'))
+    assert is_unit("ps")
+    assert is_unit(unit_registry.Unit("ps"))
+
 
 test_is_unit()</div>
 </div>
@@ -1299,33 +1303,35 @@ test_is_unit()</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">is_quantizable</span>
 
-<span class="k">def</span> <span class="nf">test_is_quantizable</span><span class="p">():</span>
 
+<span class="k">def</span> <span class="nf">test_is_quantizable</span><span class="p">():</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="s1">'10.0'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">({</span><span class="s1">'value'</span><span class="p">:</span> <span class="mf">120.1</span><span class="p">})</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">({</span><span class="s1">'units'</span><span class="p">:</span> <span class="mf">120.1</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="s2">"10.0"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mf">120.1</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_quantizable</span><span class="p">({</span><span class="s2">"units"</span><span class="p">:</span> <span class="mf">120.1</span><span class="p">})</span>
 
     <span class="n">Q_</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span>
-    <span class="k">assert</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="n">Q_</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'ps'</span><span class="p">))</span>
-    <span class="k">assert</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="s1">'10 ps'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">is_quantizable</span><span class="p">({</span><span class="s1">'value'</span><span class="p">:</span> <span class="mf">120.1</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span><span class="s1">'mm'</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="n">Q_</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"ps"</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">is_quantizable</span><span class="p">(</span><span class="s2">"10 ps"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">is_quantizable</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mf">120.1</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"mm"</span><span class="p">})</span>
+
 
 <span class="n">test_is_quantizable</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-4">from distgen.parsing import is_quantizable
 
-def test_is_quantizable():
 
+def test_is_quantizable():
     assert not is_quantizable(10.0)
-    assert not is_quantizable('10.0')
-    assert not is_quantizable({'value': 120.1})
-    assert not is_quantizable({'units': 120.1})
+    assert not is_quantizable("10.0")
+    assert not is_quantizable({"value": 120.1})
+    assert not is_quantizable({"units": 120.1})
 
     Q_ = unit_registry.Quantity
-    assert is_quantizable(Q_(10, 'ps'))
-    assert is_quantizable('10 ps')
-    assert is_quantizable({'value': 120.1, 'units':'mm'})
+    assert is_quantizable(Q_(10, "ps"))
+    assert is_quantizable("10 ps")
+    assert is_quantizable({"value": 120.1, "units": "mm"})
+
 
 test_is_quantizable()</div>
 </div>
@@ -1354,23 +1360,25 @@ test_is_quantizable()</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">dict_to_quantity</span>
 
+
 <span class="k">def</span> <span class="nf">test_dict_to_quantity</span><span class="p">():</span>
+    <span class="n">q1</span> <span class="o">=</span> <span class="n">dict_to_quantity</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mf">102.1</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"eV"</span><span class="p">})</span>
+    <span class="n">q2</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">102.1</span><span class="p">,</span> <span class="s2">"eV"</span><span class="p">)</span>
 
-    <span class="n">q1</span> <span class="o">=</span> <span class="n">dict_to_quantity</span><span class="p">({</span><span class="s1">'value'</span><span class="p">:</span> <span class="mf">102.1</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'eV'</span><span class="p">})</span>
-    <span class="n">q2</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">102.1</span><span class="p">,</span> <span class="s1">'eV'</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">q1</span> <span class="o">==</span> <span class="n">q2</span>
 
-    <span class="k">assert</span> <span class="n">q1</span><span class="o">==</span><span class="n">q2</span>
 
 <span class="n">test_dict_to_quantity</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-5">from distgen.parsing import dict_to_quantity
 
+
 def test_dict_to_quantity():
+    q1 = dict_to_quantity({"value": 102.1, "units": "eV"})
+    q2 = unit_registry.Quantity(102.1, "eV")
 
-    q1 = dict_to_quantity({'value': 102.1, 'units': 'eV'})
-    q2 = unit_registry.Quantity(102.1, 'eV')
+    assert q1 == q2
 
-    assert q1==q2
 
 test_dict_to_quantity()</div>
 </div>
@@ -1399,28 +1407,30 @@ test_dict_to_quantity()</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">parse_quantity</span>
 
-<span class="k">def</span> <span class="nf">test_parse_quantity</span><span class="p">():</span>
 
-    <span class="n">q1</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">102.1</span><span class="p">,</span> <span class="s1">'eV'</span><span class="p">)</span>
-    <span class="n">q2</span> <span class="o">=</span> <span class="n">parse_quantity</span><span class="p">(</span><span class="s1">'102.1 eV'</span><span class="p">)</span>
-    <span class="n">q3</span> <span class="o">=</span> <span class="n">parse_quantity</span><span class="p">({</span><span class="s1">'value'</span><span class="p">:</span> <span class="mf">102.1</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'eV'</span><span class="p">})</span>
+<span class="k">def</span> <span class="nf">test_parse_quantity</span><span class="p">():</span>
+    <span class="n">q1</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">102.1</span><span class="p">,</span> <span class="s2">"eV"</span><span class="p">)</span>
+    <span class="n">q2</span> <span class="o">=</span> <span class="n">parse_quantity</span><span class="p">(</span><span class="s2">"102.1 eV"</span><span class="p">)</span>
+    <span class="n">q3</span> <span class="o">=</span> <span class="n">parse_quantity</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mf">102.1</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"eV"</span><span class="p">})</span>
 
     <span class="k">assert</span> <span class="n">q1</span> <span class="o">==</span> <span class="n">q2</span>
     <span class="k">assert</span> <span class="n">q2</span> <span class="o">==</span> <span class="n">q3</span>
-    
+
+
 <span class="n">test_parse_quantity</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-6">from distgen.parsing import parse_quantity
 
-def test_parse_quantity():
 
-    q1 = unit_registry.Quantity(102.1, 'eV')
-    q2 = parse_quantity('102.1 eV')
-    q3 = parse_quantity({'value': 102.1, 'units': 'eV'})
+def test_parse_quantity():
+    q1 = unit_registry.Quantity(102.1, "eV")
+    q2 = parse_quantity("102.1 eV")
+    q3 = parse_quantity({"value": 102.1, "units": "eV"})
 
     assert q1 == q2
     assert q2 == q3
-    
+
+
 test_parse_quantity()</div>
 </div>
 </div>
@@ -1449,42 +1459,46 @@ test_parse_quantity()</div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">update_quantity</span>
 <span class="kn">from</span> <span class="nn">pint</span> <span class="kn">import</span> <span class="n">DimensionalityError</span>
 
+
 <span class="k">def</span> <span class="nf">test_update_quantity</span><span class="p">():</span>
+    <span class="n">qi</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">102.1</span><span class="p">,</span> <span class="s2">"eV"</span><span class="p">)</span>
 
-    <span class="n">qi</span> <span class="o">=</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mf">102.1</span><span class="p">,</span> <span class="s1">'eV'</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="s2">"10 ps"</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span> 
-        <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="s1">'10 ps'</span><span class="p">)</span>
-        
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-        
-        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">DimensionalityError</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">DimensionalityError</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Didn't catch dimensionality error"</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">==</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'eV'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="s1">'10 eV'</span><span class="p">)</span> <span class="o">==</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'eV'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="p">{</span><span class="s1">'value'</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span><span class="s1">'eV'</span><span class="p">})</span> <span class="o">==</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'eV'</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">==</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"eV"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="s2">"10 eV"</span><span class="p">)</span> <span class="o">==</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"eV"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">update_quantity</span><span class="p">(</span><span class="n">qi</span><span class="p">,</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"eV"</span><span class="p">})</span> <span class="o">==</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span>
+        <span class="mi">10</span><span class="p">,</span> <span class="s2">"eV"</span>
+    <span class="p">)</span>
+
 
 <span class="n">test_update_quantity</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-7">from distgen.parsing import update_quantity
 from pint import DimensionalityError
 
+
 def test_update_quantity():
+    qi = unit_registry.Quantity(102.1, "eV")
 
-    qi = unit_registry.Quantity(102.1, 'eV')
+    try:
+        update_quantity(qi, "10 ps")
 
-    try: 
-        update_quantity(qi, '10 ps')
-        
     except Exception as ex:
-        
-        if(not isinstance(ex, DimensionalityError)):
+        if not isinstance(ex, DimensionalityError):
             raise ValueError("Didn't catch dimensionality error")
 
-    assert update_quantity(qi, 10) == unit_registry.Quantity(10, 'eV')
-    assert update_quantity(qi, '10 eV') == unit_registry.Quantity(10, 'eV')
-    assert update_quantity(qi, {'value':10, 'units':'eV'}) == unit_registry.Quantity(10, 'eV')
+    assert update_quantity(qi, 10) == unit_registry.Quantity(10, "eV")
+    assert update_quantity(qi, "10 eV") == unit_registry.Quantity(10, "eV")
+    assert update_quantity(qi, {"value": 10, "units": "eV"}) == unit_registry.Quantity(
+        10, "eV"
+    )
+
 
 test_update_quantity()</div>
 </div>
@@ -1512,60 +1526,58 @@ test_update_quantity()</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">update_quantity_in_dict</span>
-<span class="kn">from</span> <span class="nn">pint</span> <span class="kn">import</span> <span class="n">DimensionalityError</span>
+
 
 <span class="k">def</span> <span class="nf">test_update_quantity_in_dict</span><span class="p">():</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s2">"10 ps"</span><span class="p">)}</span>
+    <span class="c1"># d2 = {"x": unit_registry.Quantity("12 ps")}</span>
 
-    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'x'</span><span class="p">:</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">'10 ps'</span><span class="p">)}</span>
-    <span class="n">d2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'x'</span><span class="p">:</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">'12 ps'</span><span class="p">)}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s2">"10 mm"</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span> 
-        <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s1">'10 mm'</span><span class="p">)</span>
-        
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-        
-        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">DimensionalityError</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">DimensionalityError</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Didn't catch dimensionality error"</span><span class="p">)</span>
-    
-    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">d</span> <span class="p">,</span><span class="s1">'12 ps'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">d</span><span class="o">==</span><span class="p">{</span><span class="s1">'x'</span><span class="p">:</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">'12 ps'</span><span class="p">)}</span>
 
-    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">d</span> <span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">d</span><span class="o">==</span><span class="p">{</span><span class="s1">'x'</span><span class="p">:</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">'13 ps'</span><span class="p">)}</span>
+    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s2">"12 ps"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s2">"12 ps"</span><span class="p">)}</span>
 
-    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">d</span> <span class="p">,</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">'14 ps'</span><span class="p">))</span>
-    <span class="k">assert</span> <span class="n">d</span><span class="o">==</span><span class="p">{</span><span class="s1">'x'</span><span class="p">:</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">'14 ps'</span><span class="p">)}</span>
+    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s2">"13 ps"</span><span class="p">)}</span>
 
-    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">{</span><span class="s1">'value'</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span><span class="s1">'ps'</span><span class="p">})</span>
+    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s2">"14 ps"</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="s2">"14 ps"</span><span class="p">)}</span>
+
+    <span class="n">update_quantity_in_dict</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"ps"</span><span class="p">})</span>
+
 
 <span class="n">test_update_quantity_in_dict</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-8">from distgen.parsing import update_quantity_in_dict
-from pint import DimensionalityError
+
 
 def test_update_quantity_in_dict():
+    d = {"x": unit_registry.Quantity("10 ps")}
+    # d2 = {"x": unit_registry.Quantity("12 ps")}
 
-    d = {'x':unit_registry.Quantity('10 ps')}
-    d2 = {'x':unit_registry.Quantity('12 ps')}
+    try:
+        update_quantity_in_dict("x", d, "10 mm")
 
-    try: 
-        update_quantity_in_dict('x', d, '10 mm')
-        
     except Exception as ex:
-        
-        if(not isinstance(ex, DimensionalityError)):
+        if not isinstance(ex, DimensionalityError):
             raise ValueError("Didn't catch dimensionality error")
-    
-    update_quantity_in_dict('x', d ,'12 ps')
-    assert d=={'x':unit_registry.Quantity('12 ps')}
 
-    update_quantity_in_dict('x', d , 13)
-    assert d=={'x':unit_registry.Quantity('13 ps')}
+    update_quantity_in_dict("x", d, "12 ps")
+    assert d == {"x": unit_registry.Quantity("12 ps")}
 
-    update_quantity_in_dict('x', d , unit_registry.Quantity('14 ps'))
-    assert d=={'x':unit_registry.Quantity('14 ps')}
+    update_quantity_in_dict("x", d, 13)
+    assert d == {"x": unit_registry.Quantity("13 ps")}
 
-    update_quantity_in_dict('x', d, {'value':15, 'units':'ps'})
+    update_quantity_in_dict("x", d, unit_registry.Quantity("14 ps"))
+    assert d == {"x": unit_registry.Quantity("14 ps")}
+
+    update_quantity_in_dict("x", d, {"value": 15, "units": "ps"})
+
 
 test_update_quantity_in_dict()</div>
 </div>
@@ -1594,19 +1606,23 @@ test_update_quantity_in_dict()</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">list_to_dict</span>
 
+
 <span class="k">def</span> <span class="nf">test_list_to_dict</span><span class="p">():</span>
-    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'s'</span><span class="p">),</span> <span class="mi">10</span><span class="p">]</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">list_to_dict</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s1">'x'</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'s'</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span><span class="mi">10</span><span class="p">}</span>
+    <span class="n">list_ex</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">),</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">list_to_dict</span><span class="p">(</span><span class="n">list_ex</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+
 
 <span class="n">test_list_to_dict</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-9">from distgen.parsing import list_to_dict
 
+
 def test_list_to_dict():
-    l = ['x', unit_registry.Quantity(10, 's'), 10]
-    d = list_to_dict(l)
-    assert d == {0:'x', 1:unit_registry.Quantity(10, 's'), 2:10}
+    list_ex = ["x", unit_registry.Quantity(10, "s"), 10]
+    d = list_to_dict(list_ex)
+    assert d == {0: "x", 1: unit_registry.Quantity(10, "s"), 2: 10}
+
 
 test_list_to_dict()</div>
 </div>
@@ -1635,20 +1651,30 @@ test_list_to_dict()</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.parsing</span> <span class="kn">import</span> <span class="n">convert_list_quantities</span>
 
+
 <span class="k">def</span> <span class="nf">test_convert_list_quantities</span><span class="p">():</span>
-    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'10 ps'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'value'</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'ps'</span><span class="p">}]</span>
-    <span class="n">convert_list_quantities</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">l</span> <span class="o">==</span> <span class="p">[</span><span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'ps'</span><span class="p">),</span> <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="s1">'ps'</span><span class="p">)]</span>
-    
+    <span class="n">list_ex</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"10 ps"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"ps"</span><span class="p">}]</span>
+    <span class="n">convert_list_quantities</span><span class="p">(</span><span class="n">list_ex</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">list_ex</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"ps"</span><span class="p">),</span>
+        <span class="n">unit_registry</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="s2">"ps"</span><span class="p">),</span>
+    <span class="p">]</span>
+
+
 <span class="n">test_convert_list_quantities</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-10">from distgen.parsing import convert_list_quantities
 
+
 def test_convert_list_quantities():
-    l = ['10 ps', {'value': 12, 'units': 'ps'}]
-    convert_list_quantities(l)
-    assert l == [unit_registry.Quantity(10, 'ps'), unit_registry.Quantity(12, 'ps')]
-    
+    list_ex = ["10 ps", {"value": 12, "units": "ps"}]
+    convert_list_quantities(list_ex)
+    assert list_ex == [
+        unit_registry.Quantity(10, "ps"),
+        unit_registry.Quantity(12, "ps"),
+    ]
+
+
 test_convert_list_quantities()</div>
 </div>
 </div>

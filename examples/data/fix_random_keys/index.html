@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1166,15 +1166,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="o">%</span><span class="n">config</span> <span class="n">InlineBackend</span><span class="o">.</span><span class="n">figure_format</span> <span class="o">=</span> <span class="s1">'retina'</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1"># Useful for debugging
 %load_ext autoreload
 %autoreload 2
 %config InlineBackend.figure_format = 'retina'
 import yaml
-from glob import glob
-from pathlib import Path</div>
+from glob import glob</div>
 </div>
 </div>
 </div>
@@ -1199,9 +1197,9 @@ from pathlib import Path</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">yamls</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s1">'*yaml'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">yamls</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s2">"*yaml"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-2">yamls = glob('*yaml')</div>
+<div class="clipboard-copy-txt" id="cell-2">yamls = glob("*yaml")</div>
 </div>
 </div>
 </div>
@@ -1227,31 +1225,28 @@ from pathlib import Path</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">yamls</span><span class="p">:</span>
-    
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
-        
-        <span class="k">if</span><span class="p">(</span><span class="s1">'random_type'</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">):</span>
-            <span class="k">del</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">'random_type'</span><span class="p">]</span>
-            
-        <span class="n">inputs</span><span class="p">[</span><span class="s1">'random'</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="s1">'type'</span><span class="p">:</span><span class="s1">'hammersley'</span><span class="p">}</span>
-    
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="s2">"random_type"</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">"random_type"</span><span class="p">]</span>
+
+        <span class="n">inputs</span><span class="p">[</span><span class="s2">"random"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"hammersley"</span><span class="p">}</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
         <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">fid</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-3">for y in yamls:
-    
-    with open(y, 'r') as fid:
+    with open(y, "r") as fid:
         inputs = yaml.safe_load(fid)
-        
-        if('random_type' in inputs):
-            del inputs['random_type']
-            
-        inputs['random']={'type':'hammersley'}
-    
-    with open(y, 'w') as fid:
-        yaml.dump(inputs, fid)
-</div>
+
+        if "random_type" in inputs:
+            del inputs["random_type"]
+
+        inputs["random"] = {"type": "hammersley"}
+
+    with open(y, "w") as fid:
+        yaml.dump(inputs, fid)</div>
 </div>
 </div>
 </div>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1275,8 +1275,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.dist</span> <span class="kn">import</span> <span class="n">Uniform</span>
-<span class="kn">from</span> <span class="nn">distgen.dist</span> <span class="kn">import</span> <span class="n">SuperGaussian</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.dist</span> <span class="kn">import</span> <span class="n">SuperGaussian</span>
 <span class="kn">from</span> <span class="nn">distgen.dist</span> <span class="kn">import</span> <span class="n">Norm</span>
 <span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">unit_registry</span>
 
@@ -1284,8 +1283,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-2">from distgen.dist import Uniform
-from distgen.dist import SuperGaussian
+<div class="clipboard-copy-txt" id="cell-2">from distgen.dist import SuperGaussian
 from distgen.dist import Norm
 from distgen.physical_constants import unit_registry
 
@@ -1342,13 +1340,13 @@ $D_{KL}(P|Q) = \int_{-\infty}^{\infty}p(x)\ln{\left(\frac{p(x)}{q(x)}\right)} dx
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">unit_registry</span><span class="p">(</span><span class="s1">'ps'</span><span class="p">)</span>
-<span class="n">avg_t_sg</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="n">unit_registry</span><span class="p">(</span><span class="s1">'ps'</span><span class="p">)</span>
-<span class="n">sigma_t_sg</span> <span class="o">=</span> <span class="n">L</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"ps"</span><span class="p">)</span>
+<span class="n">avg_t_sg</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"ps"</span><span class="p">)</span>
+<span class="n">sigma_t_sg</span> <span class="o">=</span> <span class="n">L</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">L = 2*unit_registry('ps')
-avg_t_sg = 0*unit_registry('ps')
-sigma_t_sg = L/np.sqrt(12)</div>
+<div class="clipboard-copy-txt" id="cell-3">L = 2 * unit_registry("ps")
+avg_t_sg = 0 * unit_registry("ps")
+sigma_t_sg = L / np.sqrt(12)</div>
 </div>
 </div>
 </div>
@@ -1373,9 +1371,9 @@ sigma_t_sg = L/np.sqrt(12)</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">sg</span> <span class="o">=</span> <span class="n">SuperGaussian</span><span class="p">(</span><span class="s1">'t'</span><span class="p">,</span> <span class="n">avg_t</span><span class="o">=</span><span class="n">avg_t_sg</span><span class="p">,</span> <span class="n">sigma_t</span><span class="o">=</span><span class="n">sigma_t_sg</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">sg</span> <span class="o">=</span> <span class="n">SuperGaussian</span><span class="p">(</span><span class="s2">"t"</span><span class="p">,</span> <span class="n">avg_t</span><span class="o">=</span><span class="n">avg_t_sg</span><span class="p">,</span> <span class="n">sigma_t</span><span class="o">=</span><span class="n">sigma_t_sg</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4">sg = SuperGaussian('t', avg_t=avg_t_sg, sigma_t=sigma_t_sg, p=12)</div>
+<div class="clipboard-copy-txt" id="cell-4">sg = SuperGaussian("t", avg_t=avg_t_sg, sigma_t=sigma_t_sg, p=12)</div>
 </div>
 </div>
 </div>
@@ -1441,9 +1439,9 @@ plt.plot(tsg, Psg);</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">norm</span> <span class="o">=</span> <span class="n">Norm</span><span class="p">(</span><span class="s1">'t'</span><span class="p">,</span> <span class="n">avg_t</span><span class="o">=</span><span class="n">avg_t_sg</span><span class="p">,</span> <span class="n">sigma_t</span><span class="o">=</span><span class="n">sigma_t_sg</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">norm</span> <span class="o">=</span> <span class="n">Norm</span><span class="p">(</span><span class="s2">"t"</span><span class="p">,</span> <span class="n">avg_t</span><span class="o">=</span><span class="n">avg_t_sg</span><span class="p">,</span> <span class="n">sigma_t</span><span class="o">=</span><span class="n">sigma_t_sg</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-6">norm = Norm('t', avg_t=avg_t_sg, sigma_t=sigma_t_sg)</div>
+<div class="clipboard-copy-txt" id="cell-6">norm = Norm("t", avg_t=avg_t_sg, sigma_t=sigma_t_sg)</div>
 </div>
 </div>
 </div>
@@ -1586,9 +1584,13 @@ plt.plot(tn, Pn);</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">kullback_liebler_div</span><span class="p">(</span><span class="n">tn</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">Pn</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">tsg</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">Psg</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">as_float</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">kullback_liebler_div</span><span class="p">(</span>
+    <span class="n">tn</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">Pn</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">tsg</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">Psg</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">as_float</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-10">kullback_liebler_div(tn.magnitude, Pn.magnitude, tsg.magnitude, Psg.magnitude, as_float=True)</div>
+<div class="clipboard-copy-txt" id="cell-10">kullback_liebler_div(
+    tn.magnitude, Pn.magnitude, tsg.magnitude, Psg.magnitude, as_float=True
+)</div>
 </div>
 </div>
 </div>
@@ -1818,7 +1820,7 @@ plt.plot(tn, Pn);</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">dist_yaml</span><span class="o">=</span><span class="s2">"""</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">dist_yaml</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">n_particle: 30000</span>
 <span class="s2">species: electron</span>
 <span class="s2">r_dist:</span>
@@ -1848,7 +1850,7 @@ plt.plot(tn, Pn);</div>
 <span class="s2">  value: 100</span>
 <span class="s2">"""</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-16">dist_yaml="""
+<div class="clipboard-copy-txt" id="cell-16">dist_yaml = """
 n_particle: 30000
 species: electron
 r_dist:
@@ -1982,9 +1984,9 @@ total_charge:
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">'t'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">"t"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-20">P.plot('t')</div>
+<div class="clipboard-copy-txt" id="cell-20">P.plot("t")</div>
 </div>
 </div>
 </div>
@@ -2050,9 +2052,9 @@ from distgen.metrics import rms_equivalent_current_nonuniformity</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">t</span><span class="p">,</span> <span class="n">I</span> <span class="o">=</span> <span class="n">get_current_profile</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">t</span><span class="p">,</span> <span class="n">current_profile</span> <span class="o">=</span> <span class="n">get_current_profile</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-22">t, I = get_current_profile(P)</div>
+<div class="clipboard-copy-txt" id="cell-22">t, current_profile = get_current_profile(P)</div>
 </div>
 </div>
 </div>
@@ -2077,9 +2079,9 @@ from distgen.metrics import rms_equivalent_current_nonuniformity</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">I</span><span class="p">);</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">current_profile</span><span class="p">);</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-23">plt.plot(t, I);</div>
+<div class="clipboard-copy-txt" id="cell-23">plt.plot(t, current_profile);</div>
 </div>
 </div>
 </div>
@@ -2147,41 +2149,39 @@ from distgen.metrics import rms_equivalent_current_nonuniformity</div>
 <span class="n">res2s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
-    
-    <span class="n">D</span><span class="p">[</span><span class="s1">'t_dist:p'</span><span class="p">]</span><span class="o">=</span><span class="n">p</span>
-    
-    <span class="n">P</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-    
-    <span class="n">t</span><span class="p">,</span> <span class="n">I</span> <span class="o">=</span> <span class="n">get_current_profile</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
-    
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
-    
-    <span class="n">kldivs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms_equivalent_current_nonuniformity</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'kl_div'</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    
-    <span class="n">res2s</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms_equivalent_current_nonuniformity</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'res2'</span><span class="p">)</span>
+    <span class="n">D</span><span class="p">[</span><span class="s2">"t_dist:p"</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'t (s)'</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'$</span><span class="se">\\</span><span class="s1">rho$ ($s^{-1}$)'</span><span class="p">);</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="n">t</span><span class="p">,</span> <span class="n">current_profile</span> <span class="o">=</span> <span class="n">get_current_profile</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">current_profile</span><span class="p">)</span>
+
+    <span class="n">kldivs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms_equivalent_current_nonuniformity</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"kl_div"</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+    <span class="n">res2s</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms_equivalent_current_nonuniformity</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"res2"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"t (s)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"$</span><span class="se">\\</span><span class="s2">rho$ ($s^{-1}$)"</span><span class="p">);</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-25">kldivs = np.zeros(ps.shape)
 res2s = np.zeros(ps.shape)
 
 for ii, p in enumerate(ps):
-    
-    D['t_dist:p']=p
-    
-    P = D.run()
-    
-    t, I = get_current_profile(P)
-    
-    plt.plot(t, I)
-    
-    kldivs[ii] = rms_equivalent_current_nonuniformity(P, method='kl_div', p=12)
-    
-    res2s[ii] = rms_equivalent_current_nonuniformity(P, method='res2')
+    D["t_dist:p"] = p
 
-plt.xlabel('t (s)');
-plt.ylabel('$\\rho$ ($s^{-1}$)');</div>
+    P = D.run()
+
+    t, current_profile = get_current_profile(P)
+
+    plt.plot(t, current_profile)
+
+    kldivs[ii] = rms_equivalent_current_nonuniformity(P, method="kl_div", p=12)
+
+    res2s[ii] = rms_equivalent_current_nonuniformity(P, method="res2")
+
+plt.xlabel("t (s)")
+plt.ylabel("$\\rho$ ($s^{-1}$)");</div>
 </div>
 </div>
 </div>
@@ -2231,13 +2231,13 @@ plt.ylabel('$\\rho$ ($s^{-1}$)');</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">kldivs</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'super-Gaussian power'</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'KL-Divergence'</span><span class="p">);</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">kldivs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"super-Gaussian power"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"KL-Divergence"</span><span class="p">);</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-26">plt.plot(ps, kldivs);
-plt.xlabel('super-Gaussian power');
-plt.ylabel('KL-Divergence');</div>
+<div class="clipboard-copy-txt" id="cell-26">plt.plot(ps, kldivs)
+plt.xlabel("super-Gaussian power")
+plt.ylabel("KL-Divergence");</div>
 </div>
 </div>
 </div>
@@ -2285,13 +2285,13 @@ plt.ylabel('KL-Divergence');</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">res2s</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'super-Gaussian power'</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'integrated squared residuals'</span><span class="p">);</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">res2s</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"super-Gaussian power"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"integrated squared residuals"</span><span class="p">);</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-27">plt.plot(ps, res2s);
-plt.xlabel('super-Gaussian power');
-plt.ylabel('integrated squared residuals');</div>
+<div class="clipboard-copy-txt" id="cell-27">plt.plot(ps, res2s)
+plt.xlabel("super-Gaussian power")
+plt.ylabel("integrated squared residuals");</div>
 </div>
 </div>
 </div>
@@ -2328,13 +2328,13 @@ plt.ylabel('integrated squared residuals');</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">D</span><span class="p">[</span><span class="s1">'t_dist:p'</span><span class="p">]</span><span class="o">=</span><span class="mi">4</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">D</span><span class="p">[</span><span class="s2">"t_dist:p"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">'t'</span><span class="p">)</span>
+<span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">"t"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-28">D['t_dist:p']=4
+<div class="clipboard-copy-txt" id="cell-28">D["t_dist:p"] = 4
 P = D.run()
-P.plot('t')</div>
+P.plot("t")</div>
 </div>
 </div>
 </div>
@@ -2371,13 +2371,13 @@ P.plot('t')</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">D</span><span class="p">[</span><span class="s1">'t_dist:p'</span><span class="p">]</span><span class="o">=</span><span class="mi">6</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">D</span><span class="p">[</span><span class="s2">"t_dist:p"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">'t'</span><span class="p">)</span>
+<span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">"t"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-29">D['t_dist:p']=6
+<div class="clipboard-copy-txt" id="cell-29">D["t_dist:p"] = 6
 P = D.run()
-P.plot('t')</div>
+P.plot("t")</div>
 </div>
 </div>
 </div>
@@ -2417,6 +2417,33 @@ P.plot('t')</div>
 <div class="highlight-ipynb hl-python"><pre><span></span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-30"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ecbe8b74-65c4-43a7-90b9-a5e598423a67">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-31">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-31"></div>
 </div>
 </div>
 </div>

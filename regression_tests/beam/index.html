@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1260,46 +1260,82 @@ from glob import glob</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">yaml_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">glob</span><span class="p">(</span><span class="s1">'../examples/data/*.yaml'</span><span class="p">)</span> <span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">yaml_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="s2">"../examples/data/*.yaml"</span><span class="p">))</span>
 
-<span class="n">coordinates</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">,</span> <span class="s1">'px'</span><span class="p">,</span> <span class="s1">'py'</span><span class="p">,</span> <span class="s1">'pz'</span><span class="p">,</span> 
-               <span class="s1">'r'</span><span class="p">,</span> <span class="s1">'theta'</span><span class="p">,</span> <span class="s1">'pr'</span><span class="p">,</span> <span class="s1">'ptheta'</span><span class="p">,</span> 
-               <span class="s1">'xp'</span><span class="p">,</span> <span class="s1">'yp'</span><span class="p">,</span> <span class="s1">'thetax'</span><span class="p">,</span> <span class="s1">'thetay'</span><span class="p">,</span>
-               <span class="s1">'gamma'</span><span class="p">,</span> <span class="s1">'energy'</span><span class="p">,</span> <span class="s1">'kinetic_energy'</span><span class="p">,</span> 
-               <span class="s1">'beta_x'</span><span class="p">,</span> <span class="s1">'beta_y'</span><span class="p">,</span> <span class="s1">'beta_z'</span><span class="p">}</span>
+<span class="n">coordinates</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"x"</span><span class="p">,</span>
+    <span class="s2">"y"</span><span class="p">,</span>
+    <span class="s2">"z"</span><span class="p">,</span>
+    <span class="s2">"px"</span><span class="p">,</span>
+    <span class="s2">"py"</span><span class="p">,</span>
+    <span class="s2">"pz"</span><span class="p">,</span>
+    <span class="s2">"r"</span><span class="p">,</span>
+    <span class="s2">"theta"</span><span class="p">,</span>
+    <span class="s2">"pr"</span><span class="p">,</span>
+    <span class="s2">"ptheta"</span><span class="p">,</span>
+    <span class="s2">"xp"</span><span class="p">,</span>
+    <span class="s2">"yp"</span><span class="p">,</span>
+    <span class="s2">"thetax"</span><span class="p">,</span>
+    <span class="s2">"thetay"</span><span class="p">,</span>
+    <span class="s2">"gamma"</span><span class="p">,</span>
+    <span class="s2">"energy"</span><span class="p">,</span>
+    <span class="s2">"kinetic_energy"</span><span class="p">,</span>
+    <span class="s2">"beta_x"</span><span class="p">,</span>
+    <span class="s2">"beta_y"</span><span class="p">,</span>
+    <span class="s2">"beta_z"</span><span class="p">,</span>
+<span class="p">}</span>
+
 
 <span class="k">def</span> <span class="nf">run_test_on_input_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
     <span class="n">G</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">G</span><span class="p">[</span><span class="s1">'n_particle'</span><span class="p">]</span><span class="o">=</span><span class="mi">10_000</span>
+    <span class="n">G</span><span class="p">[</span><span class="s2">"n_particle"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10_000</span>
     <span class="n">test</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">beam</span><span class="p">())</span>
 
+
 <span class="k">def</span> <span class="nf">run_test_on_input_files</span><span class="p">(</span><span class="n">input_files</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    
     <span class="k">for</span> <span class="n">input_file</span> <span class="ow">in</span> <span class="n">input_files</span><span class="p">:</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span> 
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'Testing:'</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
-            
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Testing:"</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
+
         <span class="n">run_test_on_input_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">yaml_files = list( glob('../examples/data/*.yaml') )
+<div class="clipboard-copy-txt" id="cell-3">yaml_files = list(glob("../examples/data/*.yaml"))
 
-coordinates = {'x', 'y', 'z', 'px', 'py', 'pz', 
-               'r', 'theta', 'pr', 'ptheta', 
-               'xp', 'yp', 'thetax', 'thetay',
-               'gamma', 'energy', 'kinetic_energy', 
-               'beta_x', 'beta_y', 'beta_z'}
+coordinates = {
+    "x",
+    "y",
+    "z",
+    "px",
+    "py",
+    "pz",
+    "r",
+    "theta",
+    "pr",
+    "ptheta",
+    "xp",
+    "yp",
+    "thetax",
+    "thetay",
+    "gamma",
+    "energy",
+    "kinetic_energy",
+    "beta_x",
+    "beta_y",
+    "beta_z",
+}
+
 
 def run_test_on_input_file(input_file, test):
     G = Generator(input_file, verbose=0)
-    G['n_particle']=10_000
+    G["n_particle"] = 10_000
     test(G.beam())
 
+
 def run_test_on_input_files(input_files, test, verbose=False):
-    
     for input_file in input_files:
-        if(verbose): 
-            print('Testing:', input_file)
-            
+        if verbose:
+            print("Testing:", input_file)
+
         run_test_on_input_file(input_file, test)</div>
 </div>
 </div>
@@ -1337,12 +1373,18 @@ def run_test_on_input_files(input_files, test, verbose=False):
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_weight_normalization</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'macroparticle weights'</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]),</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"macroparticle weights"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"w"</span><span class="p">]),</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_weight_normalization</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-4">def test_weight_normalization(beam):
-    check_abs_and_rel_tols('macroparticle weights', np.sum(beam['w']), 1.0, abs_tol=1e-12, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "macroparticle weights", np.sum(beam["w"]), 1.0, abs_tol=1e-12, rel_tol=1e-15
+    )
+
 
 run_test_on_input_files(yaml_files, test_weight_normalization)</div>
 </div>
@@ -1382,15 +1424,21 @@ run_test_on_input_files(yaml_files, test_weight_normalization)</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_avg</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
-        <span class="n">avg_beam</span><span class="p">,</span> <span class="n">avg_numpy</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.avg'</span><span class="p">,</span> <span class="n">avg_beam</span><span class="p">,</span> <span class="n">avg_numpy</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>  
+        <span class="n">avg_beam</span><span class="p">,</span> <span class="n">avg_numpy</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"w"</span><span class="p">]</span> <span class="o">*</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.avg"</span><span class="p">,</span> <span class="n">avg_beam</span><span class="p">,</span> <span class="n">avg_numpy</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span>
+        <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_avg</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-5">def test_avg(beam):
     for var in coordinates:
-        avg_beam, avg_numpy = beam.avg(var), np.sum(beam['w']*beam[var])
-        check_abs_and_rel_tols('beam.avg', avg_beam, avg_numpy, abs_tol=1e-12, rel_tol=1e-15)  
+        avg_beam, avg_numpy = beam.avg(var), np.sum(beam["w"] * beam[var])
+        check_abs_and_rel_tols(
+            "beam.avg", avg_beam, avg_numpy, abs_tol=1e-12, rel_tol=1e-15
+        )
+
 
 run_test_on_input_files(yaml_files, test_avg)</div>
 </div>
@@ -1430,17 +1478,23 @@ run_test_on_input_files(yaml_files, test_avg)</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_std</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
-        <span class="n">sigma2_beam</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">sigma2_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.std'</span><span class="p">,</span> <span class="n">sigma2_beam</span><span class="p">,</span> <span class="n">sigma2_numpy</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+        <span class="n">sigma2_beam</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">sigma2_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"w"</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.std"</span><span class="p">,</span> <span class="n">sigma2_beam</span><span class="p">,</span> <span class="n">sigma2_numpy</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span>
+        <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_std</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-6">def test_std(beam):
     for var in coordinates:
-        sigma2_beam = beam.std(var)**2
-        sigma2_numpy = np.sum(beam['w']*(beam[var]-beam.avg(var))**2)
-        check_abs_and_rel_tols('beam.std', sigma2_beam, sigma2_numpy, abs_tol=1e-8, rel_tol=1e-15)
+        sigma2_beam = beam.std(var) ** 2
+        sigma2_numpy = np.sum(beam["w"] * (beam[var] - beam.avg(var)) ** 2)
+        check_abs_and_rel_tols(
+            "beam.std", sigma2_beam, sigma2_numpy, abs_tol=1e-8, rel_tol=1e-15
+        )
+
 
 run_test_on_input_files(yaml_files, test_std)</div>
 </div>
@@ -1491,12 +1545,26 @@ run_test_on_input_files(yaml_files, test_std)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_r</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.r'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.r"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"r"</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_r</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-7">def test_r(beam):
-    check_abs_and_rel_tols('beam.r', beam['r'], np.sqrt(beam['x']**2 + beam['y']**2), abs_tol=1e-15, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.r",
+        beam["r"],
+        np.sqrt(beam["x"] ** 2 + beam["y"] ** 2),
+        abs_tol=1e-15,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_r)</div>
 </div>
@@ -1535,12 +1603,26 @@ run_test_on_input_files(yaml_files, test_r)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_x</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.x = r cos(theta)'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'x'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.x = r cos(theta)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"r"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"theta"</span><span class="p">]),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_x</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-8">def test_x(beam):
-    check_abs_and_rel_tols('beam.x = r cos(theta)', beam['x'], beam['r']*np.cos(beam['theta']), abs_tol=1e-12, rel_tol=1e-11)
+    check_abs_and_rel_tols(
+        "beam.x = r cos(theta)",
+        beam["x"],
+        beam["r"] * np.cos(beam["theta"]),
+        abs_tol=1e-12,
+        rel_tol=1e-11,
+    )
+
 
 run_test_on_input_files(yaml_files, test_x)</div>
 </div>
@@ -1579,12 +1661,26 @@ run_test_on_input_files(yaml_files, test_x)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_y</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.y = r sin(theta)'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'y'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'r'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.y = r sin(theta)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"y"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"r"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"theta"</span><span class="p">]),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_y</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-9">def test_y(beam):
-    check_abs_and_rel_tols('beam.y = r sin(theta)', beam['y'], beam['r']*np.sin(beam['theta']), abs_tol=1e-12, rel_tol=1e-11)
+    check_abs_and_rel_tols(
+        "beam.y = r sin(theta)",
+        beam["y"],
+        beam["r"] * np.sin(beam["theta"]),
+        abs_tol=1e-12,
+        rel_tol=1e-11,
+    )
+
 
 run_test_on_input_files(yaml_files, test_y)</div>
 </div>
@@ -1623,17 +1719,25 @@ run_test_on_input_files(yaml_files, test_y)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_pr</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.pr = px cos(theta) + py sin(theta)'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pr'</span><span class="p">],</span>
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">])</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> 
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.pr = px cos(theta) + py sin(theta)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"pr"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"px"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"theta"</span><span class="p">])</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"py"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"theta"</span><span class="p">]),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-10">def test_pr(beam):
-    check_abs_and_rel_tols('beam.pr = px cos(theta) + py sin(theta)', beam['pr'],
-                           beam['px']*np.cos(beam['theta']) + beam['py']*np.sin(beam['theta']), 
-                           abs_tol=1e-12, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.pr = px cos(theta) + py sin(theta)",
+        beam["pr"],
+        beam["px"] * np.cos(beam["theta"]) + beam["py"] * np.sin(beam["theta"]),
+        abs_tol=1e-12,
+        rel_tol=1e-15,
+    )
 
 
 run_test_on_input_files(yaml_files, test_pr)</div>
@@ -1673,18 +1777,26 @@ run_test_on_input_files(yaml_files, test_pr)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_ptheta</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.ptheta = -px sin(theta) + py cos(theta)'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'ptheta'</span><span class="p">],</span>
-                           <span class="o">-</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">])</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">]),</span> 
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.ptheta = -px sin(theta) + py cos(theta)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"ptheta"</span><span class="p">],</span>
+        <span class="o">-</span><span class="n">beam</span><span class="p">[</span><span class="s2">"px"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"theta"</span><span class="p">])</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"py"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"theta"</span><span class="p">]),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_ptheta</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-11">def test_ptheta(beam):
-    check_abs_and_rel_tols('beam.ptheta = -px sin(theta) + py cos(theta)', 
-                           beam['ptheta'],
-                           -beam['px']*np.sin(beam['theta']) + beam['py']*np.cos(beam['theta']), 
-                           abs_tol=1e-12, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.ptheta = -px sin(theta) + py cos(theta)",
+        beam["ptheta"],
+        -beam["px"] * np.sin(beam["theta"]) + beam["py"] * np.cos(beam["theta"]),
+        abs_tol=1e-12,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_ptheta)</div>
 </div>
@@ -1745,12 +1857,26 @@ run_test_on_input_files(yaml_files, test_ptheta)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_xp</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.xp = px/pz'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'xp'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">],</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.xp = px/pz"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"xp"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"px"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span> <span class="o">/</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">],</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_xp</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-12">def test_xp(beam):
-    check_abs_and_rel_tols('beam.xp = px/pz', beam['xp'], beam['px'].to(beam['pz'].units)/beam['pz'], abs_tol=1e-14, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.xp = px/pz",
+        beam["xp"],
+        beam["px"].to(beam["pz"].units) / beam["pz"],
+        abs_tol=1e-14,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_xp)</div>
 </div>
@@ -1789,12 +1915,26 @@ run_test_on_input_files(yaml_files, test_xp)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_yp</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.yp = py/pz'</span><span class="p">,</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'yp'</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">],</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.yp = py/pz"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"yp"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"py"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span> <span class="o">/</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">],</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_yp</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-13">def test_yp(beam):
-    check_abs_and_rel_tols('beam.yp = py/pz', beam['yp'], beam['py'].to(beam['pz'].units)/beam['pz'], abs_tol=1e-14, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.yp = py/pz",
+        beam["yp"],
+        beam["py"].to(beam["pz"].units) / beam["pz"],
+        abs_tol=1e-14,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_yp)</div>
 </div>
@@ -1833,18 +1973,26 @@ run_test_on_input_files(yaml_files, test_yp)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_thetax</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.thetax = arctan(px/pz)'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'thetax'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]),</span> 
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.thetax = arctan(px/pz)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"thetax"</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"px"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_thetax</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-14">def test_thetax(beam):
-    check_abs_and_rel_tols('beam.thetax = arctan(px/pz)', 
-                           beam['thetax'], 
-                           np.arctan2(beam['px'].to(beam['pz'].units), beam['pz']), 
-                           abs_tol=1e-15, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.thetax = arctan(px/pz)",
+        beam["thetax"],
+        np.arctan2(beam["px"].to(beam["pz"].units), beam["pz"]),
+        abs_tol=1e-15,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_thetax)</div>
 </div>
@@ -1883,18 +2031,26 @@ run_test_on_input_files(yaml_files, test_thetax)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_thetay</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.thetay = arctan(py/pz)'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'thetay'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]),</span> 
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.thetay = arctan(py/pz)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"thetay"</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"py"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_thetay</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-15">def test_thetay(beam):
-    check_abs_and_rel_tols('beam.thetay = arctan(py/pz)', 
-                           beam['thetay'], 
-                           np.arctan2(beam['py'].to(beam['pz'].units), beam['pz']), 
-                           abs_tol=1e-15, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.thetay = arctan(py/pz)",
+        beam["thetay"],
+        np.arctan2(beam["py"].to(beam["pz"].units), beam["pz"]),
+        abs_tol=1e-15,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_thetay)</div>
 </div>
@@ -1934,20 +2090,26 @@ run_test_on_input_files(yaml_files, test_thetay)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_p</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.p = sqrt(px^2 + py^2 + pz^2)'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span><span class="n">beam</span><span class="p">[</span><span class="s1">'py'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> 
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.p = sqrt(px^2 + py^2 + pz^2)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"p"</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"px"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"py"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_p</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-16">def test_p(beam):
-    deviation = np.abs(beam['p'] - np.sqrt(beam['px']**2 +beam['py']**2 + beam['pz']**2))
-    check_abs_and_rel_tols('beam.p = sqrt(px^2 + py^2 + pz^2)', 
-                           beam['p'], 
-                           np.sqrt(beam['px']**2 +beam['py']**2 + beam['pz']**2), 
-                           abs_tol=1e-15, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.p = sqrt(px^2 + py^2 + pz^2)",
+        beam["p"],
+        np.sqrt(beam["px"] ** 2 + beam["py"] ** 2 + beam["pz"] ** 2),
+        abs_tol=1e-15,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_p)</div>
 </div>
@@ -1986,24 +2148,30 @@ run_test_on_input_files(yaml_files, test_p)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_energy</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span>
 
-    <span class="n">c</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.energy = sqrt(c^2p^2 + (mc^2)^2)"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"p"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.energy = sqrt(c^2p^2 + (mc^2)^2)'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> 
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_energy</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-17">def test_energy(beam):
+    c = PHYSICAL_CONSTANTS["speed of light in vacuum"]
 
-    c = PHYSICAL_CONSTANTS['speed of light in vacuum']
+    check_abs_and_rel_tols(
+        "beam.energy = sqrt(c^2p^2 + (mc^2)^2)",
+        beam["energy"],
+        np.sqrt(c**2 * beam["p"] ** 2 + beam.mc2**2),
+        abs_tol=1e-9,
+        rel_tol=1e-15,
+    )
 
-    check_abs_and_rel_tols('beam.energy = sqrt(c^2p^2 + (mc^2)^2)', 
-                           beam['energy'], 
-                           np.sqrt(c**2*beam['p']**2 + beam.mc2**2), 
-                           abs_tol=1e-9, rel_tol=1e-15)
 
 run_test_on_input_files(yaml_files, test_energy)</div>
 </div>
@@ -2042,34 +2210,46 @@ run_test_on_input_files(yaml_files, test_energy)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_gamma</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span>
 
-    <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
-    
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.gamma = sqrt( 1 + (p/mc)^2 )'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'p'</span><span class="p">]</span><span class="o">/</span><span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.gamma = sqrt( 1 + (p/mc)^2 )"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"gamma"</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"p"</span><span class="p">]</span> <span class="o">/</span> <span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.gamma = E/mc^2'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">],</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">]</span><span class="o">/</span><span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.gamma = E/mc^2"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"gamma"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">]</span> <span class="o">/</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_gamma</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-18">def test_gamma(beam):
+    mc = beam.species_mass * PHYSICAL_CONSTANTS["speed of light in vacuum"]
 
-    mc = beam.species_mass * PHYSICAL_CONSTANTS['speed of light in vacuum']
-    
-    check_abs_and_rel_tols('beam.gamma = sqrt( 1 + (p/mc)^2 )', 
-                           beam['gamma'], 
-                           np.sqrt(1+ (beam['p']/mc).to_reduced_units()**2),
-                           abs_tol=1e-10, rel_tol=1e-10)
+    check_abs_and_rel_tols(
+        "beam.gamma = sqrt( 1 + (p/mc)^2 )",
+        beam["gamma"],
+        np.sqrt(1 + (beam["p"] / mc).to_reduced_units() ** 2),
+        abs_tol=1e-10,
+        rel_tol=1e-10,
+    )
 
-    check_abs_and_rel_tols('beam.gamma = E/mc^2', 
-                           beam['gamma'], 
-                           beam['energy']/beam.mc2,
-                           abs_tol=1e-15, rel_tol=1e-15)
+    check_abs_and_rel_tols(
+        "beam.gamma = E/mc^2",
+        beam["gamma"],
+        beam["energy"] / beam.mc2,
+        abs_tol=1e-15,
+        rel_tol=1e-15,
+    )
+
 
 run_test_on_input_files(yaml_files, test_gamma)</div>
 </div>
@@ -2108,22 +2288,30 @@ run_test_on_input_files(yaml_files, test_gamma)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_beta</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta = c|p|/E'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">],</span> 
-                           <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="o">.</span><span class="n">p</span><span class="o">/</span><span class="n">beam</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.beta = c|p|/E"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"beta"</span><span class="p">],</span>
+        <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span> <span class="o">*</span> <span class="n">beam</span><span class="o">.</span><span class="n">p</span> <span class="o">/</span> <span class="n">beam</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'max(beta) &gt; 1, faster than light particle!'</span>
+    <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"beta"</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"max(beta) &gt; 1, faster than light particle!"</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-19">def test_beta(beam):
-    check_abs_and_rel_tols('beam.beta = c|p|/E', 
-                           beam['beta'], 
-                           PHYSICAL_CONSTANTS['speed of light in vacuum']*beam.p/beam.energy,
-                           abs_tol=1e-11, rel_tol=1e-14)
+    check_abs_and_rel_tols(
+        "beam.beta = c|p|/E",
+        beam["beta"],
+        PHYSICAL_CONSTANTS["speed of light in vacuum"] * beam.p / beam.energy,
+        abs_tol=1e-11,
+        rel_tol=1e-14,
+    )
 
-    assert max(beam['beta']) &lt; 1, 'max(beta) &gt; 1, faster than light particle!'
+    assert max(beam["beta"]) &lt; 1, "max(beta) &gt; 1, faster than light particle!"
+
 
 run_test_on_input_files(yaml_files, test_beta)</div>
 </div>
@@ -2162,32 +2350,56 @@ run_test_on_input_files(yaml_files, test_beta)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_beta_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">]:</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.beta_xi = c pxi/E )"</span><span class="p">,</span>
+            <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s2">"beta_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
+            <span class="p">(</span>
+                <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s2">"p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+                <span class="o">/</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">(),</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+            <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">]:</span>
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.beta_xi = c pxi/E )'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'beta_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">],</span> 
-                           <span class="p">(</span><span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">/</span><span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">])</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">(),</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )"</span><span class="p">,</span>
+            <span class="n">beam</span><span class="p">[</span><span class="s2">"beta_z"</span><span class="p">],</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"pz"</span><span class="p">])</span>
+            <span class="o">*</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"beta"</span><span class="p">]</span>
+            <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"xp"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s2">"yp"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span>
+            <span class="n">rel_tol</span><span class="o">=</span><span class="mf">5e-9</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s2">"beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )"</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'beta_z'</span><span class="p">],</span> 
-                           <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'pz'</span><span class="p">])</span><span class="o">*</span><span class="n">beam</span><span class="p">[</span><span class="s1">'beta'</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'xp'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beam</span><span class="p">[</span><span class="s1">'yp'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">),</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">5e-9</span><span class="p">)</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta_xi</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-20">def test_beta_xi(beam):
+    for var in ["x", "y", "z"]:
+        check_abs_and_rel_tols(
+            "beam.beta_xi = c pxi/E )",
+            beam[f"beta_{var}"],
+            (
+                PHYSICAL_CONSTANTS["speed of light in vacuum"]
+                * beam[f"p{var}"]
+                / beam["energy"]
+            ).to_reduced_units(),
+            abs_tol=1e-15,
+            rel_tol=1e-15,
+        )
 
-    for var in ['x', 'y', 'z']:
-        check_abs_and_rel_tols('beam.beta_xi = c pxi/E )', 
-                           beam[f'beta_{var}'], 
-                           (PHYSICAL_CONSTANTS['speed of light in vacuum']*beam[f'p{var}']/beam['energy']).to_reduced_units(),
-                           abs_tol=1e-15, rel_tol=1e-15)
+        check_abs_and_rel_tols(
+            "beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )",
+            beam["beta_z"],
+            np.sign(beam["pz"])
+            * beam["beta"]
+            / np.sqrt(1 + beam["xp"] ** 2 + beam["yp"] ** 2),
+            abs_tol=1e-11,
+            rel_tol=5e-9,
+        )
 
-        check_abs_and_rel_tols("beam.beta_z = sign(pz)*beta/sqrt( 1 + x'^2 + y'^2 )", 
-                           beam['beta_z'], 
-                           np.sign(beam['pz'])*beam['beta']/np.sqrt( 1 + beam['xp']**2 + beam['yp']**2 ),
-                           abs_tol=1e-11, rel_tol=5e-9)
 
 run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </div>
@@ -2226,34 +2438,44 @@ run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_kinetic_energy</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"species"</span><span class="p">])[</span><span class="s2">"mass"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.kinetic_energy = mc2*(gamma-1)"</span><span class="p">,</span>
+            <span class="n">beam</span><span class="p">[</span><span class="s2">"kinetic_energy"</span><span class="p">],</span>
+            <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span> <span class="o">*</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"gamma"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+            <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'species'</span><span class="p">])[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
-    
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = mc2*(gamma-1)'</span><span class="p">,</span> 
-                               <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
-                               <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'gamma'</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">)</span>
+    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+        <span class="s2">"beam.kinetic_energy = E - mc2"</span><span class="p">,</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"kinetic_energy"</span><span class="p">],</span>
+        <span class="n">beam</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
+        <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.kinetic_energy = E - mc2'</span><span class="p">,</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'kinetic_energy'</span><span class="p">],</span> 
-                           <span class="n">beam</span><span class="p">[</span><span class="s1">'energy'</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">mc2</span><span class="p">,</span>
-                           <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_kinetic_energy</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-21">def test_kinetic_energy(beam):
+    if PHYSICAL_CONSTANTS.species(beam["species"])["mass"] &gt; 0:
+        check_abs_and_rel_tols(
+            "beam.kinetic_energy = mc2*(gamma-1)",
+            beam["kinetic_energy"],
+            beam.mc2 * (beam["gamma"] - 1),
+            abs_tol=1e-9,
+            rel_tol=1e-05,
+        )
 
-    if(PHYSICAL_CONSTANTS.species(beam['species'])['mass']&gt;0):
-    
-        check_abs_and_rel_tols('beam.kinetic_energy = mc2*(gamma-1)', 
-                               beam['kinetic_energy'], 
-                               beam.mc2*(beam['gamma']-1),
-                               abs_tol=1e-9, rel_tol=1e-05)
+    check_abs_and_rel_tols(
+        "beam.kinetic_energy = E - mc2",
+        beam["kinetic_energy"],
+        beam["energy"] - beam.mc2,
+        abs_tol=1e-15,
+        rel_tol=1e-15,
+    )
 
-    check_abs_and_rel_tols('beam.kinetic_energy = E - mc2', 
-                           beam['kinetic_energy'], 
-                           beam['energy'] - beam.mc2,
-                           abs_tol=1e-15, rel_tol=1e-15)
 
 run_test_on_input_files(yaml_files, test_kinetic_energy)</div>
 </div>
@@ -2293,36 +2515,42 @@ run_test_on_input_files(yaml_files, test_kinetic_energy)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_emitt_normalized</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-    
-        <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
-        
-        <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-        <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span><span class="o">/</span><span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">))</span><span class="o">/</span><span class="n">mc</span> <span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]:</span>
+        <span class="n">mc</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">*</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span>
 
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.emitt (normalized)'</span><span class="p">,</span> 
-                               <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
-                               <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
-                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">)</span>
+        <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s2">"p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="o">/</span> <span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">((</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s2">"p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s2">"p</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span> <span class="o">/</span> <span class="n">mc</span><span class="p">)</span><span class="o">.</span><span class="n">to_reduced_units</span><span class="p">()</span>
+
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.emitt (normalized)"</span><span class="p">,</span>
+            <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"w"</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dp</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span>
+            <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span>
+        <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_emitt_normalized</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-22">def test_emitt_normalized(beam):
-    for var in ['x', 'y']:
-    
-        mc = beam.species_mass * PHYSICAL_CONSTANTS['speed of light in vacuum']
-        
-        stdx = beam.std(var)
-        stdp = (beam.std(f'p{var}')/mc).to_reduced_units()
-        dx = beam[var]-beam.avg(var)
-        dp = ( (beam[f'p{var}']-beam.avg(f'p{var}'))/mc ).to_reduced_units()
+    for var in ["x", "y"]:
+        mc = beam.species_mass * PHYSICAL_CONSTANTS["speed of light in vacuum"]
 
-        check_abs_and_rel_tols('beam.emitt (normalized)', 
-                               beam.emitt(var), 
-                               np.sqrt(stdx**2 * stdp**2 - (np.sum(beam['w']*dx*dp))**2),
-                               abs_tol=1e-11, rel_tol=1e-11)
+        stdx = beam.std(var)
+        stdp = (beam.std(f"p{var}") / mc).to_reduced_units()
+        dx = beam[var] - beam.avg(var)
+        dp = ((beam[f"p{var}"] - beam.avg(f"p{var}")) / mc).to_reduced_units()
+
+        check_abs_and_rel_tols(
+            "beam.emitt (normalized)",
+            beam.emitt(var),
+            np.sqrt(stdx**2 * stdp**2 - (np.sum(beam["w"] * dx * dp)) ** 2),
+            abs_tol=1e-11,
+            rel_tol=1e-11,
+        )
+
 
 run_test_on_input_files(yaml_files, test_emitt_normalized)</div>
 </div>
@@ -2361,32 +2589,38 @@ run_test_on_input_files(yaml_files, test_emitt_normalized)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_emitt_geometric</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]:</span>
         <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-        <span class="n">stdp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
+        <span class="n">stdp</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">p"</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">p"</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">p"</span><span class="p">)</span>
 
-        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.emitt (geometric)'</span><span class="p">,</span> 
-                               <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s1">'geometric'</span><span class="p">),</span> 
-                               <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
-                               <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+        <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+            <span class="s2">"beam.emitt (geometric)"</span><span class="p">,</span>
+            <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">"geometric"</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"w"</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dp</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+            <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+        <span class="p">)</span>
+
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_emitt_geometric</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-23">def test_emitt_geometric(beam):
-
-    for var in ['x', 'y']:
+    for var in ["x", "y"]:
         stdx = beam.std(var)
-        stdp = (beam.std(f'{var}p'))
-        dx = beam[var]-beam.avg(var)
-        dp = (beam[f'{var}p']-beam.avg(f'{var}p'))
+        stdp = beam.std(f"{var}p")
+        dx = beam[var] - beam.avg(var)
+        dp = beam[f"{var}p"] - beam.avg(f"{var}p")
 
-        check_abs_and_rel_tols('beam.emitt (geometric)', 
-                               beam.emitt(var, 'geometric'), 
-                               np.sqrt(stdx**2 * stdp**2 - (np.sum(beam['w']*dx*dp))**2),
-                               abs_tol=1e-14, rel_tol=1e-15)
+        check_abs_and_rel_tols(
+            "beam.emitt (geometric)",
+            beam.emitt(var, "geometric"),
+            np.sqrt(stdx**2 * stdp**2 - (np.sum(beam["w"] * dx * dp)) ** 2),
+            abs_tol=1e-14,
+            rel_tol=1e-15,
+        )
+
 
 run_test_on_input_files(yaml_files, test_emitt_geometric)</div>
 </div>
@@ -2425,33 +2659,37 @@ run_test_on_input_files(yaml_files, test_emitt_geometric)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">twiss_beta_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
-
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-        
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]:</span>
         <span class="n">stdx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">"geometric"</span><span class="p">)</span>
 
-        <span class="k">if</span><span class="p">(</span><span class="n">epsx</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
-            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.Beta_xi (Twiss)'</span><span class="p">,</span> 
-                                   <span class="n">beam</span><span class="o">.</span><span class="n">Beta</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
-                                   <span class="n">stdx</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">epsx</span> <span class="p">,</span>
-                                   <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
-        
+        <span class="k">if</span> <span class="n">epsx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+                <span class="s2">"beam.Beta_xi (Twiss)"</span><span class="p">,</span>
+                <span class="n">beam</span><span class="o">.</span><span class="n">Beta</span><span class="p">(</span><span class="n">var</span><span class="p">),</span>
+                <span class="n">stdx</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">epsx</span><span class="p">,</span>
+                <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+                <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+            <span class="p">)</span>
+
+
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_beta_xi</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-24">def twiss_beta_xi(beam):
-
-    for var in ['x', 'y']:
-        
+    for var in ["x", "y"]:
         stdx = beam.std(var)
-        epsx = beam.emitt(var,'geometric')
+        epsx = beam.emitt(var, "geometric")
 
-        if(epsx&gt;0):
-            check_abs_and_rel_tols('beam.Beta_xi (Twiss)', 
-                                   beam.Beta(var), 
-                                   stdx**2/epsx ,
-                                   abs_tol=1e-14, rel_tol=1e-15)
-        
+        if epsx &gt; 0:
+            check_abs_and_rel_tols(
+                "beam.Beta_xi (Twiss)",
+                beam.Beta(var),
+                stdx**2 / epsx,
+                abs_tol=1e-14,
+                rel_tol=1e-15,
+            )
+
+
 run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </div>
 </div>
@@ -2489,34 +2727,40 @@ run_test_on_input_files(yaml_files, test_beta_xi)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_alpha_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]:</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">p"</span><span class="p">]</span> <span class="o">-</span> <span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">p"</span><span class="p">)</span>
+        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">"geometric"</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">beam</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">]</span><span class="o">-</span><span class="n">beam</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">))</span>
-        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">epsx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+                <span class="s2">"beam.Alpha_xi (Twiss)"</span><span class="p">,</span>
+                <span class="n">beam</span><span class="o">.</span><span class="n">Alpha</span><span class="p">(</span><span class="n">var</span><span class="p">),</span>
+                <span class="o">-</span><span class="nb">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s2">"w"</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dp</span><span class="p">)</span> <span class="o">/</span> <span class="n">epsx</span><span class="p">,</span>
+                <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+                <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="k">if</span><span class="p">(</span><span class="n">epsx</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
-            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.Alpha_xi (Twiss)'</span><span class="p">,</span> 
-                                   <span class="n">beam</span><span class="o">.</span><span class="n">Alpha</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
-                                   <span class="o">-</span><span class="nb">sum</span><span class="p">(</span><span class="n">beam</span><span class="p">[</span><span class="s1">'w'</span><span class="p">]</span><span class="o">*</span><span class="n">dx</span><span class="o">*</span><span class="n">dp</span><span class="p">)</span><span class="o">/</span><span class="n">epsx</span><span class="p">,</span>
-                                   <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
-        
+
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_alpha_xi</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-25">def test_alpha_xi(beam):
+    for var in ["x", "y"]:
+        dx = beam[var] - beam.avg(var)
+        dp = beam[f"{var}p"] - beam.avg(f"{var}p")
+        epsx = beam.emitt(var, "geometric")
 
-    for var in ['x', 'y']:
-        dx = beam[var]-beam.avg(var)
-        dp = (beam[f'{var}p']-beam.avg(f'{var}p'))
-        epsx = beam.emitt(var,'geometric')
+        if epsx &gt; 0:
+            check_abs_and_rel_tols(
+                "beam.Alpha_xi (Twiss)",
+                beam.Alpha(var),
+                -sum(beam["w"] * dx * dp) / epsx,
+                abs_tol=1e-14,
+                rel_tol=1e-14,
+            )
 
-        if(epsx&gt;0):
-            check_abs_and_rel_tols('beam.Alpha_xi (Twiss)', 
-                                   beam.Alpha(var), 
-                                   -sum(beam['w']*dx*dp)/epsx,
-                                   abs_tol=1e-14, rel_tol=1e-14)
-        
-run_test_on_input_files(yaml_files, test_alpha_xi)    </div>
+
+run_test_on_input_files(yaml_files, test_alpha_xi)</div>
 </div>
 </div>
 </div>
@@ -2553,32 +2797,38 @@ run_test_on_input_files(yaml_files, test_alpha_xi)    </div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_gamma_xi</span><span class="p">(</span><span class="n">beam</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]:</span>
+        <span class="n">stdp</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">p"</span><span class="p">)</span>
+        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">"geometric"</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]:</span>
-        <span class="n">stdp</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">p'</span><span class="p">)</span>
-        <span class="n">epsx</span> <span class="o">=</span> <span class="n">beam</span><span class="o">.</span><span class="n">emitt</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="s1">'geometric'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">epsx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span>
+                <span class="s2">"beam.Gamma_xi (Twiss)"</span><span class="p">,</span>
+                <span class="n">beam</span><span class="o">.</span><span class="n">Gamma</span><span class="p">(</span><span class="n">var</span><span class="p">),</span>
+                <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">epsx</span><span class="p">,</span>
+                <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+                <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="k">if</span><span class="p">(</span><span class="n">epsx</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
-            <span class="n">check_abs_and_rel_tols</span><span class="p">(</span><span class="s1">'beam.Gamma_xi (Twiss)'</span><span class="p">,</span> 
-                                   <span class="n">beam</span><span class="o">.</span><span class="n">Gamma</span><span class="p">(</span><span class="n">var</span><span class="p">),</span> 
-                                   <span class="n">stdp</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">epsx</span><span class="p">,</span>
-                                   <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
 
 <span class="n">run_test_on_input_files</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">,</span> <span class="n">test_gamma_xi</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-26">def test_gamma_xi(beam):
+    for var in ["x", "y"]:
+        stdp = beam.std(f"{var}p")
+        epsx = beam.emitt(var, "geometric")
 
-    for var in ['x', 'y']:
-        stdp = beam.std(f'{var}p')
-        epsx = beam.emitt(var,'geometric')
+        if epsx &gt; 0:
+            check_abs_and_rel_tols(
+                "beam.Gamma_xi (Twiss)",
+                beam.Gamma(var),
+                stdp**2 / epsx,
+                abs_tol=1e-14,
+                rel_tol=1e-14,
+            )
 
-        if(epsx&gt;0):
-            check_abs_and_rel_tols('beam.Gamma_xi (Twiss)', 
-                                   beam.Gamma(var), 
-                                   stdp**2/epsx,
-                                   abs_tol=1e-14, rel_tol=1e-14)
 
-run_test_on_input_files(yaml_files, test_gamma_xi) </div>
+run_test_on_input_files(yaml_files, test_gamma_xi)</div>
 </div>
 </div>
 </div>

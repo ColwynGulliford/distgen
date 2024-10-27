@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1280,7 +1280,7 @@ from pmd_beamphysics import ParticleGroup</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>'0+untagged.1.g27e4ca5'</pre>
+<pre>'0.1.dev1+ga825637.d20241027'</pre>
 </div>
 </div>
 </div>
@@ -1316,9 +1316,9 @@ from pmd_beamphysics import ParticleGroup</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">YAMLS</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">'../examples/data/*yaml'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">YAMLS</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"../examples/data/*yaml"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4">YAMLS = glob.glob('../examples/data/*yaml')</div>
+<div class="clipboard-copy-txt" id="cell-4">YAMLS = glob.glob("../examples/data/*yaml")</div>
 </div>
 </div>
 </div>
@@ -1344,19 +1344,16 @@ from pmd_beamphysics import ParticleGroup</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">for</span> <span class="n">YAML</span> <span class="ow">in</span> <span class="n">YAMLS</span><span class="p">:</span>
-
     <span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">YAML</span><span class="p">)</span>
-    <span class="n">D</span><span class="p">[</span><span class="s1">'n_particle'</span><span class="p">]</span><span class="o">=</span><span class="mi">1_000</span>
+    <span class="n">D</span><span class="p">[</span><span class="s2">"n_particle"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1_000</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
     <span class="n">P</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'archive/</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">YAML</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">".yaml"</span><span class="p">,</span><span class="w"> </span><span class="s2">".h5"</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-5">for YAML in YAMLS:
-
     D = Generator(YAML)
-    D['n_particle']=1_000
+    D["n_particle"] = 1_000
     P = D.run()
-    P.write(f'archive/{Path(YAML).name.replace(".yaml", ".h5")}') 
-</div>
+    P.write(f'archive/{Path(YAML).name.replace(".yaml", ".h5")}')</div>
 </div>
 </div>
 </div>
@@ -1458,89 +1455,111 @@ from pmd_beamphysics import ParticleGroup</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PREVIOUS_ARCHIVE</span> <span class="o">=</span> <span class="s1">'archive'</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PREVIOUS_ARCHIVE</span> <span class="o">=</span> <span class="s2">"archive"</span>
 
-<span class="c1">#PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/distgen2.0.0'</span>
+<span class="c1"># PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/distgen2.0.0'</span>
 
-<span class="k">def</span> <span class="nf">test_beam</span><span class="p">(</span><span class="n">beam_file</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">=</span> <span class="mf">1e-11</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
+<span class="k">def</span> <span class="nf">test_beam</span><span class="p">(</span><span class="n">beam_file</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">beam_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">beam_file</span><span class="p">)</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">beam_file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'.yaml'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
-    <span class="n">p1file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">previous_archive</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.h5'</span>
-    <span class="n">p2file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'archive/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.h5'</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">beam_file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">".yaml"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">p1file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">previous_archive</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.h5"</span>
+    <span class="n">p2file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"archive/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.h5"</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">p2file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()):</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'Checking:'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'against'</span><span class="p">,</span> <span class="n">p2file</span><span class="p">)</span>
-        
+    <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">p2file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Checking:"</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"against"</span><span class="p">,</span> <span class="n">p2file</span><span class="p">)</span>
+
         <span class="n">P1</span><span class="p">,</span> <span class="n">P2</span> <span class="o">=</span> <span class="n">ParticleGroup</span><span class="p">(</span><span class="n">p1file</span><span class="p">),</span> <span class="n">ParticleGroup</span><span class="p">(</span><span class="n">p2file</span><span class="p">)</span>
-        
-        <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">,</span> <span class="s1">'px'</span><span class="p">,</span> <span class="s1">'py'</span><span class="p">,</span> <span class="s1">'pz'</span><span class="p">,</span> <span class="s1">'weight'</span><span class="p">]</span>
+
+        <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">,</span> <span class="s2">"px"</span><span class="p">,</span> <span class="s2">"py"</span><span class="p">,</span> <span class="s2">"pz"</span><span class="p">,</span> <span class="s2">"weight"</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
             <span class="n">abs_deviation</span> <span class="o">=</span> <span class="n">P1</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">-</span> <span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_deviation</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">abs_tol</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Max[ |absolute deviation| ] for </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_deviation</span><span class="p">))</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
-            <span class="n">non_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">])</span><span class="o">&gt;</span><span class="mi">0</span>
-            
-            <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">non_zero</span><span class="p">)):</span>
-                <span class="n">rel_deviation</span> <span class="o">=</span> <span class="p">(</span><span class="n">P1</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">non_zero</span><span class="p">]</span> <span class="o">-</span> <span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">non_zero</span><span class="p">])</span><span class="o">/</span><span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">non_zero</span><span class="p">]</span>
-                <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_deviation</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">rel_tol</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Max[ |relative deviation| ] for </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_deviation</span><span class="p">))</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_deviation</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">abs_tol</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Max[ |absolute deviation| ] for </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">abs_deviation</span><span class="p">))</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">non_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-        
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">non_zero</span><span class="p">):</span>
+                <span class="n">rel_deviation</span> <span class="o">=</span> <span class="p">(</span><span class="n">P1</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">non_zero</span><span class="p">]</span> <span class="o">-</span> <span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">non_zero</span><span class="p">])</span> <span class="o">/</span> <span class="n">P2</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">non_zero</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_deviation</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">rel_tol</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">"Max[ |relative deviation| ] for </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rel_deviation</span><span class="p">))</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">p1file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
 
-<span class="k">def</span> <span class="nf">test_beams</span><span class="p">(</span><span class="n">beam_files</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">):</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Comparing the current beam archive to </span><span class="si">{</span><span class="n">previous_archive</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_beams</span><span class="p">(</span>
+    <span class="n">beam_files</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-12</span>
+<span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Comparing the current beam archive to </span><span class="si">{</span><span class="n">previous_archive</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">beam_file</span> <span class="ow">in</span> <span class="n">beam_files</span><span class="p">:</span>
-        <span class="n">test_beam</span><span class="p">(</span><span class="n">beam_file</span><span class="p">,</span> <span class="n">previous_archive</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="n">abs_tol</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="o">=</span> <span class="n">rel_tol</span><span class="p">)</span>
+        <span class="n">test_beam</span><span class="p">(</span>
+            <span class="n">beam_file</span><span class="p">,</span>
+            <span class="n">previous_archive</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">,</span>
+            <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">All beams check to w/absolute tolerance of:'</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'All beams check to an w/relative tolerance of:'</span><span class="p">,</span> <span class="n">rel_tol</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">All beams check to w/absolute tolerance of:"</span><span class="p">,</span> <span class="n">abs_tol</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"All beams check to an w/relative tolerance of:"</span><span class="p">,</span> <span class="n">rel_tol</span><span class="p">)</span>
 
-<span class="n">test_beams</span><span class="p">(</span><span class="n">YAMLS</span><span class="p">,</span> <span class="n">PREVIOUS_ARCHIVE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
+
+<span class="n">test_beams</span><span class="p">(</span><span class="n">YAMLS</span><span class="p">,</span> <span class="n">PREVIOUS_ARCHIVE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-8">PREVIOUS_ARCHIVE = 'archive'
+<div class="clipboard-copy-txt" id="cell-8">PREVIOUS_ARCHIVE = "archive"
 
-#PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/distgen2.0.0'
+# PREVIOUS_ARCHIVE = '/Users/colwyngulliford/devel/distgen/distgen2.0.0'
 
-def test_beam(beam_file, previous_archive, abs_tol = 1e-9, rel_tol = 1e-11, verbose=True):
 
+def test_beam(beam_file, previous_archive, abs_tol=1e-9, rel_tol=1e-11, verbose=True):
     beam_file = Path(beam_file)
-    name = beam_file.name.replace('.yaml', '')
-    p1file = f'{previous_archive}/{name}.h5'
-    p2file = f'archive/{name}.h5'
+    name = beam_file.name.replace(".yaml", "")
+    p1file = f"{previous_archive}/{name}.h5"
+    p2file = f"archive/{name}.h5"
 
-    if(Path(p1file).exists() and Path(p2file).exists()):
-        if(verbose):
-            print('Checking:', Path(p1file).name, 'against', p2file)
-        
+    if Path(p1file).exists() and Path(p2file).exists():
+        if verbose:
+            print("Checking:", Path(p1file).name, "against", p2file)
+
         P1, P2 = ParticleGroup(p1file), ParticleGroup(p2file)
-        
-        vs = ['x', 'y', 'z', 'px', 'py', 'pz', 'weight']
+
+        vs = ["x", "y", "z", "px", "py", "pz", "weight"]
         for v in vs:
             abs_deviation = P1[v] - P2[v]
-            assert np.max(np.abs(abs_deviation)) &lt; abs_tol, f'Max[ |absolute deviation| ] for {v}: {np.max(np.abs(abs_deviation))} for {Path(p1file).name}'
-            non_zero = np.abs(P2[v])&gt;0
-            
-            if(np.any(non_zero)):
-                rel_deviation = (P1[v][non_zero] - P2[v][non_zero])/P2[v][non_zero]
-                assert np.max(np.abs(rel_deviation)) &lt; rel_tol, f'Max[ |relative deviation| ] for {v}: {np.max(np.abs(rel_deviation))} for {Path(p1file).name}'
+            assert (
+                np.max(np.abs(abs_deviation)) &lt; abs_tol
+            ), f"Max[ |absolute deviation| ] for {v}: {np.max(np.abs(abs_deviation))} for {Path(p1file).name}"
+            non_zero = np.abs(P2[v]) &gt; 0
 
-        
+            if np.any(non_zero):
+                rel_deviation = (P1[v][non_zero] - P2[v][non_zero]) / P2[v][non_zero]
+                assert (
+                    np.max(np.abs(rel_deviation)) &lt; rel_tol
+                ), f"Max[ |relative deviation| ] for {v}: {np.max(np.abs(rel_deviation))} for {Path(p1file).name}"
 
-def test_beams(beam_files, previous_archive, verbose=True, abs_tol=1e-10, rel_tol=1e-12):
 
-    print(f'Comparing the current beam archive to {previous_archive}\n')
+def test_beams(
+    beam_files, previous_archive, verbose=True, abs_tol=1e-10, rel_tol=1e-12
+):
+    print(f"Comparing the current beam archive to {previous_archive}\n")
 
     for beam_file in beam_files:
-        test_beam(beam_file, previous_archive, verbose=verbose, abs_tol = abs_tol, rel_tol = rel_tol)
+        test_beam(
+            beam_file,
+            previous_archive,
+            verbose=verbose,
+            abs_tol=abs_tol,
+            rel_tol=rel_tol,
+        )
 
-    if(verbose):
-        print('\nAll beams check to w/absolute tolerance of:', abs_tol )
-        print('All beams check to an w/relative tolerance of:', rel_tol )
+    if verbose:
+        print("\nAll beams check to w/absolute tolerance of:", abs_tol)
+        print("All beams check to an w/relative tolerance of:", rel_tol)
 
-test_beams(YAMLS, PREVIOUS_ARCHIVE, verbose=True, abs_tol = 1e-11, rel_tol=1e-12)</div>
+
+test_beams(YAMLS, PREVIOUS_ARCHIVE, verbose=True, abs_tol=1e-11, rel_tol=1e-12)</div>
 </div>
 </div>
 </div>

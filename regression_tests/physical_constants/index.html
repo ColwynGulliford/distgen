@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1175,13 +1175,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">scipy.constants</span>
-<span class="kn">from</span> <span class="nn">distgen.tools</span> <span class="kn">import</span> <span class="n">check_abs_and_rel_tols</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">PHYSICAL_CONSTANTS</span> <span class="k">as</span> <span class="n">PHYSICAL_CONSTANTS</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-1">from distgen.physical_constants import *
-import scipy.constants
-from distgen.tools import check_abs_and_rel_tols</div>
+<div class="clipboard-copy-txt" id="cell-1">from distgen.physical_constants import PHYSICAL_CONSTANTS as PHYSICAL_CONSTANTS</div>
 </div>
 </div>
 </div>
@@ -1207,18 +1203,14 @@ from distgen.tools import check_abs_and_rel_tols</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_basic_constants</span><span class="p">():</span>
-    
-    <span class="c1"># Speed of light </span>
-    <span class="k">assert</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">299792458</span>
-    <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'meter / second'</span>
+    <span class="c1"># Speed of light</span>
+    <span class="k">assert</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">299792458</span>
+    <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"meter / second"</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">def test_basic_constants():
-    
-    # Speed of light 
-    assert PHYSICAL_CONSTANTS['speed of light in vacuum'].magnitude == 299792458
-    assert str(PHYSICAL_CONSTANTS['speed of light in vacuum'].units) == 'meter / second'
-
-    </div>
+    # Speed of light
+    assert PHYSICAL_CONSTANTS["speed of light in vacuum"].magnitude == 299792458
+    assert str(PHYSICAL_CONSTANTS["speed of light in vacuum"].units) == "meter / second"</div>
 </div>
 </div>
 </div>
@@ -1243,9 +1235,9 @@ from distgen.tools import check_abs_and_rel_tols</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'electron mass'</span><span class="p">]</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"electron mass"</span><span class="p">]</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">PHYSICAL_CONSTANTS['electron mass']</div>
+<div class="clipboard-copy-txt" id="cell-3">PHYSICAL_CONSTANTS["electron mass"]</div>
 </div>
 </div>
 </div>
@@ -1282,9 +1274,9 @@ from distgen.tools import check_abs_and_rel_tols</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'electron'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"electron"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4">PHYSICAL_CONSTANTS.species('electron')</div>
+<div class="clipboard-copy-txt" id="cell-4">PHYSICAL_CONSTANTS.species("electron")</div>
 </div>
 </div>
 </div>
@@ -1338,7 +1330,7 @@ from distgen.tools import check_abs_and_rel_tols</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>&lt;distgen.physical_constants.PhysicalConstants at 0x7f5904083d60&gt;</pre>
+<pre>&lt;distgen.physical_constants.PhysicalConstants at 0x7f851c68aca0&gt;</pre>
 </div>
 </div>
 </div>
@@ -1364,110 +1356,108 @@ from distgen.tools import check_abs_and_rel_tols</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">test_species_data</span><span class="p">():</span>
-
     <span class="c1"># Electron</span>
-    <span class="n">electron</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'electron'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.602176634e-19</span>
-    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">9.1093837015e-31</span>
-    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">0.51099894999999995e6</span>
-    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2.00231930436256</span>
+    <span class="n">electron</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"electron"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.602176634e-19</span>
+    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">9.1093837015e-31</span>
+    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">0.51099894999999995e6</span>
+    <span class="k">assert</span> <span class="n">electron</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2.00231930436256</span>
 
     <span class="c1"># Photon</span>
-    <span class="n">photon</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'photon'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
-    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
-    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
-    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">photon</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"photon"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">photon</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
 
     <span class="c1"># Positron</span>
-    <span class="n">positron</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'positron'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">+</span><span class="mf">1.602176634e-19</span>
-    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">9.1093837015e-31</span>
-    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">0.51099894999999995e6</span>
-    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">+</span><span class="mf">2.00231930436256</span>
+    <span class="n">positron</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"positron"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">+</span><span class="mf">1.602176634e-19</span>
+    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">9.1093837015e-31</span>
+    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">0.51099894999999995e6</span>
+    <span class="k">assert</span> <span class="n">positron</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">+</span><span class="mf">2.00231930436256</span>
 
     <span class="c1"># Proton</span>
-    <span class="n">proton</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'proton'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">+</span><span class="mf">1.602176634e-19</span>
-    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1.67262192369e-27</span>
-    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">938272088.16</span>
-    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">5.5856946893</span>
+    <span class="n">proton</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"proton"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">+</span><span class="mf">1.602176634e-19</span>
+    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1.67262192369e-27</span>
+    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">938272088.16</span>
+    <span class="k">assert</span> <span class="n">proton</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">5.5856946893</span>
 
     <span class="c1"># Muon</span>
-    <span class="n">muon</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'muon'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.602176634e-19</span>
-    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1.883531627e-28</span>
-    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">105.6583755e6</span>
-    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2.0023318418</span>
-    
+    <span class="n">muon</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"muon"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.602176634e-19</span>
+    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1.883531627e-28</span>
+    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">105.6583755e6</span>
+    <span class="k">assert</span> <span class="n">muon</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2.0023318418</span>
+
     <span class="c1"># Neutron</span>
-    <span class="n">neutron</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'neutron'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
-    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1.67492749804e-27</span>
-    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">939.56542052e6</span>
-    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">3.82608545</span>
+    <span class="n">neutron</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"neutron"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1.67492749804e-27</span>
+    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">939.56542052e6</span>
+    <span class="k">assert</span> <span class="n">neutron</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">3.82608545</span>
 
     <span class="c1"># Tau</span>
-    <span class="n">tau</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'tau'</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s1">'charge'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.602176634e-19</span>
-    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">3.16754e-27</span>
-    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s1">'mc2'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1776820000.0</span>
-    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s1">'g_factor'</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2.00231930436256</span>
-    
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"tau"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s2">"charge"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.602176634e-19</span>
+    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s2">"mass"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">3.16754e-27</span>
+    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s2">"mc2"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="mf">1776820000.0</span>
+    <span class="k">assert</span> <span class="n">tau</span><span class="p">[</span><span class="s2">"g_factor"</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2.00231930436256</span>
+
 
 <span class="n">test_species_data</span><span class="p">()</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-6">def test_species_data():
-
     # Electron
-    electron = PHYSICAL_CONSTANTS.species('electron')
-    assert electron['charge'].magnitude == -1.602176634e-19
-    assert electron['mass'].magnitude == 9.1093837015e-31
-    assert electron['mc2'].magnitude == 0.51099894999999995e6
-    assert electron['g_factor'].magnitude == -2.00231930436256
+    electron = PHYSICAL_CONSTANTS.species("electron")
+    assert electron["charge"].magnitude == -1.602176634e-19
+    assert electron["mass"].magnitude == 9.1093837015e-31
+    assert electron["mc2"].magnitude == 0.51099894999999995e6
+    assert electron["g_factor"].magnitude == -2.00231930436256
 
     # Photon
-    photon = PHYSICAL_CONSTANTS.species('photon')
-    assert photon['charge'].magnitude == 0
-    assert photon['mass'].magnitude == 0
-    assert photon['mc2'].magnitude == 0
-    assert photon['g_factor'].magnitude == 0
+    photon = PHYSICAL_CONSTANTS.species("photon")
+    assert photon["charge"].magnitude == 0
+    assert photon["mass"].magnitude == 0
+    assert photon["mc2"].magnitude == 0
+    assert photon["g_factor"].magnitude == 0
 
     # Positron
-    positron = PHYSICAL_CONSTANTS.species('positron')
-    assert positron['charge'].magnitude == +1.602176634e-19
-    assert positron['mass'].magnitude == 9.1093837015e-31
-    assert positron['mc2'].magnitude == 0.51099894999999995e6
-    assert positron['g_factor'].magnitude == +2.00231930436256
+    positron = PHYSICAL_CONSTANTS.species("positron")
+    assert positron["charge"].magnitude == +1.602176634e-19
+    assert positron["mass"].magnitude == 9.1093837015e-31
+    assert positron["mc2"].magnitude == 0.51099894999999995e6
+    assert positron["g_factor"].magnitude == +2.00231930436256
 
     # Proton
-    proton = PHYSICAL_CONSTANTS.species('proton')
-    assert proton['charge'].magnitude == +1.602176634e-19
-    assert proton['mass'].magnitude == 1.67262192369e-27
-    assert proton['mc2'].magnitude == 938272088.16
-    assert proton['g_factor'].magnitude == 5.5856946893
+    proton = PHYSICAL_CONSTANTS.species("proton")
+    assert proton["charge"].magnitude == +1.602176634e-19
+    assert proton["mass"].magnitude == 1.67262192369e-27
+    assert proton["mc2"].magnitude == 938272088.16
+    assert proton["g_factor"].magnitude == 5.5856946893
 
     # Muon
-    muon = PHYSICAL_CONSTANTS.species('muon')
-    assert muon['charge'].magnitude == -1.602176634e-19
-    assert muon['mass'].magnitude == 1.883531627e-28
-    assert muon['mc2'].magnitude == 105.6583755e6
-    assert muon['g_factor'].magnitude == -2.0023318418
-    
+    muon = PHYSICAL_CONSTANTS.species("muon")
+    assert muon["charge"].magnitude == -1.602176634e-19
+    assert muon["mass"].magnitude == 1.883531627e-28
+    assert muon["mc2"].magnitude == 105.6583755e6
+    assert muon["g_factor"].magnitude == -2.0023318418
+
     # Neutron
-    neutron = PHYSICAL_CONSTANTS.species('neutron')
-    assert neutron['charge'].magnitude == 0
-    assert neutron['mass'].magnitude == 1.67492749804e-27
-    assert neutron['mc2'].magnitude == 939.56542052e6
-    assert neutron['g_factor'].magnitude == -3.82608545
+    neutron = PHYSICAL_CONSTANTS.species("neutron")
+    assert neutron["charge"].magnitude == 0
+    assert neutron["mass"].magnitude == 1.67492749804e-27
+    assert neutron["mc2"].magnitude == 939.56542052e6
+    assert neutron["g_factor"].magnitude == -3.82608545
 
     # Tau
-    tau = PHYSICAL_CONSTANTS.species('tau')
-    assert tau['charge'].magnitude == -1.602176634e-19
-    assert tau['mass'].magnitude == 3.16754e-27
-    assert tau['mc2'].magnitude == 1776820000.0
-    assert tau['g_factor'].magnitude == -2.00231930436256
-    
+    tau = PHYSICAL_CONSTANTS.species("tau")
+    assert tau["charge"].magnitude == -1.602176634e-19
+    assert tau["mass"].magnitude == 3.16754e-27
+    assert tau["mc2"].magnitude == 1776820000.0
+    assert tau["g_factor"].magnitude == -2.00231930436256
+
 
 test_species_data()</div>
 </div>
@@ -1494,9 +1484,9 @@ test_species_data()</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'tau'</span><span class="p">)[</span><span class="s1">'mc2'</span><span class="p">]</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"tau"</span><span class="p">)[</span><span class="s2">"mc2"</span><span class="p">]</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-7">PHYSICAL_CONSTANTS.species('tau')['mc2']</div>
+<div class="clipboard-copy-txt" id="cell-7">PHYSICAL_CONSTANTS.species("tau")["mc2"]</div>
 </div>
 </div>
 </div>
@@ -1536,6 +1526,141 @@ test_species_data()</div>
 <div class="highlight-ipynb hl-python"><pre><span></span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-8"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=74785e66-109e-4fc1-a526-41886de63edc">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-9">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-9"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=0efe8de3-9300-474b-9415-d8a24a2a0e29">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-10">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-10"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ed199b45-177a-44d8-994e-aed26344daae">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-11">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-11"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=fb222b70-019a-4fe5-bbd7-add6a2c05938">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-12">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-12"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ac13bcfd-1b32-42cf-8485-7124fdbb7deb">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-13">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-13"></div>
 </div>
 </div>
 </div>

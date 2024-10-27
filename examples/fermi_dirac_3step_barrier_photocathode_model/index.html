@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -1233,23 +1233,23 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">distgen.physical_constants</span> <span class="kn">import</span> <span class="n">unit_registry</span><span class="p">,</span> <span class="n">PHYSICAL_CONSTANTS</span>
 
-<span class="n">h</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'Planck constant in eV/Hz'</span><span class="p">]</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s1">'speed of light in vacuum'</span><span class="p">]</span>
-<span class="n">hc</span> <span class="o">=</span> <span class="n">h</span><span class="o">*</span><span class="n">c</span>
-
-<span class="n">MC2</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s1">'electron'</span><span class="p">)[</span><span class="s1">'mc2'</span><span class="p">]</span>
-
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"Planck constant in eV/Hz"</span><span class="p">]</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="p">[</span><span class="s2">"speed of light in vacuum"</span><span class="p">]</span>
+<span class="n">hc</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">c</span>
+
+<span class="n">MC2</span> <span class="o">=</span> <span class="n">PHYSICAL_CONSTANTS</span><span class="o">.</span><span class="n">species</span><span class="p">(</span><span class="s2">"electron"</span><span class="p">)[</span><span class="s2">"mc2"</span><span class="p">]</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">from distgen.physical_constants import unit_registry, PHYSICAL_CONSTANTS
 
-h = PHYSICAL_CONSTANTS['Planck constant in eV/Hz']
-c = PHYSICAL_CONSTANTS['speed of light in vacuum']
-hc = h*c
+import scipy.constants as const
 
-MC2 = PHYSICAL_CONSTANTS.species('electron')['mc2']
+h = PHYSICAL_CONSTANTS["Planck constant in eV/Hz"]
+c = PHYSICAL_CONSTANTS["speed of light in vacuum"]
+hc = h * c
 
-import scipy.constants as const</div>
+MC2 = PHYSICAL_CONSTANTS.species("electron")["mc2"]</div>
 </div>
 </div>
 </div>
@@ -1366,17 +1366,17 @@ research, this sampling concept is the same described in [2].</p>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">photon_energy</span> <span class="o">=</span> <span class="mf">2.5</span><span class="o">*</span><span class="n">unit_registry</span><span class="p">(</span><span class="s1">'eV'</span><span class="p">)</span>
-<span class="n">laser_wavelength</span> <span class="o">=</span> <span class="n">hc</span><span class="o">/</span><span class="n">photon_energy</span> 
-<span class="n">cathode_temperature</span> <span class="o">=</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s1">'K'</span><span class="p">)</span>
-<span class="n">fermi_energy</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s1">'eV'</span><span class="p">)</span>
-<span class="n">cathode_work_function</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s1">'eV'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">photon_energy</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"eV"</span><span class="p">)</span>
+<span class="n">laser_wavelength</span> <span class="o">=</span> <span class="n">hc</span> <span class="o">/</span> <span class="n">photon_energy</span>
+<span class="n">cathode_temperature</span> <span class="o">=</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"K"</span><span class="p">)</span>
+<span class="n">fermi_energy</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"eV"</span><span class="p">)</span>
+<span class="n">cathode_work_function</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"eV"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-5">photon_energy = 2.5*unit_registry('eV')
-laser_wavelength = hc/photon_energy 
-cathode_temperature = 300 * unit_registry('K')
-fermi_energy = 6 * unit_registry('eV')
-cathode_work_function = 2 * unit_registry('eV')</div>
+<div class="clipboard-copy-txt" id="cell-5">photon_energy = 2.5 * unit_registry("eV")
+laser_wavelength = hc / photon_energy
+cathode_temperature = 300 * unit_registry("K")
+fermi_energy = 6 * unit_registry("eV")
+cathode_work_function = 2 * unit_registry("eV")</div>
 </div>
 </div>
 </div>
@@ -1401,19 +1401,19 @@ cathode_work_function = 2 * unit_registry('eV')</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="s1">'data/fermi_dirac_3step_barrier_photocathode.in.yaml'</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="s2">"data/fermi_dirac_3step_barrier_photocathode.in.yaml"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="n">D</span><span class="p">[</span><span class="s1">'p_polar_angle_dist:photon_wavelength'</span><span class="p">]</span><span class="o">=</span><span class="n">laser_wavelength</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'nm'</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
-<span class="n">D</span><span class="p">[</span><span class="s1">'p_polar_angle_dist:temperature'</span><span class="p">]</span><span class="o">=</span><span class="n">cathode_temperature</span>
-<span class="n">D</span><span class="p">[</span><span class="s1">'p_polar_angle_dist:fermi_energy'</span><span class="p">]</span><span class="o">=</span><span class="n">fermi_energy</span>
-<span class="n">D</span><span class="p">[</span><span class="s1">'p_polar_angle_dist:work_function'</span><span class="p">]</span><span class="o">=</span><span class="n">cathode_work_function</span>
+<span class="n">D</span><span class="p">[</span><span class="s2">"p_polar_angle_dist:photon_wavelength"</span><span class="p">]</span> <span class="o">=</span> <span class="n">laser_wavelength</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"nm"</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+<span class="n">D</span><span class="p">[</span><span class="s2">"p_polar_angle_dist:temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cathode_temperature</span>
+<span class="n">D</span><span class="p">[</span><span class="s2">"p_polar_angle_dist:fermi_energy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fermi_energy</span>
+<span class="n">D</span><span class="p">[</span><span class="s2">"p_polar_angle_dist:work_function"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cathode_work_function</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-6">D = Generator('data/fermi_dirac_3step_barrier_photocathode.in.yaml', verbose=1)
+<div class="clipboard-copy-txt" id="cell-6">D = Generator("data/fermi_dirac_3step_barrier_photocathode.in.yaml", verbose=1)
 
-D['p_polar_angle_dist:photon_wavelength']=laser_wavelength.to('nm').magnitude
-D['p_polar_angle_dist:temperature']=cathode_temperature
-D['p_polar_angle_dist:fermi_energy']=fermi_energy
-D['p_polar_angle_dist:work_function']=cathode_work_function</div>
+D["p_polar_angle_dist:photon_wavelength"] = laser_wavelength.to("nm").magnitude
+D["p_polar_angle_dist:temperature"] = cathode_temperature
+D["p_polar_angle_dist:fermi_energy"] = fermi_energy
+D["p_polar_angle_dist:work_function"] = cathode_work_function</div>
 </div>
 </div>
 </div>
@@ -1486,7 +1486,7 @@ Creating beam distribution....
    Shifting avg_py = -0.0095719 eV/c -&gt; 0 eV/c
    Shifting avg_t = -0.000320773 ps -&gt; 0 ps
    Scaling sigma_t = 10 ps -&gt; 10 ps
-...done. Time Elapsed: 805.303 ms.
+...done. Time Elapsed: 814.518 ms.
 
    Created particles in .particles: 
    ParticleGroup with 200000 particles with total charge 1.0000000000000003e-11 C
@@ -1515,9 +1515,9 @@ Creating beam distribution....
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">'px'</span><span class="p">,</span> <span class="s1">'pz'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">P</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">"px"</span><span class="p">,</span> <span class="s2">"pz"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-8">P.plot('px', 'pz')</div>
+<div class="clipboard-copy-txt" id="cell-8">P.plot("px", "pz")</div>
 </div>
 </div>
 </div>
@@ -1566,8 +1566,8 @@ Creating beam distribution....
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># Fetch constants from scipy</span>
-<span class="n">kb</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s1">'Boltzmann constant in eV/K'</span><span class="p">)</span>
-<span class="n">mc2</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s1">'electron mass energy equivalent in MeV'</span><span class="p">)</span><span class="o">*</span><span class="mf">1e6</span>
+<span class="n">kb</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">"Boltzmann constant in eV/K"</span><span class="p">)</span>
+<span class="n">mc2</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">"electron mass energy equivalent in MeV"</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e6</span>
 
 
 <span class="k">def</span> <span class="nf">fermi_dirac</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t_cutoff</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
@@ -1579,26 +1579,37 @@ Creating beam distribution....
 <span class="sd">    :param t_cutoff: Clip the temperature at this value to avoid divide by zero</span>
 <span class="sd">    :return: value of the Fermi-Dirac distribution</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">e</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">kb</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t_cutoff</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span> <span class="o">-</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">e</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">kb</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t_cutoff</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span> <span class="o">-</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">))</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">dowell_schmerge_pdf_int</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">):</span>
-    <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">mc2</span>
-    <span class="n">p_excite</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fermi_dirac</span><span class="p">(</span><span class="n">e</span> <span class="o">+</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span><span class="p">))</span><span class="o">*</span><span class="n">fermi_dirac</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">mc2</span>
+    <span class="n">p_excite</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fermi_dirac</span><span class="p">(</span><span class="n">e</span> <span class="o">+</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span><span class="p">))</span> <span class="o">*</span> <span class="n">fermi_dirac</span><span class="p">(</span>
+        <span class="n">e</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span>
+    <span class="p">)</span>
     <span class="n">p_transport</span> <span class="o">=</span> <span class="n">pz</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="n">p_escape</span> <span class="o">=</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">mc2</span> <span class="o">+</span> <span class="n">photon_energy</span> <span class="o">&gt;=</span> <span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span>
-    <span class="k">return</span> <span class="n">p_excite</span><span class="o">*</span><span class="n">p_transport</span><span class="o">*</span><span class="n">p_escape</span>
+    <span class="n">p_escape</span> <span class="o">=</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">mc2</span> <span class="o">+</span> <span class="n">photon_energy</span> <span class="o">&gt;=</span> <span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span>
+    <span class="k">return</span> <span class="n">p_excite</span> <span class="o">*</span> <span class="n">p_transport</span> <span class="o">*</span> <span class="n">p_escape</span>
 
 
 <span class="k">def</span> <span class="nf">ds_transform</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">):</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">photon_energy</span><span class="o">/</span><span class="p">((</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">mc2</span> <span class="o">+</span> <span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">px</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">py</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">))</span><span class="o">*</span><span class="n">a</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="mi">1</span> <span class="o">-</span> <span class="n">photon_energy</span> <span class="o">/</span> <span class="p">((</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">mc2</span> <span class="o">+</span> <span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">px</span> <span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="n">py</span> <span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mc2</span> <span class="o">*</span> <span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">))</span> <span class="o">*</span> <span class="n">a</span>
 
 
 <span class="k">def</span> <span class="nf">ds_jacobian_factor</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">):</span>
-    <span class="n">num</span> <span class="o">=</span> <span class="n">pz</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span> <span class="o">-</span> <span class="n">photon_energy</span><span class="p">))</span>
-    <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">num</span><span class="o">/</span><span class="n">den</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">pz</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mc2</span> <span class="o">*</span> <span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span> <span class="o">-</span> <span class="n">photon_energy</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mc2</span> <span class="o">*</span> <span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">))</span>
+        <span class="o">*</span> <span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">py</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">pz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mc2</span> <span class="o">*</span> <span class="p">(</span><span class="n">fermi_energy</span> <span class="o">+</span> <span class="n">workfun</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">den</span>
 
 
 <span class="k">def</span> <span class="nf">dowell_schmerge_pdf</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">):</span>
@@ -1613,7 +1624,13 @@ Creating beam distribution....
 <span class="sd">    :return: unnormalized density of the emitted electrons at this momentum</span>
 <span class="sd">    """</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">ds_jacobian_factor</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">dowell_schmerge_pdf_int</span><span class="p">(</span><span class="o">*</span><span class="n">ds_transform</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">),</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">dowell_schmerge_pdf_int</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">ds_transform</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">),</span>
+        <span class="n">fermi_energy</span><span class="p">,</span>
+        <span class="n">temp</span><span class="p">,</span>
+        <span class="n">photon_energy</span><span class="p">,</span>
+        <span class="n">workfun</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">dowell_schmerge_pdf_bounds</span><span class="p">(</span><span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">n_tails</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
@@ -1625,21 +1642,33 @@ Creating beam distribution....
 <span class="sd">    :param n_tails: amount of Fermi tail to include (in units of kB*T)</span>
 <span class="sd">    :return: (xl, xu), (yl, yu), (zl, zu), the lower (l) and upper (u) bounds along each axis (x, y, z)</span>
 <span class="sd">    """</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">mc2</span><span class="o">*</span><span class="p">(</span><span class="n">photon_energy</span> <span class="o">-</span> <span class="n">workfun</span> <span class="o">+</span> <span class="n">kb</span><span class="o">*</span><span class="n">temp</span><span class="o">*</span><span class="n">n_tails</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">[(</span><span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">a</span><span class="p">)]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mc2</span> <span class="o">*</span> <span class="p">(</span><span class="n">photon_energy</span> <span class="o">-</span> <span class="n">workfun</span> <span class="o">+</span> <span class="n">kb</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">n_tails</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a</span><span class="p">)]</span>
 
 
 <span class="k">def</span> <span class="nf">dowell_schmerge_pdf_spherical</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">dowell_schmerge_pdf</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dowell_schmerge_pdf</span><span class="p">(</span>
+        <span class="n">p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+        <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+        <span class="n">photon_energy</span><span class="p">,</span>
+        <span class="n">workfun</span><span class="p">,</span>
+        <span class="n">temp</span><span class="p">,</span>
+        <span class="n">fermi_energy</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">dowell_schmerge_pdf_bounds_spherical</span><span class="p">(</span><span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">n_tails</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
-    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf_bounds</span><span class="p">(</span><span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">n_tails</span><span class="o">=</span><span class="n">n_tails</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">dowell_schmerge_pdf_bounds_spherical</span><span class="p">(</span>
+    <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">n_tails</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">):</span>
+    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf_bounds</span><span class="p">(</span>
+        <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">n_tails</span><span class="o">=</span><span class="n">n_tails</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-9"># Fetch constants from scipy
-kb = const.value('Boltzmann constant in eV/K')
-mc2 = const.value('electron mass energy equivalent in MeV')*1e6
+kb = const.value("Boltzmann constant in eV/K")
+mc2 = const.value("electron mass energy equivalent in MeV") * 1e6
 
 
 def fermi_dirac(e, mu, t, t_cutoff=1e-3):
@@ -1651,26 +1680,37 @@ def fermi_dirac(e, mu, t, t_cutoff=1e-3):
     :param t_cutoff: Clip the temperature at this value to avoid divide by zero
     :return: value of the Fermi-Dirac distribution
     """
-    return 1/(1 + np.exp(np.clip((e - mu)/(kb*np.clip(t, t_cutoff, None)), -256, 256)))
+    return 1 / (
+        1 + np.exp(np.clip((e - mu) / (kb * np.clip(t, t_cutoff, None)), -256, 256))
+    )
 
 
 def dowell_schmerge_pdf_int(px, py, pz, fermi_energy, temp, photon_energy, workfun):
-    e = (px**2 + py**2 + pz**2)/2/mc2
-    p_excite = (1 - fermi_dirac(e + photon_energy, fermi_energy, temp))*fermi_dirac(e, fermi_energy, temp)
+    e = (px**2 + py**2 + pz**2) / 2 / mc2
+    p_excite = (1 - fermi_dirac(e + photon_energy, fermi_energy, temp)) * fermi_dirac(
+        e, fermi_energy, temp
+    )
     p_transport = pz &gt; 0
-    p_escape = pz**2/2/mc2 + photon_energy &gt;= fermi_energy + workfun
-    return p_excite*p_transport*p_escape
+    p_escape = pz**2 / 2 / mc2 + photon_energy &gt;= fermi_energy + workfun
+    return p_excite * p_transport * p_escape
 
 
 def ds_transform(px, py, pz, fermi_energy, photon_energy, workfun):
-    a = np.sqrt(1 - photon_energy/((px**2 + py**2 + pz**2)/2/mc2 + fermi_energy + workfun))
-    return px*a, py*a, np.sqrt(pz**2 + 2*mc2*(fermi_energy + workfun))*a
+    a = np.sqrt(
+        1 - photon_energy / ((px**2 + py**2 + pz**2) / 2 / mc2 + fermi_energy + workfun)
+    )
+    return px * a, py * a, np.sqrt(pz**2 + 2 * mc2 * (fermi_energy + workfun)) * a
 
 
 def ds_jacobian_factor(px, py, pz, fermi_energy, photon_energy, workfun):
-    num = pz*np.sqrt(px**2 + py**2 + pz**2 + 2*mc2*(fermi_energy + workfun - photon_energy))
-    den = np.sqrt((pz**2 + 2*mc2*(fermi_energy + workfun))*(px**2 + py**2 + pz**2 + 2*mc2*(fermi_energy + workfun)))
-    return num/den
+    num = pz * np.sqrt(
+        px**2 + py**2 + pz**2 + 2 * mc2 * (fermi_energy + workfun - photon_energy)
+    )
+    den = np.sqrt(
+        (pz**2 + 2 * mc2 * (fermi_energy + workfun))
+        * (px**2 + py**2 + pz**2 + 2 * mc2 * (fermi_energy + workfun))
+    )
+    return num / den
 
 
 def dowell_schmerge_pdf(px, py, pz, photon_energy, workfun, temp, fermi_energy):
@@ -1685,7 +1725,13 @@ def dowell_schmerge_pdf(px, py, pz, photon_energy, workfun, temp, fermi_energy):
     :return: unnormalized density of the emitted electrons at this momentum
     """
     a = ds_jacobian_factor(px, py, pz, fermi_energy, photon_energy, workfun)
-    return a*dowell_schmerge_pdf_int(*ds_transform(px, py, pz, fermi_energy, photon_energy, workfun), fermi_energy, temp, photon_energy, workfun)
+    return a * dowell_schmerge_pdf_int(
+        *ds_transform(px, py, pz, fermi_energy, photon_energy, workfun),
+        fermi_energy,
+        temp,
+        photon_energy,
+        workfun,
+    )
 
 
 def dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tails=4):
@@ -1697,17 +1743,29 @@ def dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tai
     :param n_tails: amount of Fermi tail to include (in units of kB*T)
     :return: (xl, xu), (yl, yu), (zl, zu), the lower (l) and upper (u) bounds along each axis (x, y, z)
     """
-    a = np.sqrt(2*mc2*(photon_energy - workfun + kb*temp*n_tails))
-    return [(-a, a), (-a, a), (0., a)]
+    a = np.sqrt(2 * mc2 * (photon_energy - workfun + kb * temp * n_tails))
+    return [(-a, a), (-a, a), (0.0, a)]
 
 
 def dowell_schmerge_pdf_spherical(p, theta, photon_energy, workfun, temp, fermi_energy):
-    return dowell_schmerge_pdf(p*np.cos(theta), 0., p*np.sin(theta), photon_energy, workfun, temp, fermi_energy)
+    return dowell_schmerge_pdf(
+        p * np.cos(theta),
+        0.0,
+        p * np.sin(theta),
+        photon_energy,
+        workfun,
+        temp,
+        fermi_energy,
+    )
 
 
-def dowell_schmerge_pdf_bounds_spherical(photon_energy, workfun, temp, fermi_energy, n_tails=4):
-    (_, a), _, _ = dowell_schmerge_pdf_bounds(photon_energy, workfun, temp, fermi_energy, n_tails=n_tails)
-    return (0, a), (0, np.pi/2)</div>
+def dowell_schmerge_pdf_bounds_spherical(
+    photon_energy, workfun, temp, fermi_energy, n_tails=4
+):
+    (_, a), _, _ = dowell_schmerge_pdf_bounds(
+        photon_energy, workfun, temp, fermi_energy, n_tails=n_tails
+    )
+    return (0, a), (0, np.pi / 2)</div>
 </div>
 </div>
 </div>
@@ -1734,35 +1792,59 @@ def dowell_schmerge_pdf_bounds_spherical(photon_energy, workfun, temp, fermi_ene
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># Plot the projection onto px, pz</span>
 <span class="n">n_points</span> <span class="o">=</span> <span class="mi">200</span>
-<span class="p">(</span><span class="n">bxm</span><span class="p">,</span> <span class="n">bxp</span><span class="p">),</span> <span class="p">(</span><span class="n">bym</span><span class="p">,</span> <span class="n">byp</span><span class="p">),</span> <span class="p">(</span><span class="n">bzm</span><span class="p">,</span> <span class="n">bzp</span><span class="p">)</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf_bounds</span><span class="p">(</span><span class="n">photon_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> 
-                                                                <span class="n">cathode_work_function</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> 
-                                                                <span class="n">cathode_temperature</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> 
-                                                                <span class="n">fermi_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span>
-<span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">bxm</span><span class="p">:</span><span class="n">bxp</span><span class="p">:</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">n_points</span><span class="p">,</span> <span class="n">bym</span><span class="p">:</span><span class="n">byp</span><span class="p">:</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">n_points</span><span class="p">,</span> <span class="n">bzm</span><span class="p">:</span><span class="n">bzp</span><span class="p">:</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">n_points</span><span class="p">]</span>
+<span class="p">(</span><span class="n">bxm</span><span class="p">,</span> <span class="n">bxp</span><span class="p">),</span> <span class="p">(</span><span class="n">bym</span><span class="p">,</span> <span class="n">byp</span><span class="p">),</span> <span class="p">(</span><span class="n">bzm</span><span class="p">,</span> <span class="n">bzp</span><span class="p">)</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf_bounds</span><span class="p">(</span>
+    <span class="n">photon_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+    <span class="n">cathode_work_function</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+    <span class="n">cathode_temperature</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+    <span class="n">fermi_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
+    <span class="n">bxm</span> <span class="p">:</span> <span class="n">bxp</span> <span class="p">:</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_points</span><span class="p">,</span> <span class="n">bym</span> <span class="p">:</span> <span class="n">byp</span> <span class="p">:</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_points</span><span class="p">,</span> <span class="n">bzm</span> <span class="p">:</span> <span class="n">bzp</span> <span class="p">:</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_points</span>
+<span class="p">]</span>
 
-<span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dowell_schmerge_pdf</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">photon_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> 
-                                             <span class="n">cathode_work_function</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> 
-                                             <span class="n">cathode_temperature</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> 
-                                             <span class="n">fermi_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="mf">1e-3</span><span class="o">*</span><span class="n">px</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="mf">1e-3</span><span class="o">*</span><span class="n">pz</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">rho</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"p$_x$ (keV/c)"</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'p$_z$ (keV/c)'</span><span class="p">);</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+    <span class="n">dowell_schmerge_pdf</span><span class="p">(</span>
+        <span class="n">px</span><span class="p">,</span>
+        <span class="n">py</span><span class="p">,</span>
+        <span class="n">pz</span><span class="p">,</span>
+        <span class="n">photon_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+        <span class="n">cathode_work_function</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+        <span class="n">cathode_temperature</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+        <span class="n">fermi_energy</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="mf">1e-3</span> <span class="o">*</span> <span class="n">px</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">pz</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">rho</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"p$_x$ (keV/c)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"p$_z$ (keV/c)"</span><span class="p">);</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-10"># Plot the projection onto px, pz
 n_points = 200
-(bxm, bxp), (bym, byp), (bzm, bzp) = dowell_schmerge_pdf_bounds(photon_energy.magnitude, 
-                                                                cathode_work_function.magnitude, 
-                                                                cathode_temperature.magnitude, 
-                                                                fermi_energy.magnitude)
-px, py, pz = np.mgrid[bxm:bxp:1j*n_points, bym:byp:1j*n_points, bzm:bzp:1j*n_points]
+(bxm, bxp), (bym, byp), (bzm, bzp) = dowell_schmerge_pdf_bounds(
+    photon_energy.magnitude,
+    cathode_work_function.magnitude,
+    cathode_temperature.magnitude,
+    fermi_energy.magnitude,
+)
+px, py, pz = np.mgrid[
+    bxm : bxp : 1j * n_points, bym : byp : 1j * n_points, bzm : bzp : 1j * n_points
+]
 
-rho = np.sum(dowell_schmerge_pdf(px, py, pz, photon_energy.magnitude, 
-                                             cathode_work_function.magnitude, 
-                                             cathode_temperature.magnitude, 
-                                             fermi_energy.magnitude), axis=1)
-plt.pcolormesh(1e-3*px[:, 0, :], 1e-3*pz[:, 0, :], rho)
-plt.xlabel("p$_x$ (keV/c)");
-plt.ylabel('p$_z$ (keV/c)');</div>
+rho = np.sum(
+    dowell_schmerge_pdf(
+        px,
+        py,
+        pz,
+        photon_energy.magnitude,
+        cathode_work_function.magnitude,
+        cathode_temperature.magnitude,
+        fermi_energy.magnitude,
+    ),
+    axis=1,
+)
+plt.pcolormesh(1e-3 * px[:, 0, :], 1e-3 * pz[:, 0, :], rho)
+plt.xlabel("p$_x$ (keV/c)")
+plt.ylabel("p$_z$ (keV/c)");</div>
 </div>
 </div>
 </div>
@@ -1801,49 +1883,99 @@ plt.ylabel('p$_z$ (keV/c)');</div>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># Plot the MTE vs photon energy and temp</span>
 <span class="k">def</span> <span class="nf">get_mte</span><span class="p">(</span><span class="n">fermi_energy</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
-    <span class="c1">#mc2 = 511e3</span>
-    <span class="p">(</span><span class="n">bxm</span><span class="p">,</span> <span class="n">bxp</span><span class="p">),</span> <span class="p">(</span><span class="n">bym</span><span class="p">,</span> <span class="n">byp</span><span class="p">),</span> <span class="p">(</span><span class="n">bzm</span><span class="p">,</span> <span class="n">bzp</span><span class="p">)</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf_bounds</span><span class="p">(</span><span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">)</span>
-    <span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">bxm</span><span class="p">:</span><span class="n">bxp</span><span class="p">:</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">n_points</span><span class="p">,</span> <span class="n">bym</span><span class="p">:</span><span class="n">byp</span><span class="p">:</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">n_points</span><span class="p">,</span> <span class="n">bzm</span><span class="p">:</span><span class="n">bzp</span><span class="p">:</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">n_points</span><span class="p">]</span>
+    <span class="c1"># mc2 = 511e3</span>
+    <span class="p">(</span><span class="n">bxm</span><span class="p">,</span> <span class="n">bxp</span><span class="p">),</span> <span class="p">(</span><span class="n">bym</span><span class="p">,</span> <span class="n">byp</span><span class="p">),</span> <span class="p">(</span><span class="n">bzm</span><span class="p">,</span> <span class="n">bzp</span><span class="p">)</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf_bounds</span><span class="p">(</span>
+        <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fermi_energy</span>
+    <span class="p">)</span>
+    <span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
+        <span class="n">bxm</span> <span class="p">:</span> <span class="n">bxp</span> <span class="p">:</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_points</span><span class="p">,</span> <span class="n">bym</span> <span class="p">:</span> <span class="n">byp</span> <span class="p">:</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_points</span><span class="p">,</span> <span class="n">bzm</span> <span class="p">:</span> <span class="n">bzp</span> <span class="p">:</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_points</span>
+    <span class="p">]</span>
     <span class="n">rho</span> <span class="o">=</span> <span class="n">dowell_schmerge_pdf</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">pz</span><span class="p">,</span> <span class="n">photon_energy</span><span class="p">,</span> <span class="n">workfun</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">)</span>
-    <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">px</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">px</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="n">px_sec_moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">rho</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">px</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">px</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">px_sec_moment</span><span class="o">/</span><span class="n">norm</span><span class="p">)</span><span class="o">/</span><span class="n">mc2</span><span class="o">*</span><span class="mf">1e3</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">px</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">px</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">dx</span><span class="o">=</span><span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">px_sec_moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">rho</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">px</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">px</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">dx</span><span class="o">=</span><span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">py</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">px_sec_moment</span> <span class="o">/</span> <span class="n">norm</span><span class="p">)</span> <span class="o">/</span> <span class="n">mc2</span> <span class="o">*</span> <span class="mf">1e3</span>
+
 
 <span class="n">ephoton</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">2.1</span><span class="p">,</span> <span class="mf">2.9</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ephoton</span><span class="p">,</span> <span class="p">(</span><span class="n">ephoton</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Dowell-Schmerge Formula (T=0 K)'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ephoton</span><span class="p">,</span> <span class="p">(</span><span class="n">ephoton</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Dowell-Schmerge Formula (T=0 K)"</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">temp</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">]:</span>
-    <span class="n">mte</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">get_mte</span><span class="p">(</span><span class="mf">6.</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ep</span><span class="p">,</span> <span class="mf">2.</span><span class="p">)</span> <span class="k">for</span> <span class="n">ep</span> <span class="ow">in</span> <span class="n">ephoton</span><span class="p">])</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ephoton</span><span class="p">,</span> <span class="n">mte</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">'none'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Numerical Integral (T=</span><span class="si">%.0f</span><span class="s1"> K)'</span> <span class="o">%</span> <span class="n">temp</span><span class="p">)</span>
+    <span class="n">mte</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">get_mte</span><span class="p">(</span><span class="mf">6.0</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ep</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">ep</span> <span class="ow">in</span> <span class="n">ephoton</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ephoton</span><span class="p">,</span>
+        <span class="n">mte</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">"Numerical Integral (T=</span><span class="si">%.0f</span><span class="s2"> K)"</span> <span class="o">%</span> <span class="n">temp</span><span class="p">,</span>
+    <span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">photon_energy</span><span class="p">,</span> <span class="mi">1000</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="s1">'sigma_px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">MC2</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Distgen'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">photon_energy</span><span class="p">,</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="s2">"sigma_px"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">MC2</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Distgen"</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'Photon Energy (eV)'</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'MTE (meV)'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Photon Energy (eV)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"MTE (meV)"</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-11"># Plot the MTE vs photon energy and temp
 def get_mte(fermi_energy, t, photon_energy, workfun, n_points=128):
-    #mc2 = 511e3
-    (bxm, bxp), (bym, byp), (bzm, bzp) = dowell_schmerge_pdf_bounds(photon_energy, workfun, t, fermi_energy)
-    px, py, pz = np.mgrid[bxm:bxp:1j*n_points, bym:byp:1j*n_points, bzm:bzp:1j*n_points]
+    # mc2 = 511e3
+    (bxm, bxp), (bym, byp), (bzm, bzp) = dowell_schmerge_pdf_bounds(
+        photon_energy, workfun, t, fermi_energy
+    )
+    px, py, pz = np.mgrid[
+        bxm : bxp : 1j * n_points, bym : byp : 1j * n_points, bzm : bzp : 1j * n_points
+    ]
     rho = dowell_schmerge_pdf(px, py, pz, photon_energy, workfun, t, fermi_energy)
-    norm = np.trapezoid(np.trapezoid(np.trapezoid(rho, dx=px[1, 0, 0] - px[0, 0, 0], axis=0), dx=py[0, 1, 0] - py[0, 0, 0], axis=0), dx=pz[0, 0, 1] - pz[0, 0, 0])
-    px_sec_moment = np.trapezoid(np.trapezoid(np.trapezoid(px**2*rho, dx=px[1, 0, 0] - px[0, 0, 0], axis=0), dx=py[0, 1, 0] - py[0, 0, 0], axis=0), dx=pz[0, 0, 1] - pz[0, 0, 0])
-    return (px_sec_moment/norm)/mc2*1e3
+    norm = np.trapezoid(
+        np.trapezoid(
+            np.trapezoid(rho, dx=px[1, 0, 0] - px[0, 0, 0], axis=0),
+            dx=py[0, 1, 0] - py[0, 0, 0],
+            axis=0,
+        ),
+        dx=pz[0, 0, 1] - pz[0, 0, 0],
+    )
+    px_sec_moment = np.trapezoid(
+        np.trapezoid(
+            np.trapezoid(px**2 * rho, dx=px[1, 0, 0] - px[0, 0, 0], axis=0),
+            dx=py[0, 1, 0] - py[0, 0, 0],
+            axis=0,
+        ),
+        dx=pz[0, 0, 1] - pz[0, 0, 0],
+    )
+    return (px_sec_moment / norm) / mc2 * 1e3
+
 
 ephoton = np.linspace(2.1, 2.9, 16)
-plt.plot(ephoton, (ephoton-2)/3*1e3, label='Dowell-Schmerge Formula (T=0 K)')
+plt.plot(ephoton, (ephoton - 2) / 3 * 1e3, label="Dowell-Schmerge Formula (T=0 K)")
 
 for temp in [0, 300, 600]:
-    mte = np.array([get_mte(6., temp, ep, 2.) for ep in ephoton])
-    plt.plot(ephoton, mte, marker='x', ls='none', label='Numerical Integral (T=%.0f K)' % temp)
+    mte = np.array([get_mte(6.0, temp, ep, 2.0) for ep in ephoton])
+    plt.plot(
+        ephoton,
+        mte,
+        marker="x",
+        ls="none",
+        label="Numerical Integral (T=%.0f K)" % temp,
+    )
 
-plt.plot(photon_energy, 1000*P['sigma_px']**2/MC2.magnitude, 'o', label='Distgen')
+plt.plot(photon_energy, 1000 * P["sigma_px"] ** 2 / MC2.magnitude, "o", label="Distgen")
 
 plt.legend()
-plt.xlabel('Photon Energy (eV)')
-plt.ylabel('MTE (meV)')</div>
+plt.xlabel("Photon Energy (eV)")
+plt.ylabel("MTE (meV)")</div>
 </div>
 </div>
 </div>
@@ -1924,17 +2056,21 @@ plt.ylabel('MTE (meV)')</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'photon_wavelength'</span><span class="p">:</span><span class="n">laser_wavelength</span><span class="p">,</span> 
-          <span class="s1">'work_function'</span><span class="p">:</span><span class="n">cathode_work_function</span><span class="p">,</span> 
-          <span class="s1">'temperature'</span><span class="p">:</span><span class="n">cathode_temperature</span><span class="p">,</span> 
-          <span class="s1">'fermi_energy'</span><span class="p">:</span><span class="n">fermi_energy</span><span class="p">}</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"photon_wavelength"</span><span class="p">:</span> <span class="n">laser_wavelength</span><span class="p">,</span>
+    <span class="s2">"work_function"</span><span class="p">:</span> <span class="n">cathode_work_function</span><span class="p">,</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="n">cathode_temperature</span><span class="p">,</span>
+    <span class="s2">"fermi_energy"</span><span class="p">:</span> <span class="n">fermi_energy</span><span class="p">,</span>
+<span class="p">}</span>
 
 <span class="n">dscm</span> <span class="o">=</span> <span class="n">FermiDirac3StepBarrierMomentumDist</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-13">params = {'photon_wavelength':laser_wavelength, 
-          'work_function':cathode_work_function, 
-          'temperature':cathode_temperature, 
-          'fermi_energy':fermi_energy}
+<div class="clipboard-copy-txt" id="cell-13">params = {
+    "photon_wavelength": laser_wavelength,
+    "work_function": cathode_work_function,
+    "temperature": cathode_temperature,
+    "fermi_energy": fermi_energy,
+}
 
 dscm = FermiDirac3StepBarrierMomentumDist(verbose=0, **params)</div>
 </div>
@@ -1989,10 +2125,10 @@ dscm = FermiDirac3StepBarrierMomentumDist(verbose=0, **params)</div>
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">n_sample</span> <span class="o">=</span> <span class="mi">1_000_000</span>
-<span class="n">rns</span> <span class="o">=</span> <span class="n">random_generator</span><span class="p">(</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_sample</span><span class="p">),</span> <span class="s1">'hammersley'</span><span class="p">)</span>
+<span class="n">rns</span> <span class="o">=</span> <span class="n">random_generator</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_sample</span><span class="p">),</span> <span class="s2">"hammersley"</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-15">n_sample = 1_000_000
-rns = random_generator( (3, n_sample), 'hammersley')</div>
+rns = random_generator((3, n_sample), "hammersley")</div>
 </div>
 </div>
 </div>
@@ -2057,11 +2193,11 @@ rns = random_generator( (3, n_sample), 'hammersley')</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">ps</span><span class="p">,</span> <span class="n">phis</span> <span class="o">=</span> <span class="n">dscm</span><span class="o">.</span><span class="n">cdfinv</span><span class="p">(</span><span class="n">rns</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">rns</span><span class="p">[</span><span class="mi">1</span><span class="p">,:])</span>
-<span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">))</span><span class="o">*</span><span class="n">unit_registry</span><span class="p">(</span><span class="s1">'rad'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">ps</span><span class="p">,</span> <span class="n">phis</span> <span class="o">=</span> <span class="n">dscm</span><span class="o">.</span><span class="n">cdfinv</span><span class="p">(</span><span class="n">rns</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">rns</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+<span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">))</span> <span class="o">*</span> <span class="n">unit_registry</span><span class="p">(</span><span class="s2">"rad"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-17">ps, phis = dscm.cdfinv(rns[0,:], rns[1,:])
-thetas = np.linspace(0, 2*np.pi, len(ps))*unit_registry('rad')</div>
+<div class="clipboard-copy-txt" id="cell-17">ps, phis = dscm.cdfinv(rns[0, :], rns[1, :])
+thetas = np.linspace(0, 2 * np.pi, len(ps)) * unit_registry("rad")</div>
 </div>
 </div>
 </div>
@@ -2086,13 +2222,13 @@ thetas = np.linspace(0, 2*np.pi, len(ps))*unit_registry('rad')</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">px</span> <span class="o">=</span> <span class="n">ps</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">thetas</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phis</span><span class="p">)</span>
-<span class="n">py</span> <span class="o">=</span> <span class="n">ps</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">thetas</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phis</span><span class="p">)</span>
-<span class="n">pz</span> <span class="o">=</span> <span class="n">ps</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phis</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">px</span> <span class="o">=</span> <span class="n">ps</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">thetas</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phis</span><span class="p">)</span>
+<span class="n">py</span> <span class="o">=</span> <span class="n">ps</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">thetas</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phis</span><span class="p">)</span>
+<span class="n">pz</span> <span class="o">=</span> <span class="n">ps</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phis</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-18">px = ps*np.cos(thetas)*np.sin(phis)
-py = ps*np.sin(thetas)*np.sin(phis)
-pz = ps*np.cos(phis)</div>
+<div class="clipboard-copy-txt" id="cell-18">px = ps * np.cos(thetas) * np.sin(phis)
+py = ps * np.sin(thetas) * np.sin(phis)
+pz = ps * np.cos(phis)</div>
 </div>
 </div>
 </div>
@@ -2121,17 +2257,17 @@ pz = ps*np.cos(phis)</div>
 <span class="n">xcs</span> <span class="o">=</span> <span class="p">(</span><span class="n">xes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">xes</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
 <span class="n">ycs</span> <span class="o">=</span> <span class="p">(</span><span class="n">yes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">yes</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">origin</span><span class="o">=</span><span class="s1">'lower'</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="n">xcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ycs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ycs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'$p_x$ (eV/c)'</span><span class="p">);</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'$p_z$ (eV/c)'</span><span class="p">);</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="n">xcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ycs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ycs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"$p_x$ (eV/c)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"$p_z$ (eV/c)"</span><span class="p">);</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-19">hist, xes, yes = np.histogram2d(px.magnitude, pz.magnitude, bins=200)
 xcs = (xes[:-1] + xes[1:]) / 2
 ycs = (yes[:-1] + yes[1:]) / 2
 
-plt.imshow(hist.transpose(), origin='lower', extent=(xcs[0], xcs[-1], ycs[0], ycs[-1]))
-plt.xlabel('$p_x$ (eV/c)');
-plt.ylabel('$p_z$ (eV/c)');</div>
+plt.imshow(hist.transpose(), origin="lower", extent=(xcs[0], xcs[-1], ycs[0], ycs[-1]))
+plt.xlabel("$p_x$ (eV/c)")
+plt.ylabel("$p_z$ (eV/c)");</div>
 </div>
 </div>
 </div>
@@ -2168,9 +2304,9 @@ plt.ylabel('$p_z$ (eV/c)');</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">MC2</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">px</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">MC2</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-20">np.mean(px**2)/MC2</div>
+<div class="clipboard-copy-txt" id="cell-20">np.mean(px**2) / MC2</div>
 </div>
 </div>
 </div>
@@ -2207,9 +2343,9 @@ plt.ylabel('$p_z$ (eV/c)');</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'estimated MTE:'</span><span class="p">,</span> <span class="mi">1000</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="s1">'sigma_px'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">MC2</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="s1">'meV'</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"estimated MTE:"</span><span class="p">,</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="s2">"sigma_px"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">MC2</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span> <span class="s2">"meV"</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-21">print('estimated MTE:', 1000*P['sigma_px']**2 / MC2.magnitude, 'meV')</div>
+<div class="clipboard-copy-txt" id="cell-21">print("estimated MTE:", 1000 * P["sigma_px"] ** 2 / MC2.magnitude, "meV")</div>
 </div>
 </div>
 </div>
