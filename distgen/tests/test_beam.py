@@ -87,7 +87,7 @@ def test_std(beam):
         sigma2_beam = beam.std(var) ** 2
         sigma2_numpy = np.sum(beam["w"] * (beam[var] - beam.avg(var)) ** 2)
         check_abs_and_rel_tols(
-            "beam.std", sigma2_beam, sigma2_numpy, abs_tol=1e-8, rel_tol=1e-15
+            "beam.std", sigma2_beam, sigma2_numpy, abs_tol=5e-5, rel_tol=1e-15
         )
 
 

@@ -223,7 +223,9 @@ class Generator(Base):
             "random",
             "spin_polarization",
             "spin_orientation",
+            "fix_avg_and_stds",
         ]
+
         for p in params:
             # assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
             assert p in allowed_params or p.endswith("_dist"), (
@@ -301,6 +303,13 @@ class Generator(Base):
             assert (
                 params["species"] == "electron"
             ), "Polarization currently may only be set for electrons"
+
+    @property
+    def fix_avg_and_stds(self):
+        if "fix_avg_and_stds" in self._input:
+            return self._input["fix_avg_and_stds"]
+        else:
+            return True  # Distgen defaults to true
 
     def configure(self):
         pass
@@ -845,31 +854,38 @@ class Generator(Base):
                 else:
                     avgs[x] = dist.avg()
 
-        # Shift and scale coordinates to undo sampling error
-        for x in avgs:
-            vprint(
-                f"Shifting avg_{x} = {bdist.avg(x):G~P} -> {avgs[x]:G~P}",
-                verbose > 0 and bdist[x].mean() != avgs[x],
-                1,
-                True,
-            )
-            vprint(
-                f"Scaling sigma_{x} = {bdist.std(x):G~P} -> {stds[x]:G~P}",
-                verbose > 0 and bdist[x].std() != stds[x],
-                1,
-                True,
-            )
+        if self.fix_avg_and_stds:  # This is the default behavior
+            if N < 100:
+                warnings.warn(
+                    "Distgen is fixing the average and standard deviation for particle coordinates for a beam with N<100 macroparticles. This may cause undesired behavior.  Consider setting fix_avg_and_stds = False in your Distgen input."
+                )
 
-            # bdist = transform(bdist, {'type':f'set_avg_and_std {x}', 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':0})
-            bdist = set_avg_and_std(
-                bdist,
-                **{
-                    "variables": x,
-                    "avg_" + x: avgs[x],
-                    "sigma_" + x: stds[x],
-                    "verbose": 0,
-                },
-            )
+            # Shift and scale coordinates to undo sampling error
+            for x in avgs:
+                vprint(
+                    f"Shifting avg_{x} = {bdist.avg(x):G~P} -> {avgs[x]:G~P}",
+                    verbose > 0 and bdist[x].mean() != avgs[x],
+                    1,
+                    True,
+                )
+                vprint(
+                    f"Scaling sigma_{x} = {bdist.std(x):G~P} -> {stds[x]:G~P}",
+                    verbose > 0 and bdist[x].std() != stds[x],
+                    1,
+                    True,
+                )
+
+                # bdist = transform(bdist, {'type':f'set_avg_and_std {x}', 'avg_'+x:avgs[x],'sigma_'+x:stds[x], 'verbose':0})
+
+                bdist = set_avg_and_std(
+                    bdist,
+                    **{
+                        "variables": x,
+                        "avg_" + x: avgs[x],
+                        "sigma_" + x: stds[x],
+                        "verbose": 0,
+                    },
+                )
 
         # Handle any start type specific settings
         if params["start"]["type"] == "cathode":

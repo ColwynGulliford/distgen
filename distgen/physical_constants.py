@@ -73,7 +73,9 @@ class PhysicalConstants:
             "tau": {
                 "charge": -self["elementary charge"],
                 "mass": self["tau mass"],
-                "mc2": self["tau mass energy equivalent in MeV"].to("eV"),
+                "mc2": (self["tau mass"] * self["speed of light in vacuum"] ** 2).to(
+                    "eV"
+                ),  # self["tau mass energy equivalent in MeV"].to("eV"),
                 "g_factor": +self["electron g factor"],
             },
             "H2+": {
