@@ -467,6 +467,56 @@ def set_twiss(beam, **params):  # plane, beta, alpha, eps):
     return beam
 
 
+def set_min_r_at_theta_for_round_beam(beam, **params):
+    if "min_r" in params:
+        min_r = params["min_r"]
+    else:
+        min_r = 0.0 * unit_registry("m")
+
+    if "theta" in params:
+        theta = params["theta"].to("rad")
+    else:
+        theta = 0.0 * unit_registry("rad")
+
+    total_r_shift = min_r + np.max(beam["r"])
+
+    beam["x"] = beam["x"] + total_r_shift * np.cos(theta)
+    beam["y"] = beam["y"] + total_r_shift * np.sin(theta)
+
+    return beam
+
+
+def set_min_r_at_theta(beam, **params):
+    if "min_r" in params:
+        min_r = params["min_r"]
+    else:
+        min_r = 0.0 * unit_registry("m")
+
+    if "theta" in params:
+        theta = params["theta"].to("rad")
+    else:
+        theta = 0.0 * unit_registry("rad")
+
+    max_r_shift = min_r + np.max(beam["r"])
+
+    beam["x"] = beam["x"] + max_r_shift * np.cos(theta)
+    beam["y"] = beam["y"] + max_r_shift * np.sin(theta)
+
+    C, S = np.cos(theta), np.sin(theta)
+
+    xr = +C * beam["x"] + S * beam["y"]
+    yr = -S * beam["x"] + C * beam["y"]
+
+    intersect = np.abs(yr.to(min_r.units)) <= min_r
+
+    dr = np.min(xr[intersect] - min_r * np.sqrt(1 - (yr[intersect] / min_r) ** 2))
+
+    beam["x"] = beam["x"] - dr * np.cos(theta)
+    beam["y"] = beam["y"] - dr * np.sin(theta)
+
+    return beam
+
+
 def transform(beam, T):
     desc = T["type"]
     tokens = desc.split(" ")
