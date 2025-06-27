@@ -478,6 +478,18 @@ def set_min_r_at_theta_for_round_beam(beam, **params):
     else:
         theta = 0.0 * unit_registry("rad")
 
+    if min_r == 0:
+
+        vprint(
+        f"min_r = 0 -> ignoring exclusion raidus.",
+        params["verbose"],
+        2,
+        True,
+    )
+        return beam
+    elif min_r < 0:
+        raise ValueError('Must set min_r >=0')
+
     total_r_shift = min_r + np.max(beam["r"])
 
     beam["x"] = beam["x"] + total_r_shift * np.cos(theta)
@@ -487,6 +499,7 @@ def set_min_r_at_theta_for_round_beam(beam, **params):
 
 
 def set_min_r_at_theta(beam, **params):
+    
     if "min_r" in params:
         min_r = params["min_r"]
     else:
@@ -496,6 +509,18 @@ def set_min_r_at_theta(beam, **params):
         theta = params["theta"].to("rad")
     else:
         theta = 0.0 * unit_registry("rad")
+
+    if min_r == 0:
+
+        vprint(
+        f"min_r = 0 -> ignoring exclusion raidus.",
+        params["verbose"],
+        2,
+        True,
+    )
+        return beam
+    elif min_r < 0:
+        raise ValueError('Must set min_r >=0')
 
     max_r_shift = min_r + np.max(beam["r"])
 
