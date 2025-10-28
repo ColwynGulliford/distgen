@@ -67,7 +67,7 @@ def random_generator(shape, sequence, **kwargs):
     """Returns a set of 'random' (either numpy.random.random or from a Hammersley sequence) numbers"""
 
     if sequence == "pseudo":
-        print('use the dude')
+
         if "seed" in kwargs:
             rng = np.random.default_rng(kwargs["seed"])    #np.random.seed(kwargs["seed"])
         else:
