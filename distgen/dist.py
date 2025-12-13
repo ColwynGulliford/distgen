@@ -201,12 +201,17 @@ class Dist:
     def parse_params(params):
         return convert_input_quantities(params)
 
+    def print_dist_methods(self, verbose):
+            pass
+
 
 class Dist1d(Dist):
     """
     Defines the base class for 1 dimensional distribution functions.
     Assumes user will pass in [x,f(x)] as the pdf.
+    
     Numerically intergates to find the cdf and to sample the distribution.
+    
     Methods should be overloaded for specific derived classes, particularly if
     the distribution allows analytic treatment.
     """
@@ -236,11 +241,24 @@ class Dist1d(Dist):
         self.Px = self.Px / norm
         self.Cx = cumtrapz(self.Px, self.xs)
 
+        self._domain_lower_bound = self.xs[0]
+        self._domain_upper_bound = self.xs[-1]
+
+        self._pdf_evaluation_method = 'interp'
+        self._pdf_integration_method = 'trapezoid'
+        self._cdf_evaluation_method = 'interp'
+        self._cdf_inverse_method = 'interp'
+
+    def print_dist_methods(self, verbose):
+        vprint(f"PDF evaluation method: {self._pdf_evaluation_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 0, 2, True)
+        vprint(f"CDF evaluation method: {self._cdf_evaluation_method}", verbose > 0, 2, True)
+        vprint(f"Inverse CDF method: {self._cdf_inverse_method}", verbose > 0, 2, True)
+
     def get_x_pts(self, n):
         """
         Returns a vector of x pts suitable for sampling the PDF Px(x)
         """
-        return linspace(self.xs[0], self.xs[-1], n)
+        return linspace(self.self._domain_lower_bound, self._domain_upper_bound, n)
 
     def pdf(self, x):
         """ "
@@ -411,7 +429,7 @@ class Superposition(Dist1d):
 
         super().__init__(xs, ps, var)
 
-        # vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
+        print(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
 
 
 class Product(Dist1d):
@@ -440,17 +458,41 @@ class Product(Dist1d):
             if xi[-1] > max_var:
                 max_var = xi[-1]
 
-        xs = linspace(min_var, max_var, 10000)
+        if 'integration_method' in kwargs:
+            self.integration_method = kwargs['integration_method']
+        else:
+            self.integration_method = 'trapezoid'
 
-        for ii, name in enumerate(dists.keys()):
-            pii = dists[name].pdf(xs)
+        if self.integration_method == 'trapezoid':
+            xs = linspace(min_var, max_var, 10000)
 
-            if ii == 0:
-                ps = pii / np.max(pii.magnitude)
-            else:
-                ps = ps * pii / np.max(pii.magnitude)
+            for ii, name in enumerate(dists.keys()):
+                pii = dists[name].pdf(xs)
+    
+                if ii == 0:
+                    ps = pii / np.max(pii.magnitude)
+                else:
+                    ps = ps * pii / np.max(pii.magnitude)
+    
+            super().__init__(xs, ps, var)
 
-        super().__init__(xs, ps, var)
+    def pdf(self, x):
+
+        if self.integration_method == 'trapezoid':
+            super().pdf(x)
+        
+        else: 
+
+            for ii, name in enumerate(dists.keys()):
+                pii = dists[name].pdf(x)
+    
+                if ii == 0:
+                    ps = pii
+                else:
+                    ps = ps * pii
+
+            
+
 
 
 class Uniform(Dist1d):
@@ -508,6 +550,15 @@ class Uniform(Dist1d):
             True,
         )
 
+        self._pdf_evaluation_method = 'analytic'
+        self._pdf_integration_method = 'analytic'
+        self._cdf_evaluation_method = 'analytic'
+        self._cdf_inverse_method = 'analytic'
+        self._domain_lower_bound = -np.inf * self.xL.units
+        self._domain_upper_bound = +np.inf * self.xR.units
+
+        self.print_dist_methods(verbose)
+
     def get_x_pts(self, n, f=0.2):
         """
         Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
@@ -518,22 +569,34 @@ class Uniform(Dist1d):
 
     def pdf(self, x):
         """
-        Returns the PDF at the values in x [array w/units].  PDF has units of 1/[x]
+        Returns the PDF at coordinate value(s) x
         """
-        nonzero = (x >= self.xL) & (x <= self.xR)
-        res = np.zeros(len(x)) * unit_registry("1/" + str(self.xL.units))
-        res[nonzero] = 1 / (self.xR - self.xL)
-        return res
+
+        if np.isscalar(x):
+            if x >= self.xL and x <= self.xR:
+                return 1 / (self.xR - self.xL)
+        else:
+        
+            nonzero = (x >= self.xL) & (x <= self.xR)
+            res = np.zeros(len(x)) * unit_registry("1/" + str(self.xL.units))
+            res[nonzero] = 1 / (self.xR - self.xL)
+            return res
 
     def cdf(self, x):
         """
         Returns the CDF at the values of x [array w/units].  CDF is dimensionless
         """
-        nonzero = (x >= self.xL) & (x <= self.xR)
-        res = np.zeros(len(x)) * unit_registry("dimensionless")
-        res[nonzero] = (x[nonzero] - self.xL) / (self.xR - self.xL)
 
-        return res
+        if np.isscalar(x):
+            if x >= self.xL and x <= self.xR:
+                return (x-self.xL) / (self.xR - self.xL)
+        else:
+            
+            nonzero = (x >= self.xL) & (x <= self.xR)
+            res = np.zeros(len(x)) * unit_registry("dimensionless")
+            res[nonzero] = (x[nonzero] - self.xL) / (self.xR - self.xL)
+    
+            return res
 
     def cdfinv(self, rns):
         """
