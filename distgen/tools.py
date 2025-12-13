@@ -53,6 +53,10 @@ def vprint(out_str, verbose, indent_number, new_line):
             print(total_indent + out_str, end="")
 
 
+def isscalar(q):
+    return np.isscalar(q.magnitude)
+
+
 '''
 def is_floatable(value):
 

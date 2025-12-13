@@ -17,6 +17,7 @@ from .physical_constants import unit_registry
 from .physical_constants import PHYSICAL_CONSTANTS
 
 from .tools import vprint
+from .tools import isscalar
 
 from .tools import interp
 from .tools import interp2d
@@ -572,11 +573,9 @@ class Uniform(Dist1d):
         Returns the PDF at coordinate value(s) x
         """
 
-        if np.isscalar(x):
-            if x >= self.xL and x <= self.xR:
-                return 1 / (self.xR - self.xL)
+        if isscalar(x):
+            return int(x >= self.xL and x <= self.xR) / (self.xR - self.xL)
         else:
-        
             nonzero = (x >= self.xL) & (x <= self.xR)
             res = np.zeros(len(x)) * unit_registry("1/" + str(self.xL.units))
             res[nonzero] = 1 / (self.xR - self.xL)
@@ -586,10 +585,9 @@ class Uniform(Dist1d):
         """
         Returns the CDF at the values of x [array w/units].  CDF is dimensionless
         """
-
-        if np.isscalar(x):
-            if x >= self.xL and x <= self.xR:
-                return (x-self.xL) / (self.xR - self.xL)
+        
+        if isscalar(x):
+            return int(x >= self.xL and x <= self.xR) * (x-self.xL) / (self.xR - self.xL)
         else:
             
             nonzero = (x >= self.xL) & (x <= self.xR)
@@ -878,9 +876,18 @@ class Norm(Dist1d):
 
         csi = (x - self.mu) / self.sigma
         res = self.canonical_pdf(csi) / self.Z / self.sigma
-        x_out_of_range = (x < self.a) | (x > self.b)
-        res[x_out_of_range] = 0 * unit_registry("1/" + str(self.sigma.units))
+
+        if np.isscalar(x):
+            pass
+        else:
+            
+            res = self.canonical_pdf(csi) / self.Z / self.sigma
+            x_out_of_range = (x < self.a) | (x > self.b)
+            res[x_out_of_range] = 0 * unit_registry("1/" + str(self.sigma.units))
+        
         return res
+
+
 
     def canonical_cdf(self, csi):
         """Defines the canonical cdf function"""
