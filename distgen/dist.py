@@ -430,7 +430,7 @@ class Superposition(Dist1d):
 
         super().__init__(xs, ps, var)
 
-        print(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
+        #print(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
 
 
 class Product(Dist1d):
