@@ -252,6 +252,7 @@ class Dist1d(Dist):
 
     def print_dist_methods(self, verbose):
         vprint(f"PDF evaluation method: {self._pdf_evaluation_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 0, 2, True)
+        vprint(f"PDF integration method: {self._pdf_integration_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 0, 2, True)
         vprint(f"CDF evaluation method: {self._cdf_evaluation_method}", verbose > 0, 2, True)
         vprint(f"Inverse CDF method: {self._cdf_inverse_method}", verbose > 0, 2, True)
 
@@ -662,6 +663,15 @@ class Linear(Dist1d):
         # else:
         #    vprint(f'Left n_sigma_cutoff = {self.b:G~P}, Right n_sigma_cutoff = {self.a:G~P}',verbose>0 and self.b.magnitude<float('Inf'),2,True)
 
+        self._pdf_evaluation_method = 'analytic'
+        self._pdf_integration_method = 'analytic'
+        self._cdf_evaluation_method = 'analytic'
+        self._cdf_inverse_method = 'analytic'
+        self._domain_lower_bound = -np.inf * self.a.units
+        self._domain_upper_bound = +np.inf * self.b.units
+
+        self.print_dist_methods(verbose)
+
     def get_x_pts(self, n, f=0.2):
         """
         Returns n equally spaced x values that sample just over the relevant range of [a,b] (DOES NOT SAMPLE DISTRIBUTION)
@@ -674,21 +684,16 @@ class Linear(Dist1d):
         """
         Returns the PDF at the values in x [array w/units].  PDF has units of 1/[x]
         """
-        nonzero = (x >= self.a) & (x <= self.b)
-        res = np.zeros(len(x)) * unit_registry("1/" + str(self.a.units))
-        res[nonzero] = self.m * (x[nonzero] - self.a) + self.pa
-        return res
+        nonzero = 1 * ((x >= self.a) & (x <= self.b))   
+        return nonzero * (self.m * (x - self.a) + self.pa)
 
     def cdf(self, x):
         """
         Returns the CDF at the values of x [array w/units].  CDF is dimensionless
         """
-        nonzero = (x >= self.a) & (x <= self.b)
-        res = np.zeros(len(x)) * unit_registry("dimensionless")
-        delta = x[nonzero] - self.a
-        res[nonzero] = 0.5 * self.m * delta**2 + self.pa * delta
-
-        return res
+        nonzero = 1 * ((x >= self.a) & (x <= self.b))
+        delta = x - self.a
+        return nonzero * (0.5 * self.m * delta**2 + self.pa * delta)
 
     def cdfinv(self, p):
         return self.a + (np.sqrt(self.pa**2 + 2 * self.m * p) - self.pa) / self.m
@@ -1012,6 +1017,15 @@ class SuperGaussian(Dist1d):
             2,
             True,
         )
+
+        self._pdf_evaluation_method = 'analytic'
+        self._pdf_integration_method = 'trapezoid'
+        self._cdf_evaluation_method = 'interpolation'
+        self._cdf_inverse_method = 'interpolation'
+        self._domain_lower_bound = -np.inf * self.Lambda.units
+        self._domain_upper_bound = +np.inf * self.Lambda.units
+
+        self.print_dist_methods(verbose) 
 
     def pdf(self, x=None):
         """Defines the PDF for super Gaussian function"""
