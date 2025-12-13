@@ -573,28 +573,18 @@ class Uniform(Dist1d):
         Returns the PDF at coordinate value(s) x
         """
 
-        if isscalar(x):
-            return int(x >= self.xL and x <= self.xR) / (self.xR - self.xL)
-        else:
-            nonzero = (x >= self.xL) & (x <= self.xR)
-            res = np.zeros(len(x)) * unit_registry("1/" + str(self.xL.units))
-            res[nonzero] = 1 / (self.xR - self.xL)
-            return res
+        x_geq_xL_and_leq_xR_int = 1 * ((x >= self.xL) & (x <= self.xR))  
+        return x_geq_xL_and_leq_xR_int / (self.xR - self.xL)
+
 
     def cdf(self, x):
         """
         Returns the CDF at the values of x [array w/units].  CDF is dimensionless
         """
         
-        if isscalar(x):
-            return int(x >= self.xL and x <= self.xR) * (x-self.xL) / (self.xR - self.xL)
-        else:
-            
-            nonzero = (x >= self.xL) & (x <= self.xR)
-            res = np.zeros(len(x)) * unit_registry("dimensionless")
-            res[nonzero] = (x[nonzero] - self.xL) / (self.xR - self.xL)
-    
-            return res
+        x_geq_xL_and_leq_xR_int = 1 * ((x >= self.xL) & (x <= self.xR))          
+        return x_geq_xL_and_leq_xR_int * (x-self.xL) / (self.xR - self.xL)
+
 
     def cdfinv(self, rns):
         """
@@ -793,15 +783,15 @@ class Norm(Dist1d):
             right_cut_set = True
 
         if not left_cut_set:
-            self.a = -float("Inf") * unit_registry(str(self.sigma.units))
+            self.a = -float("Inf") * self.sigma.units
 
         if not right_cut_set:
-            self.b = +float("Inf") * unit_registry(str(self.sigma.units))
+            self.b = +float("Inf") * self.sigma.units
 
         if self.sigma.magnitude > 0:
             assert (
                 self.a < self.b
-            ), "Right side cut off a = {a:G~P} must be < left side cut off b = {b:G~P}"
+            ), f"Right side cut off a = {a:G~P} must be < left side cut off b = {b:G~P}"
 
             self.A = (self.a - self.mu) / self.sigma
             self.B = (self.b - self.mu) / self.sigma
@@ -849,6 +839,15 @@ class Norm(Dist1d):
                 True,
             )
 
+        self._pdf_evaluation_method = 'analytic'
+        self._pdf_integration_method = 'analytic'
+        self._cdf_evaluation_method = 'analytic'
+        self._cdf_inverse_method = 'analytic'
+        self._domain_lower_bound = -np.inf * self.a.units
+        self._domain_upper_bound = +np.inf * self.b.units
+
+        self.print_dist_methods(verbose)
+
     def get_x_pts(self, n=1000, f=0.1):
         """Returns xpts from [a,b] or +/- 5 sigma, depending on the defintion of PDF"""
 
@@ -875,19 +874,9 @@ class Norm(Dist1d):
             x = self.get_x_pts()
 
         csi = (x - self.mu) / self.sigma
-        res = self.canonical_pdf(csi) / self.Z / self.sigma
+        x_geq_a_and_leq_b_as_int = 1 * (x >= self.a) & (x <= self.b)
 
-        if np.isscalar(x):
-            pass
-        else:
-            
-            res = self.canonical_pdf(csi) / self.Z / self.sigma
-            x_out_of_range = (x < self.a) | (x > self.b)
-            res[x_out_of_range] = 0 * unit_registry("1/" + str(self.sigma.units))
-        
-        return res
-
-
+        return x_geq_a_and_leq_b_as_int * self.canonical_pdf(csi) / self.Z / self.sigma
 
     def canonical_cdf(self, csi):
         """Defines the canonical cdf function"""
@@ -896,10 +885,12 @@ class Norm(Dist1d):
     def cdf(self, x):
         """Define the CDF for non-canonical normal dist including truncations on either side"""
         csi = (x - self.mu) / self.sigma
-        res = (self.canonical_cdf(csi) - self.PA) / self.Z
-        x_out_of_range = (x < self.a) | (x > self.b)
-        res[x_out_of_range] = 0 * unit_registry("dimensionless")
-        return res
+        x_geq_a_and_leq_b_as_int = 1 * (x >= self.a) & (x <= self.b)
+        return  x_geq_a_and_leq_b_as_int * (self.canonical_cdf(csi) - self.PA) / self.Z
+        
+        #x_out_of_range = (x < self.a) | (x > self.b)
+        #res[x_out_of_range] = 0 * unit_registry("dimensionless")
+        #return res
 
     def canonical_cdfinv(self, rns):
         """Define the inverse of the CDF for canonical normal dist including truncations on either side"""
