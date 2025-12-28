@@ -130,6 +130,8 @@ def get_dist(var, params, verbose=0):
         dist = Product2d(var, verbose=verbose, **params)
     elif dtype == "deformable":
         dist = Deformable(var, verbose=verbose, **params)
+    elif dtype == 'radial':
+        dist = DistRad(params['r'], params['Pr'], verbose=verbose)
     elif (dtype == "radial_uniform" or dtype == "ru") and var == "r":
         dist = UniformRad(verbose=verbose, **params)
     elif (dtype == "radial_gaussian" or dtype == "rg") and var == "r":
@@ -251,16 +253,16 @@ class Dist1d(Dist):
         self._cdf_inverse_method = 'interp'
 
     def print_dist_methods(self, verbose):
-        vprint(f"PDF evaluation method: {self._pdf_evaluation_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 0, 2, True)
-        vprint(f"PDF integration method: {self._pdf_integration_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 0, 2, True)
-        vprint(f"CDF evaluation method: {self._cdf_evaluation_method}", verbose > 0, 2, True)
-        vprint(f"Inverse CDF method: {self._cdf_inverse_method}", verbose > 0, 2, True)
+        vprint(f"PDF evaluation method: {self._pdf_evaluation_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 1, 2, True)
+        vprint(f"PDF integration method: {self._pdf_integration_method}, domain = [{self._domain_lower_bound:G~P}, {self._domain_lower_bound:G~P}]", verbose > 1, 2, True)
+        vprint(f"CDF evaluation method: {self._cdf_evaluation_method}", verbose > 1, 2, True)
+        vprint(f"Inverse CDF method: {self._cdf_inverse_method}", verbose > 1, 2, True)
 
     def get_x_pts(self, n):
         """
         Returns a vector of x pts suitable for sampling the PDF Px(x)
         """
-        return linspace(self.self._domain_lower_bound, self._domain_upper_bound, n)
+        return linspace(self._domain_lower_bound, self._domain_upper_bound, n)
 
     def pdf(self, x):
         """ "
@@ -460,12 +462,16 @@ class Product(Dist1d):
             if xi[-1] > max_var:
                 max_var = xi[-1]
 
+        self.min_var = min_var
+        self.max_var = max_var
+
         if 'integration_method' in kwargs:
             self.integration_method = kwargs['integration_method']
         else:
             self.integration_method = 'trapezoid'
 
         if self.integration_method == 'trapezoid':
+            
             xs = linspace(min_var, max_var, 10000)
 
             for ii, name in enumerate(dists.keys()):
@@ -477,6 +483,8 @@ class Product(Dist1d):
                     ps = ps * pii / np.max(pii.magnitude)
     
             super().__init__(xs, ps, var)
+
+        
 
     def pdf(self, x):
 
@@ -1951,7 +1959,8 @@ class UniformPhi(DistPhi):
 
 
 class DistRad(Dist):
-    def __init__(self, rs, Pr):
+    def __init__(self, rs, Pr, verbose=0,):
+        
         self.rs = rs
         self.Pr = Pr
         # self.rb =  centers(rs)
@@ -1964,6 +1973,8 @@ class DistRad(Dist):
         self.Cr, self.rb = radcumint(self.Pr, self.rs)
 
         self.var_type = "radial"
+
+        vprint('radial dist', verbose > 0, 0, True)
 
     def get_r_pts(self, n):
         return linspace(self.rs[0], self.rs[-1], n)
@@ -2326,7 +2337,7 @@ class NormRad(DistRad):
         ]
 
         self.check_inputs(params)
-
+      
         assert not (
             "sigma_xy" in params and "truncation_fraction" in params
         ), "User must specify either a sigma_xy or truncation fraction, not both"
@@ -2346,6 +2357,14 @@ class NormRad(DistRad):
             ):
                 self.rL = params["truncation_radius_left"]
                 self.rR = params["truncation_radius_right"]
+
+            elif "truncation_radius_left" in params:
+                self.rL = params["truncation_radius_left"]
+                self.rR = np.inf * self.rL.units
+
+            elif "truncation_radius_right" in params:
+                self.rR = params["truncation_radius_right"]
+                self.rL =  0.0 * self.rR
 
             elif "truncation_radius" in params:
                 self.rL = 0 * unit_registry("mm")
@@ -2378,10 +2397,8 @@ class NormRad(DistRad):
                 and "truncation_radius_right" in params
             ):
                 self.rL = params["truncation_radius_right"]
-                self.rR = params["truncation_radius_right"]
+                self.rR = params["truncation_radius_left"]
                 self.sigma = self.rR * np.sqrt(1.0 / 2.0 / np.log(1 / f))
-
-        # print(self.sigma, self.rL, self.rR)
 
         assert self.rR.magnitude >= 0, "Radial Gaussian right cut radius must be >= 0"
         assert (
@@ -2393,17 +2410,23 @@ class NormRad(DistRad):
         self.dp = self.pL - self.pR
 
         vprint("radial Gaussian", verbose, 0, True)
-        # vprint('underlying sigma_xy
+        vprint(f'Non-truncated sigma_xy: {self.sigma:G~P}', verbose, 2, True)
 
     def canonical_rho(self, xi):
         return (1.0 / 2.0 / PHYSICAL_CONSTANTS.pi) * np.exp(-(xi**2) / 2)
 
     def rho(self, r):
+        #print(r)
         xi = r / self.sigma
-        res = np.zeros(len(r)) * unit_registry("1/" + str(r.units) + "/" + str(r.units))
-        nonzero = (r >= self.rL) & (r <= self.rR)
-        res[nonzero] = self.canonical_rho(xi[nonzero]) / self.dp / (self.sigma**2)
-        return res
+
+        r_geq_rL_and_leq_rR_as_int = 1 * (r >= self.rL) & (r <= self.rR)
+        return r_geq_rL_and_leq_rR_as_int * self.canonical_rho(xi) / self.dp / (self.sigma**2)
+        
+        
+        #res = np.zeros(len(r)) * unit_registry("1/" + str(r.units) + "/" + str(r.units))
+        #nonzero = (r >= self.rL) & (r <= self.rR)
+        #res[nonzero] = self.canonical_rho(xi[nonzero]) / self.dp / (self.sigma**2)
+        #return res
 
     def rho_xy(self, x, y):
         X, Y = meshgrid(x, y)
@@ -2415,26 +2438,33 @@ class NormRad(DistRad):
             "1/" + str(x.units) + "/" + str(y.units)
         )
 
-        nonzero = (R >= self.rL) & (R <= self.rR)
-        res[nonzero] = self.canonical_rho(xi[nonzero]) / self.dp / (self.sigma**2)
+        r_geq_rL_and_leq_rR_as_int = 1 * (R >= self.rL) & (R <= self.rR)
+        return r_geq_rL_and_leq_rR_as_int * self.canonical_rho(xi) / self.dp / (self.sigma**2)
 
-        return res
+        #nonzero = (R >= self.rL) & (R <= self.rR)
+        #res[nonzero] = self.canonical_rho(xi[nonzero]) / self.dp / (self.sigma**2)
+
+        #return res
 
     def pdf(self, r):
         xi = r / self.sigma
-        res = np.zeros(len(r)) * unit_registry("1/" + str(r.units))
-        nonzero = (r >= self.rL) & (r <= self.rR)
-        res[nonzero] = (
-            r[nonzero] * self.canonical_rho(xi[nonzero]) / self.dp / self.sigma**2
-        )
-        return res
+        r_geq_rL_and_leq_rR_as_int = 1 * (r >= self.rL) & (r <= self.rR)
+        return r_geq_rL_and_leq_rR_as_int * self.canonical_rho(xi) / self.dp / self.sigma**2
+        #res = np.zeros(len(r)) * unit_registry("1/" + str(r.units))
+        #nonzero = (r >= self.rL) & (r <= self.rR)
+        #res[nonzero] = (
+        #    r[nonzero] * self.canonical_rho(xi[nonzero]) / self.dp / self.sigma**2
+        #)
+        #return res
 
     def cdf(self, r):
-        res = np.zeros(len(r)) * unit_registry("dimensionless")
-        nonzero = (r >= self.rL) & (r <= self.rR)
+        r_geq_rL_and_leq_rR_as_int = 1 * (r >= self.rL) & (r <= self.rR)
+        #res = np.zeros(len(r)) * unit_registry("dimensionless")
+        #nonzero = (r >= self.rL) & (r <= self.rR)
         xi = r / self.sigma
-        res[nonzero] = (self.pL - self.canonical_rho(xi[nonzero])) / self.dp
-        return res
+        return r_geq_rL_and_leq_rR_as_int * (self.pL - self.canonical_rho(xi)) / self.dp
+        #res[nonzero] = (self.pL - self.canonical_rho(xi[nonzero])) / self.dp
+        #return res
 
     def cdfinv(self, rns):
         return np.sqrt(
@@ -2478,6 +2508,7 @@ class NormRad(DistRad):
             pRrR2 = self.pR * self.rR**2
 
         pRrL2 = self.pR * self.rL**2
+
         return np.sqrt(2 * self.sigma**2 + self.rL**2 + (pRrL2 - pRrR2) / self.dp)
 
     @property
@@ -3370,7 +3401,7 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
             "temperature",
             "fermi_energy",
         ]
-        self.optional_params = []
+        self.optional_params = ['n_tails']
 
         self.check_inputs(params)
 
@@ -3384,6 +3415,11 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
         self.kT = (kb * self.cathode_temperature).to("eV")
         self.Wf = params["work_function"]
         self.fermi_energy = params["fermi_energy"]
+        
+        if 'n_tails' in params:
+            self.n_tails = params['n_tails']
+        else:
+            self.n_tails = 4
 
         vprint("Fermi-Dirac 3 Step Barrier Photocathode Model", verbose > 0, 0, True)
         vprint(
@@ -3401,7 +3437,7 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
 
         self.p_bounds, self.polar_angle_bounds = (
             fermi_dirac_3step_barrier_pdf_bounds_spherical(
-                self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy
+                self.photon_energy, self.Wf, self.cathode_temperature, self.fermi_energy, n_tails=self.n_tails
             )
         )
 
@@ -3431,7 +3467,7 @@ class FermiDirac3StepBarrierMomentumDist(Dist2d):
             self.photon_energy,
             self.Wf,
             self.cathode_temperature,
-            self.fermi_energy,
+            self.fermi_energy
         )
 
 
