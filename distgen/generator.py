@@ -626,6 +626,7 @@ class Generator(Base):
 
             if rdist.rms() > 0:
                 r = rdist.cdfinv(self.rands["r"])  # Sample to get beam coordinates
+                
 
             # Sample to get beam coordinates
             vprint("theta distribution: ", verbose > 0, 1, False)
@@ -794,8 +795,13 @@ class Generator(Base):
 
             P = params["spin_polarization"]
 
-            bdist["sz"][self.rands["sz"] < 0.5 * (1 - P)] = -hbar / 2
-            bdist["sz"][self.rands["sz"] >= 0.5 * (1 - P)] = +hbar / 2
+            if N > 1:
+                bdist["sz"][self.rands["sz"] < 0.5 * (1 - P)] = -hbar / 2
+                bdist["sz"][self.rands["sz"] >= 0.5 * (1 - P)] = +hbar / 2
+            elif self.rands["sz"][0] < 0.5 * (1 - P):
+                bdist["sz"][0] = -hbar / 2
+            else:
+                bdist["sz"][0] = +hbar / 2
 
             if "spin_orientation" in params:
                 thx = params["spin_orientation"]["theta_x"].to("rad")

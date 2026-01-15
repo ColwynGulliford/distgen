@@ -77,6 +77,25 @@ class Beam:
     def __getitem__(self, key):
         return getattr(self, key)
 
+    def __add__(self, other):
+
+        assert self.species == other.species
+
+        total_beam = Beam(n_particle = self.n_particle + other.n_particle, 
+                          total_charge = self.q + other.q,
+                          species = self.species)
+
+        for var in ['x', 'y', 'z', 'px', 'py', 'pz', 'sx', 'sy', 'sz']:
+            try:
+                total_beam[var] = np.concatenate( (self[var], other[var]) )
+            except:
+                print('Could not add together data for variable ', var)
+                
+        N = len(total_beam.x)
+        total_beam.w = np.full((N,), 1 / N) * unit_registry("dimensionless")
+        
+        return total_beam
+
     @property
     def species(self):
         return self._species

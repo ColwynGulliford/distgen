@@ -34,6 +34,7 @@ def fermi_dirac_3step_barrier_pdf_int(
     )
     p_transport = cpz > 0
     p_escape = cpz**2 / 2 / MC2 + photon_energy >= fermi_energy + workfun
+
     return p_excite * p_transport * p_escape
 
 
