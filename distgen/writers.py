@@ -21,8 +21,10 @@ def writer(output_format, beam, outfile, verbose=0, params=None):
     file_writer[output_format](beam, outfile, verbose, params)
 
 
-def asci2gdf(gdf_file, txt_file, asci2gdf_bin, remove_txt_file=True):
+def asci2gdf(gdf_file, txt_file, asci2gdf_bin='$ASCI2GDF_BIN', remove_txt_file=True):
     """Convert an ASCII GPT file to GDF format"""
+
+    asci2gdf_bin = os.path.normpath(os.path.expandvars(asci2gdf_bin))
 
     if gdf_file == txt_file:
         os.rename(txt_file, "txt_file.tmp")
