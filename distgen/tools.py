@@ -225,13 +225,18 @@ def radcumint(f, r):
 # --------------------------------------------------------------
 # Interpolation routines
 # --------------------------------------------------------------
-@unit_registry.wraps("=B", ("=A", "=A", "=B"))
-def interp(x, xp, fp):
-    """
-    1d interpolation of [xp,f(xp)] @ x
-    """
-    return np.interp(x, xp, fp)
+#@unit_registry.wraps("=B", ("=A", "=A", "=B"))
+#def interp(x, xp, fp):
+#    """
+#    1d interpolation of [xp,f(xp)] @ x
+#    """
+#    print(x, xp, fp)
+#    print('form', np.interp(x, xp, fp))
+#    return np.interp(x, xp, fp)
 
+def interp(x, xp, fp):
+    #print('numpy fallback')
+    return np.interp(x, xp, fp)
 
 @unit_registry.wraps("=C", ("=A", "=B", "=A", "=B", "=C"))
 def interp2d(x, y, xp, yp, fp):

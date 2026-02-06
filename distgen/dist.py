@@ -262,7 +262,7 @@ class Dist1d(Dist):
         """
         Returns a vector of x pts suitable for sampling the PDF Px(x)
         """
-        return linspace(self._domain_lower_bound, self._domain_upper_bound, n)
+        return np.linspace(self._domain_lower_bound, self._domain_upper_bound, n)
 
     def pdf(self, x):
         """ "
@@ -295,8 +295,9 @@ class Dist1d(Dist):
         """
         Plots the associated pdf function sampled with n points
         """
+        
         x = self.get_x_pts(n)
-        p = self.pdf(x)
+        p = self.pdf(x)  
         plt.figure()
         plt.plot(x, p)
         plt.xlabel(f"{self.xstr} ({x.units:~P})")
@@ -471,25 +472,30 @@ class Product(Dist1d):
             self.integration_method = 'trapezoid'
 
         if self.integration_method == 'trapezoid':
-            
+   
             xs = linspace(min_var, max_var, 10000)
 
             for ii, name in enumerate(dists.keys()):
                 pii = dists[name].pdf(xs)
-    
+              
                 if ii == 0:
-                    ps = pii / np.max(pii.magnitude)
+                    ps = pii / np.max(pii)
                 else:
-                    ps = ps * pii / np.max(pii.magnitude)
-    
+                    ps = ps * pii / np.max(pii)
+
+            ps = ps.to('dimensionless') * unit_registry(f'1/{xs.units}')
+ 
             super().__init__(xs, ps, var)
+
+        else:
+            raise ValueError('Unsupported integration method.')
 
         
 
     def pdf(self, x):
 
         if self.integration_method == 'trapezoid':
-            super().pdf(x)
+            return super().pdf(x)
         
         else: 
 
