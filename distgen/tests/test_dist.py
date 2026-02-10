@@ -95,6 +95,17 @@ def test_1d_distributions():
     uniform.plot_cdf()
     uniform.test_sampling()
 
+def test_linear_distributin():
+
+    from distgen.dist import Linear
+    
+    var = "x"
+    verbose = 1
+    params = {"min_x": 2 * unit_registry("mm"), "max_x": 4 * unit_registry("mm"), "slope_fraction": 0.25}
+    linear = Linear(var, verbose=verbose, **params)
+    linear.plot_pdf()
+    linear.plot_cdf()
+    linear.test_sampling()
 
 def test_normal_distribution():
     # # Normal Distribution (including truncation)

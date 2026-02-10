@@ -29,11 +29,12 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin='$ASCI2GDF_BIN', remove_txt_file=T
     if gdf_file == txt_file:
         os.rename(txt_file, "txt_file.tmp")
         txt_file = "txt_file.tmp"
-
-    result = os.system(f"{asci2gdf_bin} -o {gdf_file} {txt_file}")
+        
+    cmd = f'{asci2gdf_bin} -o {gdf_file} "{txt_file}"'
+    result = subprocess.run(cmd, shell=False)
 
     if remove_txt_file:
-        os.system(f"rm {txt_file}")
+        subprocess.run(['rm', txt_file], shell=False)
 
     return result
 
