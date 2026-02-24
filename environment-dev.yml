@@ -10,7 +10,7 @@ dependencies:
   - pyyaml
   - h5py
   - pint
-  - openpmd-beamphysics
+  - openpmd-beamphysics>=0.14.0
   - lume-base
   - pydicom
   # Developer
