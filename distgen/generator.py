@@ -33,8 +33,8 @@ from .physical_constants import is_quantity
 from .physical_constants import PHYSICAL_CONSTANTS
 from .physical_constants import unit_registry
 
-from pmd_beamphysics import ParticleGroup, ParticleStatus, pmd_init
-from pmd_beamphysics.particles import join_particle_groups
+from beamphysics import ParticleGroup, ParticleStatus, pmd_init
+from beamphysics.particles import join_particle_groups
 
 from .tools import get_nested_dict
 from .tools import is_key_in_nested_dict

@@ -1,4 +1,4 @@
-from pmd_beamphysics import ParticleStatus
+from beamphysics import ParticleStatus
 import numpy as np
 from .physical_constants import PHYSICAL_CONSTANTS
 from .physical_constants import unit_registry
