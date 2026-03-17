@@ -3083,7 +3083,7 @@ class SuperPosition2d(Dist2d):
         if "weights" in kwargs:
             weights = kwargs["weights"]
         else:
-            weights = np.linspace(len(dist_defs.keys()))
+            weights = np.ones(len(dist_defs.keys()))
 
         weights = weights / np.sum(weights)
 
