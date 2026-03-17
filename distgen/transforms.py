@@ -101,7 +101,7 @@ def set_avg(beam, **params):
     var = params["variables"]
     check_inputs(params, ["avg_" + var], [], 1, "set_avg(beam, **kwargs)")
     new_avg = params["avg_" + var]
-    beam[var] = new_avg + (beam[var] - beam[var].mean())
+    beam[var] = new_avg + (beam[var] - beam.avg(var))
     vprint(f"Setting avg_{var} -> {new_avg:G~P}.", params["verbose"], 2, True)
 
     return beam
@@ -117,7 +117,7 @@ def scale(beam, **params):
         scale = float(scale) * unit_registry("dimensionless")
 
     if fix_average:
-        avg = beam[var].mean()
+        avg = beam.avg(var)
         beam[var] = avg + scale * (beam[var] - avg)
         vprint(
             f"Scaling {var} by {scale:G~P} holding avg_{var} = {avg:G~P} constant.",
@@ -137,7 +137,7 @@ def set_std(beam, **params):
     check_inputs(params, ["sigma_" + var], [], 1, "set_std(beam, **kwargs)")
     new_std = params["sigma_" + var]
     vprint(f"Setting sigma_{var} -> {new_std:G~P}", params["verbose"], 2, True)
-    old_std = beam[var].std()
+    old_std = beam.std(var)
     if old_std.magnitude > 0:
         beam = scale(
             beam, **{"variables": var, "scale": new_std / old_std, "fix_average": True}
@@ -190,8 +190,8 @@ def rotate2d(beam, **params):  # variables, angle, origin=None):
     v2 = beam[var2]
 
     if origin == "centroid":
-        o1 = v1.mean()
-        o2 = v2.mean()
+        o1 = beam.avg(var1)
+        o2 = beam.avg(var2)
         vprint(
             f'Rotating {var1}-{var2} by {angle.to("deg"):G~P} around {var1} and {var2} centroid.',
             params["verbose"],
@@ -432,10 +432,10 @@ def set_twiss(beam, **params):  # plane, beta, alpha, eps):
     x0 = beam[xstr]
     p0 = beam[pstr]
 
-    avg_x0 = x0.mean()
+    avg_x0 = beam.avg(xstr)
     beam[xstr] = beam[xstr] - avg_x0
 
-    avg_p0 = p0.mean()
+    avg_p0 = beam.avg(pstr)
     beam[pstr] = beam[pstr] - avg_p0
 
     # p_units = "dimensionless"
