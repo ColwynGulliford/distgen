@@ -10,6 +10,7 @@ authors = [
   {name="Colwyn Gulliford"},
 ]
 classifiers = [
+  "License :: OSI Approved :: Apache Software License",
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
   "Topic :: Scientific/Engineering",
@@ -28,17 +29,12 @@ dependencies = ["scipy",
 
 description = "Tools for creating macroparticle distributions for accelerators"
 dynamic = [ "version" ]
-keywords = []
 name = "distgen"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
 
 [project.urls]
 Homepage = "https://github.com/ColwynGulliford/distgen"
-
-[options]
-zip_safe = false
-include_package_data = true
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -1,4 +1,0 @@
-include requirements.txt
-include LICENSE
-include versioneer.py
-include distgen/_version.py
