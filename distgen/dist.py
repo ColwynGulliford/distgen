@@ -2031,7 +2031,7 @@ class DistRad(Dist):
 
     def sample(self, N, sequence="hammersley", **kwargs):
         return self.cdfinv(
-            random_generator((1, N), sequence, *kwargs) * unit_registry("dimensionless")
+            random_generator((1, N), sequence, **kwargs) * unit_registry("dimensionless")
         )
 
     def plot_pdf(self, n=1000):
