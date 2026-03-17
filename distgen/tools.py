@@ -488,7 +488,7 @@ def read_image_file(filename, rgb_weights=[0.2989, 0.5870, 0.1140]):
 
     # print(img.shape)
 
-    if len(img.shape) > 3:
+    if len(img.shape) == 3 and img.shape[2] == 4:
         clear_pixels = np.squeeze(img[:, :, 3]) == 0  # make alpha=0 -> white
         greyscale = np.dot(img[..., :3], rgb_weights)
         greyscale = greyscale / greyscale.max()

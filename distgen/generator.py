@@ -133,7 +133,7 @@ class Generator(Base):
     #    self.check_input_consistency()
 
     def __repr__(self):
-        s = "<disgten.Generator with input: \n"
+        s = "<distgen.Generator with input: \n"
         return s + yaml.dump(self.input) + "\n>"
 
     def __getitem__(self, varstr):

@@ -42,7 +42,9 @@ import copy
 #    return beam
 
 
-def run_distgen(settings={}, inputs="distgen.json", verbose=0):
+def run_distgen(settings=None, inputs="distgen.json", verbose=0):
+    if settings is None:
+        settings = {}
     """
     Driver routine to generate a beam accordng to inputs (json or dict)
 

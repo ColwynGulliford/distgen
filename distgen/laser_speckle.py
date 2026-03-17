@@ -17,10 +17,9 @@ def generate_laser_speckle_fft(image_size, speckle_size, random_seed=None):
 
     # Generate a random phase pattern in Fourier domain
 
-    if random_seed is not None:
-        pass
+    rng = np.random.default_rng(random_seed)
 
-    random_phase = np.exp(2j * np.pi * np.random.rand(image_size[0], image_size[1]))
+    random_phase = np.exp(2j * np.pi * rng.random((image_size[0], image_size[1])))
 
     # Apply a low-pass filter to control the speckle size
     Y, X = np.ogrid[: image_size[0], : image_size[1]]
@@ -62,10 +61,9 @@ def generate_speckle_pattern_with_filter(image_size, sigma, random_seed=None):
     - speckle_pattern: The generated speckle pattern as a 2D numpy array.
     """
     # Generate a random phase distribution
-    if random_seed:
-        np.random.seed(random_seed)
+    rng = np.random.default_rng(random_seed)
 
-    random_phase = np.exp(2j * np.pi * np.random.rand(image_size[0], image_size[1]))
+    random_phase = np.exp(2j * np.pi * rng.random((image_size[0], image_size[1])))
 
     # Perform FFT of the random phase distribution
     fft_image = fft2(random_phase)
