@@ -2402,8 +2402,8 @@ class NormRad(DistRad):
                 "truncation_radius_left" in params
                 and "truncation_radius_right" in params
             ):
-                self.rL = params["truncation_radius_right"]
-                self.rR = params["truncation_radius_left"]
+                self.rL = params["truncation_radius_left"]
+                self.rR = params["truncation_radius_right"]
                 self.sigma = self.rR * np.sqrt(1.0 / 2.0 / np.log(1 / f))
 
         assert self.rR.magnitude >= 0, "Radial Gaussian right cut radius must be >= 0"
@@ -3015,7 +3015,11 @@ class Dist2d(Dist):
             plt.plot(self.yb, self.Cys[:, ii])
 
     def sample(self, N, sequence=None, params=None):
-        rns = self.rgen.rand((N, 2), sequence, params) * unit_registry("dimensionless")
+        if sequence is None:
+            sequence = "hammersley"
+        if params is None:
+            params = {}
+        rns = random_generator((2, N), sequence, **params) * unit_registry("dimensionless")
         x, y = self.cdfinv(rns[0, :], rns[1, :])
         return (x, y)
 
