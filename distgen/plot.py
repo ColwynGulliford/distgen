@@ -193,7 +193,8 @@ def plot_dist2d(
     Plot a 2d distribution by histogramming particle coordinates var1 and var2
     """
     if style == "scatter":
-        fig, ax = plt.plot(
+        fig, ax = plt.subplots()
+        ax.plot(
             beam[var1].to(units1).magnitude, beam[var2].to(units2).magnitude, "*"
         )
 

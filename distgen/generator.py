@@ -267,6 +267,12 @@ class Generator(Base):
         if "transforms" not in params:
             params["transforms"] = None
 
+        if "start" not in params:
+            raise ValueError("Required generator parameter 'start' not found.")
+
+        if "type" not in params["start"]:
+            raise ValueError("The 'start' parameter must include a 'type' field.")
+
         if params["start"]["type"] == "cathode":
             for d in ["z_dist", "px_dist", "py_dist", "pz_dist"]:
                 if d in params:
@@ -476,10 +482,23 @@ class Generator(Base):
                 random = params["random"]
 
             elif "random_type" in params:
+                warnings.warn(
+                    "'random_type' is deprecated. Use 'random': {'type': ...} instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
                 random["type"] = params["random_type"]
 
                 if "random_seed" in params:
+                    warnings.warn(
+                        "'random_seed' is deprecated. Use 'random': {'seed': ...} instead.",
+                        DeprecationWarning,
+                        stacklevel=2,
+                    )
                     random["seed"] = params["random_seed"]
+
+            if "type" not in random:
+                random["type"] = "hammersley"
 
             rns = random_generator(shape, random["type"], **random)
 
@@ -626,7 +645,8 @@ class Generator(Base):
 
             if rdist.rms() > 0:
                 r = rdist.cdfinv(self.rands["r"])  # Sample to get beam coordinates
-                
+            else:
+                r = np.zeros(len(self.rands["r"])) * rdist.rms().units
 
             # Sample to get beam coordinates
             vprint("theta distribution: ", verbose > 0, 1, False)
@@ -933,7 +953,7 @@ class Generator(Base):
                 bdist,
                 **{
                     "variables": "t",
-                    "avg_t": 0.0 * unit_registry("sec"),
+                    "avg_t": tstart,
                     "verbose": verbose > 0,
                 },
             )
