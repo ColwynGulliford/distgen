@@ -2788,8 +2788,8 @@ class InterpolationRad(DistRad):
         else:
             n_pts = 1000
 
-        if "rs" in kwargs:
-            rs = kwargs["rs"]
+        if "r" in kwargs:
+            rs = kwargs["r"]
         else:
             rs = np.linspace(0, 1, len(pts)) * unit_registry("mm")
 

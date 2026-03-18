@@ -89,7 +89,7 @@ class Beam:
             try:
                 total_beam[var] = np.concatenate( (self[var], other[var]) )
             except:
-                ValueError('Could not add together data for variable ', var)
+                rasie ValueError('Could not add together data for variable ', var)
                 
         N = len(total_beam.x)
         total_beam.w = np.full((N,), 1 / N) * unit_registry("dimensionless")
