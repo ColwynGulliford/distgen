@@ -434,7 +434,7 @@ class Superposition(Dist1d):
 
         super().__init__(xs, ps, var)
 
-        #print(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
+        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
 
 
 class Product(Dist1d):
@@ -497,16 +497,8 @@ class Product(Dist1d):
         if self.integration_method == 'trapezoid':
             return super().pdf(x)
         
-        else: 
-
-            for ii, name in enumerate(dists.keys()):
-                pii = dists[name].pdf(x)
-    
-                if ii == 0:
-                    ps = pii
-                else:
-                    ps = ps * pii
-
+        else:
+            raise ValueError('Unsupported integration method.')
             
 
 
@@ -1409,7 +1401,7 @@ class Sech2(Dist1d):
         self.xstr = "t"
 
         if "tau" in kwargs:
-            self.tau = kwargs["tau"]
+            self._tau = kwargs["tau"]
             reset_tau = False
         elif "sigma_t" in kwargs:
             self.tau = kwargs[
@@ -1421,7 +1413,7 @@ class Sech2(Dist1d):
         if "avg_t" in kwargs:
             self.mu = kwargs["avg_t"]
         else:
-            self.mu = 0 * unit_registry(str(self.tau.units))
+            self.mu = 0 * unit_registry(str(self._tau.units))
 
         if "n_tau_cutoff" in kwargs:
             self.n_tau_cutoff = kwargs["n_tau_cutoff"]
@@ -1431,14 +1423,14 @@ class Sech2(Dist1d):
         self.set_dist_params(self.tau)
 
         if reset_tau:
-            self.tau = self.reset_tau_from_sigma()
+            self._tau = self.reset_tau_from_sigma()
 
         else:
             self.sigma = self.get_sigma_from_tau()
 
         vprint("Sech2", verbose > 0, 0, True)
         vprint(
-            f"sigma_t = {self.sigma:G~P}, tau = {self.tau:G~P}", verbose > 0, 2, True
+            f"sigma_t = {self.sigma:G~P}, tau = {self._tau:G~P}", verbose > 0, 2, True
         )
 
     def get_x_pts(self, n):
@@ -1462,8 +1454,9 @@ class Sech2(Dist1d):
     def std(self):
         return self.sigma
 
+    @property
     def tau(self):
-        return self.tau
+        return self._tau
 
     @property
     def t(self):
@@ -2422,17 +2415,11 @@ class NormRad(DistRad):
         return (1.0 / 2.0 / PHYSICAL_CONSTANTS.pi) * np.exp(-(xi**2) / 2)
 
     def rho(self, r):
-        #print(r)
+
         xi = r / self.sigma
 
         r_geq_rL_and_leq_rR_as_int = 1 * (r >= self.rL) & (r <= self.rR)
         return r_geq_rL_and_leq_rR_as_int * self.canonical_rho(xi) / self.dp / (self.sigma**2)
-        
-        
-        #res = np.zeros(len(r)) * unit_registry("1/" + str(r.units) + "/" + str(r.units))
-        #nonzero = (r >= self.rL) & (r <= self.rR)
-        #res[nonzero] = self.canonical_rho(xi[nonzero]) / self.dp / (self.sigma**2)
-        #return res
 
     def rho_xy(self, x, y):
         X, Y = meshgrid(x, y)
