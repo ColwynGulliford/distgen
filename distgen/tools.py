@@ -433,26 +433,6 @@ def read_2d_file(filename):
     return (xs, ys, Pxy, xstr, ystr)
 
 
-"""
-def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
-
-    img = mpimg.imread(filename)
-
-    if(len(img.shape)>3):
-        clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
-        greyscale = np.dot(img[...,:3], rgb_weights)
-        greyscale = greyscale/greyscale.max()
-        greyscale[clear_pixels]=1
-
-    elif(len(img.shape)==3):
-        greyscale = np.dot(img[...,:3], rgb_weights)
-        greyscale = greyscale/greyscale.max()
-
-
-    return greyscale
-"""
-
-
 def get_file_extension(filename):
     return Path(filename).suffix.lower()
 
@@ -584,27 +564,6 @@ def unflatten_dict(d, sep=":", prefix=""):
 
         d1[klist[-1]] = vv
     return dd
-
-
-# def update_nested_dict(d, settings, verbose=False, create_new):
-#    """
-#    Updates a nested dict with flattened settings
-#    """
-#    flat_params = flatten_dict(d)
-
-#    for key, value in settings.items():
-#        if verbose:
-#            if key in flat_params:
-#                print(f'Replacing param {key} with value {value}')
-#            else:
-#                print(f'New param {key} with value {value}')
-
-
-#       flat_params[key] = value
-#
-#    new_dict = unflatten_dict(flat_params)
-#
-#    return new_dict
 
 
 def update_nested_dict(d, settings, verbose=False, create_new=True):

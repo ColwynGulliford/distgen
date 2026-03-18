@@ -434,7 +434,7 @@ class Superposition(Dist1d):
 
         super().__init__(xs, ps, var)
 
-        vprint(f'min_{var} = {self.xL:G~P}, max_{var} = {self.xR:G~P}', verbose>0, 2, True)
+        vprint(f'min_{var} = {self.xs[0]:G~P}, max_{var} = {self.xs[-1]:G~P}', verbose>0, 2, True)
 
 
 class Product(Dist1d):
@@ -1481,7 +1481,7 @@ class Sech2(Dist1d):
         return res["x"][0] * unit_registry(str(self.sigma.units))
 
     def set_dist_params(self, T):
-        self.tau = T
+        self._tau = T
 
         self.min_t = self.mu - self.n_tau_cutoff * self.tau
         self.max_t = self.mu + self.n_tau_cutoff * self.tau
