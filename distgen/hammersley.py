@@ -111,7 +111,8 @@ def create_halton_samples(order, dim=1, burnin=-1, primes=()):
             primes = create_primes(prime_order)
             prime_order *= 2
     primes = primes[:dim]
-    assert len(primes) == dim, "not enough primes"
+    if len(primes) != dim:
+        raise ValueError(f"Not enough primes: got {len(primes)}, need {dim}")
 
     if burnin < 0:
         burnin = max(primes)
@@ -165,7 +166,8 @@ def create_van_der_corput_samples(idx, number_base=2):
     Returns (float, numpy.ndarray):
         Van der Corput samples.
     """
-    assert number_base > 1
+    if number_base <= 1:
+        raise ValueError(f"number_base must be > 1, got {number_base}")
 
     idx = numpy.asarray(idx).flatten() + 1
     out = numpy.zeros(len(idx), dtype=float)

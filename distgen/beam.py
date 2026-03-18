@@ -64,22 +64,27 @@ class Beam:
     def check_inputs(self, inputs):
         allowed_params = self.optional_inputs + self.required_inputs + ["verbose"]
         for input_param in inputs:
-            assert (
-                input_param in allowed_params
-            ), f"Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {input_param}\nAllowed params: {allowed_params}"
+            if input_param not in allowed_params:
+                raise ValueError(
+                    f"Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {input_param}\nAllowed params: {allowed_params}"
+                )
 
         # Make sure all required parameters are specified
         for req in self.required_inputs:
-            assert (
-                req in inputs
-            ), f"Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found."
+            if req not in inputs:
+                raise ValueError(
+                    f"Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found."
+                )
 
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __add__(self, other):
 
-        assert self.species == other.species
+        if self.species != other.species:
+            raise ValueError(
+                f"Cannot add beams of different species: {self.species} and {other.species}"
+            )
 
         total_beam = Beam(n_particle = self.n_particle + other.n_particle, 
                           total_charge = self.q + other.q,
@@ -88,8 +93,8 @@ class Beam:
         for var in ['x', 'y', 'z', 'px', 'py', 'pz', 'sx', 'sy', 'sz']:
             try:
                 total_beam[var] = np.concatenate( (self[var], other[var]) )
-            except:
-                rasie ValueError('Could not add together data for variable ', var)
+            except Exception:
+                raise ValueError('Could not add together data for variable ' + var)
                 
         N = len(total_beam.x)
         total_beam.w = np.full((N,), 1 / N) * unit_registry("dimensionless")

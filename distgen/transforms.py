@@ -25,11 +25,12 @@ def get_variables(varstr):
         varstr = varstr.strip()
         variables = varstr.split(":")
         for variable in variables:
-            assert variable in ALLOWED_VARIABLES, (
-                "transforms::get_variables -> variable "
-                + variable
-                + " is not supported."
-            )
+            if variable not in ALLOWED_VARIABLES:
+                raise ValueError(
+                    "transforms::get_variables -> variable "
+                    + variable
+                    + " is not supported."
+                )
         return variables
 
 
@@ -45,36 +46,40 @@ def get_origin(beam, varstr, origin):
 
 
 def check_inputs(params, required_params, optional_params, n_variables, name):
-    assert (
-        "variables" in params
-    ), 'All transforms colon separated "variables" string specifying which coordinates to transform.'
-    assert n_variables == len(params["variables"].split(":")), (
-        name + " function requires " + str(n_variables) + "."
-    )
+    if "variables" not in params:
+        raise ValueError(
+            'All transforms require a colon separated "variables" string specifying which coordinates to transform.'
+        )
+    if n_variables != len(params["variables"].split(":")):
+        raise ValueError(
+            name + " function requires " + str(n_variables) + " variables."
+        )
 
     # Make sure user isn't passing the wrong parameters:
     allowed_params = (
         optional_params + required_params + ["variables", "type", "verbose"]
     )
     for param in params:
-        assert param in allowed_params, (
-            "Incorrect param given to "
-            + name
-            + ": "
-            + param
-            + "\nAllowed params: "
-            + str(allowed_params)
-        )
+        if param not in allowed_params:
+            raise ValueError(
+                "Incorrect param given to "
+                + name
+                + ": "
+                + param
+                + "\nAllowed params: "
+                + str(allowed_params)
+            )
 
     # Make sure all required parameters are specified
     for req in required_params:
-        assert req in params, (
-            "Required input parameter "
-            + req
-            + " to "
-            + name
-            + ".__init__(**kwargs) was not found."
-        )
+        if req not in params:
+            raise ValueError(
+                "Required input parameter "
+                + req
+                + " to "
+                + name
+                + ".__init__(**kwargs) was not found."
+            )
 
     for opt in optional_params:
         if opt not in params:
@@ -440,15 +445,18 @@ def set_twiss(beam, **params):  # plane, beta, alpha, eps):
 
     # p_units = "dimensionless"
 
-    assert (
-        beta0 > 0
-    ), f"Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform."
-    assert (
-        eps0 > 0
-    ), f"Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform."
-    assert (
-        beta > 0
-    ), f"Error in set_twiss: final beta = {beta} was <=0, the final distribution must have finite size to use this transform."
+    if beta0 <= 0:
+        raise ValueError(
+            f"Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform."
+        )
+    if eps0 <= 0:
+        raise ValueError(
+            f"Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform."
+        )
+    if beta <= 0:
+        raise ValueError(
+            f"Error in set_twiss: final beta = {beta} was <=0, the final distribution must have finite size to use this transform."
+        )
 
     m11 = (np.sqrt(beta * eps / beta0 / eps0)).to_base_units()
     # m12 = (0*unit_registry(str(beam[xstr].units)+'/'+str(beam[pstr].units))).to_base_units()
