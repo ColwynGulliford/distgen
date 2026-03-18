@@ -99,7 +99,8 @@ def get_dist(var, params, verbose=0):
             params [dict] required user parameters for distribution function
             verbose [bool] flag for more or less output to screen
     """
-    assert "type" in params, "No distribution type for " + var + " specified."
+    if "type" not in params:
+        raise ValueError("No distribution type for " + var + " specified.")
     dtype = params["type"]
 
     if dtype == "dist1d":
@@ -188,15 +189,17 @@ class Dist:
         )
         # print(allowed_params)
         for param in params:
-            assert (
-                param in allowed_params
-            ), f"Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {param}\nAllowed params: {allowed_params}"
+            if param not in allowed_params:
+                raise ValueError(
+                    f"Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {param}\nAllowed params: {allowed_params}"
+                )
 
         # Make sure all required parameters are specified
         for req in self.required_params:
-            assert (
-                req in params
-            ), f"Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found."
+            if req not in params:
+                raise ValueError(
+                    f"Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found."
+                )
 
         if "indent" in params:
             self._n_indent = params["indent"]
@@ -386,9 +389,8 @@ class Superposition(Dist1d):
 
     def __init__(self, var, verbose, **kwargs):
         self.xstr = var
-        assert (
-            "dists" in kwargs
-        ), 'SuperPositionDist1d must be supplied the key word argument "dists"'
+        if "dists" not in kwargs:
+            raise ValueError('SuperPositionDist1d must be supplied the key word argument "dists"')
 
         dist_defs = kwargs["dists"]
 
@@ -425,7 +427,8 @@ class Superposition(Dist1d):
         for ii, name in enumerate(dists.keys()):
             pii = dists[name].pdf(xs)
 
-            assert weights[name] >= 0, "Weights for superpostiion dist must be >= 0."
+            if weights[name] < 0:
+                raise ValueError("Weights for superposition dist must be >= 0.")
 
             if ii == 0:
                 ps = weights[name] * pii / np.max(pii.magnitude)
@@ -442,9 +445,8 @@ class Product(Dist1d):
 
     def __init__(self, var, verbose, **kwargs):
         self.xstr = var
-        assert (
-            "dists" in kwargs
-        ), 'ProductDist 1d must be supplied the key word argument "dists"'
+        if "dists" not in kwargs:
+            raise ValueError('ProductDist 1d must be supplied the key word argument "dists"')
         dist_defs = kwargs["dists"]
 
         dists = {}
@@ -534,9 +536,10 @@ class Uniform(Dist1d):
         use_min_max = f"max_{var}" in kwargs and f"min_{var}" in kwargs
         use_avg_sigma = f"avg_{var}" in kwargs and f"sigma_{var}" in kwargs
 
-        assert (
-            use_min_max ^ use_avg_sigma
-        ), f"User must specify either min_{var} and max_{var}] or [avg_{var} and sigma_{var}]"
+        if not (use_min_max ^ use_avg_sigma):
+            raise ValueError(
+                f"User must specify either min_{var} and max_{var}] or [avg_{var} and sigma_{var}]"
+            )
 
         if f"min_{var}" in kwargs:
             self.xL = kwargs[f"min_{var}"]
@@ -642,10 +645,10 @@ class Linear(Dist1d):
         self.r = kwargs["slope_fraction"]
         self.f = 1 - np.abs(self.r)
 
-        assert self.a < self.b, f"Error: {xa_str} must be < {xb_str}."
-        assert (
-            self.r >= -1 and self.r <= 1
-        ), "Error: slope fraction must be: -1 <= r < 1."
+        if self.a >= self.b:
+            raise ValueError(f"Error: {xa_str} must be < {xb_str}.")
+        if not (self.r >= -1 and self.r <= 1):
+            raise ValueError("Error: slope fraction must be: -1 <= r < 1.")
 
         self.dx = self.b - self.a
 
@@ -760,7 +763,8 @@ class Norm(Dist1d):
 
         self.sigma = kwargs[sigmastr]
 
-        assert self.sigma.magnitude >= 0, "Error: sigma for Norm(1d) must be >= 0"
+        if self.sigma.magnitude < 0:
+            raise ValueError("Error: sigma for Norm(1d) must be >= 0")
 
         if avgstr in kwargs.keys():
             self.mu = kwargs[avgstr]
@@ -770,13 +774,16 @@ class Norm(Dist1d):
         left_cut_set = False
         right_cut_set = False
 
-        assert not (
+        if (
             sigma_cutoff_str in kwargs.keys()
             and (
                 sigma_cutoff_left in kwargs.keys()
                 or sigma_cutoff_right in kwargs.keys()
             )
-        )
+        ):
+            raise ValueError(
+                "Cannot specify both sigma_cutoff and individual left/right cutoffs."
+            )
 
         if sigma_cutoff_str in kwargs.keys():
             self.a = -kwargs[sigma_cutoff_str] * self.sigma + self.mu
@@ -800,9 +807,10 @@ class Norm(Dist1d):
             self.b = +float("Inf") * self.sigma.units
 
         if self.sigma.magnitude > 0:
-            assert (
-                self.a < self.b
-            ), f"Right side cut off a = {a:G~P} must be < left side cut off b = {b:G~P}"
+            if self.a >= self.b:
+                raise ValueError(
+                    f"Right side cut off a = {self.a:G~P} must be < left side cut off b = {self.b:G~P}"
+                )
 
             self.A = (self.a - self.mu) / self.sigma
             self.B = (self.b - self.mu) / self.sigma
@@ -966,19 +974,23 @@ class SuperGaussian(Dist1d):
         ]
         self.check_inputs(kwargs)
 
-        assert not (
-            alpha_str in kwargs and power_str in kwargs
-        ), 'SuperGaussian power parameter must be set using "p" or "alpha", not both.'
-        assert (
-            alpha_str in kwargs or power_str in kwargs
-        ), 'SuperGaussian power parameter must be set using "p" or "alpha". Neither provided.'
+        if "alpha" in kwargs and "p" in kwargs:
+            raise ValueError(
+                'SuperGaussian power parameter must be set using "p" or "alpha", not both.'
+            )
+        if "alpha" not in kwargs and "p" not in kwargs:
+            raise ValueError(
+                'SuperGaussian power parameter must be set using "p" or "alpha". Neither provided.'
+            )
 
-        assert not (
-            sigma_str in kwargs and lambda_str in kwargs
-        ), 'SuperGaussian length scale must either be set using "lambda" or "{sigma_str}", not both.'
-        assert (
-            alpha_str in kwargs or power_str in kwargs
-        ), 'SuperGaussian length scale must be set using "lambda" or "{sigma_str}", Neither provided.'
+        if "sigma" in kwargs and "lambda" in kwargs:
+            raise ValueError(
+                f'SuperGaussian length scale must either be set using "lambda" or "{sigma_str}", not both.'
+            )
+        if "alpha" not in kwargs and "p" not in kwargs:
+            raise ValueError(
+                f'SuperGaussian length scale must be set using "lambda" or "{sigma_str}". Neither provided.'
+            )
 
         if power_str in kwargs:
             self.p = kwargs[power_str]
@@ -988,15 +1000,17 @@ class SuperGaussian(Dist1d):
 
         else:
             alpha = kwargs[alpha_str]
-            assert (
-                alpha >= 0 and alpha <= 1
-            ), "SugerGaussian parameter must satisfy 0 <= alpha <= 1."
+            if not (alpha >= 0 and alpha <= 1):
+                raise ValueError(
+                    "SuperGaussian parameter must satisfy 0 <= alpha <= 1."
+                )
             if alpha.magnitude == 0:
                 self.p = float("Inf") * unit_registry("dimensionless")
             else:
                 self.p = 1 / alpha
 
-        assert self.p > 0, 'SuperGaussian power "p" must be > 0, not p = {self.p}'
+        if self.p <= 0:
+            raise ValueError(f'SuperGaussian power "p" must be > 0, not p = {self.p}')
 
         if "lambda" in kwargs:
             self.Lambda = kwargs[lambda_str]
@@ -1129,12 +1143,14 @@ class File1d(Dist1d):
         xs = data[:, 0] * unit_registry(self.units)
         Px = data[:, 1] * unit_registry.parse_expression("1/" + self.units)
 
-        assert (
-            np.count_nonzero(xs.magnitude) > 0
-        ), f"Supplied 1d distribution coordinate vector {var} is zero everywhere."
-        assert (
-            np.count_nonzero(Px.magnitude) > 0
-        ), f"Supplied 1d distribution P{var} is zero everywhere."
+        if np.count_nonzero(xs.magnitude) == 0:
+            raise ValueError(
+                f"Supplied 1d distribution coordinate vector {var} is zero everywhere."
+            )
+        if np.count_nonzero(Px.magnitude) == 0:
+            raise ValueError(
+                f"Supplied 1d distribution P{var} is zero everywhere."
+            )
 
         super().__init__(xs, Px, self.xstr)
 
@@ -1173,16 +1189,17 @@ class TemporalLaserPulseStacking(Dist1d):
                     angles.append(params[key])
 
         for param in params:
-            assert (
+            if not (
                 "crystal_angle_" in param
                 or "crystal_length" in param
                 or param == "type"
-            ), (
-                "Unknown keyword parameter sent to "
-                + self.__class__.__name__
-                + ": "
-                + param
-            )
+            ):
+                raise ValueError(
+                    "Unknown keyword parameter sent to "
+                    + self.__class__.__name__
+                    + ": "
+                    + param
+                )
 
         if dv is None and "dv" not in params:
             dv = 1.05319 * unit_registry("ps/mm")
@@ -1216,16 +1233,18 @@ class TemporalLaserPulseStacking(Dist1d):
     def set_crystals(self, lengths, angles):
         """Sets the crytal parameters for propagating sech pulses"""
 
-        assert len(lengths) == len(
-            angles
-        ), "Number of crystal lengths must be the same as the number of angles."
+        if len(lengths) != len(angles):
+            raise ValueError(
+                "Number of crystal lengths must be the same as the number of angles."
+            )
 
         self.lengths = lengths
         self.angles = angles
         self.angle_offsets = np.zeros(len(angles))
 
         for ii in range(len(lengths)):
-            assert lengths[ii] > 0, "Crystal length must be > 0."
+            if lengths[ii] <= 0:
+                raise ValueError("Crystal length must be > 0.")
             if ii % 2 == 0:
                 angle_offset = -45 * unit_registry("deg")
             else:
@@ -1394,9 +1413,8 @@ class Sech2(Dist1d):
         self.optional_params = ["avg_t", "n_tau_cutoff", "tau", "sigma_t"]
         self.check_inputs(kwargs)
 
-        assert not (
-            "tau" in kwargs and "sigma_t" in kwargs
-        ), "User must specify either tau or sigma_t."
+        if "tau" in kwargs and "sigma_t" in kwargs:
+            raise ValueError("User must specify either tau or sigma_t.")
 
         self.xstr = "t"
 
@@ -1628,7 +1646,8 @@ class Deformable(Dist1d):
         Px = Px * self.dist["linear"].pdf(xs)
 
         norm = np.trapezoid(Px, xs)
-        assert norm > 0, "Error: derformable distribution can not be normalized."
+        if norm <= 0:
+            raise ValueError("Error: deformable distribution cannot be normalized.")
         Px = Px / norm
 
         avgx = np.trapezoid(xs * Px, xs)
@@ -1838,10 +1857,10 @@ class UniformTheta(DistTheta):
         min_theta = kwargs["min_theta"]
         max_theta = kwargs["max_theta"]
 
-        assert min_theta >= 0.0, "Min theta value must be >= 0 rad"
-        assert (
-            max_theta <= 2 * PHYSICAL_CONSTANTS.pi
-        ), "Max theta value must be <= 2 pi rad"
+        if min_theta < 0.0:
+            raise ValueError("Min theta value must be >= 0 rad")
+        if max_theta > 2 * PHYSICAL_CONSTANTS.pi:
+            raise ValueError("Max theta value must be <= 2 pi rad")
 
         self.a = min_theta
         self.b = max_theta
@@ -1915,8 +1934,10 @@ class UniformPhi(DistPhi):
         min_phi = kwargs["min_phi"]
         max_phi = kwargs["max_phi"]
 
-        assert min_phi >= 0.0, "Min phi value must be >= 0 rad"
-        assert max_phi <= PHYSICAL_CONSTANTS.pi, "Max phi value must be <= pi rad"
+        if min_phi < 0.0:
+            raise ValueError("Min phi value must be >= 0 rad")
+        if max_phi > PHYSICAL_CONSTANTS.pi:
+            raise ValueError("Max phi value must be <= pi rad")
 
         self.a = min_phi
         self.b = max_phi
@@ -2241,11 +2262,12 @@ class LinearRad(DistRad):
         self.ratio = kwargs["slope_fraction"]
         self.f = 1 - np.abs(self.ratio)
 
-        assert self.a < self.b, f"Error: {ra_str} must be < {rb_str}."
-        assert self.a >= 0, f"Error: {ra_str} must be >= 0."
-        assert (
-            self.ratio >= -1 and self.ratio <= 1
-        ), "Error: slope fraction must be: -1 <= r < 1."
+        if self.a >= self.b:
+            raise ValueError(f"Error: {ra_str} must be < {rb_str}.")
+        if self.a < 0:
+            raise ValueError(f"Error: {ra_str} must be >= 0.")
+        if not (self.ratio >= -1 and self.ratio <= 1):
+            raise ValueError("Error: slope fraction must be: -1 <= r < 1.")
 
         self.dr = self.b - self.a
 
@@ -2338,12 +2360,14 @@ class NormRad(DistRad):
 
         self.check_inputs(params)
       
-        assert not (
-            "sigma_xy" in params and "truncation_fraction" in params
-        ), "User must specify either a sigma_xy or truncation fraction, not both"
-        assert not (
-            "sigma_xy" not in params and "truncation_fraction" not in params
-        ), "User must specify sigma_xy or a truncation fraction for radial normal distribution"
+        if "sigma_xy" in params and "truncation_fraction" in params:
+            raise ValueError(
+                "User must specify either a sigma_xy or truncation fraction, not both"
+            )
+        if "sigma_xy" not in params and "truncation_fraction" not in params:
+            raise ValueError(
+                "User must specify sigma_xy or a truncation fraction for radial normal distribution"
+            )
 
         self.rR = None
         self.rL = None
@@ -2400,10 +2424,10 @@ class NormRad(DistRad):
                 self.rR = params["truncation_radius_right"]
                 self.sigma = self.rR * np.sqrt(1.0 / 2.0 / np.log(1 / f))
 
-        assert self.rR.magnitude >= 0, "Radial Gaussian right cut radius must be >= 0"
-        assert (
-            self.rL < self.rR
-        ), "Radial Gaussian left cut radius must be < right cut radius"
+        if self.rR.magnitude < 0:
+            raise ValueError("Radial Gaussian right cut radius must be >= 0")
+        if self.rL >= self.rR:
+            raise ValueError("Radial Gaussian left cut radius must be < right cut radius")
 
         self.pR = self.canonical_rho(self.rR / self.sigma)
         self.pL = self.canonical_rho(self.rL / self.sigma)
@@ -2613,27 +2637,32 @@ class SuperGaussianRad(DistRad):
         self.optional_params = ["p", "alpha", "lambda", "sigma_xy"]
         self.check_inputs(kwargs)
 
-        assert not (
-            "alpha" in kwargs and "p" in kwargs
-        ), 'Radial Super Gaussian power parameter must be set using "p" or "alpha", not both.'
-        assert (
-            "alpha" in kwargs or "p" in kwargs
-        ), 'Radial Super Gaussian power parameter must be set using "p" or "alpha". Neither provided.'
+        if "alpha" in kwargs and "p" in kwargs:
+            raise ValueError(
+                'Radial Super Gaussian power parameter must be set using "p" or "alpha", not both.'
+            )
+        if "alpha" not in kwargs and "p" not in kwargs:
+            raise ValueError(
+                'Radial Super Gaussian power parameter must be set using "p" or "alpha". Neither provided.'
+            )
 
-        assert not (
-            "lambda" in kwargs and "sigma_xy" in kwargs
-        ), 'Radial Super Gaussian power parameter must be set using "sigma_xy" or "lambda", not both.'
-        assert (
-            "lambda" in kwargs or "sigma_xy" in kwargs
-        ), 'Radial Super Gaussian power parameter must be set using "sigma_xy" or "lambda". Neither provided.'
+        if "lambda" in kwargs and "sigma_xy" in kwargs:
+            raise ValueError(
+                'Radial Super Gaussian power parameter must be set using "sigma_xy" or "lambda", not both.'
+            )
+        if "lambda" not in kwargs and "sigma_xy" not in kwargs:
+            raise ValueError(
+                'Radial Super Gaussian power parameter must be set using "sigma_xy" or "lambda". Neither provided.'
+            )
 
         if "p" in kwargs:
             self.p = kwargs["p"]
         elif "alpha" in kwargs:
             alpha = kwargs["alpha"]
-            assert (
-                alpha >= 0 and alpha <= 1
-            ), f"SugerGaussian parameter must satisfy 0 <= alpha <= 1, not = {alpha}"
+            if not (alpha >= 0 and alpha <= 1):
+                raise ValueError(
+                    f"SuperGaussian parameter must satisfy 0 <= alpha <= 1, not = {alpha}"
+                )
             if alpha.magnitude == 0:
                 self.p = float("Inf") * unit_registry("dimensionless")
             else:
@@ -2644,7 +2673,8 @@ class SuperGaussianRad(DistRad):
         else:
             self.Lambda = self.get_lambda(kwargs["sigma_xy"])
 
-        assert self.p > 0, "Radial Super Gaussian power p must be > 0."
+        if self.p <= 0:
+            raise ValueError("Radial Super Gaussian power p must be > 0.")
 
         vprint("SuperGaussianRad", verbose > 0, 0, True)
         vprint(
@@ -2742,7 +2772,8 @@ class DeformableRad(DistRad):
         Pr = Pr * self.dist["linear"].rho(rs)
 
         norm = radint(Pr, rs)
-        assert norm > 0, "Error: derformable distribution can not be normalized."
+        if norm <= 0:
+            raise ValueError("Error: deformable distribution cannot be normalized.")
         Pr = Pr / norm
 
         # avgx = np.trapz(xs*Px, xs)
@@ -2884,9 +2915,8 @@ class Dist2d(Dist):
 
         self.var_type = "2d"
 
-        assert (
-            np.count_nonzero(Pxy.magnitude) > 0
-        ), "Supplied 2d distribution is zero everywhere."
+        if np.count_nonzero(Pxy.magnitude) == 0:
+            raise ValueError("Supplied 2d distribution is zero everywhere.")
 
         self.xb = np.zeros(len(self.xs.magnitude) + 1) * unit_registry(
             str(self.xs.units)
@@ -3036,12 +3066,14 @@ class SuperPosition2d(Dist2d):
 
         # self, variables, verbose, **kwargs
 
-        assert (
-            len(vstrs) == 2
-        ), f"Wrong number of variables given to Image2d: {len(vstrs)}"
-        assert (
-            "dists" in kwargs
-        ), 'ProductDist 2d must be supplied the key word argument "dists"'
+        if len(vstrs) != 2:
+            raise ValueError(
+                f"Wrong number of variables given to SuperPosition2d: {len(vstrs)}"
+            )
+        if "dists" not in kwargs:
+            raise ValueError(
+                'SuperPosition2d must be supplied the key word argument "dists"'
+            )
 
         vprint("Superposition 2d", verbose, 1, new_line=True)
 
@@ -3130,12 +3162,14 @@ class Product2d(Dist2d):
 
     def __init__(self, variables, verbose, **kwargs):
         vstrs = get_vars(variables)
-        assert (
-            len(vstrs) == 2
-        ), f"Wrong number of variables given to Image2d: {len(vstrs)}"
-        assert (
-            "dists" in kwargs
-        ), 'ProductDist 2d must be supplied the key word argument "dists"'
+        if len(vstrs) != 2:
+            raise ValueError(
+                f"Wrong number of variables given to Product2d: {len(vstrs)}"
+            )
+        if "dists" not in kwargs:
+            raise ValueError(
+                'Product2d must be supplied the key word argument "dists"'
+            )
 
         vprint("Product 2d", verbose, 1, new_line=True)
 
@@ -3214,9 +3248,10 @@ class Image2d(Dist2d):
     def __init__(self, variables, verbose, **params):
         vstrs = get_vars(variables)
 
-        assert (
-            len(vstrs) == 2
-        ), f"Wrong number of variables given to Image2d: {len(vstrs)}"
+        if len(vstrs) != 2:
+            raise ValueError(
+                f"Wrong number of variables given to Image2d: {len(vstrs)}"
+            )
 
         v1, v2 = vstrs[0], vstrs[1]
 
@@ -3233,15 +3268,17 @@ class Image2d(Dist2d):
         self.check_inputs(params)
 
         Pxy = flipud(params["P"])
-        assert (
-            np.min(np.min(Pxy)) >= 0
-        ), "Error in Image2d: the 2d probability function must be >= 0"
+        if np.min(np.min(Pxy)) < 0:
+            raise ValueError(
+                "Error in Image2d: the 2d probability function must be >= 0"
+            )
 
         if v1 not in params:
             xmin = params[f"min_{v1}"]
             xmax = params[f"max_{v1}"].to(xmin.units)
 
-            assert xmin < xmax, f"Error in Image2d: min {v1} must < max {v1}."
+            if xmin >= xmax:
+                raise ValueError(f"Error in Image2d: min {v1} must < max {v1}.")
 
             xs = linspace(xmin, xmax, Pxy.shape[1])
 
@@ -3252,7 +3289,8 @@ class Image2d(Dist2d):
             ymin = params[f"min_{v2}"].to(xmin.units)
             ymax = params[f"max_{v2}"].to(xmin.units)
 
-            assert ymin < ymax, f"Error in Image2d: min {v2} must < max {v2}."
+            if ymin >= ymax:
+                raise ValueError(f"Error in Image2d: min {v2} must < max {v2}.")
 
             ys = linspace(ymin, ymax, Pxy.shape[0])
 
@@ -3293,12 +3331,14 @@ class File2d(Dist2d):
             min_var1_str = f"min_{var1}"
             max_var1_str = f"max_{var1}"
 
-            assert (
-                min_var1_str in params
-            ), f"Error in File2d: user must specify {min_var1_str}."
-            assert (
-                max_var1_str in params
-            ), f"Error in File2d: user must specify {max_var1_str}."
+            if min_var1_str not in params:
+                raise ValueError(
+                    f"Error in File2d: user must specify {min_var1_str}."
+                )
+            if max_var1_str not in params:
+                raise ValueError(
+                    f"Error in File2d: user must specify {max_var1_str}."
+                )
 
             min_var1 = params[min_var1_str]
             max_var1 = params[max_var1_str]
@@ -3308,12 +3348,14 @@ class File2d(Dist2d):
             min_var2_str = f"min_{var2}"
             max_var2_str = f"max_{var2}"
 
-            assert (
-                min_var2_str in params
-            ), f"Error in File2d: user must specify {min_var2_str}."
-            assert (
-                max_var2_str in params
-            ), f"Error in File2d: user must specify {max_var2_str}."
+            if min_var2_str not in params:
+                raise ValueError(
+                    f"Error in File2d: user must specify {min_var2_str}."
+                )
+            if max_var2_str not in params:
+                raise ValueError(
+                    f"Error in File2d: user must specify {max_var2_str}."
+                )
 
             min_var2 = params[min_var2_str]
             max_var2 = params[max_var2_str]
@@ -3341,9 +3383,8 @@ class File2d(Dist2d):
         else:
             threshold = 0
 
-        assert (
-            threshold >= 0 and threshold < 1
-        ), "Error: image threshold must be >=0 and < 1."
+        if not (threshold >= 0 and threshold < 1):
+            raise ValueError("Error: image threshold must be >=0 and < 1.")
 
         under_threshold = Pxy.magnitude < threshold * Pxy.magnitude.max()
         Pxy.magnitude[under_threshold] = 0

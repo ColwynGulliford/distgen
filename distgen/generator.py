@@ -107,9 +107,8 @@ class Generator(Base):
             else:
                 # Try raw string
                 input = yaml.safe_load(input)
-                assert isinstance(
-                    input, dict
-                ), f"ERROR: parsing unsuccessful, could not read {input}"
+                if not isinstance(input, dict):
+                    raise ValueError(f"ERROR: parsing unsuccessful, could not read {input}")
                 expand_input_filepaths(input)
 
         else:
@@ -201,7 +200,8 @@ class Generator(Base):
         # Make sure all required top level params are present
         required_params = ["n_particle", "total_charge", "species"]
         for rp in required_params:
-            assert rp in params, "Required generator parameter " + rp + " not found."
+            if rp not in params:
+                raise ValueError("Required generator parameter " + rp + " not found.")
 
         # Check that only allowed params present at top level
         allowed_params = required_params + [
@@ -217,12 +217,13 @@ class Generator(Base):
         ]
 
         for p in params:
-            # assert p in allowed_params or '_dist'==p[-5:], 'Unexpected distgen input parameter: ' + p[-5:]
-            assert p in allowed_params or p.endswith("_dist"), (
-                "Unexpected distgen input parameter: " + p
-            )
+            if p not in allowed_params and not p.endswith("_dist"):
+                raise ValueError(
+                    "Unexpected distgen input parameter: " + p
+                )
 
-        assert params["n_particle"] > 0, "User must speficy n_particle must > 0."
+        if params["n_particle"] <= 0:
+            raise ValueError("User must specify n_particle > 0.")
 
         if isinstance(params["n_particle"], float):
             if params["n_particle"] - int(params["n_particle"]) > 0:
@@ -230,9 +231,10 @@ class Generator(Base):
 
             params["n_particle"] = int(params["n_particle"])
 
-        assert isinstance(
-            params["n_particle"], int
-        ), f'Invalid type for n_particle parameter: {type(params["n_particle"])}'
+        if not isinstance(params["n_particle"], int):
+            raise TypeError(
+                f'Invalid type for n_particle parameter: {type(params["n_particle"])}'
+            )
 
         # Check consistency of transverse coordinate definitions
         if ("r_dist" in params) and ("x_dist" in params or "xy_dist" in params):
@@ -247,10 +249,8 @@ class Generator(Base):
         if "output" in params:
             out_params = params["output"]
             for op in out_params:
-                assert op in [
-                    "file",
-                    "type",
-                ], f"Unexpected output parameter specified: {op}"
+                if op not in ["file", "type"]:
+                    raise ValueError(f"Unexpected output parameter specified: {op}")
         else:
             params["output"] = {"type": None}
 
@@ -274,9 +274,10 @@ class Generator(Base):
             if single_allowed_cathode_dist_set(params):
                 pass
             else:
-                assert (
-                    "MTE" in params["start"]
-                ), "User must specify the MTE for cathode start if momentum/energy distribution not specified."
+                if "MTE" not in params["start"]:
+                    raise ValueError(
+                        "User must specify the MTE for cathode start if momentum/energy distribution not specified."
+                    )
 
         elif params["start"]["type"] == "time":
             vprint(
@@ -296,9 +297,10 @@ class Generator(Base):
             params["species"] = "electron"
 
         if "spin_polarization" in params:
-            assert (
-                params["species"] == "electron"
-            ), "Polarization currently may only be set for electrons"
+            if params["species"] != "electron":
+                raise ValueError(
+                    "Polarization currently may only be set for electrons"
+                )
 
     @property
     def fix_avg_and_stds(self):
@@ -430,8 +432,7 @@ class Generator(Base):
                 1,
                 True,
             )
-            # dist_params['spin_azimuthal_angle']={'type':'ut','min_theta':0*unit_registry('rad'),'max_theta':2*PHYSICAL_CONSTANTS.pi}
-
+      
         if params["start"]["type"] == "time" and "t_dist" in params:
             raise ValueError("Error: t_dist should not be set for time start")
 
@@ -501,14 +502,15 @@ class Generator(Base):
         var_list = list(self.rands.keys())
         for ii, vii in enumerate(var_list[:-1]):
             viip1 = var_list[ii + 1]
-            assert (
-                (
-                    not np.array_equal(
-                        self.rands[vii].magnitude, self.rands[viip1].magnitude
-                    )
+            if (
+                np.array_equal(
+                    self.rands[vii].magnitude, self.rands[viip1].magnitude
                 )
-                or n_particle == 1
-            ), f"Error: coordinate probalitiies for {vii} and {viip1} are the same!"
+                and n_particle != 1
+            ):
+                raise ValueError(
+                    f"Error: coordinate probabilities for {vii} and {viip1} are the same!"
+                )
 
             # These lines can be used to check for unwanted correlations
             # v0 = self.rands[vii].magnitude-self.rands[vii].magnitude.mean()
@@ -1028,13 +1030,6 @@ class Generator(Base):
             vprint("done", self.verbose > 0, 0, True)
 
             vprint("Collecting beamlets...", self.verbose > 0, 1, False)
-
-            # P = ps[0]
-            # for Pi in ps[1:]: P = P + Pi
-            # vprint(f'done', self.verbose > 0, 0, True)
-
-            # data = {k:np.hstack([pg[k] for pg in ps]) for k in ps[0].data.keys() if k not in ['species']}
-            # data['species'] = ps[0].species
 
             self.particles = join_particle_groups(*ps)
             self.output = self.particles
