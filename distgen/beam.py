@@ -89,7 +89,7 @@ class Beam:
             try:
                 total_beam[var] = np.concatenate( (self[var], other[var]) )
             except:
-                print('Could not add together data for variable ', var)
+                ValueError('Could not add together data for variable ', var)
                 
         N = len(total_beam.x)
         total_beam.w = np.full((N,), 1 / N) * unit_registry("dimensionless")
@@ -342,16 +342,6 @@ class Beam:
             np.sqrt(self.avg("sx") ** 2 + self.avg("sy") ** 2 + self.avg("sz") ** 2)
             / Sz
         )
-
-        # norm = np.linalg.norm(ehat)
-        # if norm == 0:
-        #   raise ValueError('Spin polarization direction must not be zero.')
-
-        # ehat = ehat / norm
-
-        # spin_projection = self.sx*ehat[0] + self.sy*ehat[1] + self.sz*ehat[2]
-
-        # return np.sum(self['w'] * spin_projection) / np.sum( np.abs(self['w']*spin_projection) )
 
     @property
     def g_factor(self):

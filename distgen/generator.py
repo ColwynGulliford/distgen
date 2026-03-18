@@ -20,8 +20,6 @@ from concurrent.futures import ProcessPoolExecutor
 from .dist import get_dist
 from .dist import random_generator
 
-# from .parallelization import set_up_generators
-
 from .parsing import convert_input_quantities
 from .parsing import convert_quantities_to_user_input
 from .parsing import expand_input_filepaths
@@ -126,12 +124,6 @@ class Generator(Base):
         # User should see the generator input structure in user input notation
         return convert_quantities_to_user_input(copy.deepcopy(self._input))
 
-    # @input.setter
-    # def input(self, input):
-    #    # When setting the input dictionary, convert user input notation to internal format
-    #    self._input = convert_input_quantities(input)
-    #    self.check_input_consistency()
-
     def __repr__(self):
         s = "<distgen.Generator with input: \n"
         return s + yaml.dump(self.input) + "\n>"
@@ -168,8 +160,6 @@ class Generator(Base):
 
     def __setitem__(self, varstr, val):
         params = copy.deepcopy(self._input)
-
-        # print(varstr, val)
 
         if isinstance(val, dict):
             val = convert_input_quantities(val, in_place=False)
@@ -828,8 +818,6 @@ class Generator(Base):
                 thy = params["spin_orientation"]["theta_y"].to("rad")
                 thz = params["spin_orientation"]["theta_z"].to("rad")
 
-                # print(thx, thy, thz)
-
                 Cx, Sx = np.cos(thx), np.sin(thx)
                 Cy, Sy = np.cos(thy), np.sin(thy)
                 Cz, Sz = np.cos(thz), np.sin(thz)
@@ -868,11 +856,7 @@ class Generator(Base):
                     avgs[x] = dist.avg()
 
                 stds[x] = dist.std()
-                # if("sigma_"+x in dist_params[x]):
-                #    stds[x] = dist_params[x]["sigma_"+x]
-                # else:
-                # stds[x] = dist.std()
-                # print(x, stds[x])
+
 
             else:  # Someone may set sigma = 0 but have a non-zero avg
                 if "avg_" + x in dist_params[x]:

@@ -1,4 +1,4 @@
-# from pint import Quantity
+
 from .physical_constants import unit_registry
 
 import time
@@ -55,40 +55,6 @@ def vprint(out_str, verbose, indent_number, new_line):
 
 def isscalar(q):
     return np.isscalar(q.magnitude)
-
-
-'''
-def is_floatable(value):
-
-    """Check if an object can be cast to a float, return true if so, false if not"""
-
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
-'''
-
-'''
-def is_unit_str(ustr):
-
-   """Check if a string defines a unit"""
-   ustr = ustr.strip()
-   if(len(ustr)>=2 and ustr[0]=="[" and ustr[-1]=="]"):
-       return True
-   else:
-       return False
-'''
-
-'''
-def get_unit_str(ustr):
-
-    """Parse a string that defines a unit"""
-    if(is_unit_str(ustr)):
-        return ustr[1:-1]
-    else:
-        raise ValueError("Could not recover units string from "+ustr)
-'''
 
 
 class StopWatch:
@@ -222,20 +188,8 @@ def radcumint(f, r):
     return (rcint, rs)
 
 
-# --------------------------------------------------------------
-# Interpolation routines
-# --------------------------------------------------------------
-#@unit_registry.wraps("=B", ("=A", "=A", "=B"))
-#def interp(x, xp, fp):
-#    """
-#    1d interpolation of [xp,f(xp)] @ x
-#    """
-#    print(x, xp, fp)
-#    print('form', np.interp(x, xp, fp))
-#    return np.interp(x, xp, fp)
-
 def interp(x, xp, fp):
-    #print('numpy fallback')
+    #numpy fallback:
     return np.interp(x, xp, fp)
 
 @unit_registry.wraps("=C", ("=A", "=B", "=A", "=B", "=C"))
@@ -485,38 +439,7 @@ def read_image_file(filename, rgb_weights=[0.2989, 0.5870, 0.1140]):
     return greyscale
 
 
-"""
-#read_pdf_file requires pdf2image python extension
-def read_pdf_file(filename):
-    #To be able to make and reference files outside /distgen/, config_file_path is created to /distgen/examples/
-    config_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'examples')
 
-    # .pdf with the name filename and the location distgen/examples/data will be converted.
-    pdf = convert_from_path(config_file_path +'/data/'+filename)
-
-    # PDF may have multiple pages. With this method, multiple pdf uploads will overwrite the previous pdf
-    # .png conversions and their .yaml files in the interest of conserving disk space.
-    # An alternate method could be to change 'test' in the dictionary below to the variable filename.
-    for q in range(len(pdf)):
-        pdf[q].save('data/png.pdf.test.page' + str(q+1) + '.png','PNG')
-        # A recreation of the .yaml content in the examples provided. Would be nice if the entries could be more associated to the file upon creation
-        tempDictionary = {'n_particle': 1000000,
-            'output': {'file': 'rad.uniform.out.txt', 'type': 'gpt'},
-            'random_type': 'hammersley',
-            'start': {'MTE': {'units': 'meV', 'value': 150}, 'type': 'cathode'},
-            'total_charge': {'units': 'pC', 'value': 10},
-            'xy_dist': {'file': 'png.pdf.' + 'test' + '.page' + str(q+1) + '.png', 'type': 'file2d',
-                'min_x': {'value': -1, 'units': 'mm'},
-                'max_x': {'value': 1, 'units': 'mm'},
-                'min_y': {'value': -1, 'units': 'mm'},
-                'max_y': {'value': 1, 'units': 'mm'},
-                'threshold': 0.0}}
-        # write to file, if one exists, overwrite it.
-        with open((config_file_path +'/data/' + 'pdf.test.page' + str(q+1) + '.in.yaml'),'w') as file:
-            documents = yaml.dump(tempDictionary, file)
-    # return total number of pages.
-    return q
-"""
 
 
 # --------------------------------------------------------------

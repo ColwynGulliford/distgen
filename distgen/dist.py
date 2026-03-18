@@ -201,7 +201,7 @@ class Dist:
         if "indent" in params:
             self._n_indent = params["indent"]
 
-    def parse_params(params):
+    def parse_params(self, params):
         return convert_input_quantities(params)
 
     def print_dist_methods(self, verbose):
@@ -1404,7 +1404,7 @@ class Sech2(Dist1d):
             self._tau = kwargs["tau"]
             reset_tau = False
         elif "sigma_t" in kwargs:
-            self.tau = kwargs[
+            self._tau = kwargs[
                 "sigma_t"
             ]  # Incorrect, but will be used as a starting guess
             self.sigma = kwargs["sigma_t"]
@@ -2183,6 +2183,7 @@ class UniformRad(DistRad):
         nonzero = (R >= self.rL) & (R <= self.rR)
         res = np.zeros(R.shape) * unit_registry("1/" + str(x.units))
         res[nonzero] = R[nonzero] * 2.0 / (self.rR**2 - self.rL**2)
+        return res
 
     def rho(self, r):
         nonzero = (r >= self.rL) & (r <= self.rR)
@@ -2434,30 +2435,15 @@ class NormRad(DistRad):
         r_geq_rL_and_leq_rR_as_int = 1 * (R >= self.rL) & (R <= self.rR)
         return r_geq_rL_and_leq_rR_as_int * self.canonical_rho(xi) / self.dp / (self.sigma**2)
 
-        #nonzero = (R >= self.rL) & (R <= self.rR)
-        #res[nonzero] = self.canonical_rho(xi[nonzero]) / self.dp / (self.sigma**2)
-
-        #return res
-
     def pdf(self, r):
         xi = r / self.sigma
         r_geq_rL_and_leq_rR_as_int = 1 * (r >= self.rL) & (r <= self.rR)
         return r_geq_rL_and_leq_rR_as_int * self.canonical_rho(xi) / self.dp / self.sigma**2
-        #res = np.zeros(len(r)) * unit_registry("1/" + str(r.units))
-        #nonzero = (r >= self.rL) & (r <= self.rR)
-        #res[nonzero] = (
-        #    r[nonzero] * self.canonical_rho(xi[nonzero]) / self.dp / self.sigma**2
-        #)
-        #return res
 
     def cdf(self, r):
         r_geq_rL_and_leq_rR_as_int = 1 * (r >= self.rL) & (r <= self.rR)
-        #res = np.zeros(len(r)) * unit_registry("dimensionless")
-        #nonzero = (r >= self.rL) & (r <= self.rR)
         xi = r / self.sigma
         return r_geq_rL_and_leq_rR_as_int * (self.pL - self.canonical_rho(xi)) / self.dp
-        #res[nonzero] = (self.pL - self.canonical_rho(xi[nonzero])) / self.dp
-        #return res
 
     def cdfinv(self, rns):
         return np.sqrt(
@@ -2601,8 +2587,7 @@ class TukeyRad(DistRad):
         cdfs, rbins = radcumint(pdfs, rpts)
         cdfs = cdfs / cdfs[-1]
         cdfs = interp(r, rbins, cdfs)
-        cdfs = cdfs / cdfs[-1]
-        cdfs * unit_registry("dimensionless")
+        cdfs = (cdfs / cdfs[-1]).to(unit_registry("dimensionless"))
 
         return cdfs
 
@@ -2694,8 +2679,7 @@ class SuperGaussianRad(DistRad):
         cdfs, rbins = radcumint(pdfs, rpts)
         cdfs = cdfs / cdfs[-1]
         cdfs = interp(r, rbins, cdfs)
-        cdfs = cdfs / cdfs[-1]
-        cdfs * unit_registry("dimensionless")
+        cdfs = (cdfs / cdfs[-1]).to(unit_registry("dimensionless"))
 
         return cdfs
 
@@ -2805,11 +2789,10 @@ class InterpolationRad(DistRad):
             n_pts = 1000
 
         if "rs" in kwargs:
-            pass
+            rs = kwargs["rs"]
         else:
-            rs = np.linspace(0, 1, len(pts))
+            rs = np.linspace(0, 1, len(pts)) * unit_registry("mm")
 
-        rs = rs * unit_registry("mm")
         Pr = pts * unit_registry.parse_expression("1/mm/mm")
 
         # Save the original curve
@@ -2822,7 +2805,6 @@ class InterpolationRad(DistRad):
         Pr[Pr.magnitude < 0] = 0 * unit_registry.parse_expression("1/mm/mm")
 
         vprint("radial interpolation", verbose > 0, 0, True)
-        # vprint(f'lambda = {self.Lambda:G~P}, power = {self.p:G~P}',verbose>0,2,True)
 
         super().__init__(rs=rs, Pr=Pr)
 
