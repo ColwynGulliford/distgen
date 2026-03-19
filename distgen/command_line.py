@@ -1,4 +1,4 @@
-from optparse import OptionParser
+import argparse
 from distgen.drivers import run_distgen
 
 
@@ -7,34 +7,26 @@ def main():
     Main function for running distgen as a single execution program
     """
 
-    # ---------------------------------------------------------------------------------------
-    # Parse Input Content and Run
-    # ---------------------------------------------------------------------------------------
-    parser = OptionParser()
-    parser.add_option(
+    parser = argparse.ArgumentParser(description="Generate particle distributions")
+    parser.add_argument(
         "-f",
         "--file",
         dest="filename",
         default=None,
-        help="write report to FILE",
+        help="Input configuration file",
         metavar="FILE",
     )
-    parser.add_option(
-        "-v", dest="verbose", default=0, help="Print short status messages to stdout"
+    parser.add_argument(
+        "-v",
+        dest="verbose",
+        default=0,
+        type=int,
+        help="Verbosity level (default: 0)",
     )
-    parser.add_option(
-        "-o", dest="output", default="gpt", help="Particle output type (default gpt)"
-    )
-    parser.add_option("-p", dest="plots_on", default=False, action="store_true")
 
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
 
-    inputfile = options.filename
-    verbose = int(options.verbose)
-    # output = options.output
-
-    run_distgen(inputs=inputfile, verbose=verbose)
-    # ---------------------------------------------------------------------------------------
+    run_distgen(inputs=args.filename, verbose=args.verbose)
 
 
 # ----------------------------------------------------------------------------

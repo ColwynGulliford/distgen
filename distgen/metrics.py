@@ -178,7 +178,7 @@ def rms_equivalent_1d_nonuniformity(
         )
 
     elif method == "res2":
-        u = Uniform("t", **params)
+        u = Uniform(var, **params)
         x = u.get_x_pts(n=len(hist))
         px = u.pdf(x)
 

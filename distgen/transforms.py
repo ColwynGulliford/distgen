@@ -25,11 +25,12 @@ def get_variables(varstr):
         varstr = varstr.strip()
         variables = varstr.split(":")
         for variable in variables:
-            assert variable in ALLOWED_VARIABLES, (
-                "transforms::get_variables -> variable "
-                + variable
-                + " is not supported."
-            )
+            if variable not in ALLOWED_VARIABLES:
+                raise ValueError(
+                    "transforms::get_variables -> variable "
+                    + variable
+                    + " is not supported."
+                )
         return variables
 
 
@@ -45,36 +46,40 @@ def get_origin(beam, varstr, origin):
 
 
 def check_inputs(params, required_params, optional_params, n_variables, name):
-    assert (
-        "variables" in params
-    ), 'All transforms colon separated "variables" string specifying which coordinates to transform.'
-    assert n_variables == len(params["variables"].split(":")), (
-        name + " function requires " + str(n_variables) + "."
-    )
+    if "variables" not in params:
+        raise ValueError(
+            'All transforms require a colon separated "variables" string specifying which coordinates to transform.'
+        )
+    if n_variables != len(params["variables"].split(":")):
+        raise ValueError(
+            name + " function requires " + str(n_variables) + " variables."
+        )
 
     # Make sure user isn't passing the wrong parameters:
     allowed_params = (
         optional_params + required_params + ["variables", "type", "verbose"]
     )
     for param in params:
-        assert param in allowed_params, (
-            "Incorrect param given to "
-            + name
-            + ": "
-            + param
-            + "\nAllowed params: "
-            + str(allowed_params)
-        )
+        if param not in allowed_params:
+            raise ValueError(
+                "Incorrect param given to "
+                + name
+                + ": "
+                + param
+                + "\nAllowed params: "
+                + str(allowed_params)
+            )
 
     # Make sure all required parameters are specified
     for req in required_params:
-        assert req in params, (
-            "Required input parameter "
-            + req
-            + " to "
-            + name
-            + ".__init__(**kwargs) was not found."
-        )
+        if req not in params:
+            raise ValueError(
+                "Required input parameter "
+                + req
+                + " to "
+                + name
+                + ".__init__(**kwargs) was not found."
+            )
 
     for opt in optional_params:
         if opt not in params:
@@ -101,7 +106,7 @@ def set_avg(beam, **params):
     var = params["variables"]
     check_inputs(params, ["avg_" + var], [], 1, "set_avg(beam, **kwargs)")
     new_avg = params["avg_" + var]
-    beam[var] = new_avg + (beam[var] - beam[var].mean())
+    beam[var] = new_avg + (beam[var] - beam.avg(var))
     vprint(f"Setting avg_{var} -> {new_avg:G~P}.", params["verbose"], 2, True)
 
     return beam
@@ -117,7 +122,7 @@ def scale(beam, **params):
         scale = float(scale) * unit_registry("dimensionless")
 
     if fix_average:
-        avg = beam[var].mean()
+        avg = beam.avg(var)
         beam[var] = avg + scale * (beam[var] - avg)
         vprint(
             f"Scaling {var} by {scale:G~P} holding avg_{var} = {avg:G~P} constant.",
@@ -137,7 +142,7 @@ def set_std(beam, **params):
     check_inputs(params, ["sigma_" + var], [], 1, "set_std(beam, **kwargs)")
     new_std = params["sigma_" + var]
     vprint(f"Setting sigma_{var} -> {new_std:G~P}", params["verbose"], 2, True)
-    old_std = beam[var].std()
+    old_std = beam.std(var)
     if old_std.magnitude > 0:
         beam = scale(
             beam, **{"variables": var, "scale": new_std / old_std, "fix_average": True}
@@ -190,8 +195,8 @@ def rotate2d(beam, **params):  # variables, angle, origin=None):
     v2 = beam[var2]
 
     if origin == "centroid":
-        o1 = v1.mean()
-        o2 = v2.mean()
+        o1 = beam.avg(var1)
+        o2 = beam.avg(var2)
         vprint(
             f'Rotating {var1}-{var2} by {angle.to("deg"):G~P} around {var1} and {var2} centroid.',
             params["verbose"],
@@ -432,23 +437,26 @@ def set_twiss(beam, **params):  # plane, beta, alpha, eps):
     x0 = beam[xstr]
     p0 = beam[pstr]
 
-    avg_x0 = x0.mean()
+    avg_x0 = beam.avg(xstr)
     beam[xstr] = beam[xstr] - avg_x0
 
-    avg_p0 = p0.mean()
+    avg_p0 = beam.avg(pstr)
     beam[pstr] = beam[pstr] - avg_p0
 
     # p_units = "dimensionless"
 
-    assert (
-        beta0 > 0
-    ), f"Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform."
-    assert (
-        eps0 > 0
-    ), f"Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform."
-    assert (
-        beta > 0
-    ), f"Error in set_twiss: final beta = {beta} was <=0, the final distribution must have finite size to use this transform."
+    if beta0 <= 0:
+        raise ValueError(
+            f"Error in set_twiss: initial beta = {beta0} was <=0, the initial distribution must have finite size to use this transform."
+        )
+    if eps0 <= 0:
+        raise ValueError(
+            f"Error in set_twiss: initial emit = {eps0} was <=0, the initial distribution must have finite size to use this transform."
+        )
+    if beta <= 0:
+        raise ValueError(
+            f"Error in set_twiss: final beta = {beta} was <=0, the final distribution must have finite size to use this transform."
+        )
 
     m11 = (np.sqrt(beta * eps / beta0 / eps0)).to_base_units()
     # m12 = (0*unit_registry(str(beam[xstr].units)+'/'+str(beam[pstr].units))).to_base_units()

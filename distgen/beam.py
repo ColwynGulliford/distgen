@@ -64,22 +64,27 @@ class Beam:
     def check_inputs(self, inputs):
         allowed_params = self.optional_inputs + self.required_inputs + ["verbose"]
         for input_param in inputs:
-            assert (
-                input_param in allowed_params
-            ), f"Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {input_param}\nAllowed params: {allowed_params}"
+            if input_param not in allowed_params:
+                raise ValueError(
+                    f"Incorrect param given to {self.__class__.__name__}.__init__(**kwargs): {input_param}\nAllowed params: {allowed_params}"
+                )
 
         # Make sure all required parameters are specified
         for req in self.required_inputs:
-            assert (
-                req in inputs
-            ), f"Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found."
+            if req not in inputs:
+                raise ValueError(
+                    f"Required input parameter {req} to {self.__class__.__name__}.__init__(**kwargs) was not found."
+                )
 
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __add__(self, other):
 
-        assert self.species == other.species
+        if self.species != other.species:
+            raise ValueError(
+                f"Cannot add beams of different species: {self.species} and {other.species}"
+            )
 
         total_beam = Beam(n_particle = self.n_particle + other.n_particle, 
                           total_charge = self.q + other.q,
@@ -88,8 +93,8 @@ class Beam:
         for var in ['x', 'y', 'z', 'px', 'py', 'pz', 'sx', 'sy', 'sz']:
             try:
                 total_beam[var] = np.concatenate( (self[var], other[var]) )
-            except:
-                print('Could not add together data for variable ', var)
+            except Exception:
+                raise ValueError('Could not add together data for variable ' + var)
                 
         N = len(total_beam.x)
         total_beam.w = np.full((N,), 1 / N) * unit_registry("dimensionless")
@@ -125,7 +130,7 @@ class Beam:
 
     @theta.setter
     def theta(self, theta):
-        r = getattr(self, theta)
+        r = getattr(self, "r")
         self.x = r * np.cos(theta)
         self.y = r * np.sin(theta)
 
@@ -342,16 +347,6 @@ class Beam:
             np.sqrt(self.avg("sx") ** 2 + self.avg("sy") ** 2 + self.avg("sz") ** 2)
             / Sz
         )
-
-        # norm = np.linalg.norm(ehat)
-        # if norm == 0:
-        #   raise ValueError('Spin polarization direction must not be zero.')
-
-        # ehat = ehat / norm
-
-        # spin_projection = self.sx*ehat[0] + self.sy*ehat[1] + self.sz*ehat[2]
-
-        # return np.sum(self['w'] * spin_projection) / np.sum( np.abs(self['w']*spin_projection) )
 
     @property
     def g_factor(self):

@@ -18,7 +18,9 @@ def is_floatable(value, verbose=False):
         return False
 
 
-def expand_input_filepaths(input_dict, root=None, ignore_keys=[]):
+def expand_input_filepaths(input_dict, root=None, ignore_keys=None):
+    if ignore_keys is None:
+        ignore_keys = []
     """
     Searches for 'file' keys with relative path values in the input dict,
     and fills the value with an absolute path based on root.

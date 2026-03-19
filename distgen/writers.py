@@ -2,7 +2,7 @@ from .tools import vprint, StopWatch
 from .physical_constants import unit_registry
 
 import numpy as np
-
+import subprocess
 import os
 from collections import OrderedDict as odict
 from h5py import File
@@ -30,11 +30,11 @@ def asci2gdf(gdf_file, txt_file, asci2gdf_bin='$ASCI2GDF_BIN', remove_txt_file=T
         os.rename(txt_file, "txt_file.tmp")
         txt_file = "txt_file.tmp"
         
-    cmd = f'{asci2gdf_bin} -o {gdf_file} "{txt_file}"'
-    result = subprocess.run(cmd, shell=False)
+    cmd = [asci2gdf_bin, '-o', gdf_file, txt_file]
+    result = subprocess.run(cmd)
 
     if remove_txt_file:
-        subprocess.run(['rm', txt_file], shell=False)
+        os.remove(txt_file)
 
     return result
 

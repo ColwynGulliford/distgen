@@ -362,7 +362,7 @@ def test_emitt_geometric(beam):
         )
 
 
-def twiss_beta_xi(beam):
+def test_twiss_beta_xi(beam):
     # Twiss $\beta_{x_i} = \frac{\sigma_x^2}{\epsilon_x}$
 
     for var in ["x", "y"]:

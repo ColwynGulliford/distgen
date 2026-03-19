@@ -1,4 +1,4 @@
-# from pint import Quantity
+
 from .physical_constants import unit_registry
 
 import time
@@ -55,40 +55,6 @@ def vprint(out_str, verbose, indent_number, new_line):
 
 def isscalar(q):
     return np.isscalar(q.magnitude)
-
-
-'''
-def is_floatable(value):
-
-    """Check if an object can be cast to a float, return true if so, false if not"""
-
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
-'''
-
-'''
-def is_unit_str(ustr):
-
-   """Check if a string defines a unit"""
-   ustr = ustr.strip()
-   if(len(ustr)>=2 and ustr[0]=="[" and ustr[-1]=="]"):
-       return True
-   else:
-       return False
-'''
-
-'''
-def get_unit_str(ustr):
-
-    """Parse a string that defines a unit"""
-    if(is_unit_str(ustr)):
-        return ustr[1:-1]
-    else:
-        raise ValueError("Could not recover units string from "+ustr)
-'''
 
 
 class StopWatch:
@@ -222,20 +188,8 @@ def radcumint(f, r):
     return (rcint, rs)
 
 
-# --------------------------------------------------------------
-# Interpolation routines
-# --------------------------------------------------------------
-#@unit_registry.wraps("=B", ("=A", "=A", "=B"))
-#def interp(x, xp, fp):
-#    """
-#    1d interpolation of [xp,f(xp)] @ x
-#    """
-#    print(x, xp, fp)
-#    print('form', np.interp(x, xp, fp))
-#    return np.interp(x, xp, fp)
-
 def interp(x, xp, fp):
-    #print('numpy fallback')
+    #numpy fallback:
     return np.interp(x, xp, fp)
 
 @unit_registry.wraps("=C", ("=A", "=B", "=A", "=B", "=C"))
@@ -433,26 +387,6 @@ def read_2d_file(filename):
     return (xs, ys, Pxy, xstr, ystr)
 
 
-"""
-def read_image_file(filename, rgb_weights = [0.2989, 0.5870, 0.1140]):
-
-    img = mpimg.imread(filename)
-
-    if(len(img.shape)>3):
-        clear_pixels = np.squeeze(img[:,:,3])==0      #make alpha=0 -> white
-        greyscale = np.dot(img[...,:3], rgb_weights)
-        greyscale = greyscale/greyscale.max()
-        greyscale[clear_pixels]=1
-
-    elif(len(img.shape)==3):
-        greyscale = np.dot(img[...,:3], rgb_weights)
-        greyscale = greyscale/greyscale.max()
-
-
-    return greyscale
-"""
-
-
 def get_file_extension(filename):
     return Path(filename).suffix.lower()
 
@@ -488,7 +422,7 @@ def read_image_file(filename, rgb_weights=[0.2989, 0.5870, 0.1140]):
 
     # print(img.shape)
 
-    if len(img.shape) > 3:
+    if len(img.shape) == 3 and img.shape[2] == 4:
         clear_pixels = np.squeeze(img[:, :, 3]) == 0  # make alpha=0 -> white
         greyscale = np.dot(img[..., :3], rgb_weights)
         greyscale = greyscale / greyscale.max()
@@ -505,38 +439,7 @@ def read_image_file(filename, rgb_weights=[0.2989, 0.5870, 0.1140]):
     return greyscale
 
 
-"""
-#read_pdf_file requires pdf2image python extension
-def read_pdf_file(filename):
-    #To be able to make and reference files outside /distgen/, config_file_path is created to /distgen/examples/
-    config_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'examples')
 
-    # .pdf with the name filename and the location distgen/examples/data will be converted.
-    pdf = convert_from_path(config_file_path +'/data/'+filename)
-
-    # PDF may have multiple pages. With this method, multiple pdf uploads will overwrite the previous pdf
-    # .png conversions and their .yaml files in the interest of conserving disk space.
-    # An alternate method could be to change 'test' in the dictionary below to the variable filename.
-    for q in range(len(pdf)):
-        pdf[q].save('data/png.pdf.test.page' + str(q+1) + '.png','PNG')
-        # A recreation of the .yaml content in the examples provided. Would be nice if the entries could be more associated to the file upon creation
-        tempDictionary = {'n_particle': 1000000,
-            'output': {'file': 'rad.uniform.out.txt', 'type': 'gpt'},
-            'random_type': 'hammersley',
-            'start': {'MTE': {'units': 'meV', 'value': 150}, 'type': 'cathode'},
-            'total_charge': {'units': 'pC', 'value': 10},
-            'xy_dist': {'file': 'png.pdf.' + 'test' + '.page' + str(q+1) + '.png', 'type': 'file2d',
-                'min_x': {'value': -1, 'units': 'mm'},
-                'max_x': {'value': 1, 'units': 'mm'},
-                'min_y': {'value': -1, 'units': 'mm'},
-                'max_y': {'value': 1, 'units': 'mm'},
-                'threshold': 0.0}}
-        # write to file, if one exists, overwrite it.
-        with open((config_file_path +'/data/' + 'pdf.test.page' + str(q+1) + '.in.yaml'),'w') as file:
-            documents = yaml.dump(tempDictionary, file)
-    # return total number of pages.
-    return q
-"""
 
 
 # --------------------------------------------------------------
@@ -584,27 +487,6 @@ def unflatten_dict(d, sep=":", prefix=""):
 
         d1[klist[-1]] = vv
     return dd
-
-
-# def update_nested_dict(d, settings, verbose=False, create_new):
-#    """
-#    Updates a nested dict with flattened settings
-#    """
-#    flat_params = flatten_dict(d)
-
-#    for key, value in settings.items():
-#        if verbose:
-#            if key in flat_params:
-#                print(f'Replacing param {key} with value {value}')
-#            else:
-#                print(f'New param {key} with value {value}')
-
-
-#       flat_params[key] = value
-#
-#    new_dict = unflatten_dict(flat_params)
-#
-#    return new_dict
 
 
 def update_nested_dict(d, settings, verbose=False, create_new=True):
@@ -682,136 +564,6 @@ def is_key_in_nested_dict(dd, flatkey, sep=":", prefix="distgen"):
         return True
     except Exception:
         return False
-
-
-'''
-def is_quantity(d):
-
-    """ Checks if a dict can be converted to a quantity with units """
-    if(isinstance(d, dict) and len(d.keys())==2 and "value" in d and "units" in d):
-        return True
-
-    elif(isinstance(d, str)):
-
-        if(is_unit(d)):
-            return False
-
-        try:
-            q = unit_registry(d)
-            if(isinstance(q, unit_registry.Quantity)):
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    else:
-        return False
-'''
-
-"""
-def is_unit(u):
-
-    if(isinstance(u, str)):
-        u = u.replace('1', '2')  # '2 mm' is not a unit, but '1 mm' is, so handle this oddity
-    try:
-        unit_registry.Unit(u)
-        return True
-    except:
-        return False
-"""
-
-"""
-def parse_quantity(q):
-
-    if(is_quantity(q)):
-
-        if(isinstance(q, str)):
-            return unit_registry.Quantity(q)
-        elif(isinstance(q, dict)):
-            return dict_to_quantity(q)
-    else:
-        raise ValueError(f'Could not parse object into a quantity: {q}')
-"""
-
-"""
-def update_quantity_in_dict(k, d, new_val):
-    d[k] = update_quantity(d[k], new_val)
-"""
-
-"""
-def update_quantity(x, new_val):
-
-    print('boot', new_val)
-
-    Q_ = unit_registry.Quantity
-
-    if(is_floatable(new_val) or isinstance(new_val, np.ndarray)):
-        x = Q_(new_val, x.units)
-
-    elif(isinstance(new_val, str)):
-
-        print('woof', new_val)
-        x = Q_(x.magnitude, unit_registry.parse_expression(new_val))
-
-    elif(isinstance(new_val, unit_registry.Quantity)):
-        return new_val
-
-    else:
-        raise ValueError('Unsupported input value for setting quantity!')
-
-    return x
-"""
-
-'''
-def dict_to_quantity(qd):
-
-    """ Converts a dict to quantity with units """
-
-    assert is_quantity(qd), 'Could not convert dictionary to quantity: '+str(qd)
-
-    if(isinstance(qd['value'], float) or is_floatable(qd['value'])):
-        return float(qd['value'])*unit_registry(qd['units'])
-    else:
-        return np.array(qd['value'])*unit_registry(qd['units'])
-'''
-
-"""
-def list_to_dict(ll):
-    assert isinstance(ll, list), 'input to list_to_dict must be a list'
-    return {index:ll[index] for index in range(len(ll))}
-"""
-
-'''
-def convert_list_params(d):
-    """ Converts elements in a list to quantities with units where appropriate """
-    for ii,v in enumerate(d):
-
-        if(is_quantity(v)):
-            d[ii]=parse_quantity(v)
-        elif(isinstance(v,dict)):
-            convert_params(v)
-'''
-
-''' Depricated
-def convert_params(d):
-
-    """ Converts a nested dictionary to quantities with units where appropriate """
-    for k, v in d.items():
-
-        #print(k, v, is_quantity(v))
-
-        if(is_quantity(v)):
-            d[k]=parse_quantity(v)
-        elif isinstance(v, list):
-            convert_list_params(v)
-        elif isinstance(v, dict) or isinstance(v, list):
-            convert_params(v)
-'''
-
-
-def create_archivable_inputs(params):
-    pass
 
 
 """UTC to ISO 8601 with Local TimeZone information without microsecond"""

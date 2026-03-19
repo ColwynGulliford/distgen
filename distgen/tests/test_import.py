@@ -1,4 +1,5 @@
 def test_importable():
     import distgen
 
-    print("Distgen version is:", distgen.__version__)
+    assert hasattr(distgen, "__version__")
+    assert isinstance(distgen.__version__, str)
