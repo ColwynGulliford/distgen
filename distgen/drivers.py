@@ -6,42 +6,6 @@ from distgen.generator import Generator
 
 import copy
 
-
-# def run_distgen(inputs=None,outputfile=None,output_type="gpt",verbose=0):
-
-#    watch = StopWatch()
-#    watch.start()
-#    vprint("**************************************************",verbose>0,0,True)
-#    vprint( "             Dist Generator v 1.0",verbose>0,True,True)
-#    vprint("**************************************************",verbose>0,0,True)
-
-#    if(isinstance(inputs,str)):
-# Read input file
-#        par = Reader(inputs,verbose=verbose)
-#        params = par.read()
-#    elif(isinstance(inputs,dict)):
-#        params = inputs
-#    else:
-#        raise ValueError("Unsupported input parameter: "+str(type(inputs)))
-
-# Make distribution
-#    gen = Generator(verbose)
-#    gen.parse_input(params)
-#    beam = gen.beam()
-
-# Print distribution to file
-#    writer(params["output"]["type"],beam,params["output"]["file"],verbose,params)
-
-# Print beam stats
-#    if(verbose>0):
-#        beam.print_stats()
-
-#    watch.stop()
-#    vprint("\nTotal time ellapsed: "+watch.print()+".",verbose>0,0,True)
-
-#    return beam
-
-
 def run_distgen(settings=None, inputs="distgen.json", verbose=0):
     if settings is None:
         settings = {}
@@ -65,8 +29,6 @@ def run_distgen(settings=None, inputs="distgen.json", verbose=0):
 
     # Make distribution
     gen = Generator(inputs, verbose=verbose)
-
-    # gen._input = update_nested_dict(gen._input, settings, verbose=verbose)
 
     for k, v in settings.items():
         vprint(f"Replacing parameter {k} with value {v}.", verbose > 0, 0, True)
