@@ -4,20 +4,11 @@ nd_gaussian_dist:
     method: cholesky
     centroid:
         x: 0.005 mm
-        y: 0.008 mm
-    #cov_matrix: [[ 1.0e-6, -1.0e-7], 
-    #             [-1.0e-7,  4.0e-6]]  
+        y: 0.008 mm 
         z: 1.0 mm
         px: 10 keV/c
         py: 20 keV/c
         pz: 1 GeV/c
-#    sigmas:
-#        x: 1 mm
-#        y: 2 mm
-#        z: 3 mm
-#        px: 1 keV/c
-#        py: 2 keV/c
-#        pz: 3 MeV/c
     cov_matrix: [[ 1.0e-6, -1.0e-7,    0.0,     0.0,     0.0,      0.0], 
                  [-1.0e-7,  4.0e-6,    0.0,     0.0,     0.0,      0.0], 
                  [    0.0,     0.0, 9.0e-6,     0.0,     0.0,      0.0],

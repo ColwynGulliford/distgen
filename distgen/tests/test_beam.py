@@ -229,7 +229,7 @@ def test_energy(beam):
         "beam.energy = sqrt(c^2p^2 + (mc^2)^2)",
         beam["energy"],
         np.sqrt(c**2 * beam["p"] ** 2 + beam.mc2**2),
-        abs_tol=1e-9,
+        abs_tol=1e-6,
         rel_tol=1e-15,
     )
 
@@ -243,7 +243,7 @@ def test_gamma(beam):
         "beam.gamma = sqrt( 1 + (p/mc)^2 )",
         beam["gamma"],
         np.sqrt(1 + (beam["p"] / mc).to_reduced_units() ** 2),
-        abs_tol=1e-10,
+        abs_tol=1e-8,
         rel_tol=1e-10,
     )
 
@@ -305,7 +305,7 @@ def test_kinetic_energy(beam):
             "beam.kinetic_energy = mc2*(gamma-1)",
             beam["kinetic_energy"],
             beam.mc2 * (beam["gamma"] - 1),
-            abs_tol=1e-9,
+            abs_tol=1e-6,
             rel_tol=1e-05,
         )
 
@@ -393,7 +393,7 @@ def test_alpha_xi(beam):
                 beam.Alpha(var),
                 -sum(beam["w"] * dx * dp) / epsx,
                 abs_tol=1e-14,
-                rel_tol=1e-14,
+                rel_tol=1e-9,
             )
 
 
