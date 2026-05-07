@@ -99,9 +99,12 @@ def get_dist(var, params, verbose=0):
             params [dict] required user parameters for distribution function
             verbose [bool] flag for more or less output to screen
     """
+
     if "type" not in params:
         raise ValueError("No distribution type for " + var + " specified.")
     dtype = params["type"]
+
+
 
     if dtype == "dist1d":
         dist = Dist1d(xstr=var, **params)
@@ -161,6 +164,8 @@ def get_dist(var, params, verbose=0):
         dist = Image2d(var, verbose=verbose, **params)
     elif dtype == "uniform_laser_speckle" and var == "xy":
         dist = UniformLaserSpeckle(verbose=verbose, **params)
+    elif dtype == 'nd_gaussian':
+        dist = GaussianNd(verbose=verbose, **params)
     else:
         raise ValueError(f'Distribution type "{dtype}" is not supported.')
 
@@ -3556,6 +3561,193 @@ class UniformLaserSpeckle(Dist2d):
 
         super().__init__(xs, ys, Pxy, xstr="x", ystr="y")
 
+
+
+
+class GaussianNd(Dist):
+
+    def __init__(self, verbose=0, **kwargs):
+
+        super().__init__()
+
+        self.required_params = ['centroid']
+        self.optional_params = ['method', 'cov_matrix', 'sigmas']  
+        self.check_inputs(kwargs)
+
+        self._units = {'x': 'm', 'y': 'm', 'z': 'm', 'px': 'eV/c', 'py': 'eV/c', 'pz': 'eV/c'}
+
+        centroid = kwargs['centroid']
+
+        vprint("N-dimensional Gaussian distribution", verbose > 0, 1, True)
+
+        cov_matrix = kwargs.get('cov_matrix', None)
+        sigmas = kwargs.get('sigmas', None)
+
+        if cov_matrix is None and sigmas is None:
+            self._cov_matrix = np.eye(len(centroid))
+        elif cov_matrix is not None and sigmas is None:
+            self._cov_matrix = np.array(cov_matrix)
+        elif cov_matrix is None and sigmas is not None:
+
+            # Re-order dict_second based on dict_first
+            ordered_sigmas = {key: sigmas[key].to(self._units[key]).magnitude for key in centroid.keys()}
+            sigma_vals = np.array(list(ordered_sigmas.values()))
+            self._cov_matrix = np.diag(sigma_vals**2)
+
+        else:
+            #cov_matrix is not None and sigmas is not None:
+            raise ValueError("Error: cannot specify both cov_matrix and sigmas for GaussianNd distribution.")
+
+        self._centroid = centroid
+
+        vprint("centroid, sigmas: ", verbose > 0, 2, True)
+        for k,v in centroid.items():
+            vprint(f"avg_{k} = {v.to(self._units[k]):G~P}, sigma_{k} = {self.sigmas[k].to(self._units[k]):G~P}", verbose > 0, 3, True)
+
+        vprint(f"covariance matrix:", verbose > 0, 2, True)
+
+        for ii, k in enumerate(centroid.keys()):
+            row_str = ", ".join([f"{self._cov_matrix[ii,jj]:.3g}" for jj in range(self._cov_matrix.shape[1])])
+            vprint(row_str, verbose > 0, 3, True)   
+
+        
+        self._method = kwargs.get('method', 'cholesky')
+
+        # Uncorrelated 1d Gaussians for each variable
+        self._unit_gaussian_dists = {} 
+
+        for k, v in centroid.items():
+            if k not in self._units.keys():
+                raise ValueError(f"Error: unknown variable {k} in centroid for GaussianNd distribution.")
+            else:
+                centroid[k] = centroid[k].to(self._units[k])
+
+            self._unit_gaussian_dists[k] = Norm(k, verbose=0, **{f'sigma_{k}': 1.0 * unit_registry(self._units[k])})
+
+    def cdfinv(self, pn):
+
+        keys = list(self._unit_gaussian_dists.keys())
+        n = len(keys)
+
+        # Get the uncorrelated standard normal samples corresponding to the input probabilities
+        zn = {k: self._unit_gaussian_dists[k].cdfinv(pn[k]) for k in keys}
+        for k in keys:
+            zn[k] = (zn[k] - zn[k].mean()) / zn[k].std()
+
+        N_particles = len(zn[keys[0]].magnitude)
+
+        zn_vector = np.array([zn[k].magnitude for k in keys])
+
+        # Global whitening: remove ALL spurious sample correlations (including inter-block)
+        sample_cov = np.cov(zn_vector, ddof=0)
+        L_sample = np.linalg.cholesky(sample_cov)
+        zn_vector = np.linalg.solve(L_sample, zn_vector)
+
+        # Identify correlated blocks and apply block-diagonal transform
+        blocks = self._find_correlated_blocks()
+
+        z_out = np.zeros((n, N_particles))
+
+        for block_indices in blocks:
+            nb = len(block_indices)
+
+            if nb == 1:
+                # Scalar case: just scale by sigma
+                i = block_indices[0]
+                sigma_i = np.sqrt(self._cov_matrix[i, i])
+                z_out[i, :] = sigma_i * zn_vector[i, :]
+            else:
+                # Block case: extract sub-covariance and transform
+                sub_cov = self._cov_matrix[np.ix_(block_indices, block_indices)]
+                A_block = generate_Nd_gaussian_transform(sub_cov, method=self._method)
+
+                zn_block = zn_vector[block_indices, :]
+                z_block = A_block @ zn_block
+                for j, i in enumerate(block_indices):
+                    z_out[i, :] = z_block[j, :]
+
+        z = {k: self._centroid[k] + z_out[ii, :] * unit_registry(self._units[k]) for ii, k in enumerate(keys)}
+
+        return z
+
+    def _find_correlated_blocks(self):
+        """Find groups of indices that are coupled via non-zero off-diagonal covariance entries."""
+        n = self._cov_matrix.shape[0]
+        visited = [False] * n
+        blocks = []
+
+        for i in range(n):
+            if visited[i]:
+                continue
+            # BFS/DFS to find all indices connected to i
+            block = []
+            stack = [i]
+            while stack:
+                idx = stack.pop()
+                if visited[idx]:
+                    continue
+                visited[idx] = True
+                block.append(idx)
+                for j in range(n):
+                    if not visited[j] and i != j and self._cov_matrix[idx, j] != 0:
+                        stack.append(j)
+            block.sort()
+            blocks.append(block)
+
+        return blocks
+
+
+    @property
+    def cov_matrix(self):
+        return self._cov_matrix
+    
+    @property
+    def sigmas(self):
+
+        raw_sigmas = np.sqrt(np.diag(self._cov_matrix))
+        sigmas = {k: raw_sigmas[ii] * unit_registry(self._units[k]) for ii, k in enumerate(self._centroid.keys())}
+
+        return sigmas
+
+
+
+def generate_Nd_gaussian_transform(cov_matrix, method='cholesky'):
+    
+    sigma = np.array(cov_matrix)
+
+    # --- Input Validation ---
+    if not np.allclose(sigma, sigma.T, atol=1e-12):
+        raise ValueError("Matrix must be symmetric.")
+
+    # --- Decompositions ---
+    if method.lower() == 'cholesky':
+        transform = np.linalg.cholesky(sigma)
+        
+    elif method.lower() == 'eigen':
+        vals, vecs = np.linalg.eigh(sigma)
+        vals = np.maximum(vals, 0)
+        transform = vecs @ np.diag(np.sqrt(vals))
+        
+    elif method.lower() == 'svd':
+        # Sigma = U @ S @ Vh
+        u, s, vh = np.linalg.svd(sigma)
+        # SVD is robust; we still clip tiny negatives just in case
+        s = np.maximum(s, 0)
+        # For covariance matrices, U is the same as V. 
+        # Transformation matrix A = U @ sqrt(S)
+        transform = u @ np.diag(np.sqrt(s))
+        
+    else:
+        raise ValueError("Method must be 'cholesky', 'eigen', or 'svd'")
+    
+    return transform
+
+    # --- Sampling ---
+    #z = np.random.standard_normal((N, n_particles))
+
+    
+
+    #return (transform @ z).T + mu
 
 # ----------------------------------------------------------------------------
 #   This allows the main function to be at the beginning of the file

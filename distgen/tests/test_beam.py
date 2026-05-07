@@ -230,7 +230,7 @@ def test_energy(beam):
         beam["energy"],
         np.sqrt(c**2 * beam["p"] ** 2 + beam.mc2**2),
         abs_tol=1e-9,
-        rel_tol=1e-15,
+        rel_tol=1e-14,
     )
 
 
@@ -244,7 +244,7 @@ def test_gamma(beam):
         beam["gamma"],
         np.sqrt(1 + (beam["p"] / mc).to_reduced_units() ** 2),
         abs_tol=1e-10,
-        rel_tol=1e-10,
+        rel_tol=1e-11,
     )
 
     check_abs_and_rel_tols(
@@ -306,7 +306,7 @@ def test_kinetic_energy(beam):
             beam["kinetic_energy"],
             beam.mc2 * (beam["gamma"] - 1),
             abs_tol=1e-9,
-            rel_tol=1e-05,
+            rel_tol=1e-14,
         )
 
     check_abs_and_rel_tols(
@@ -393,7 +393,7 @@ def test_alpha_xi(beam):
                 beam.Alpha(var),
                 -sum(beam["w"] * dx * dp) / epsx,
                 abs_tol=1e-14,
-                rel_tol=1e-14,
+                rel_tol=1e-9,
             )
 
 

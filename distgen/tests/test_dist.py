@@ -543,6 +543,65 @@ def test_radial_file_distribution():
     rfd.test_sampling()
 
 
+def test_gaussian_nd():
+    """Test that GaussianNd reproduces the input covariance matrix to machine precision."""
+    from distgen.dist import GaussianNd, random_generator
+
+    # 6D covariance with x-y correlation, all others uncorrelated
+    cov_matrix = [
+        [1.0e-6, -1.0e-7, 0.0, 0.0, 0.0, 0.0],
+        [-1.0e-7, 4.0e-6, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 9.0e-6, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0e6, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 4.0e6, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 25.0e6],
+    ]
+
+    centroid = {
+        'x': 0.0 * unit_registry('m'),
+        'y': 0.0 * unit_registry('m'),
+        'z': 0.0 * unit_registry('m'),
+        'px': 0.0 * unit_registry('eV/c'),
+        'py': 0.0 * unit_registry('eV/c'),
+        'pz': 0.0 * unit_registry('eV/c'),
+    }
+
+    N = 100_000
+    coords = list(centroid.keys())
+    n_dim = len(coords)
+
+    for method in ['cholesky', 'eigen', 'svd']:
+        gNd = GaussianNd(centroid=centroid, cov_matrix=cov_matrix, method=method)
+
+        # Generate quasi-random samples
+        rns = random_generator((n_dim, N), 'hammersley')
+        pn = {k: rns[i, :] * unit_registry('') for i, k in enumerate(coords)}
+
+        samples = gNd.cdfinv(pn)
+        data = np.array([samples[k].magnitude for k in coords])
+
+        # Compute sample covariance with ddof=0 (matching the whitening convention)
+        cov_out = np.cov(data, ddof=0)
+        cov_in = np.array(cov_matrix)
+
+        # Diagonal (variances): should match to machine precision
+        rel_err_diag = np.abs(np.diag(cov_out) - np.diag(cov_in)) / np.diag(cov_in)
+        assert np.max(rel_err_diag) < 1e-12, (
+            f"method={method}: max diagonal rel error = {np.max(rel_err_diag):.2e}"
+        )
+
+        # Off-diagonal: normalize to correlation and check
+        stds = np.sqrt(np.diag(cov_in))
+        corr_out = cov_out / np.outer(stds, stds)
+        corr_in = cov_in / np.outer(stds, stds)
+        corr_residual = corr_out - corr_in
+        np.fill_diagonal(corr_residual, 0)
+
+        assert np.max(np.abs(corr_residual)) < 1e-12, (
+            f"method={method}: max correlation residual = {np.max(np.abs(corr_residual)):.2e}"
+        )
+
+
 # Angular Distributions (TODO)
 # ---
 # Angular distributions define one dimensional probability functions for the cylindrical variable $\theta$.
