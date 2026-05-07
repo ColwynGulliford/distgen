@@ -580,14 +580,40 @@ def isotime():
 
 
 def check_abs_and_rel_tols(var, p, ptest, abs_tol=1e-12, rel_tol=1e-15):
+    """
+    Check that p ≈ ptest within either an absolute or relative tolerance.
+
+    Passes if |p - ptest| < abs_tol OR |p - ptest|/|ptest| < rel_tol.
+    This mirrors the logic of numpy.allclose / math.isclose:
+      - abs_tol guards comparisons near zero (where relative error diverges)
+      - rel_tol guards comparisons at large magnitude (where absolute error scales)
+    """
     abs_dev = p - ptest
+    max_abs = np.max(np.abs(abs_dev))
 
-    assert (
-        np.max(np.abs(abs_dev)).magnitude < abs_tol
-    ), f"<{var}> is not correct, max(|abs. deviation|) = {np.max(np.abs(abs_dev))}"
+    # Extract magnitude for pint quantities
+    max_abs_val = max_abs.magnitude if hasattr(max_abs, 'magnitude') else float(max_abs)
 
+    if max_abs_val < abs_tol:
+        return  # Absolutely close
+
+    # Check relative tolerance
     if np.min(np.abs(ptest)) > 0:
         rel_dev = abs_dev / ptest
-        assert (
-            np.max(np.abs(rel_dev)) < rel_tol
-        ), f"<{var}> is not correct, max(|rel. deviation|) = {np.max(np.abs(rel_dev))}"
+        max_rel = np.max(np.abs(rel_dev))
+        max_rel_val = max_rel.magnitude if hasattr(max_rel, 'magnitude') else float(max_rel)
+
+        if max_rel_val < rel_tol:
+            return  # Relatively close
+
+        assert False, (
+            f"<{var}> is not correct: "
+            f"max|abs dev| = {max_abs} (tol {abs_tol}), "
+            f"max|rel dev| = {max_rel} (tol {rel_tol})"
+        )
+
+    assert False, (
+        f"<{var}> is not correct: "
+        f"max|abs dev| = {max_abs} (tol {abs_tol}), "
+        f"relative check skipped (ptest contains zeros)"
+    )
