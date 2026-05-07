@@ -65,12 +65,11 @@ plugins:
         default_handler: python
         handlers:
           python:
-            selection:
+            options:
               docstring_style: "numpy"
               inherited_members: false
               filters:
                 - "!^_"  # exclude all members starting with _
                 - "^__init__$"  # but always include __init__ modules and methods
-            rendering:
               show_source: true
               show_root_heading: true
