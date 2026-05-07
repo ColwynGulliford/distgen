@@ -1,0 +1,55 @@
+n_particle: 200000
+nd_gaussian_dist:
+  centroid:
+    px: 10 keV/c
+    py: 20 keV/c
+    pz: 1 GeV/c
+    x: 0.005 mm
+    y: 0.008 mm
+    z: 1.0 mm
+  cov_matrix:
+  - - 1.0e-06
+    - -1.0e-07
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+  - - -1.0e-07
+    - 4.0e-06
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+    - 9.0e-06
+    - 0.0
+    - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+    - 0.0
+    - 1000000.0
+    - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 4000000.0
+    - 0.0
+  - - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 25000000.0
+  method: cholesky
+random:
+  type: hammersley
+species: electron
+spin_polarization: 0.35
+start:
+  tstart: 0 sec
+  type: time
+total_charge: 10 pC
