@@ -3604,9 +3604,10 @@ class GaussianNd(Dist):
         for k,v in centroid.items():
             vprint(f"avg_{k} = {v.to(self._units[k]):G~P}, sigma_{k} = {self.sigmas[k].to(self._units[k]):G~P}", verbose > 0, 3, True)
 
-        vprint(f"covariance matrix:", verbose > 0, 2, True)
+        var_order = list(centroid.keys())
+        vprint(f"covariance matrix (variable order: {', '.join(var_order)}):", verbose > 0, 2, True)
 
-        for ii, k in enumerate(centroid.keys()):
+        for ii, k in enumerate(var_order):
             row_str = ", ".join([f"{self._cov_matrix[ii,jj]:.3g}" for jj in range(self._cov_matrix.shape[1])])
             vprint(row_str, verbose > 0, 3, True)   
 
