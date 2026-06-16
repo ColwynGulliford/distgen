@@ -1,4 +1,3 @@
-from pprint import pprint
 import warnings
 
 import numpy as np
@@ -109,7 +108,9 @@ class Generator(Base):
                 # Try raw string
                 input = yaml.safe_load(input)
                 if not isinstance(input, dict):
-                    raise ValueError(f"ERROR: parsing unsuccessful, could not read {input}")
+                    raise ValueError(
+                        f"ERROR: parsing unsuccessful, could not read {input}"
+                    )
                 expand_input_filepaths(input)
 
         else:
@@ -210,8 +211,8 @@ class Generator(Base):
             "output",
             "transforms",
             "start",
-            #"random_seed",
-            #"random_type",
+            # "random_seed",
+            # "random_type",
             "random",
             "spin_polarization",
             "spin_orientation",
@@ -220,9 +221,7 @@ class Generator(Base):
 
         for p in params:
             if p not in allowed_params and not p.endswith("_dist"):
-                raise ValueError(
-                    "Unexpected distgen input parameter: " + p
-                )
+                raise ValueError("Unexpected distgen input parameter: " + p)
 
         if params["n_particle"] <= 0:
             raise ValueError("User must specify n_particle > 0.")
@@ -239,36 +238,49 @@ class Generator(Base):
             )
 
         if "nd_gaussian_dist" in params:
-
             # Get the variables specified in the distribution via the required centroid:
             allowed_nd_gaussian_dist_vars = ["x", "y", "z", "px", "py", "pz"]
 
             if "centroid" not in params["nd_gaussian_dist"]:
-                raise ValueError("nd_gaussian_dist must include a 'centroid' field specifying the variables included in the distribution.")
+                raise ValueError(
+                    "nd_gaussian_dist must include a 'centroid' field specifying the variables included in the distribution."
+                )
 
-            nd_gaussian_dist_vars = [p for p in params['nd_gaussian_dist']['centroid'].keys()]
-            #print(nd_gaussian_dist_vars)
+            nd_gaussian_dist_vars = [
+                p for p in params["nd_gaussian_dist"]["centroid"].keys()
+            ]
+            # print(nd_gaussian_dist_vars)
 
             for var in nd_gaussian_dist_vars:
                 if var not in allowed_nd_gaussian_dist_vars:
-                    raise ValueError(f"Invalid variable specified in nd_gaussian_dist: {var}")
-                
+                    raise ValueError(
+                        f"Invalid variable specified in nd_gaussian_dist: {var}"
+                    )
+
             if len(nd_gaussian_dist_vars) == 0:
                 raise ValueError("No valid variables specified in nd_gaussian_dist.")
-            
+
             if len(nd_gaussian_dist_vars) > 6:
                 raise ValueError("Too many variables specified in nd_gaussian_dist.")
 
-            other_dist_vars = [p.replace("_dist", "") for p in params if p.endswith("_dist") and p != 'nd_gaussian_dist']
+            other_dist_vars = [
+                p.replace("_dist", "")
+                for p in params
+                if p.endswith("_dist") and p != "nd_gaussian_dist"
+            ]
 
             for other_var in other_dist_vars:
                 if other_var in nd_gaussian_dist_vars:
-                    raise ValueError(f"Variable {other_var} specified in both nd_gaussian_dist and as separate distribution.")
-                
-            if params['start']['type'] == 'cathode':
+                    raise ValueError(
+                        f"Variable {other_var} specified in both nd_gaussian_dist and as separate distribution."
+                    )
+
+            if params["start"]["type"] == "cathode":
                 for var in nd_gaussian_dist_vars:
-                    if var in ['px', 'py', 'pz']:
-                        raise ValueError(f"Momentum variable {var} cannot be specified in nd_gaussian_dist for cathode start.")
+                    if var in ["px", "py", "pz"]:
+                        raise ValueError(
+                            f"Momentum variable {var} cannot be specified in nd_gaussian_dist for cathode start."
+                        )
 
         # Check consistency of transverse coordinate definitions
         if ("r_dist" in params) and ("x_dist" in params or "xy_dist" in params):
@@ -332,9 +344,7 @@ class Generator(Base):
 
         if "spin_polarization" in params:
             if params["species"] != "electron":
-                raise ValueError(
-                    "Polarization currently may only be set for electrons"
-                )
+                raise ValueError("Polarization currently may only be set for electrons")
 
     @property
     def fix_avg_and_stds(self):
@@ -372,7 +382,8 @@ class Generator(Base):
 
             vprint(f"Reading Distgen archive file {h5}", self.verbose > 0, 1, False)
 
-        # self.input = archive.read_input_h5(g['input'])
+        if "input" in g:
+            self.parse_input(archive.read_input_h5(g["input"]))
 
         if "particles" in g:
             self.particles = ParticleGroup(g["particles"])
@@ -404,11 +415,11 @@ class Generator(Base):
         archive.distgen_init(g)
 
         # Input
-        # archive.write_input_h5(g, self.input, name='input')
+        archive.write_input_h5(g, self.input, name="input")
 
         # Particles
         if self.particles:
-            self.particles.write(g, name="particles")
+            self.particles.write(g.create_group("particles"))
         return h5
 
     def get_dist_params(self, params):
@@ -464,7 +475,7 @@ class Generator(Base):
                 1,
                 True,
             )
-      
+
         if params["start"]["type"] == "time" and "t_dist" in params:
             raise ValueError("Error: t_dist should not be set for time start")
 
@@ -535,9 +546,7 @@ class Generator(Base):
         for ii, vii in enumerate(var_list[:-1]):
             viip1 = var_list[ii + 1]
             if (
-                np.array_equal(
-                    self.rands[vii].magnitude, self.rands[viip1].magnitude
-                )
+                np.array_equal(self.rands[vii].magnitude, self.rands[viip1].magnitude)
                 and n_particle != 1
             ):
                 raise ValueError(
@@ -652,18 +661,20 @@ class Generator(Base):
         )  # Get the relevant dist params, setting defaults as needed, and samples random number generator
 
         rand_variables = list(
-                dist_params.keys()
+            dist_params.keys()
         )  # All variables with distributions specified
 
         if "spin_polarization" in params:
             rand_variables = rand_variables + ["sz"]
 
-        if 'nd_gaussian' in rand_variables:
-            nd_gaussian_dist_vars = [p for p in dist_params["nd_gaussian"]['centroid'].keys()]
+        if "nd_gaussian" in rand_variables:
+            nd_gaussian_dist_vars = [
+                p for p in dist_params["nd_gaussian"]["centroid"].keys()
+            ]
             rand_variables = rand_variables + [v for v in nd_gaussian_dist_vars]
-            rand_variables.remove('nd_gaussian')
+            rand_variables.remove("nd_gaussian")
 
-        #print(rand_variables)
+        # print(rand_variables)
 
         self.get_rands(rand_variables)
 
@@ -881,27 +892,26 @@ class Generator(Base):
                 bdist["sy"] = Sp[1, :] * (hbar / 2)
                 bdist["sz"] = Sp[2, :] * (hbar / 2)
 
-        if 'nd_gaussian' in dist_params:
-
-            nd_params = dist_params['nd_gaussian']
-            nd_params['type'] = 'nd_gaussian'
-            vars = list( dist_params['nd_gaussian']['centroid'].keys() )
+        if "nd_gaussian" in dist_params:
+            nd_params = dist_params["nd_gaussian"]
+            nd_params["type"] = "nd_gaussian"
+            vars = list(dist_params["nd_gaussian"]["centroid"].keys())
 
             dist = get_dist(vars, nd_params, verbose=verbose)
-            nd_rands = {k:self.rands[k] for k in nd_params['centroid'].keys()}
+            nd_rands = {k: self.rands[k] for k in nd_params["centroid"].keys()}
 
             samples = dist.cdfinv(nd_rands)
 
-            for var in nd_params['centroid'].keys():
+            for var in nd_params["centroid"].keys():
                 bdist[var] = samples[var]
 
             dist_params.pop("nd_gaussian", None)
 
-            for k, v in nd_params['centroid'].items():
+            for k, v in nd_params["centroid"].items():
                 avgs.pop(k, None)
                 stds.pop(k, None)
 
-            #for k, v in dist.sigmas.items():
+            # for k, v in dist.sigmas.items():
             #    stds[k] = v
 
         # Do all other specified single coordinate dists
@@ -920,7 +930,6 @@ class Generator(Base):
                     avgs[x] = dist.avg()
 
                 stds[x] = dist.std()
-
 
             else:  # Someone may set sigma = 0 but have a non-zero avg
                 if "avg_" + x in dist_params[x]:
