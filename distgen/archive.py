@@ -65,6 +65,9 @@ def write_input_h5(h5, distgen_input, name="input"):
     g = h5.create_group(name)
     d = flatten_dict(distgen_input)
     for k, v in d.items():
+        if v is None:
+            # h5py cannot store None (object dtype); absent == None on read
+            continue
         g.attrs[k] = v
 
 
