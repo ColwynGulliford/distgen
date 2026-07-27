@@ -487,7 +487,8 @@ class Generator(Base):
 
         params = self._input
 
-        specials = ["xy"]
+        specials = ["xy", "p_polar_angle",  "spin_polarization"]
+        
         self.rands = {var: None for var in variables if var not in specials}
 
         if "xy" in variables:
@@ -497,11 +498,11 @@ class Generator(Base):
         elif "r" in variables and "theta" not in variables:
             self.rands["theta"] = None
 
-        elif "p_polar_angle" in variables:
+        if "p_polar_angle" in variables:
             self.rands["p"] = None
             self.rands["polar_angle"] = None
 
-        elif "spin_polarization" in variables:
+        if "spin_polarization" in variables:
             self.rands["sz"] = None
             # self.rands['spin_azimuthal_angle']=None
 
@@ -510,7 +511,7 @@ class Generator(Base):
         shape = (n_coordinate, n_particle)
 
         random = {}
-
+        
         if n_coordinate > 0:
             if "random" in params:
                 random = params["random"]
